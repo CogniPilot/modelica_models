@@ -1,3 +1,2 @@
 within CogniPilot.Vehicles.RDD2.Components;
-
-connector OutFrame = output Frame;
+connector OutFrame=output Frame;
