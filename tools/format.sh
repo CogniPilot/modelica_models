@@ -1,2 +1,2 @@
 #!/bin/bash
-modelica-fmt -w CogniPilot
+modelica-fmt -extra-padding -w CogniPilot
