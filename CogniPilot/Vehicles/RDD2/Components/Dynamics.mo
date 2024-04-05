@@ -69,7 +69,7 @@ model Dynamics
   Real w_ib_b[3]
     "angular velocity of body wrt inertial frame expressed in body frame";
 
-  Lie.SO3.Mrp.Kinematics mrp(
+  Lie.SO3.Mrp.Group.Kinematics kinematics(
     a0=Lie.SO3.Mrp.Element(
       r={0,0,0}),
     omega=w_ib_b);
@@ -106,8 +106,7 @@ model Dynamics
 
 equation
   // bottleneck for speed
-  C_ib=Lie.SO3.Mrp.to_matrix(
-    mrp.a);
+  C_ib=kinematics.a.to_matrix();
 
   // bus connections
   connect(bus.actuators,sub_actuators);
