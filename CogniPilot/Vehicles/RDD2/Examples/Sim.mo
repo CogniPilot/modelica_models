@@ -1,6 +1,6 @@
 within CogniPilot.Vehicles.RDD2.Examples;
 model Sim
-  import CogniPilot.RDD2;
+  import CogniPilot.Vehicles.RDD2;
 
   inner RDD2.Components.World world;
 
