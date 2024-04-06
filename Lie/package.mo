@@ -1,5 +1,6 @@
 package Lie
-
-  type TangentSpace = enumeration(Left "Left", Right "Right");
+  type TangentSpace=enumeration(Left
+    "Left",Right
+    "Right");
 
 end Lie;
