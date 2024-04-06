@@ -1,10 +1,12 @@
 within Lie.SO3;
 operator record Algebra
+  "The Lie Algebra for SO3, se3"
   extends Lie.Algebra;
 
   Real r[3];
 
   encapsulated operator '+'
+    "Add two Lie Algebra elements"
     import Lie.SO3.Algebra;
 
     function add
@@ -25,6 +27,7 @@ operator record Algebra
   end '+';
 
   function leftJac
+    "The left Jacobian relating the derivative of the Lie algebra to the vector field on the left tangent space (right invariant)."
     input Algebra phi;
 
     output Real[3,3] res;
@@ -62,6 +65,7 @@ operator record Algebra
   end leftJac;
 
   function leftJacInv
+    "The inverse of the left Jacobian."
     input Algebra phi;
 
     output Real[3,3] res;
@@ -94,6 +98,7 @@ operator record Algebra
   end leftJacInv;
 
   function rightJac
+    "The right Jacobian relating the derivative of the Lie algebra to the vector field on the right tangent space (left invariant)."
     input Algebra phi;
 
     output Real[3,3] res;
@@ -132,6 +137,7 @@ operator record Algebra
   end rightJac;
 
   function rightJacInv
+    "The inverse of the right Jacobian."
     input Algebra phi;
 
     output Real[3,3] res;
@@ -164,6 +170,7 @@ operator record Algebra
   end rightJacInv;
 
   function expDcm
+    "Exponential map from Lie Algebra se3 to Dcm representation of SO3."
     import Lie.SO3.Dcm;
 
     input Algebra phi;
