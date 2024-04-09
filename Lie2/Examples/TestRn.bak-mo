@@ -1,0 +1,15 @@
+within Lie2.Examples;
+
+model TestRn
+  import Lie2.R1;
+  
+  R1.GroupElement g1(r={1}), g2(r={2});
+  R1.GroupElement g3, g4, g5;
+  R1.AlgebraElement a1(r={1}), a2(r={2}), a3;
+
+equation
+  g3 = g1 * g2;
+  g4 = g1.inverse() * g2;
+  a3 = a1 + a2;
+  g5 = a1.exp();
+end TestRn;

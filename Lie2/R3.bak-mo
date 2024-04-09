@@ -1,0 +1,46 @@
+within Lie2;
+
+package R3
+
+  type Group = Rn.Group(redeclare final Integer n_param = 3);
+  type Algebra = Rn.Algebra(redeclare final Integer n_param = 3);
+
+  operator record GroupElement
+    Real r[Rn.Group.n_param];
+    // 'constructor', '+', '-', '*', '/', '^', '==', '<>', '>', '<', '>=', '<=', 'and', 'or', 'not', 'String', '0'
+  
+    encapsulated operator '*'
+      import Lie2.R3.Group;
+      function product = Group.product;
+    end '*';
+  
+    function inverse = Group.inverse(a = GroupElement(r = r));
+    function log = Group.log(a = GroupElement(r = r));
+  end GroupElement;
+
+  operator record GroupElement
+    Real r[Rn.Group.n_param];
+    // 'constructor', '+', '-', '*', '/', '^', '==', '<>', '>', '<', '>=', '<=', 'and', 'or', 'not', 'String', '0'
+  
+    encapsulated operator '*'
+      import Lie2.R3.Group;
+      function product = Group.product;
+    end '*';
+  
+    function inverse = Group.inverse(a = GroupElement(r = r));
+    function log = Group.log(a = GroupElement(r = r));
+  end GroupElement;
+
+  operator record AlgebraElement
+    Real r[Rn.Group.n_param];
+    // 'constructor', '+', '-', '*', '/', '^', '==', '<>', '>', '<', '>=', '<=', 'and', 'or', 'not', 'String', '0'
+  
+    encapsulated operator '+'
+      import Lie2.R3.Algebra;
+      function product = Algebra.add;
+    end '+';
+  
+    function exp = Algebra.exp(a = AlgebraElement(r = r));
+  end AlgebraElement;
+
+end R3;
