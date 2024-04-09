@@ -1,4 +1,4 @@
-within Lie2.Rn;
+within Lie2.OperatorRecords;
 
 operator record OpAlgebraElement
   Real r[Rn.Group.n_param];

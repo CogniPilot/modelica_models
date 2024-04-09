@@ -1,5 +1,6 @@
-within Lie2;
-  operator record OpGroupElement
+within Lie2.OperatorRecords;  
+
+encapsulated operator record OpGroupElement
     Real r[Rn.Group.n_param];
   
     encapsulated operator '*'
@@ -12,7 +13,5 @@ within Lie2;
     Real r[Rn.Group.n_param];
     Real r[Rn.Group.n_param];
     Real r[Rn.Group.n_param];
-  end OpGroupElement;
+end OpGroupElement;
 
-package OperatorRecords
-end OperatorRecords;
