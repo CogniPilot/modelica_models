@@ -14,14 +14,14 @@ model Algebra
   function add
     extends BaseType.add;
   algorithm
-    res := Element(a.r + b.r);
+    res := Element(a + b);
     annotation(Inline = true);
   end add;
   
   function exp
     extends BaseType.exp;
   algorithm
-    res := Group.Element(a.r);
+    res := a;
     annotation(Inline = true);
   end exp;
   

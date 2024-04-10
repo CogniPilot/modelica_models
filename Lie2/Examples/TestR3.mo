@@ -3,9 +3,12 @@ within Lie2.Examples;
 model TestR3
   import Lie2.R3;
   
-  R3.Group.Element g1(r={1, 2, 3}), g2(r={4, 5, 6});
+  R3.Group.Element g1 = {1, 2, 3};
+  R3.Group.Element g2 = {4, 5, 6};
   R3.Group.Element g3, g4, g5;
-  R3.Algebra.Element a1(r={1, 2, 3}), a2(r={4, 5, 6}), a3;
+  R3.Algebra.Element a1 ={1, 2, 3};
+  R3.Algebra.Element a2 ={4, 5, 6};
+  R3.Algebra.Element a3;
 
 equation
   g3 = R3.Group.product(g1, g2);

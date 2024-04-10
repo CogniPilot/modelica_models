@@ -4,8 +4,8 @@ package SO3Op
 
   type AlgebraOpFuncs = Op.Base.AlgebraOpFuncs(
     redeclare operator record OpType = AlgebraOp,
-    redeclare type ElementType = SO3.Algebra.Element,
-    redeclare type AlgebraType = SO3.Algebra,
+    redeclare record ElementType = SO3.Algebra.Element,
+    redeclare model AlgebraType = SO3.Algebra,
     redeclare type ParamType = Real[3]
   );
 
@@ -32,8 +32,8 @@ package SO3Op
     
     type GroupOpFuncs = Op.Base.GroupOpFuncs(
       redeclare operator record OpType = GroupOp,
-      redeclare type ElementType = SO3.Dcm.Group.Element,
-      redeclare type GroupType = SO3.Dcm.Group,
+      redeclare record ElementType = SO3.Dcm.Group.Element,
+      redeclare model GroupType = SO3.Dcm.Group,
       redeclare type ParamType = Real[3, 3]
     );
   

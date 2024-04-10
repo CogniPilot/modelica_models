@@ -9,7 +9,7 @@ package Dcm
     end Element;
       
     type BaseType = Base.Group(
-      redeclare type ElementType = Group.Element,
+      redeclare type Element = Group.Element,
       redeclare type AlgebraElement = Algebra.Element);
     
     extends BaseType;

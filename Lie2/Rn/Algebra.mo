@@ -1,27 +1,24 @@
 within Lie2.Rn;
 
 model Algebra
-    
-  record Element
-    Real r[n];
-  end Element;
-    
+  
+  type Element = Real[n];
+
   type BaseType = Base.Algebra(
-    redeclare type ElementType = Element,
-    redeclare type GroupElement = Group.Element);
+    redeclare type Element = Element);
   extends BaseType;
 
   function add
     extends BaseType.add;
   algorithm
-    res := Element(a.r + b.r);
+    res := a + b;
     annotation(Inline = true);
   end add;
   
   function exp
-    extends BaseType.exp;
+    extends BaseType.exp(redeclare type GroupElement=Group.Element);
   algorithm
-    res := Group.Element(a.r);
+    res := a;
     annotation(Inline = true);
   end exp;
   
