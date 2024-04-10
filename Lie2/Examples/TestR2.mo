@@ -9,7 +9,7 @@ model TestR2
 
 equation
   g3 = R2.Group.product(g1, g2);
-  g4 = R2.Group.product(R2.Group.inverse(g1),  g2);
+  g4 = R2.Group.product(R2.Group.inv(g1),  g2);
   a3 = R2.Algebra.add(a1, a2);
   g5 = R2.Algebra.exp(a1);
 end TestR2;

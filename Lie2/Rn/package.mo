@@ -1,6 +1,6 @@
 within Lie2;
 
-encapsulated package Rn
+package Rn
 
 constant Integer n = 1;
 

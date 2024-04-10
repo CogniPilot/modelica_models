@@ -5,31 +5,32 @@ model Group
   record Element
     Real r[n];
   end Element;
-  
-  import Lie2;
-  
-  type Base = Lie2.Base.Group(
+    
+  type BaseType = Base.Group(
     redeclare type ElementType = Group.Element,
     redeclare type AlgebraElement = Algebra.Element);
   
-  extends Base;
+  extends BaseType;
    
   function product
-    extends Base.product;
+    extends BaseType.product;
   algorithm
     res := Element(a.r + b.r);
+    annotation(Inline = true);
   end product;
   
-  function inverse
-    extends Base.inverse;
+  function inv
+    extends BaseType.inv;
   algorithm
     res := Element(-a.r);
-  end inverse;
+    annotation(Inline = true);
+  end inv;
 
   function log
-    extends Base.log;
+    extends BaseType.log;
   algorithm
     res := Element(-a.r);
+    annotation(Inline = true);
   end log;
 
 end Group;

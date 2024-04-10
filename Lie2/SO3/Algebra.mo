@@ -1,9 +1,9 @@
-within Lie2.Rn;
+within Lie2.SO3;
 
 model Algebra
     
   record Element
-    Real r[n];
+    Real r[3];
   end Element;
     
   type BaseType = Base.Algebra(

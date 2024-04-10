@@ -1,0 +1,9 @@
+within Lie.Examples;
+
+model TestRn
+
+  Lie.R3.Algebra a(r={1, 2, 3});
+  Lie.R3.Group g = Lie.R3.Algebra.exp(a);
+  Lie.R3.Algebra b(r={1, 2, 3});
+
+end TestRn;
