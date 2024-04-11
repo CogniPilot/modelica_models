@@ -1,4 +1,4 @@
-within Lie2.Examples;
+within Lie2.Test;
 
 model TestBase
   import Lie2;

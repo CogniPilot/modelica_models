@@ -1,8 +1,7 @@
-within Lie2.Examples;
+within Lie2.Test;
 
 model TestR3
   import Lie2.R3;
-  
   R3.Group.Element g1 = {1, 2, 3};
   R3.Group.Element g2 = {4, 5, 6};
   R3.Group.Element g3, g4, g5;

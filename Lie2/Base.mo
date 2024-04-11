@@ -14,7 +14,7 @@ package Base
   
     function subtract
       input Element a, b;
-      output Element res;
+      output Element res = a - b;
       annotation(Inline = true);
     end subtract;
   
@@ -24,12 +24,12 @@ package Base
       annotation(Inline = true);
     end bracket;
   
-    function scalar_multiply
+    function scalarMultiply
       input Real a;
       input Element b;
       output Element res = a * b;
       annotation(Inline = true);
-    end scalar_multiply;
+    end scalarMultiply;
   
     partial function exp
       replaceable type GroupElement = Element;
@@ -38,12 +38,35 @@ package Base
       annotation(Inline = true);
     end exp;
   
+    partial function ad
+      input Element a;
+      output Real [:, :] res;
+      annotation(Inline = true);
+    end ad;
+    
+    partial function fromMatrix
+      input Real[:, :] a;
+      output Element res;
+      annotation(Inline = true);
+    end fromMatrix;
+  
+    partial function toMatrix
+      input Element a;
+      output Real [:, :] res;
+      annotation(Inline = true);
+    end toMatrix;
+  
   end Algebra;
   model Group
   
     replaceable     type Element = Real;
   
     replaceable     type AlgebraElement = Real;
+  
+    partial function identity
+      output Element res;
+      annotation(Inline = true);
+    end identity;
   
     partial function product
       input Element a, b;
@@ -63,5 +86,23 @@ package Base
       annotation(Inline = true);
     end log;
   
+    partial function Ad
+      input Element a;
+      output Real [:, :] res;
+      annotation(Inline = true);
+    end Ad;
+  
+    partial function fromMatrix
+      input Real[:, :] a;
+      output Element res;
+      annotation(Inline = true);
+    end fromMatrix;
+  
+    partial function toMatrix
+      input Element a;
+      output Real [:, :] res;
+      annotation(Inline = true);
+    end toMatrix;
+    
   end Group;
 end Base;

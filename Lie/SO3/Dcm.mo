@@ -79,32 +79,32 @@ operator record Dcm
 
   function log
     input Dcm a;
-
+  
     output Algebra res;
-
+  
   protected
     Real x,c1;
-
+  
   algorithm
     x := acos(
       ((a.r[1,1]+a.r[2,2]+a.r[3,3])-1)/2);
-
+  
     if x > 1e-3 then
       c1 := x/(2*sin(
         x));
-
+  
     else
       c1 := 1/2+x^2/12+7*x^4/720+31*x^6/30240;
-
+  
     end if;
-
+  
     res := Algebra.fromMatrix(
       c1*(a.r-transpose(
         a.r)));
-
+  
     annotation (
       Inline=true);
-
+  
   end log;
 
   function fromMatrix

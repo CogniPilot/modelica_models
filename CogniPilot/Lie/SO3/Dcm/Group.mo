@@ -111,23 +111,21 @@ operator record Group
     output SO3.Algebra.Element res;
 
   protected
-    Real x;
-
+    Real x,c1;
+  
   algorithm
     x := acos(
-      (trace(
-        a.r)-1)/2);
-
-    if(x > 1e-7) then
-      res := SO3.Algebra.Element(
-        r=4*atan(n)*a.r/n);
-
+      ((a[1,1]+a[2,2]+a[3,3])-1)/2);
+  
+    if x > 1e-3 then
+      c1 := x/(2*sin(x));
+  
     else
-      res := SO3.Algebra.Element(
-        r={0,0,0});
-
+      c1 := 1/2+x^2/12+7*x^4/720+31*x^6/30240;
+  
     end if;
-
+  
+    res := c1*(a-transpose(a));
   end log;
 
   encapsulated operator function to_matrix
