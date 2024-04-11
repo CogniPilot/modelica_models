@@ -6,8 +6,8 @@ model TestR3
   R3.Group.Element g1 = {1, 2, 3};
   R3.Group.Element g2 = {4, 5, 6};
   R3.Group.Element g3, g4, g5;
-  R3.Algebra.Element a1 ={1, 2, 3};
-  R3.Algebra.Element a2 ={4, 5, 6};
+  R3.Algebra.Element a1 = {1, 2, 3};
+  R3.Algebra.Element a2 = {4, 5, 6};
   R3.Algebra.Element a3;
 
 equation

@@ -2,19 +2,17 @@ within Lie2.SO3;
 
 model Algebra
     
-  record Element
-    Real r[3];
-  end Element;
+  type Element = Real[3];
     
   type BaseType = Base.Algebra(
-    redeclare type ElementType = Element,
+    redeclare type Element = Element,
     redeclare type GroupElement = Group.Element);
   extends BaseType;
 
   function add
     extends BaseType.add;
   algorithm
-    res := Element(a + b);
+    res := Element(r=a.r + b.r);
     annotation(Inline = true);
   end add;
   

@@ -4,12 +4,10 @@ package Dcm
 
   model Group
   
-    record Element
-      Real r[3, 3];
-    end Element;
+    type Element = Real[3, 3];
       
     type BaseType = Base.Group(
-      redeclare type Element = Group.Element,
+      redeclare type Element = Element,
       redeclare type AlgebraElement = Algebra.Element);
     
     extends BaseType;
@@ -17,21 +15,21 @@ package Dcm
     function product
       extends BaseType.product;
     algorithm
-      res := Element(a.r * b.r);
+      res := a * b;
       annotation(Inline = true);
     end product;
     
     function inv
       extends BaseType.inv;
     algorithm
-      res := Element(transpose(a.r));
+      res := transpose(a);
       annotation(Inline = true);
     end inv;
   
     function log // TODO
       extends BaseType.log;
     algorithm
-      res := Element(-a.r);
+      res := Element(-a);
       annotation(Inline = true);
     end log;
   

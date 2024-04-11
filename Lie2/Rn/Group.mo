@@ -27,7 +27,7 @@ model Group
   function log
     extends BaseType.log;
   algorithm
-    res := -a;
+    res := Element(r=a);
     annotation(Inline = true);
   end log;
 

@@ -6,13 +6,13 @@ package Base
   
     replaceable type Element = Real;
   
-    partial function add
+    function add
       input Element a, b;
-      output Element res;
+      output Element res = a + b;
       annotation(Inline = true);
     end add;
   
-    partial function subtract
+    function subtract
       input Element a, b;
       output Element res;
       annotation(Inline = true);
@@ -24,10 +24,10 @@ package Base
       annotation(Inline = true);
     end bracket;
   
-    partial function scalar_multiply
+    function scalar_multiply
       input Real a;
       input Element b;
-      output Element res;
+      output Element res = a * b;
       annotation(Inline = true);
     end scalar_multiply;
   
@@ -41,9 +41,9 @@ package Base
   end Algebra;
   model Group
   
-    replaceable type Element = Real;
+    replaceable     type Element = Real;
   
-    replaceable type AlgebraElement = Element;
+    replaceable     type AlgebraElement = Real;
   
     partial function product
       input Element a, b;
