@@ -10,12 +10,12 @@ model Mrp
   
   extends BaseType;
 
-  function identity
-    extends BaseType.identity;
+  function one
+    extends BaseType.one;
   algorithm
     res := {0, 0, 0};
     annotation(Inline = true);
-  end identity;
+  end one;
    
   function product
     extends BaseType.product;

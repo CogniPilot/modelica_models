@@ -13,12 +13,12 @@ model Euler
   
   extends BaseType;
 
-  function identity
-    extends BaseType.identity;
+  function one
+    extends BaseType.one;
   algorithm
     res := {0, 0, 0};
     annotation(Inline = true);
-  end identity;
+  end one;
    
   function product
     extends BaseType.product;
@@ -53,5 +53,40 @@ model Euler
     end if;
     annotation(Inline = true);
   end log;
-  
+
+  function axisRotationMatrix
+    input Real x;
+    input Integer axis;
+    output Real[3,3] res;
+  algorithm
+    assert(axis > 0 and axis < 4, "axis out of range");
+    if(axis == 1) then
+      res := {{1,0,0},{0,cos(x),-sin(x)},{0,sin(x),cos(x)}};
+    elseif(axis == 2) then
+      res := {{cos(x),0,sin(x)},{0,1,0},{-sin(x),0,cos(x)}};
+    elseif(axis == 3) then
+      res := {{cos(x),-sin(x),0},{sin(x),cos(x),0},{0,0,1}};
+    end if;
+    annotation (Inline=true);
+  end axisRotationMatrix;
+
+  function toMatrix
+    "Euler Sequence to Matrix"
+    extends BaseType.toMatrix;
+  algorithm
+    res := identity(3);
+    for i in 1:3 loop
+      if(body == false) then
+        res := axisRotationMatrix(
+          a[i],
+          sequence[i])*res;
+      elseif(body == true) then
+        res := res*axisRotationMatrix(
+          a[i],
+          sequence[i]);
+      end if;
+    end for;
+    annotation (Inline=true);
+  end toMatrix;
+
 end Euler;

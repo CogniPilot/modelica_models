@@ -63,10 +63,10 @@ package Base
   
     replaceable     type AlgebraElement = Real;
   
-    partial function identity
+    partial function one
       output Element res;
       annotation(Inline = true);
-    end identity;
+    end one;
   
     partial function product
       input Element a, b;

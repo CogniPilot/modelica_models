@@ -1,8 +1,8 @@
 within Lie2.SO3;
 
-model Dcm
-  
-  type Element = Real[9];
+model Quat
+
+  type Element = Real[4];
     
   type BaseType = Base.Group(
     redeclare type Element = Element,
@@ -13,54 +13,53 @@ model Dcm
   function one
     extends BaseType.one;
   algorithm
-    res := {1, 0, 0, 0, 1, 0, 0, 0, 1};
+    res := {1, 0, 0, 0};
     annotation(Inline = true);
   end one;
-
-  function product
+   
+  function product // TODO
     extends BaseType.product;
+  protected
+    Real na_sq,nb_sq,den,res[3];
   algorithm
-    res := fromMatrix(toMatrix(a) * toMatrix(b));
+    na_sq := a*a;
+    nb_sq := b*b;
+    den := 1+na_sq*nb_sq-2*a*b;
+    res := ((1-na_sq)*b+(1-nb_sq)*a-2*cross(b,a))/den;
     annotation(Inline = true);
   end product;
   
-  function inv
+  function inv // TODO
     extends BaseType.inv;
   algorithm
-    res := transpose(a);
+    res := -a;
     annotation(Inline = true);
   end inv;
 
-  function log
+  function log // TODO
     extends BaseType.log;
   protected
-    Real x;
+    Real n;
   algorithm
-    x := acos((trace(a)-1)/2);
-    if(x > 1e-7) then
+    res := -a;
+    n := sqrt(a*a);
+    if(n > 1e-7) then
       res := 4*atan(n)*a/n;
     else
       res := {0,0,0};
     end if;
     annotation(Inline = true);
   end log;
-
-  function fromMatrix
-    extends BaseType.fromMatrix;
-  algorithm
-    res := {a[1, 1], a[1, 2], a[1, 3],
-            a[2, 1], a[2, 2], a[2, 3],
-            a[3, 1], a[3, 2], a[3, 3]};
-    annotation(Inline = true);
-  end fromMatrix;
   
-  function toMatrix
+  function toMatrix // TODO
     extends BaseType.toMatrix;
+  protected
+    Real X[3,3],n_sq;
   algorithm
-    res := {{a[1], a[2], a[3]},
-            {a[4], a[5], a[6]},
-            {a[7], a[8], a[9]}};
+    X := skew(a);
+    n_sq := a*a;
+    res := identity(3)+(8*X*X+4*(1-n_sq)*X)/(1+n_sq)^2;
     annotation(Inline = true);
   end toMatrix;
-  
-end Dcm;
+
+end Quat;

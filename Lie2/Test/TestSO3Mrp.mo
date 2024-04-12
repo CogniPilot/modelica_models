@@ -8,5 +8,5 @@ model TestSO3Mrp
   
 equation
   g3 = SO3.Mrp.product(g1, g2);
-  g4 = SO3.Mrp.identity();
+  g4 = SO3.Mrp.one();
 end TestSO3Mrp;
