@@ -3,18 +3,16 @@ within Lie2.Test;
 model TestSO3Quat
   import Lie2.SO3.EulerB321;
   import Lie2.SO3.Quat;
-  Quat.Element g1 = Quat.one();
-  Quat.Element g2 = Quat.one();
-  Quat.Element g3, g4, g5, g6;
-  Real[3, 3] M;
-  EulerB321.Element g7;
+  constant Quat.Element g1 = Quat.one();
+  constant Real[3, 3] M = Quat.toMatrix(g1);
+  constant Quat.Element g2 = Quat.fromMatrix(EulerB321.toMatrix({1, 2, 3}));
+  constant Quat.Element g3 = Quat.fromMatrix(EulerB321.toMatrix({0, 0, 0}));
+  constant Quat.Element g4 = Quat.product(g1, g2);
+  Quat.Element g5;
+  EulerB321.Element e;
 initial equation
-  g6 = Quat.fromMatrix(EulerB321.toMatrix({0, 0, 0}));
+  g5 = g3;
 equation
-  g3 = Quat.product(g1, g2);
-  g4 = Quat.one();
-  M = Quat.toMatrix(g3);
-  g5 = Quat.fromMatrix(M);
-  der(g6) = Quat.Dr(g6, {0, 0, 1});
-  g7 = EulerB321.fromMatrix(Quat.toMatrix(g6));
+  der(g5) = Quat.Dr(g5, {0, 0, 1});
+  e = EulerB321.fromMatrix(Quat.toMatrix(g5));
 end TestSO3Quat;
