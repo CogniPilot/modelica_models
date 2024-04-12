@@ -2,6 +2,8 @@ within Lie2.SO3;
 
 model Euler
 
+  constant Real eps = 1e-5;
+
   replaceable constant Integer[3] sequence = {3, 2, 1};
   replaceable constant Boolean body = true; 
   
@@ -71,7 +73,6 @@ model Euler
   end axisRotationMatrix;
 
   function toMatrix
-    "Euler Sequence to Matrix"
     extends BaseType.toMatrix;
   algorithm
     res := identity(3);
@@ -88,5 +89,5 @@ model Euler
     end for;
     annotation (Inline=true);
   end toMatrix;
-
+  
 end Euler;

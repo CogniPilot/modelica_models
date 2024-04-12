@@ -6,3 +6,4 @@ TestSO3Algebra
 TestSO3Dcm
 TestSO3Mrp
 TestSO3Euler
+TestSO3Quat

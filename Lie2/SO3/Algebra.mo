@@ -35,7 +35,7 @@ model Algebra
     annotation(Inline = true);
   end fromMatrix;
 
-  partial function toMatrix
+  function toMatrix
     extends BaseType.toMatrix;
   algorithm
     res := skew(a);

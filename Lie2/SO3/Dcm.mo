@@ -45,6 +45,22 @@ model Dcm
     annotation(Inline = true);
   end log;
 
+  function Dl
+  extends BaseType.Dl;
+  algorithm
+    res := fromMatrix(Algebra.toMatrix(w)*toMatrix(a));
+    annotation(
+      Inline = true);
+  end Dl;
+  
+  function Dr
+  extends BaseType.Dr;
+  algorithm
+    res := fromMatrix(toMatrix(a)*Algebra.toMatrix(w));
+    annotation(
+      Inline = true);
+  end Dr;
+  
   function fromMatrix
     extends BaseType.fromMatrix;
   algorithm
