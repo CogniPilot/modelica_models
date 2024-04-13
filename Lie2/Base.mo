@@ -58,6 +58,21 @@ package Base
       annotation(Inline = true);
     end Jr;
   
+    function equal
+      input Element a;
+      input Element b;
+      input Real eps = Constants.eps;
+      output Boolean res;
+    protected
+      Element e;
+    algorithm
+      e := a - b;
+      res := e * e < eps;
+      annotation(Inline = true);
+    end equal;
+  
+  
+  
     partial function fromMatrix
       input Real[:, :] a;
       output Element res;
@@ -105,6 +120,19 @@ package Base
       output Real [:, :] res;
       annotation(Inline = true);
     end Ad;
+    
+    function equal
+      input Element a;
+      input Element b;
+      input Real eps = Constants.eps;
+      output Boolean res;
+    protected
+      Element e;
+    algorithm
+      e := a - b;
+      res := e * e < eps;
+      annotation(Inline = true);
+    end equal;
   
     partial function Dl "Left derivative of group parameterization a wrt tangent vector w"
       input Element a;
@@ -119,7 +147,19 @@ package Base
       output Real[:] res;
       annotation(Inline = true);
     end Dr;
-    
+  
+    partial function normError
+      input Element a;
+      output Real res;
+      annotation(Inline = true);
+    end normError;
+  
+    partial function normalize
+      input Element a;
+      output Element res;
+      annotation(Inline = true);
+    end normalize;
+  
     partial function fromMatrix
       input Real[:, :] a;
       output Element res;

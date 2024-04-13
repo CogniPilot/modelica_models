@@ -27,7 +27,7 @@ model Dcm
   function inv
     extends BaseType.inv;
   algorithm
-    res := transpose(a);
+    res := fromMatrix(transpose(toMatrix(a)));
     annotation(Inline = true);
   end inv;
 
@@ -46,7 +46,7 @@ model Dcm
   end log;
 
   function Dl
-  extends BaseType.Dl;
+    extends BaseType.Dl;
   algorithm
     res := fromMatrix(Algebra.toMatrix(w)*toMatrix(a));
     annotation(
@@ -54,12 +54,32 @@ model Dcm
   end Dl;
   
   function Dr
-  extends BaseType.Dr;
+    extends BaseType.Dr;
   algorithm
     res := fromMatrix(toMatrix(a)*Algebra.toMatrix(w));
     annotation(
       Inline = true);
   end Dr;
+  
+  function normError
+    extends BaseType.normError;
+  algorithm
+    res := max(abs({
+      a[1:3]*a[1:3] - 1,
+      a[4:6]*a[4:6] - 1,
+      a[7:9]*a[7:9] - 1,
+      a[1:3]*a[4:6],
+      a[1:3]*a[7:9],
+      a[4:6]*a[7:9]}));
+    annotation(Inline = true);
+  end normError;
+
+  function normalize "TODO: requires expensive inverse"
+    extends BaseType.normalize;
+  algorithm
+    res := a;
+    annotation(Inline = true);
+  end normalize;
   
   function fromMatrix
     extends BaseType.fromMatrix;
@@ -78,5 +98,5 @@ model Dcm
             {a[7], a[8], a[9]}};
     annotation(Inline = true);
   end toMatrix;
-  
+
 end Dcm;

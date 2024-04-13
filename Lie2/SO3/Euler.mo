@@ -2,8 +2,6 @@ within Lie2.SO3;
 
 model Euler
 
-  constant Real eps = 1e-5;
-
   replaceable constant Integer[3] sequence = {3, 2, 1};
   replaceable constant Boolean body = true; 
   
@@ -71,6 +69,20 @@ model Euler
     end if;
     annotation (Inline=true);
   end axisRotationMatrix;
+
+  function normError
+    extends BaseType.normError(redeclare constant output Real res = 0);
+  algorithm
+    res := 0;
+    annotation(Inline = true);
+  end normError;
+
+  function normalize
+    extends BaseType.normalize;
+  algorithm
+    res := a;
+    annotation(Inline = true);
+  end normalize;
 
   function toMatrix
     extends BaseType.toMatrix;

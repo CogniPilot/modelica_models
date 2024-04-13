@@ -50,7 +50,65 @@ model Mrp
     end if;
     annotation(Inline = true);
   end log;
+
+  function Dl
+  extends BaseType.Dl;
+  algorithm
+    res := fromMatrix(Algebra.toMatrix(w)*toMatrix(a));
+    annotation(
+      Inline = true);
+  end Dl;
   
+  function Dr
+  extends BaseType.Dr;
+  protected
+    Real n_sq;
+  algorithm
+    n_sq := a * a;
+    res := 0.25 * ((1 - n_sq) * identity(3) + 2 * skew(a) + 2 * matrix(a) * transpose(matrix(a))) * w;
+    annotation(
+      Inline = true);
+  end Dr;
+
+  function normError
+    extends BaseType.normError(redeclare constant output Real res = 0);
+  algorithm
+    res := 0;
+    annotation(Inline = true);
+  end normError;
+
+  function normalize
+    extends BaseType.normalize;
+  algorithm
+    res := a;
+    annotation(Inline = true);
+  end normalize;
+  
+  function shadow
+    input Element a;
+    output Element res;
+  protected
+    Real n_sq;
+  algorithm
+    n_sq := a*a;
+    res := -a / n_sq;
+  end shadow;
+
+  function fromQuat
+    input Quat.Element a;
+    output Element res;
+  algorithm
+    res := a[2:4]/(1 + a[1]);
+    annotation(Inline = true);
+  end fromQuat;
+  
+  function fromMatrix
+    extends BaseType.fromMatrix;
+  algorithm
+    res := fromQuat(SO3.Quat.fromMatrix(a));
+    annotation(Inline = true);
+  end fromMatrix;
+
   function toMatrix
     extends BaseType.toMatrix;
   protected

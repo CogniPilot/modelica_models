@@ -57,6 +57,27 @@ model Quat
     annotation(Inline = true);
   end Dr;
 
+  function normError
+    extends BaseType.normError;
+  algorithm
+    res := abs(1 - sqrt(a*a));
+    annotation(Inline = true);
+  end normError;
+
+  function normalize
+    extends BaseType.normalize;
+  protected
+    Real n;
+  algorithm
+    n := sqrt(a*a);
+    if (n > Constants.eps) then
+      res := a/n;
+    else
+      res := one();
+    end if;
+    annotation(Inline = true);
+  end normalize;
+
   function toMatrix
     extends BaseType.toMatrix;
   protected
@@ -83,33 +104,42 @@ model Quat
   function fromMatrix
     extends BaseType.fromMatrix;
   protected
-    Real[4] b;
+    Real q_sq[4], q_max;
+    Integer i_max;
   algorithm
-    b := {
-      0.5 * sqrt(1 + a[1, 1] + a[2, 2] + a[3, 3]),
-      0.5 * sqrt(1 + a[1, 1] - a[2, 2] - a[3, 3]),
-      0.5 * sqrt(1 - a[1, 1] + a[2, 2] - a[3, 3]),
-      0.5 * sqrt(1 - a[1, 1] - a[2, 2] + a[3, 3])};
-    if (a[1, 1] + a[2, 2] + a[3, 3] > 0) then
-      res := {b[1],
-            (a[3, 2] - a[2, 3]) / (4 * b[1]), 
-            (a[1, 3] - a[3, 1]) / (4 * b[1]), 
-            (a[2, 1] - a[1, 2]) / (4 * b[1])};
-    elseif (a[1, 1] > a[2, 2] and a[1, 1] > a[3, 3]) then
-      res := {(a[3, 2] - a[2, 3]) / (4 * b[2]), 
-            b[2],
-            (a[1, 2] - a[2, 1]) / (4 * b[2]),
-            (a[1, 3] - a[3, 1]) / (4 * b[2])};
-    elseif (a[2, 2] > a[3, 3]) then
-      res := {(a[1, 3] - a[3, 1]) / (4 * b[3]),
-            (a[1, 2] - a[2, 1]) / (4 * b[3]),
-            b[3],
-            (a[2, 3] - a[3, 2]) / (4 * b[3])};
+    q_sq := {
+      1 + a[1, 1] + a[2, 2] + a[3, 3], // scalar part
+      1 - a[1, 1] + a[2, 2] - a[3, 3],
+      1 - a[1, 1] - a[2, 2] + a[3, 3],
+      1 + a[1, 1] + a[2, 2] + a[3, 3]}/4;
+    i_max := 1;
+    for i in 2:4 loop
+      if q_sq[i] > q_sq[i_max] then
+        i_max := i;
+      end if;
+    end for;
+    assert(q_sq[i_max] > 0, "quaternion check failed");
+    q_max := sqrt(q_sq[i_max]);
+    if (i_max == 1) then
+      res := {4*q_sq[i_max],
+            a[3, 2] - a[2, 3], 
+            a[1, 3] - a[3, 1], 
+            a[2, 1] - a[1, 2]} / (4 * q_max);
+    elseif (i_max == 2) then
+      res := {a[3, 2] - a[2, 3], 
+            4*q_sq[i_max],
+            a[1, 2] - a[2, 1],
+            a[1, 3] - a[3, 1]} / (4 * q_max);
+    elseif (i_max == 3) then
+      res := {a[1, 3] - a[3, 1],
+            a[1, 2] - a[2, 1],
+            4*q_sq[i_max],
+            a[2, 3] - a[3, 2]} / (4 * q_max);
     else
-      res := {(a[2, 1] - a[1, 2]) / (4 * b[4]),
-            (a[1, 3] - a[3, 1]) / (4 * b[4]),
-            (a[2, 3] - a[3, 2]) / (4 * b[4]), 
-            b[4]};
+      res := {a[2, 1] - a[1, 2],
+            a[1, 3] - a[3, 1],
+            a[2, 3] - a[3, 2], 
+            4*q_sq[i_max]} / (4 * q_max);
     end if;
     annotation(Inline = true);
   end fromMatrix;

@@ -4,6 +4,6 @@ TestR2
 TestR3
 TestSO3Algebra
 TestSO3Dcm
-TestSO3Mrp
-TestSO3Euler
 TestSO3Quat
+TestSO3Mrp
+TestSO3EulerB321

@@ -10,10 +10,10 @@ model EulerB321
     Real phi, theta, psi;
   algorithm
     theta := asin(-a[3, 1]);
-    if (abs(theta - pi/2) < eps) then
+    if (abs(theta - Constants.pi/2) < Constants.eps) then
       phi := 0;
       psi := atan2(a[2, 3], a[1, 3]);
-    elseif (abs(theta + pi/2) < eps) then
+    elseif (abs(theta + Constants.pi/2) < Constants.eps) then
       phi := 0;
       psi := atan2(-a[2, 3], -a[1, 3]);
     else
@@ -23,5 +23,21 @@ model EulerB321
     res := {psi, theta, phi};
     annotation(Inline = true);
   end fromMatrix;
+
+  function Dr
+    extends BaseType.Dr;
+  protected
+    Real psi, theta, phi;
+  algorithm
+    psi := a[1];
+    theta := a[2];
+    phi := a[3];
+    res := {
+      w[2]*sin(phi)/cos(theta) + w[3]*cos(phi)/cos(theta), // psi_dot
+      w[2]*cos(phi) - w[3]*sin(phi), // theta_dot
+      w[1] + w[2]*sin(phi)*tan(theta) + w[3]*cos(phi)*tan(theta) // phi_dot
+      };
+    annotation(Inline = true);
+  end Dr;
 
 end EulerB321;
