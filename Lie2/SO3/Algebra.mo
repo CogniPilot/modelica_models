@@ -22,7 +22,7 @@ model Algebra
     annotation(Inline = true);
   end bracket;
 
-  partial function fromMatrix
+  function fromMatrix
     extends BaseType.fromMatrix;
   algorithm
     res := {a[3, 2], a[1, 3], a[2, 1]};

@@ -37,16 +37,8 @@ model Quat
 
   function log // TODO
     extends BaseType.log;
-  protected
-    Real n;
   algorithm
-    res := -a;
-    n := sqrt(a*a);
-    if(n > 1e-7) then
-      res := 4*atan(n)*a/n;
-    else
-      res := {0,0,0};
-    end if;
+    res := {0,0,0};
     annotation(Inline = true);
   end log;
   
@@ -95,8 +87,8 @@ model Quat
     dd := a[4]*a[4];
     res := {
       {aa + bb - cc - dd, 2 * (bc - ad), 2 * (bd + ac)},
-      {2 * (bc + ad), aa + cc - bb - dd, 2 * (cd - ab)},
-      {2 * (bd - ac), 2 * (cd + ab), aa + dd - bb - cc}
+      {2 * (bc + ad), aa - bb + cc - dd, 2 * (cd - ab)},
+      {2 * (bd - ac), 2 * (cd + ab), aa - bb - cc + dd}
     };
     annotation(Inline = true);
   end toMatrix;

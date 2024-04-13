@@ -31,13 +31,6 @@ package Base
       annotation(Inline = true);
     end scalarMultiply;
   
-    partial function exp "Lie exponential map"
-      replaceable type GroupElement = Element;
-      input Element a;
-      output GroupElement res;
-      annotation(Inline = true);
-    end exp;
-  
     partial function ad "adjoint of Lie Algebra"
       input Element a;
       output Real [:, :] res;
@@ -71,8 +64,6 @@ package Base
       annotation(Inline = true);
     end equal;
   
-  
-  
     partial function fromMatrix
       input Real[:, :] a;
       output Element res;
@@ -89,7 +80,6 @@ package Base
   model Group
   
     replaceable     type Element = Real;
-  
     replaceable     type AlgebraElement = Real;
   
     partial function one "Identity element for group product"
@@ -115,6 +105,12 @@ package Base
       annotation(Inline = true);
     end log;
   
+    partial function exp "Lie exponential map"
+      input AlgebraElement a;
+      output Element res;
+      annotation(Inline = true);
+    end exp;
+    
     partial function Ad "Group Adjoint operator Ad(A) B = A B A^{-1}"
       input Element a;
       output Real [:, :] res;
