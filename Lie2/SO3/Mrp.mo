@@ -104,10 +104,13 @@ model Mrp
     input Quat.Element a;
     output Element res;
   algorithm
-    if a[1] < Constants.eps then
+    if abs(a[1]) < Constants.eps then
       res := {0, 0, 0};
     else
       res := a[2:4]/(1 + a[1]);
+    end if;
+    if shouldSwitchCoordinates(res) then
+      res := switchCoordinates(res);
     end if;
     annotation(
       Inline = true);

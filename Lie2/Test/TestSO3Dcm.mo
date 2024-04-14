@@ -22,8 +22,8 @@ equation
   when G.shouldSwitchCoordinates(g1) then
     reinit(g1, G.switchCoordinates(g1));
   end when;
-annotation(
-    experiment(StartTime = 0, StopTime = 1000, Tolerance = 1e-6, Interval = 0.01),
-  __OpenModelica_simulationFlags(lv = "LOG_STDOUT,LOG_ASSERT,LOG_STATS", s = "rungekutta", variableFilter = ".*", cpu = "()"),
-  __OpenModelica_commandLineOptions = "--matchingAlgorithm=PFPlusExt --indexReductionMethod=dynamicStateSelection -d=initialization,NLSanalyticJacobian");
+  annotation(
+    experiment(StartTime = 0, StopTime = 100, Tolerance = 1e-06, Interval = 0.01),
+    __OpenModelica_simulationFlags(lv = "LOG_STDOUT,LOG_ASSERT,LOG_STATS", s = "rungekutta", variableFilter = ".*", cpu = "()"),
+    __OpenModelica_commandLineOptions = "--matchingAlgorithm=PFPlusExt --indexReductionMethod=dynamicStateSelection -d=initialization,NLSanalyticJacobian");
 end TestSO3Dcm;

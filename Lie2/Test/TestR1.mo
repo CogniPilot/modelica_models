@@ -18,4 +18,7 @@ equation
   assert(A.equal(G.log(G.exp(a1)), a1), "exp/log failed");
   assert(A.equal(A.fromMatrix(A.toMatrix(a1)), a1), "algebra matrix failed");
   assert(G.equal(G.fromMatrix(G.toMatrix(g3)), g3), "group matrix failed");
+annotation(
+    experiment(StartTime = 0, StopTime = 1, Tolerance = 1e-6, Interval = 0.002),
+    __OpenModelica_simulationFlags(lv = "LOG_STDOUT,LOG_ASSERT,LOG_STATS", s = "dassl", variableFilter = ".*"));
 end TestR1;
