@@ -1,4 +1,4 @@
-within Lie2.SO3;
+within Lie2.SO3.Group;
 
 model Mrp
   type Element = Real[3];
@@ -130,7 +130,7 @@ model Mrp
   function fromMatrix
     extends BaseType.fromMatrix;
   algorithm
-    res := fromQuat(SO3.Quat.fromMatrix(a));
+    res := fromQuat(Quat.fromMatrix(a));
     annotation(
       Inline = true);
   end fromMatrix;

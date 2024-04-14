@@ -1,4 +1,4 @@
-within Lie2.SO3;
+within Lie2.SO3.Group;
 
 model Quat
 
