@@ -84,6 +84,13 @@ model Euler
     annotation(Inline = true);
   end normalize;
 
+  function equal
+    extends BaseType.equal;
+  algorithm
+    res := Math.norm2(log(product(a, inv(b)))) < eps;
+    annotation(Inline = true);
+  end equal;
+  
   function toMatrix
     extends BaseType.toMatrix;
   algorithm

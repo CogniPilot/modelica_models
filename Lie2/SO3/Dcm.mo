@@ -34,14 +34,16 @@ model Dcm
   function log
     extends BaseType.log;
   protected
-    Real x;
+    Real x, c1, R[3, 3];
   algorithm
-    x := acos((trace(a)-1)/2);
-    if(x > 1e-7) then
-      res := 4*atan(n)*a/n;
+    R := toMatrix(a);
+    x := acos((Math.trace(R) -1)/2);
+    if(abs(x) > Constants.eps) then
+      c1 := x/(2*sin(x));
     else
-      res := {0,0,0};
+      c1 := 1/2 + x^2/12 + 7*x^4/720 + 21*x^6/30240;
     end if;
+    res := c1 * Algebra.fromMatrix(R - transpose(R));
     annotation(Inline = true);
   end log;
 
@@ -60,6 +62,13 @@ model Dcm
     annotation(
       Inline = true);
   end Dr;
+
+  function equal
+    extends BaseType.equal;
+  algorithm
+    res := Math.norm2(log(product(a, inv(b)))) < eps;
+    annotation(Inline = true);
+  end equal;
   
   function normError
     extends BaseType.normError;

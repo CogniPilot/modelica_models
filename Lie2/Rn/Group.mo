@@ -37,6 +37,13 @@ model Group
       Inline = true);
   end exp;
 
+  function equal
+    extends BaseType.equal;
+  algorithm
+    res := Math.norm2(log(product(a, inv(b)))) < eps;
+    annotation(Inline = true);
+  end equal;
+
   function fromMatrix
     extends BaseType.fromMatrix;
   algorithm

@@ -60,7 +60,7 @@ package Base
       Element e;
     algorithm
       e := a - b;
-      res := e * e < eps;
+      res := max(abs(e)) < eps;
       annotation(Inline = true);
     end equal;
   
@@ -116,17 +116,24 @@ package Base
       output Real [:, :] res;
       annotation(Inline = true);
     end Ad;
+  
+    function switchCoordinates "Switch internal group coordinates"
+      input Element a;
+      output Element res = a;
+      annotation(Inline = true);
+    end switchCoordinates;
+  
+    function shouldSwitchCoordinates "Should switch internal group coordinates"
+      input Element a;
+      output Boolean res = false;
+      annotation(Inline = true);
+    end shouldSwitchCoordinates;
     
-    function equal
+    partial function equal
       input Element a;
       input Element b;
       input Real eps = Constants.eps;
       output Boolean res;
-    protected
-      Element e;
-    algorithm
-      e := a - b;
-      res := e * e < eps;
       annotation(Inline = true);
     end equal;
   

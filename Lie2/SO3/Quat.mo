@@ -70,6 +70,13 @@ model Quat
     annotation(Inline = true);
   end normalize;
 
+  function equal
+    extends BaseType.equal;
+  algorithm
+    res := Math.norm2(log(product(a, inv(b)))) < eps;
+    annotation(Inline = true);
+  end equal;
+  
   function toMatrix
     extends BaseType.toMatrix;
   protected
@@ -101,9 +108,9 @@ model Quat
   algorithm
     q_sq := {
       1 + a[1, 1] + a[2, 2] + a[3, 3], // scalar part
+      1 + a[1, 1] - a[2, 2] - a[3, 3],
       1 - a[1, 1] + a[2, 2] - a[3, 3],
-      1 - a[1, 1] - a[2, 2] + a[3, 3],
-      1 + a[1, 1] + a[2, 2] + a[3, 3]}/4;
+      1 - a[1, 1] - a[2, 2] + a[3, 3]}/4;
     i_max := 1;
     for i in 2:4 loop
       if q_sq[i] > q_sq[i_max] then
@@ -120,18 +127,21 @@ model Quat
     elseif (i_max == 2) then
       res := {a[3, 2] - a[2, 3], 
             4*q_sq[i_max],
-            a[1, 2] - a[2, 1],
-            a[1, 3] - a[3, 1]} / (4 * q_max);
+            a[2, 1] + a[1, 2],
+            a[1, 3] + a[3, 1]} / (4 * q_max);
     elseif (i_max == 3) then
       res := {a[1, 3] - a[3, 1],
-            a[1, 2] - a[2, 1],
+            a[2, 1] + a[1, 2],
             4*q_sq[i_max],
-            a[2, 3] - a[3, 2]} / (4 * q_max);
+            a[2, 3] + a[3, 2]} / (4 * q_max);
     else
       res := {a[2, 1] - a[1, 2],
-            a[1, 3] - a[3, 1],
-            a[2, 3] - a[3, 2], 
+            a[1, 3] + a[3, 1],
+            a[2, 3] + a[3, 2], 
             4*q_sq[i_max]} / (4 * q_max);
+    end if;
+    if res[1] < 0 then
+      res := -res;
     end if;
     annotation(Inline = true);
   end fromMatrix;
