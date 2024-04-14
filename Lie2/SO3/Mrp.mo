@@ -21,7 +21,11 @@ model Mrp
     na_sq := a*a;
     nb_sq := b*b;
     den := 1 + na_sq*nb_sq - 2*a*b;
-    res := ((1 - na_sq)*b + (1 - nb_sq)*a - 2*cross(b, a))/den;
+    if abs(den) > Constants.eps then
+      res := ((1 - na_sq)*b + (1 - nb_sq)*a - 2*cross(b, a))/den;
+    else
+      res := {0, 0, 0};
+    end if;
     annotation(
       Inline = true);
   end product;
