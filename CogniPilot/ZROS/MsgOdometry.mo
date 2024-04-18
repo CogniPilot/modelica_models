@@ -1,6 +1,6 @@
 within CogniPilot.ZROS;
 record MsgOdometry
-  Real time;
+  Real t;
 
   Real r_op_i[3]
     "position expressed in inertial frame [m]";
