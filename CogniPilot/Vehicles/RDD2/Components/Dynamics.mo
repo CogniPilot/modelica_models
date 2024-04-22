@@ -145,7 +145,7 @@ equation
 initial algorithm
   prop_w_cmd := sub_actuators.msg.vel;
 
-  pub_odometry.msg.time := time;
+  pub_odometry.msg.t := time;
 
   pub_odometry.msg.r_op_i := r_op_i;
 
@@ -162,7 +162,7 @@ algorithm
     prop_w_cmd := sub_actuators.msg.vel;
 
     // publish ground truth
-    pub_odometry.msg.time := time;
+    pub_odometry.msg.t := time;
 
     pub_odometry.msg.r_op_i := r_op_i;
 

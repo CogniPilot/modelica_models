@@ -20,7 +20,7 @@ algorithm
     sub_imu.updated) then
     x := time;
 
-    pub_odometry.msg.time := time;
+    pub_odometry.msg.t := time;
 
     pub_odometry.msg.r_op_i := {time,time,time};
 

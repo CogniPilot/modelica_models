@@ -24,7 +24,7 @@ algorithm
 
   when edge(
     sub_odometry.updated) then
-    pub_actuators.msg.time := time;
+    pub_actuators.msg.t := time;
 
     pub_actuators.msg.vel := {1+omega0,1+omega0,-1+omega0,-1+omega0};
 

@@ -18,7 +18,7 @@ equation
 algorithm
   when edge(
     pub_imu.updated) then
-    pub_imu.msg.time := time;
+    pub_imu.msg.t := time;
 
     pub_imu.msg.a_ip_b := frame.a_ip_b;
 
