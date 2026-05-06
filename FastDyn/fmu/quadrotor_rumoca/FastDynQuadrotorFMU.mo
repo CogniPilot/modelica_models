@@ -8,7 +8,7 @@ model FastDynQuadrotorFMU
   parameter Real omega_hover = 757.0 "Approximate hover motor speed [rad/s]";
   parameter Real lat0 = 47.397742 "Reference latitude [deg]";
   parameter Real lon0 = 8.545594 "Reference longitude [deg]";
-  parameter Real ground_alt_msl = 570.0 "Mean sea level altitude of the local ground collision plane [m]";
+  parameter Real ground_alt_msl = 530.0 "Mean sea level altitude of the local ground collision plane [m]";
   parameter Real accel_bias[3] = {0, 0, 0} "Accelerometer bias [m/s^2]";
   parameter Real gyro_bias[3] = {0, 0, 0} "Gyroscope bias [rad/s]";
   parameter Real mag_bias[3] = {0, 0, 0} "Magnetometer bias [Gauss]";
