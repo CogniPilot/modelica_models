@@ -1,12 +1,16 @@
 # modelica_models
 
-Modelica models for CogniPilot projects.
+Reusable Modelica building blocks for FastDyn/Rumoca simulations.
 
 ## Layout
 
-- `CogniPilot/`: shared CogniPilot packages.
-- `FastDyn/fmu/`: Modelica sources used to generate FastDyn FMUs.
+- `LieGroup/`: lightweight SO(3) and quaternion utilities used by the
+  generic rigid-body templates.
+- `Geodesy/`: reusable local-frame and geodetic conversion helpers.
+- `RigidBody/`: reusable six-degree-of-freedom rigid-body dynamics.
+- `RigidBody/Examples/`: reusable base plants for quadrotor, rover, and
+  fixed-wing use cases. These plants contain vehicle-generic dynamics only.
 
-FastDyn looks for this repository beside the FastDyn checkout by default:
-`../modelica_models`. Set `MODELICA_MODELS_ROOT` when using a different
-checkout path.
+FastDyn-specific vehicle wrappers live in the FastDyn repository under
+`modelica/FastDyn`. Those wrappers inherit these base plants and add
+the sensor, actuator, and driver-interface equations needed by FastDyn.
