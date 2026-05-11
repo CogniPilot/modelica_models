@@ -1,0 +1,84 @@
+name: Release Modelica package
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and publish release archive
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate release tag
+        id: release_tag
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "${GITHUB_REF_NAME}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "valid=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "valid=false" >> "${GITHUB_OUTPUT}"
+            echo "Skipping release for non-release tag: ${GITHUB_REF_NAME}"
+          fi
+
+      - name: Build CMM zip archive
+        if: steps.release_tag.outputs.valid == 'true'
+        id: package
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          tag="${GITHUB_REF_NAME}"
+          asset_tag="${tag//\//-}"
+          package_dir="CMM_${asset_tag}"
+          asset="${package_dir}.zip"
+          stage="${RUNNER_TEMP}/${package_dir}"
+
+          mkdir -p "${stage}"
+          cp -R Geodesy LieGroup RigidBody README.md LICENSE "${stage}/"
+
+          (
+            cd "${RUNNER_TEMP}"
+            zip -r -q "${GITHUB_WORKSPACE}/${asset}" "${package_dir}"
+          )
+
+          echo "asset=${asset}" >> "${GITHUB_OUTPUT}"
+          echo "package_dir=${package_dir}" >> "${GITHUB_OUTPUT}"
+
+      - name: Create or update GitHub release
+        if: steps.release_tag.outputs.valid == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          tag="${GITHUB_REF_NAME}"
+          asset="${{ steps.package.outputs.asset }}"
+          notes="$(mktemp)"
+
+          cat > "${notes}" <<EOF
+          CogniPilot Modelica Models ${tag}
+
+          This release contains the Modelica packages:
+          - Geodesy
+          - LieGroup
+          - RigidBody
+          EOF
+
+          if gh release view "${tag}" >/dev/null 2>&1; then
+            gh release upload "${tag}" "${asset}" --clobber
+          else
+            gh release create "${tag}" "${asset}" \
+              --title "CMM ${tag}" \
+              --notes-file "${notes}"
+          fi
