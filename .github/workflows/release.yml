@@ -44,7 +44,7 @@ jobs:
           stage="${RUNNER_TEMP}/${package_dir}"
 
           mkdir -p "${stage}"
-          cp -R Geodesy LieGroup RigidBody README.md LICENSE "${stage}/"
+          cp -R Geodesy LieGroup LieGroups RigidBody README.md LICENSE "${stage}/"
 
           (
             cd "${RUNNER_TEMP}"
@@ -72,6 +72,7 @@ jobs:
           This release contains the Modelica packages:
           - Geodesy
           - LieGroup
+          - LieGroups
           - RigidBody
           EOF
 
