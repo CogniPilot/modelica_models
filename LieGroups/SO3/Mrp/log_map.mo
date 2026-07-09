@@ -17,7 +17,5 @@ algorithm
     A := 4.0 * atan(n) / n;
   end if;
 
-  for i in 1:3 loop
-    v[i] := A * r[i];
-  end for;
+  v := A * r;
 end log_map;

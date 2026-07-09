@@ -6,8 +6,6 @@ protected
   Real theta_sq, theta;
   Real A "tan(theta/4) / theta";
   Real n_sq;
-  Real r_shadow[3];
-  Real r_next[3];
   constant Real eps = 1e-8;
 algorithm
   theta_sq := v[1]^2 + v[2]^2 + v[3]^2;
@@ -20,23 +18,9 @@ algorithm
     A := tan(theta / 4.0) / theta;
   end if;
 
-  for i in 1:3 loop
-    r[i] := A * v[i];
-  end for;
+  r := A * v;
 
   // Shadow switch if ||r|| > 1.
   n_sq := r[1]^2 + r[2]^2 + r[3]^2;
-  r_shadow := LieGroups.SO3.Mrp.shadow(r);
-  if n_sq > 1.0 then
-    for i in 1:3 loop
-      r_next[i] := r_shadow[i];
-    end for;
-  else
-    for i in 1:3 loop
-      r_next[i] := r[i];
-    end for;
-  end if;
-  for i in 1:3 loop
-    r[i] := r_next[i];
-  end for;
+  r := if n_sq > 1.0 then LieGroups.SO3.Mrp.shadow(r) else r;
 end exp_map;

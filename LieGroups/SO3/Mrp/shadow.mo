@@ -7,7 +7,5 @@ protected
   constant Real eps = 1e-10;
 algorithm
   n_sq := max(r[1]^2 + r[2]^2 + r[3]^2, eps);
-  for i in 1:3 loop
-    r_s[i] := -r[i] / n_sq;
-  end for;
+  r_s := -r / n_sq;
 end shadow;
