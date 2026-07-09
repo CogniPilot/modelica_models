@@ -20,8 +20,7 @@ algorithm
 
   r := A * v;
 
-  // Shadow switch if ||r|| > 1. If-EXPRESSION (not a no-else if-statement) so
-  // AD/both-branch compilers evaluate the condition correctly.
+  // Shadow switch if ||r|| > 1.
   n_sq := r[1]^2 + r[2]^2 + r[3]^2;
   r := if n_sq > 1.0 then LieGroups.SO3.Mrp.shadow(r) else r;
 end exp_map;

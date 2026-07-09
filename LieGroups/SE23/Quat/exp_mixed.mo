@@ -97,13 +97,9 @@ algorithm
     end for;
   end for;
 
-  // N_r: same formula but with r algebra and -B
-  // Recompute with omega_r for the rotation part (but cyecca uses omega_l for both N computations)
-  // Actually cyecca uses l's omega for Nl and r's omega for Nr - but r's omega is typically 0 or small
-  // For simplicity and matching cyecca: Nr uses the same series but with -B and r's A
-  // The Omega in Nr should use r's omega
+  // N_r: same closed-form construction with right algebra and -B.
+  // The Omega in Nr uses omega_r.
   // For the standard INS case, r has omega_r = 0, so Om_r = 0 and Nr = Ar + Ar*(-B)/2
-  // Let me implement the general case with r's omega:
 
   // For Nr, we need omega_r's series coefficients
   theta_sq := omega_r[1]^2 + omega_r[2]^2 + omega_r[3]^2;
@@ -184,7 +180,7 @@ algorithm
 
   P1 := {{term1[i,k] + term3[i,k] for k in 1:2} for i in 1:3};
 
-  // Extract: p = P1 col 2, v = P1 col 1 (cyecca swaps: vertcat(P1[:,1], P1[:,0], R1))
+  // Extract p = P1 column 2 and v = P1 column 1 to match {p, v, q} ordering.
   X1[1] := P1[1,2]; X1[2] := P1[2,2]; X1[3] := P1[3,2];
   X1[4] := P1[1,1]; X1[5] := P1[2,1]; X1[6] := P1[3,1];
   X1[7] := q1[1]; X1[8] := q1[2]; X1[9] := q1[3]; X1[10] := q1[4];

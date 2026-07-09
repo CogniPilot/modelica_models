@@ -29,7 +29,7 @@ algorithm
   end for;
 
   annotation(Documentation(info="<html>
-    <p>Forward left Jacobian of SE_2(3), matching cyecca <code>se23.left_jacobian</code>.</p>
+    <p>Forward left Jacobian of SE_2(3) for the {vb, ab, omega} tangent ordering.</p>
     <p>Used by log-linear dynamic-inversion control: n = nbar - J_l(xi) BK xi.</p>
   </html>"));
 end left_jacobian;

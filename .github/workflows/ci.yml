@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - "**"
+    tags-ignore:
+      - "v*"
+
+permissions:
+  contents: read
+
+env:
+  NIX_FLAGS: >-
+    --quiet
+    --option warn-dirty false
+    --option http-connections 1
+    --option max-substitution-jobs 1
+
+jobs:
+  test:
+    name: Modelica Regression Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up Nix
+        uses: DeterminateSystems/nix-installer-action@v22
+      - name: Prefer GitHub Nix cache
+        run: |
+          install -m 0600 /dev/null "$RUNNER_TEMP/determinate-nix-installer-netrc"
+      - name: Cache Nix builds
+        uses: DeterminateSystems/magic-nix-cache-action@v14
+        with:
+          use-flakehub: disabled
+          use-gha-cache: enabled
+      - name: Run tests
+        env:
+          PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"
+          MOCAP_IEKF_ARTIFACT_DIR: test_artifacts/mocap_iekf
+        run: |
+          nix $NIX_FLAGS develop github:CogniPilot/rumoca --command bash -lc '
+            set -euo pipefail
+            python -m venv "$RUNNER_TEMP/modelica-models-ci"
+            "$RUNNER_TEMP/modelica-models-ci/bin/python" -m pip install --upgrade pip pytest rumoca
+            "$RUNNER_TEMP/modelica-models-ci/bin/python" -m pytest -q
+          '
+      - name: Upload mocap IEKF artifacts
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: mocap-iekf-regression
+          path: test_artifacts/mocap_iekf
+          if-no-files-found: warn

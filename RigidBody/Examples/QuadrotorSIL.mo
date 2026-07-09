@@ -5,8 +5,8 @@ within RigidBody.Examples;
 // Inputs:  4 motor angular velocities [rad/s]
 // States:  rigid body pose/velocity plus motor speeds
 //
-// Internal frame matches the cyecca model: local world Z is Up and body axes
-// are Forward-Left-Up. The FastDyn FMU wrapper exposes NED/FRD values.
+// Internal frame uses local world Z Up and body axes Forward-Left-Up.
+// The FastDyn FMU wrapper exposes NED/FRD values.
 //
 // Motor layout (ArduPilot Quad-X output order):
 //   1: front-right  CCW   2: rear-left   CCW
