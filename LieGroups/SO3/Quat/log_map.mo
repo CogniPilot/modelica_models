@@ -13,9 +13,12 @@ algorithm
   // Normalize input
   q_n := LieGroups.SO3.Quat.normalize(q);
 
-  // Ensure positive scalar part (shortest path). Written as an if-EXPRESSION
-  // (not a no-else if-statement) so AD/both-branch compilers evaluate it correctly.
-  q_n := if q_n[1] < 0 then -q_n else q_n;
+  // Ensure positive scalar part (shortest path).
+  if q_n[1] < 0 then
+    for i in 1:4 loop
+      q_n[i] := -q_n[i];
+    end for;
+  end if;
 
   qw := min(max(q_n[1], -1.0), 1.0);
   vec_norm := sqrt(q_n[2]^2 + q_n[3]^2 + q_n[4]^2);

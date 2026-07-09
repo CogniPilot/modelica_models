@@ -9,9 +9,13 @@ protected
 algorithm
   // Ensure positive scalar part
   if q[1] < 0 then
-    q_n := -q;
+    for i in 1:4 loop
+      q_n[i] := -q[i];
+    end for;
   else
-    q_n := q;
+    for i in 1:4 loop
+      q_n[i] := q[i];
+    end for;
   end if;
 
   den := max(1.0 + q_n[1], eps);

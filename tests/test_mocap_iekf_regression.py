@@ -9,6 +9,8 @@ from pathlib import Path
 
 import rumoca as rm
 
+from tests.rust_codegen import normalize_rumoca_rust
+
 
 ROOT = Path(__file__).resolve().parents[1]
 MODEL_FILE = ROOT / "Estimation" / "Examples" / "MocapExternalOdometryIEKF.mo"
@@ -23,7 +25,7 @@ def test_mocap_iekf_tracks_figure_eight_with_fixed_one_second_dropouts(tmp_path:
     codegen = model.codegen("rust-solve")
 
     generated_path = tmp_path / "mocap_iekf_generated.rs"
-    generated_path.write_text(codegen.files[0].content)
+    generated_path.write_text(normalize_rumoca_rust(codegen.files[0].content))
 
     dropout_windows = DROPOUT_WINDOWS
     harness_path = tmp_path / "mocap_iekf_regression.rs"
@@ -31,7 +33,7 @@ def test_mocap_iekf_tracks_figure_eight_with_fixed_one_second_dropouts(tmp_path:
     exe_path = tmp_path / "mocap_iekf_regression"
 
     subprocess.run(
-        ["rustc", "-O", str(harness_path), "-o", str(exe_path)],
+        ["rustc", "-Awarnings", "-O", str(harness_path), "-o", str(exe_path)],
         cwd=tmp_path,
         check=True,
     )

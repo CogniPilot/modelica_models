@@ -20,7 +20,7 @@ env:
 
 jobs:
   test:
-    name: Modelica Examples
+    name: Modelica Regression Tests
     runs-on: ubuntu-latest
 
     steps:

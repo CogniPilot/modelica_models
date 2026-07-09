@@ -4,8 +4,6 @@ Reusable Modelica building blocks for FastDyn/Rumoca simulations.
 
 ## Layout
 
-- `LieGroup/`: lightweight SO(3) and quaternion utilities used by the
-  generic rigid-body templates.
 - `Estimation/`: reusable estimator prediction models and examples.
 - `LieGroups/`: full Lie group library (SO(2)/SO(3), SE(2)/SE(3)/SE_2(3),
   with quaternion, DCM, MRP, and Euler-B321 SO(3) charts) providing exp/log

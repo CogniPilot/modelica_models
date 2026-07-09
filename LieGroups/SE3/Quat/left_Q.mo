@@ -43,22 +43,35 @@ algorithm
 
   V := LieGroups.SO3.Quat.wedge(rho);
   O := LieGroups.SO3.Quat.wedge(omega);
-  O2 := O*O;
-  OV := O*V;
-  VO := V*O;
-  O2V := O2*V;
-  VO2 := V*O2;
-  OVO := OV*O;
-  OVO2 := OV*O2;
-  O2VO := O2V*O;
-  O2VO2 := O2V*O2;
+  for i in 1:3 loop
+    for j in 1:3 loop
+      O2[i,j] := O[i,1]*O[1,j] + O[i,2]*O[2,j] + O[i,3]*O[3,j];
+      OV[i,j] := O[i,1]*V[1,j] + O[i,2]*V[2,j] + O[i,3]*V[3,j];
+      VO[i,j] := V[i,1]*O[1,j] + V[i,2]*O[2,j] + V[i,3]*O[3,j];
+    end for;
+  end for;
 
-  Q := 0.5*V
-       + C1*(OV + VO)
-       + C2*(O2V + VO2)
-       + C3*(OVO2 + O2VO)
-       + C4*(O2VO2)
-       + C5*(OVO);
+  for i in 1:3 loop
+    for j in 1:3 loop
+      O2V[i,j] := O2[i,1]*V[1,j] + O2[i,2]*V[2,j] + O2[i,3]*V[3,j];
+      VO2[i,j] := V[i,1]*O2[1,j] + V[i,2]*O2[2,j] + V[i,3]*O2[3,j];
+      OVO[i,j] := OV[i,1]*O[1,j] + OV[i,2]*O[2,j] + OV[i,3]*O[3,j];
+      OVO2[i,j] := OV[i,1]*O2[1,j] + OV[i,2]*O2[2,j] + OV[i,3]*O2[3,j];
+      O2VO[i,j] := O2V[i,1]*O[1,j] + O2V[i,2]*O[2,j] + O2V[i,3]*O[3,j];
+      O2VO2[i,j] := O2V[i,1]*O2[1,j] + O2V[i,2]*O2[2,j] + O2V[i,3]*O2[3,j];
+    end for;
+  end for;
+
+  for i in 1:3 loop
+    for j in 1:3 loop
+      Q[i,j] := 0.5*V[i,j]
+        + C1*(OV[i,j] + VO[i,j])
+        + C2*(O2V[i,j] + VO2[i,j])
+        + C3*(OVO2[i,j] + O2VO[i,j])
+        + C4*O2VO2[i,j]
+        + C5*OVO[i,j];
+    end for;
+  end for;
 
   annotation(Documentation(info="<html>
     <p>SE(3) left-Jacobian Q block (Barfoot). The SE(3) left Jacobian is
