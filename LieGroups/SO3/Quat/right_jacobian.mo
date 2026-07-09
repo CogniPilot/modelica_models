@@ -25,9 +25,11 @@ algorithm
     A := 0.5 - theta_sq / 24.0;
     B := 1.0/6.0 - theta_sq / 120.0;
   else
-    theta := sqrt(theta_sq);
-    A := (1.0 - cos(theta)) / theta_sq;
-    B := (theta - sin(theta)) / (theta_sq * theta);
+    // Keep the closed form finite for compilers/evaluators that inspect both
+    // branches during symbolic processing.
+    theta := sqrt(max(theta_sq, eps));
+    A := (1.0 - cos(theta)) / (theta * theta);
+    B := (theta - sin(theta)) / (theta * theta * theta);
   end if;
 
   // J_r = I - A * [v]x + B * [v]x^2  (note: minus sign on A term vs left Jacobian)

@@ -13,8 +13,7 @@ algorithm
   // Normalize input
   q_n := LieGroups.SO3.Quat.normalize(q);
 
-  // Ensure positive scalar part (shortest path). Written as an if-EXPRESSION
-  // (not a no-else if-statement) so AD/both-branch compilers evaluate it correctly.
+  // Ensure positive scalar part (shortest path).
   q_n := if q_n[1] < 0 then -q_n else q_n;
 
   qw := min(max(q_n[1], -1.0), 1.0);

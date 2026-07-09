@@ -24,8 +24,7 @@ algorithm
 
   r := ((1.0 - na_sq)*b + (1.0 - nb_sq)*a - 2.0*cross_ba) / denom;
 
-  // Shadow switch if ||r|| > 1. If-EXPRESSION (not a no-else if-statement) so
-  // AD/both-branch compilers evaluate the condition correctly.
+  // Shadow switch if ||r|| > 1.
   n_sq := r[1]^2 + r[2]^2 + r[3]^2;
   r := if n_sq > 1.0 then LieGroups.SO3.Mrp.shadow(r) else r;
 end product;

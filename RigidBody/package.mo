@@ -23,7 +23,7 @@ package RigidBody
     Real M_b[3] "Total moment in body frame [N*m]";
     output Real p[3](start = p_start, each fixed = true) "World position [m]";
     output Real v_b[3](start = v_b_start, each fixed = true) "Body velocity [m/s]";
-    output Real q[4](start = q_start) "Quaternion w,x,y,z";
+    output Real q[4](start = q_start, each fixed = true) "Quaternion w,x,y,z";
     output Real omega[3](start = omega_start, each fixed = true) "Body angular velocity [rad/s]";
     output Real R[3, 3](start = [
       1, 0, 0;
@@ -34,7 +34,8 @@ package RigidBody
     output Real a_b[3](start = {0, 0, 0}) "Body specific force [m/s^2]";
 
   protected
-    LieGroup.SO3.Quaternion attitude(q_start = q_start, qnorm_gain = qnorm_gain);
+    Real q_dot_raw[4] "Unnormalized quaternion derivative";
+    Real q_norm_err(start = 0) "Quaternion norm error";
     Real gravity_w[3] "Gravity in world frame [m/s^2]";
     Real gravity_b[3] "Gravity in body frame [m/s^2]";
     Real H_b[3] "Angular momentum in body frame [kg*m^2/s]";
@@ -42,9 +43,12 @@ package RigidBody
     Real M_body[3] "Rigid-body angular acceleration moment [N*m]";
 
   equation
-    attitude.omega = omega;
-    q = attitude.q;
-    R = attitude.R;
+    q_norm_err = q[1] * q[1] + q[2] * q[2] + q[3] * q[3] + q[4] * q[4] - 1;
+    q_dot_raw = LieGroups.SO3.Quat.kinematics(q, omega);
+    for i in 1:4 loop
+      der(q[i]) = q_dot_raw[i] - qnorm_gain * q_norm_err * q[i];
+    end for;
+    R = LieGroups.SO3.Quat.to_DCM(q);
 
     v_w = R * v_b;
     gravity_w = {0, 0, -g};
