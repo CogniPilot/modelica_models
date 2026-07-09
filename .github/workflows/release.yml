@@ -44,7 +44,7 @@ jobs:
           stage="${RUNNER_TEMP}/${package_dir}"
 
           mkdir -p "${stage}"
-          cp -R Geodesy LieGroup RigidBody README.md LICENSE "${stage}/"
+          cp -R Estimation Geodesy LieGroup RigidBody README.md LICENSE "${stage}/"
 
           (
             cd "${RUNNER_TEMP}"
@@ -70,6 +70,7 @@ jobs:
           CogniPilot Modelica Models ${tag}
 
           This release contains the Modelica packages:
+          - Estimation
           - Geodesy
           - LieGroup
           - RigidBody

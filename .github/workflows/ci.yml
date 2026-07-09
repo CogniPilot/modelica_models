@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - "**"
+    tags-ignore:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Modelica Examples
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install Python test dependencies
+        run: python -m pip install --upgrade pip pytest rumoca
+      - name: Run tests
+        env:
+          PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"
+          MOCAP_IEKF_ARTIFACT_DIR: test_artifacts/mocap_iekf
+        run: pytest -q
+      - name: Upload mocap IEKF artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mocap-iekf-regression
+          path: test_artifacts/mocap_iekf
+          if-no-files-found: warn
