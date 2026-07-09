@@ -38,18 +38,10 @@ jobs:
       - name: Run tests
         env:
           PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"
-          MOCAP_IEKF_ARTIFACT_DIR: test_artifacts/mocap_iekf
         run: |
-          nix $NIX_FLAGS develop github:CogniPilot/rumoca --command bash -lc '
+          nix $NIX_FLAGS develop .#ci --command bash -lc '
             set -euo pipefail
             python -m venv "$RUNNER_TEMP/modelica-models-ci"
             "$RUNNER_TEMP/modelica-models-ci/bin/python" -m pip install --upgrade pip pytest rumoca
             "$RUNNER_TEMP/modelica-models-ci/bin/python" -m pytest -q
           '
-      - name: Upload mocap IEKF artifacts
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: mocap-iekf-regression
-          path: test_artifacts/mocap_iekf
-          if-no-files-found: warn
