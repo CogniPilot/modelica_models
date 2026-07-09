@@ -6,6 +6,7 @@ Reusable Modelica building blocks for FastDyn/Rumoca simulations.
 
 - `LieGroup/`: lightweight SO(3) and quaternion utilities used by the
   generic rigid-body templates.
+- `Estimation/`: reusable estimator prediction models and examples.
 - `Geodesy/`: reusable local-frame and geodetic conversion helpers.
 - `RigidBody/`: reusable six-degree-of-freedom rigid-body dynamics.
 - `RigidBody/Examples/`: reusable base plants for quadrotor, rover, and
