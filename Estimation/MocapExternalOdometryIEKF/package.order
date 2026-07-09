@@ -1,0 +1,8 @@
+stabilize_covariance
+inverse6
+joseph_update
+inject
+initialize
+predict
+correct
+step
