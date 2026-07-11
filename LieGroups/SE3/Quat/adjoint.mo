@@ -12,20 +12,11 @@ algorithm
   // Skew of position
   px := LieGroups.SO3.Quat.wedge(X[1:3]);
 
-  // [p]x * R
-  for i in 1:3 loop
-    for j in 1:3 loop
-      pR[i,j] := px[i,1]*R[1,j] + px[i,2]*R[2,j] + px[i,3]*R[3,j];
-    end for;
-  end for;
+  pR := px * R;
 
   // Ad = {{R, [p]x*R}, {0, R}}
-  for i in 1:3 loop
-    for j in 1:3 loop
-      Ad[i,j] := R[i,j];
-      Ad[i,j+3] := pR[i,j];
-      Ad[i+3,j] := 0;
-      Ad[i+3,j+3] := R[i,j];
-    end for;
-  end for;
+  Ad := zeros(6, 6);
+  Ad[1:3, 1:3] := R;
+  Ad[1:3, 4:6] := pR;
+  Ad[4:6, 4:6] := R;
 end adjoint;

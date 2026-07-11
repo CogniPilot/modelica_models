@@ -1,0 +1,9 @@
+Axis
+axisIndex
+rotationMatrix
+validSequence
+inNonsingularChart
+to_Matrix
+from_Matrix
+to_Quat
+from_Quat

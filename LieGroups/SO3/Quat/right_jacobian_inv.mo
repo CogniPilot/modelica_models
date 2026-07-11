@@ -12,13 +12,8 @@ protected
 algorithm
   theta_sq := v[1]^2 + v[2]^2 + v[3]^2;
 
-  S := {{0, -v[3], v[2]},
-        {v[3], 0, -v[1]},
-        {-v[2], v[1], 0}};
-
-  S2 := {{-(v[2]^2 + v[3]^2), v[1]*v[2], v[1]*v[3]},
-         {v[1]*v[2], -(v[1]^2 + v[3]^2), v[2]*v[3]},
-         {v[1]*v[3], v[2]*v[3], -(v[1]^2 + v[2]^2)}};
+  S := LieGroups.SO3.Quat.wedge(v);
+  S2 := S * S;
 
   if theta_sq < eps then
     C := 1.0/12.0 + theta_sq / 720.0;
@@ -28,11 +23,7 @@ algorithm
   end if;
 
   // J_r^{-1} = I + 0.5 * [v]x + C * [v]x^2  (note: plus sign on 0.5 term vs left inv)
-  for i in 1:3 loop
-    for j in 1:3 loop
-      J_inv[i,j] := (if i == j then 1.0 else 0.0) + 0.5 * S[i,j] + C * S2[i,j];
-    end for;
-  end for;
+  J_inv := identity(3) + 0.5 * S + C * S2;
 
   annotation(Documentation(info="<html>
     <p>Inverse right Jacobian of SO(3): J_r^{-1}(v) = I + ½[v]× + C·[v]×²</p>

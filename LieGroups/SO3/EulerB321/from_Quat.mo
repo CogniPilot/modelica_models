@@ -12,7 +12,7 @@ algorithm
   sinp := 2.0*(a*c - d*b);
   sinp := min(max(sinp, -1.0), 1.0);
 
-  if abs(sinp) > 0.9999 then
+  if sinp * sinp > 0.9999 * 0.9999 then
     // Gimbal lock: pitch near +/- 90 deg
     euler[2] := asin(sinp);
     euler[3] := 0.0;
