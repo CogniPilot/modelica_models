@@ -1,0 +1,62 @@
+setCommandLineOptions("--std=3.6");
+
+if not loadFile("LinearAlgebra/package.mo") then
+  print(getErrorString());
+  exit(1);
+end if;
+if not loadFile("Polynomials/package.mo") then
+  print(getErrorString());
+  exit(1);
+end if;
+if not loadFile("Planning/package.mo") then
+  print(getErrorString());
+  exit(1);
+end if;
+
+cd("artifacts/planning");
+
+familyResult := simulate(
+  Planning.Examples.DubinsFamilyGallery,
+  startTime=0.0,
+  stopTime=1.0,
+  numberOfIntervals=400,
+  tolerance=1.0e-9,
+  method="dassl",
+  outputFormat="csv",
+  fileNamePrefix="dubins_families"); getErrorString();
+familyFile := familyResult.resultFile;
+if familyFile == "" then
+  print("Failed to simulate the Dubins family gallery\n");
+  exit(1);
+end if;
+
+polynomialResult := simulate(
+  Planning.Examples.DubinsAircraftFlightPlan,
+  startTime=0.0,
+  stopTime=1.0,
+  numberOfIntervals=400,
+  tolerance=1.0e-9,
+  method="dassl",
+  outputFormat="csv",
+  fileNamePrefix="dubins_aircraft_flightplan"); getErrorString();
+polynomialFile := polynomialResult.resultFile;
+if polynomialFile == "" then
+  print("Failed to simulate the seven-waypoint Dubins aircraft flight plan\n");
+  exit(1);
+end if;
+
+exampleResult := simulate(
+  Planning.Examples.DubinsPolynomialGallery,
+  startTime=0.0,
+  stopTime=1.0,
+  numberOfIntervals=400,
+  tolerance=1.0e-9,
+  method="dassl",
+  outputFormat="csv",
+  fileNamePrefix="dubins_polynomial_examples"); getErrorString();
+exampleFile := exampleResult.resultFile;
+if exampleFile == "" then
+  print("Failed to simulate the Dubins-polynomial example gallery\n");
+  exit(1);
+end if;
+exit(0);

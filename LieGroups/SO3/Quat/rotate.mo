@@ -7,7 +7,5 @@ protected
   Real R[3,3];
 algorithm
   R := LieGroups.SO3.Quat.to_DCM(q);
-  v_out[1] := R[1,1]*v[1] + R[1,2]*v[2] + R[1,3]*v[3];
-  v_out[2] := R[2,1]*v[1] + R[2,2]*v[2] + R[2,3]*v[3];
-  v_out[3] := R[3,1]*v[1] + R[3,2]*v[2] + R[3,3]*v[3];
+  v_out := R * v;
 end rotate;

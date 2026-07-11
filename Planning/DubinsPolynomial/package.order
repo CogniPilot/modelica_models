@@ -1,0 +1,13 @@
+State
+nominalCurvature
+segmentStartPose
+evaluateSegment
+evaluate
+invertNormalDerivatives
+smoothOffsets
+jointOptimizeOffsets
+smoothOffsetCoefficients
+derivativeCost
+junctionContinuityResidual
+coordinatedRollAngle
+coordinatedRollRate

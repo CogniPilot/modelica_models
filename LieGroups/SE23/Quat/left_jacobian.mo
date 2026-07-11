@@ -15,18 +15,12 @@ algorithm
 
   // Block structure (ordering {vb, ab, omega}):
   // J = {{Jl, 0, Qv}, {0, Jl, Qa}, {0, 0, Jl}}
-  for i in 1:9 loop
-    for j in 1:9 loop
-      J[i,j] := 0.0;
-    end for;
-  end for;
-  for i in 1:3 loop
-    for j in 1:3 loop
-      J[i,j]     := Jl[i,j];   J[i,j+6]   := Qv[i,j];
-      J[i+3,j+3] := Jl[i,j];   J[i+3,j+6] := Qa[i,j];
-      J[i+6,j+6] := Jl[i,j];
-    end for;
-  end for;
+  J := zeros(9, 9);
+  J[1:3, 1:3] := Jl;
+  J[1:3, 7:9] := Qv;
+  J[4:6, 4:6] := Jl;
+  J[4:6, 7:9] := Qa;
+  J[7:9, 7:9] := Jl;
 
   annotation(Documentation(info="<html>
     <p>Forward left Jacobian of SE_2(3) for the {vb, ab, omega} tangent ordering.</p>

@@ -6,7 +6,6 @@ within RigidBody.Examples;
 // States:  rigid body pose/velocity plus motor speeds
 //
 // Internal frame uses local world Z Up and body axes Forward-Left-Up.
-// The FastDyn FMU wrapper exposes NED/FRD values.
 //
 // Motor layout (ArduPilot Quad-X output order):
 //   1: front-right  CCW   2: rear-left   CCW

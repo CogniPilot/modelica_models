@@ -75,6 +75,22 @@
     },
     "nixpkgs": {
       "locked": {
+        "lastModified": 1783522502,
+        "narHash": "sha256-iffAls3iaNTyJC2faYcUXSI+Gp02cDjYl+MygxKl2GI=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "0bb7ec54c8483066ec9d7720e780a5caa71f8612",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_2": {
+      "locked": {
         "lastModified": 1783389287,
         "narHash": "sha256-0xIy4dVLqq47rA+mRy0hXDfjhQd4E5PoIns/RmB7nR4=",
         "owner": "NixOS",
@@ -92,10 +108,7 @@
     "root": {
       "inputs": {
         "flake-utils": "flake-utils",
-        "nixpkgs": [
-          "rumoca",
-          "nixpkgs"
-        ],
+        "nixpkgs": "nixpkgs",
         "rumoca": "rumoca"
       }
     },
@@ -104,14 +117,14 @@
         "crane": "crane",
         "fenix": "fenix",
         "flake-utils": "flake-utils_2",
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1783584985,
-        "narHash": "sha256-10rz5nk4opDCHGMjEmi6DUxhNG0rsvbo8YkI7uAV8qk=",
+        "lastModified": 1783693060,
+        "narHash": "sha256-MhBF2ZIjV3k1rNmzKxq+f3AGXqQoiHxGOztahe4+qMI=",
         "owner": "CogniPilot",
         "repo": "rumoca",
-        "rev": "2bcd66ccaeaa3affe266e5f08951075407d4540d",
+        "rev": "a72d40e0eb2cb4f3a5ca18a5dad75da49801e67a",
         "type": "github"
       },
       "original": {

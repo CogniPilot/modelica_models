@@ -12,11 +12,10 @@ algorithm
   wx := LieGroups.SO3.Quat.wedge(xi[7:9]);
 
   // ad = {{[omega]x, 0, [vb]x}, {0, [omega]x, [ab]x}, {0, 0, [omega]x}}
-  for i in 1:3 loop
-    for j in 1:3 loop
-      ad[i,j]     := wx[i,j];   ad[i,j+3]   := 0;        ad[i,j+6]   := vx[i,j];
-      ad[i+3,j]   := 0;         ad[i+3,j+3] := wx[i,j];  ad[i+3,j+6] := ax[i,j];
-      ad[i+6,j]   := 0;         ad[i+6,j+3] := 0;         ad[i+6,j+6] := wx[i,j];
-    end for;
-  end for;
+  ad := zeros(9, 9);
+  ad[1:3, 1:3] := wx;
+  ad[1:3, 7:9] := vx;
+  ad[4:6, 4:6] := wx;
+  ad[4:6, 7:9] := ax;
+  ad[7:9, 7:9] := wx;
 end small_adjoint;

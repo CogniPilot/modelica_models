@@ -21,12 +21,8 @@ protected
   // N matrices (3x2): calculated for left and right
   Real Nl[3,2], Nr[3,2];
 
-  // Intermediate products
-  Real OmAl[3,2], Om2Al[3,2];
-  Real OmAr[3,2], Om2Ar[3,2];
-  Real AlB[3,2], ArBn[3,2];
   Real I2[2,2];
-  Real IpB[2,2], ImB[2,2];
+  Real IpB[2,2];
 
   // Rotation quaternions
   Real q_l[4], q_r[4], q_r0[4], q1[4];
@@ -53,49 +49,20 @@ algorithm
     C3 := (theta_sq/2.0 + cos(theta) - 1.0) / (theta_sq * theta_sq);
   end if;
 
-  // Build Omega (skew of omega_l) and Omega^2
+  // Build Omega (skew of omega_l) and Omega^2.
   Om := LieGroups.SO3.Quat.wedge(omega_l);
-  for i in 1:3 loop
-    for j in 1:3 loop
-      Om2[i,j] := Om[i,1]*Om[1,j] + Om[i,2]*Om[2,j] + Om[i,3]*Om[3,j];
-    end for;
-  end for;
+  Om2 := Om * Om;
 
   // A_l = [a_b | v_b] (columns: acceleration, velocity from left algebra)
   Al := {{l[4], l[1]}, {l[5], l[2]}, {l[6], l[3]}};
   Ar := {{r[4], r[1]}, {r[5], r[2]}, {r[6], r[3]}};
 
-  I2 := {{1, 0}, {0, 1}};
-
-  // Omega*A and Omega^2*A for left
-  for i in 1:3 loop
-    for k in 1:2 loop
-      OmAl[i,k] := Om[i,1]*Al[1,k] + Om[i,2]*Al[2,k] + Om[i,3]*Al[3,k];
-      Om2Al[i,k] := Om2[i,1]*Al[1,k] + Om2[i,2]*Al[2,k] + Om2[i,3]*Al[3,k];
-    end for;
-  end for;
-
-  // A*B for left
-  for i in 1:3 loop
-    for k in 1:2 loop
-      AlB[i,k] := Al[i,1]*B[1,k] + Al[i,2]*B[2,k];
-    end for;
-  end for;
+  I2 := identity(2);
 
   // N_l = A + A*B/2 + Om*A*(C1*I + C2*B) + Om^2*A*(C2*I + C3*B)
-  for i in 1:3 loop
-    for k in 1:2 loop
-      Nl[i,k] := Al[i,k] + AlB[i,k]/2.0;
-      // Om*A*(C1*I + C2*B)
-      for j in 1:2 loop
-        Nl[i,k] := Nl[i,k] + OmAl[i,j]*(C1*(if j==k then 1.0 else 0.0) + C2*B[j,k]);
-      end for;
-      // Om^2*A*(C2*I + C3*B)
-      for j in 1:2 loop
-        Nl[i,k] := Nl[i,k] + Om2Al[i,j]*(C2*(if j==k then 1.0 else 0.0) + C3*B[j,k]);
-      end for;
-    end for;
-  end for;
+  Nl := Al + 0.5 * Al * B
+    + Om * Al * (C1 * I2 + C2 * B)
+    + Om2 * Al * (C2 * I2 + C3 * B);
 
   // N_r: same closed-form construction with right algebra and -B.
   // The Omega in Nr uses omega_r.
@@ -115,31 +82,10 @@ algorithm
   end if;
 
   Om := LieGroups.SO3.Quat.wedge(omega_r);
-  for i in 1:3 loop
-    for j in 1:3 loop
-      Om2[i,j] := Om[i,1]*Om[1,j] + Om[i,2]*Om[2,j] + Om[i,3]*Om[3,j];
-    end for;
-  end for;
-
-  for i in 1:3 loop
-    for k in 1:2 loop
-      OmAr[i,k] := Om[i,1]*Ar[1,k] + Om[i,2]*Ar[2,k] + Om[i,3]*Ar[3,k];
-      Om2Ar[i,k] := Om2[i,1]*Ar[1,k] + Om2[i,2]*Ar[2,k] + Om2[i,3]*Ar[3,k];
-      ArBn[i,k] := -(Ar[i,1]*B[1,k] + Ar[i,2]*B[2,k]);
-    end for;
-  end for;
-
-  for i in 1:3 loop
-    for k in 1:2 loop
-      Nr[i,k] := Ar[i,k] + ArBn[i,k]/2.0;
-      for j in 1:2 loop
-        Nr[i,k] := Nr[i,k] + OmAr[i,j]*(C1*(if j==k then 1.0 else 0.0) - C2*B[j,k]);
-      end for;
-      for j in 1:2 loop
-        Nr[i,k] := Nr[i,k] + Om2Ar[i,j]*(C2*(if j==k then 1.0 else 0.0) - C3*B[j,k]);
-      end for;
-    end for;
-  end for;
+  Om2 := Om * Om;
+  Nr := Ar - 0.5 * Ar * B
+    + Om * Ar * (C1 * I2 - C2 * B)
+    + Om2 * Ar * (C2 * I2 - C3 * B);
 
   // Rotation updates
   q_l := LieGroups.SO3.Quat.exp_map(omega_l);
@@ -154,31 +100,13 @@ algorithm
   P0 := {{X0[4], X0[1]}, {X0[5], X0[2]}, {X0[6], X0[3]}};
 
   // I + B
-  IpB := {{1 + B[1,1], B[1,2]}, {B[2,1], 1 + B[2,2]}};
+  IpB := I2 + B;
 
   // P1 = R_r0 * Nl + (R_r * P0 + Nr) * (I + B)
-  // term1 = R_r0 * Nl
-  for i in 1:3 loop
-    for k in 1:2 loop
-      term1[i,k] := R_r0[i,1]*Nl[1,k] + R_r0[i,2]*Nl[2,k] + R_r0[i,3]*Nl[3,k];
-    end for;
-  end for;
-
-  // term2 = R_r * P0 + Nr
-  for i in 1:3 loop
-    for k in 1:2 loop
-      term2[i,k] := R_r[i,1]*P0[1,k] + R_r[i,2]*P0[2,k] + R_r[i,3]*P0[3,k] + Nr[i,k];
-    end for;
-  end for;
-
-  // term3 = term2 * (I + B)
-  for i in 1:3 loop
-    for k in 1:2 loop
-      term3[i,k] := term2[i,1]*IpB[1,k] + term2[i,2]*IpB[2,k];
-    end for;
-  end for;
-
-  P1 := {{term1[i,k] + term3[i,k] for k in 1:2} for i in 1:3};
+  term1 := R_r0 * Nl;
+  term2 := R_r * P0 + Nr;
+  term3 := term2 * IpB;
+  P1 := term1 + term3;
 
   // Extract p = P1 column 2 and v = P1 column 1 to match {p, v, q} ordering.
   X1[1] := P1[1,2]; X1[2] := P1[2,2]; X1[3] := P1[3,2];
