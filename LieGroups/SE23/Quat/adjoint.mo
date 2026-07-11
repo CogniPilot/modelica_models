@@ -13,20 +13,14 @@ algorithm
   px := LieGroups.SO3.Quat.wedge(X[1:3]);
   vx := LieGroups.SO3.Quat.wedge(X[4:6]);
 
-  // [p]x * R and [v]x * R
-  for i in 1:3 loop
-    for j in 1:3 loop
-      pR[i,j] := px[i,1]*R[1,j] + px[i,2]*R[2,j] + px[i,3]*R[3,j];
-      vR[i,j] := vx[i,1]*R[1,j] + vx[i,2]*R[2,j] + vx[i,3]*R[3,j];
-    end for;
-  end for;
+  pR := px * R;
+  vR := vx * R;
 
   // Ad = {{R, 0, [p]x*R}, {0, R, [v]x*R}, {0, 0, R}}
-  for i in 1:3 loop
-    for j in 1:3 loop
-      Ad[i,j]     := R[i,j];    Ad[i,j+3]   := 0;        Ad[i,j+6]   := pR[i,j];
-      Ad[i+3,j]   := 0;         Ad[i+3,j+3] := R[i,j];   Ad[i+3,j+6] := vR[i,j];
-      Ad[i+6,j]   := 0;         Ad[i+6,j+3] := 0;         Ad[i+6,j+6] := R[i,j];
-    end for;
-  end for;
+  Ad := zeros(9, 9);
+  Ad[1:3, 1:3] := R;
+  Ad[1:3, 7:9] := pR;
+  Ad[4:6, 4:6] := R;
+  Ad[4:6, 7:9] := vR;
+  Ad[7:9, 7:9] := R;
 end adjoint;

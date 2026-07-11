@@ -13,15 +13,8 @@ protected
 algorithm
   theta_sq := v[1]^2 + v[2]^2 + v[3]^2;
 
-  // Skew-symmetric matrix [v]x
-  S := {{0, -v[3], v[2]},
-        {v[3], 0, -v[1]},
-        {-v[2], v[1], 0}};
-
-  // [v]x^2
-  S2 := {{-(v[2]^2 + v[3]^2), v[1]*v[2], v[1]*v[3]},
-         {v[1]*v[2], -(v[1]^2 + v[3]^2), v[2]*v[3]},
-         {v[1]*v[3], v[2]*v[3], -(v[1]^2 + v[2]^2)}};
+  S := LieGroups.SO3.Quat.wedge(v);
+  S2 := S * S;
 
   if theta_sq < eps then
     // Taylor series: (1-cos t)/t^2 ~ 1/2 - t^2/24
@@ -31,18 +24,14 @@ algorithm
   else
     // NaN-safe denominator: this branch is only selected for theta_sq >= eps, so
     // max(theta_sq, eps) is exact when taken, but keeps the closed form finite when
-    // an AD/both-branch evaluator (e.g. rumoca) evaluates it at theta_sq = 0.
+    // an eager both-branch or automatic-differentiation evaluator sees theta_sq = 0.
     theta := sqrt(max(theta_sq, eps));
     A := (1.0 - cos(theta)) / (theta * theta);
     B := (theta - sin(theta)) / (theta * theta * theta);
   end if;
 
   // J_l = I + A * [v]x + B * [v]x^2
-  for i in 1:3 loop
-    for j in 1:3 loop
-      J[i,j] := (if i == j then 1.0 else 0.0) + A * S[i,j] + B * S2[i,j];
-    end for;
-  end for;
+  J := identity(3) + A * S + B * S2;
 
   annotation(Documentation(info="<html>
     <p>Left Jacobian of SO(3): J_l(v) = I + ((1-cos θ)/θ²)[v]× + ((θ-sin θ)/θ³)[v]×²</p>

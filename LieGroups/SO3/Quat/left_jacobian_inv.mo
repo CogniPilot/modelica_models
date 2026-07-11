@@ -12,15 +12,8 @@ protected
 algorithm
   theta_sq := v[1]^2 + v[2]^2 + v[3]^2;
 
-  // Skew-symmetric matrix [v]x
-  S := {{0, -v[3], v[2]},
-        {v[3], 0, -v[1]},
-        {-v[2], v[1], 0}};
-
-  // [v]x^2
-  S2 := {{-(v[2]^2 + v[3]^2), v[1]*v[2], v[1]*v[3]},
-         {v[1]*v[2], -(v[1]^2 + v[3]^2), v[2]*v[3]},
-         {v[1]*v[3], v[2]*v[3], -(v[1]^2 + v[2]^2)}};
+  S := LieGroups.SO3.Quat.wedge(v);
+  S2 := S * S;
 
   if theta_sq < eps then
     // Taylor series: 1/t^2 + sin(t)/(2t(cos(t)-1)) ~ 1/12 + t^2/720
@@ -33,11 +26,7 @@ algorithm
   end if;
 
   // J_l^{-1} = I - 0.5 * [v]x + C * [v]x^2
-  for i in 1:3 loop
-    for j in 1:3 loop
-      J_inv[i,j] := (if i == j then 1.0 else 0.0) - 0.5 * S[i,j] + C * S2[i,j];
-    end for;
-  end for;
+  J_inv := identity(3) - 0.5 * S + C * S2;
 
   annotation(Documentation(info="<html>
     <p>Inverse left Jacobian of SO(3): J_l^{-1}(v) = I - ½[v]× + C·[v]×²</p>

@@ -1,26 +1,21 @@
 within Estimation.MocapExternalOdometryIEKF;
-function initialize "Initialize flat IEKF state from a pose measurement"
-  input Real position_enu_m[3];
-  input Real attitude_wxyz[4];
-  input Real attitudeVariance;
-  input Real velocityVariance;
-  input Real positionVariance;
-  input Real angularVelocityVariance;
-  output Real x[157]
-    "Flat state: attitude, velocity, position, angular velocity, covariance";
-protected
-  Real attitude[4];
+function initialize "Initialize the IEKF from a pose measurement"
+  input Real position[3] "Initial position in world ENU coordinates [m]";
+  input Real attitude[4] "Initial scalar-first Hamilton quaternion";
+  input Estimation.MocapExternalOdometryIEKF.InitialVariances variances;
+  output Estimation.MocapExternalOdometryIEKF.State state;
 algorithm
-  x := zeros(157);
-  attitude := LieGroups.SO3.Quat.normalize(attitude_wxyz);
-  for i in 1:4 loop
-    x[i] := attitude[i];
-  end for;
-  for i in 1:3 loop
-    x[i + 7] := position_enu_m[i];
-    x[13 + (i - 1) * 12 + i] := attitudeVariance;
-    x[13 + (i + 2) * 12 + i + 3] := velocityVariance;
-    x[13 + (i + 5) * 12 + i + 6] := positionVariance;
-    x[13 + (i + 8) * 12 + i + 9] := angularVelocityVariance;
+  state.attitude := LieGroups.SO3.Quat.normalize(attitude);
+  state.velocity := zeros(3);
+  state.position := position;
+  state.angularVelocity := zeros(3);
+  state.covariance := zeros(
+    Estimation.MocapExternalOdometryIEKF.TangentLength,
+    Estimation.MocapExternalOdometryIEKF.TangentLength);
+  for axis in 1:3 loop
+    state.covariance[axis, axis] := variances.attitude;
+    state.covariance[axis + 3, axis + 3] := variances.velocity;
+    state.covariance[axis + 6, axis + 6] := variances.position;
+    state.covariance[axis + 9, axis + 9] := variances.angularVelocity;
   end for;
 end initialize;

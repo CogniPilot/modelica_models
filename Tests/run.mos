@@ -1,0 +1,53 @@
+setCommandLineOptions("--std=3.6");
+
+if not loadFile("LinearAlgebra/package.mo") then
+  print(getErrorString());
+  exit(1);
+end if;
+if not loadFile("Polynomials/package.mo") then
+  print(getErrorString());
+  exit(1);
+end if;
+if not loadFile("LieGroups/package.mo") then
+  print(getErrorString());
+  exit(1);
+end if;
+if not loadFile("RigidBody/package.mo") then
+  print(getErrorString());
+  exit(1);
+end if;
+if not loadFile("Planning/package.mo") then
+  print(getErrorString());
+  exit(1);
+end if;
+if not loadFile("Estimation/package.mo") then
+  print(getErrorString());
+  exit(1);
+end if;
+if not loadFile("Tests/package.mo") then
+  print(getErrorString());
+  exit(1);
+end if;
+
+testOutputDirectory := getTempDirectoryPath();
+cd(testOutputDirectory);
+
+check := checkModel(Tests.All);
+print(check);
+print(getErrorString());
+
+res := simulate(
+  Tests.All,
+  startTime=0.0,
+  stopTime=1.0,
+  numberOfIntervals=1000,
+  tolerance=1.0e-8,
+  method="dassl",
+  outputFormat="mat",
+  fileNamePrefix="modelica_models_Tests_All"); getErrorString();
+resultFile := res.resultFile;
+if resultFile <> "" then
+  exit(0);
+end if;
+print("Modelica test simulation failed\n");
+exit(1);

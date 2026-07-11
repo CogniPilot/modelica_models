@@ -19,11 +19,12 @@ algorithm
          {r[1]*r[2], -(r[1]^2 + r[3]^2), r[2]*r[3]},
          {r[1]*r[3], r[2]*r[3], -(r[1]^2 + r[2]^2)}};
 
-  // R = I + (8*S^2 - 4*(1-n_sq)*S) / (1+n_sq)^2
+  // Consistent with q = {(1-r^2)/(1+r^2), 2*r/(1+r^2)}.
+  // R = I + (8*S^2 + 4*(1-n_sq)*S) / (1+n_sq)^2
   for i in 1:3 loop
     for j in 1:3 loop
       R[i,j] := (if i == j then 1.0 else 0.0)
-                + (8.0*S2[i,j] - 4.0*(1.0 - n_sq)*S[i,j]) / den_sq;
+                + (8.0*S2[i,j] + 4.0*(1.0 - n_sq)*S[i,j]) / den_sq;
     end for;
   end for;
 end to_DCM;
