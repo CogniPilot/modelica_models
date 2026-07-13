@@ -41,11 +41,6 @@ protected
   Real bodyAngularVelocityRate[3];
 
 equation
-  assert(mass > 0.0, "Rigid-body mass must be positive");
-  assert(ixx > 0.0 and ixx * iyy - ixy * ixy > 0.0 and
-      ixx * iyy * izz + 2.0 * ixy * ixz * iyz
-        - ixx * iyz * iyz - iyy * ixz * ixz - izz * ixy * ixy > 0.0,
-    "Rigid-body inertia matrix must be positive definite");
   state.worldPosition = p;
   state.bodyVelocity = v_b;
   state.attitude = q;

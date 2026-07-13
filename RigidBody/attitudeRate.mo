@@ -7,5 +7,9 @@ algorithm
   rate := LieGroups.SO3.Quat.kinematics(
     state.attitude, state.bodyAngularVelocity)
     - parameters.quaternionNormGain
-      * (state.attitude * state.attitude - 1.0) * state.attitude;
+      * (state.attitude[1] * state.attitude[1]
+        + state.attitude[2] * state.attitude[2]
+        + state.attitude[3] * state.attitude[3]
+        + state.attitude[4] * state.attitude[4] - 1.0)
+      * state.attitude;
 end attitudeRate;
