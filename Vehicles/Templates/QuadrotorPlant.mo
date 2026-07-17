@@ -1,6 +1,6 @@
-within RigidBody.Examples;
+within Vehicles.Templates;
 
-// 6-DOF quadrotor SIL plant model.
+// Parameterized 6-DOF quadrotor plant model.
 //
 // Inputs:  4 motor angular velocities [rad/s]
 // States:  rigid body pose/velocity plus motor speeds
@@ -11,15 +11,16 @@ within RigidBody.Examples;
 //   1: front-right  CCW   2: rear-left   CCW
 //   3: front-left   CW    4: rear-right  CW
 
-model QuadrotorSIL
+model QuadrotorPlant
   parameter Real vehicle_mass = 2.0 "Total vehicle mass [kg]";
+  parameter Real gravity = 9.80665 "Gravitational acceleration [m/s2]";
   parameter Real vehicle_ixx = 0.02166666666666667 "Body inertia xx [kg*m^2]";
   parameter Real vehicle_iyy = 0.02166666666666667 "Body inertia yy [kg*m^2]";
   parameter Real vehicle_izz = 0.04000000000000001 "Body inertia zz [kg*m^2]";
 
   extends RigidBody.RigidBody6DOF(
     mass = vehicle_mass,
-    g = 9.8,
+    g = gravity,
     ixx = vehicle_ixx,
     iyy = vehicle_iyy,
     izz = vehicle_izz,
@@ -173,4 +174,4 @@ equation
   velocity = v_w;
   quat = q;
 
-end QuadrotorSIL;
+end QuadrotorPlant;

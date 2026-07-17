@@ -3,6 +3,12 @@
 Reusable Modelica building blocks for rigid-body simulation, estimation,
 control, and verification.
 
+This repository is the aerospace engineering workspace for CogniPilot vehicle
+development. Vehicle physics, flight-control source models, named vehicle
+parameterizations, avionics-facing plant interfaces, missions, and
+qualification criteria live here. Firmware repositories consume exported
+artifacts; they do not own alternate copies of these models.
+
 ## Layout
 
 - `Estimation/`: structured estimator prediction and correction functions.
@@ -16,10 +22,49 @@ control, and verification.
   including `B232` and `S123`.
 - `Geodesy/`: reusable local-frame and geodetic conversion helpers.
 - `RigidBody/`: reusable six-degree-of-freedom rigid-body dynamics.
+- `MathUtilities/`: shared clipping, filtering, angle, rate, and norm helpers.
 - `Planning/`: forward-only bounded-curvature path planning, including all six
   classical Dubins path families.
-- `RigidBody/Examples/`: reusable base plants for quadrotor, rover, and
-  fixed-wing use cases. These plants contain vehicle-generic dynamics only.
+- `Vehicles/Templates/`: parameterized fixed-wing and quadrotor plants.
+- `Vehicles/Cubs2/` and `Vehicles/Rdd2/`: named parameterizations,
+  flight-control models, avionics plant interfaces, and qualification missions.
+
+The vehicle library is execution-neutral. Its names describe physical or
+control meaning only. Tooling outside the library decides whether a model is
+executed directly or exported for another runtime.
+
+## Vehicle development
+
+An aerospace change follows one source path:
+
+1. Edit a reusable plant under `Vehicles/Templates/`, or a named vehicle,
+   controller, and mission under `Vehicles/Cubs2/` or `Vehicles/Rdd2/`.
+2. Run the named vehicle qualification. Each mission exercises the controller
+   and plant together and writes reviewable traces and reports beneath
+   `artifacts/vehicles/`.
+3. Export the same controller source as eFMI Production Code.
+4. Export the same avionics plant interface as FMI 3 Co-Simulation.
+5. Let the consuming firmware repository integrate those generated artifacts.
+
+Landing-gear contact is intentionally eventful. Touchdown relations are
+preserved as Modelica events through direct simulation and FMI export.
+
+The pinned Nix applications are:
+
+```bash
+nix run .#cubs2-qualification
+nix run .#rdd2-qualification
+nix run .#vehicle-qualification
+
+nix run .#cubs2-export-controller
+nix run .#cubs2-export-plant
+nix run .#rdd2-export-controller
+nix run .#rdd2-export-plant
+```
+
+Set `MODELICA_MODELS_ROOT` when invoking an application from outside this
+checkout. Extra command-line arguments are forwarded to the selected
+qualification or Rumoca export command.
 
 ## Testing
 
