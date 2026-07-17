@@ -64,6 +64,13 @@
           };
         cubs2Qualification = mkQualification "cubs2-qualification" ./Vehicles/Cubs2/Qualification/run_qualification.py;
         rdd2Qualification = mkQualification "rdd2-qualification" ./Vehicles/Rdd2/Qualification/run_qualification.py;
+        trajectoryCompare = pkgs.writeShellApplication {
+          name = "trajectory-compare";
+          runtimeInputs = [ python ];
+          text = ''
+            exec ${python}/bin/python3 ${./tools/trajectory_compare.py} "$@"
+          '';
+        };
         allVehicleQualification = pkgs.writeShellApplication {
           name = "vehicle-qualification";
           runtimeInputs = [
@@ -124,6 +131,13 @@
           target = "galec-production";
           output = "artifacts/vehicles/rdd2/controller";
         };
+        rdd2EstimatorExport = mkModelExport {
+          name = "rdd2-export-estimator";
+          modelFile = "Estimation/ComplementaryAttitude.mo";
+          modelName = "Estimation.ComplementaryAttitude";
+          target = "galec-production";
+          output = "artifacts/vehicles/rdd2/estimator";
+        };
         rdd2PlantExport = mkModelExport {
           name = "rdd2-export-plant";
           modelFile = "Vehicles/Rdd2/AvionicsPlant.mo";
@@ -137,10 +151,12 @@
         packages.ci = ciRunner;
         packages.cubs2-qualification = cubs2Qualification;
         packages.rdd2-qualification = rdd2Qualification;
+        packages.trajectory-compare = trajectoryCompare;
         packages.vehicle-qualification = allVehicleQualification;
         packages.cubs2-export-controller = cubs2ControllerExport;
         packages.cubs2-export-plant = cubs2PlantExport;
         packages.rdd2-export-controller = rdd2ControllerExport;
+        packages.rdd2-export-estimator = rdd2EstimatorExport;
         packages.rdd2-export-plant = rdd2PlantExport;
         apps.default = {
           type = "app";
@@ -162,6 +178,11 @@
           program = "${rdd2Qualification}/bin/rdd2-qualification";
           meta.description = "Run RDD2 model-level flight qualification";
         };
+        apps.trajectory-compare = {
+          type = "app";
+          program = "${trajectoryCompare}/bin/trajectory-compare";
+          meta.description = "Compare canonical vehicle trajectory logs";
+        };
         apps.vehicle-qualification = {
           type = "app";
           program = "${allVehicleQualification}/bin/vehicle-qualification";
@@ -181,6 +202,11 @@
           type = "app";
           program = "${rdd2ControllerExport}/bin/rdd2-export-controller";
           meta.description = "Export the RDD2 controller as eFMI Production Code";
+        };
+        apps.rdd2-export-estimator = {
+          type = "app";
+          program = "${rdd2EstimatorExport}/bin/rdd2-export-estimator";
+          meta.description = "Export the RDD2 attitude estimator as eFMI Production Code";
         };
         apps.rdd2-export-plant = {
           type = "app";

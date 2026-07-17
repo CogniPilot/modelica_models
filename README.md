@@ -59,12 +59,36 @@ nix run .#vehicle-qualification
 nix run .#cubs2-export-controller
 nix run .#cubs2-export-plant
 nix run .#rdd2-export-controller
+nix run .#rdd2-export-estimator
 nix run .#rdd2-export-plant
 ```
 
 Set `MODELICA_MODELS_ROOT` when invoking an application from outside this
 checkout. Extra command-line arguments are forwarded to the selected
 qualification or Rumoca export command.
+
+## Mission trajectory logs
+
+Named vehicle missions write a canonical, execution-neutral trajectory log:
+
+```text
+time_s,x_m,y_m,z_m,roll_rad,pitch_rad,yaw_rad
+```
+
+`tools/trajectory_compare.py` treats one such log as the gold standard,
+interpolates any number of named candidate logs at its timestamps, renders
+full trajectory/component/error plots, and enforces duration, position,
+altitude, and attitude limits. It intentionally knows nothing about the system
+that produced a log. Run the pinned interface with:
+
+```sh
+nix run .#trajectory-compare -- --help
+```
+
+Qualification artifacts remain ignored build outputs under
+`artifacts/vehicles/`. A downstream repository can compare generated, bench,
+or flight logs by adapting them to this seven-column contract; no downstream
+execution terminology or log decoder belongs in this library.
 
 ## Testing
 

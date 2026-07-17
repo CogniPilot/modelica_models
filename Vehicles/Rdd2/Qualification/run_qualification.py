@@ -85,7 +85,7 @@ def evaluate(values: dict[str, list[float]]) -> dict[str, object]:
     return {"passed": all(checks.values()), "checks": checks, "metrics": metrics}
 
 
-def write_trace(values: dict[str, list[float]]) -> None:
+def write_trace(values: dict[str, list[float]], path: Path) -> None:
     names = [
         "time_s",
         "x_m",
@@ -101,7 +101,7 @@ def write_trace(values: dict[str, list[float]]) -> None:
         "motor3",
     ]
     selected = {name: signal(values, name) for name in names}
-    with (ARTIFACT_DIR / "mission.csv").open("w", newline="", encoding="utf-8") as stream:
+    with path.open("w", newline="", encoding="utf-8") as stream:
         writer = csv.DictWriter(stream, fieldnames=names)
         writer.writeheader()
         for index in range(len(selected["time_s"])):
@@ -147,7 +147,8 @@ def main() -> None:
     _session, model, simulation = rum.Session.from_scenario(str(SCENARIO))
     result = model.simulate(t=(0.0, 20.0), config=simulation)
     values = columns(result)
-    write_trace(values)
+    write_trace(values, ARTIFACT_DIR / "mission.csv")
+    write_trace(values, ARTIFACT_DIR / "mission-trajectory.csv")
     report = evaluate(values)
     report["mode"] = "modelica"
     report["control"] = "Modelica"
@@ -156,6 +157,10 @@ def main() -> None:
         "controller": {
             "path": "Vehicles/Rdd2/Controller.mo",
             "sha256": source_digest(ROOT / "Vehicles" / "Rdd2" / "Controller.mo"),
+        },
+        "estimator": {
+            "path": "Estimation/ComplementaryAttitude.mo",
+            "sha256": source_digest(ROOT / "Estimation" / "ComplementaryAttitude.mo"),
         },
         "plant": {
             "configuration": {

@@ -59,7 +59,7 @@ class ScenarioConfig:
 
 
 def stage_end_time(mode: str) -> float:
-    return {"takeoff": 8.0, "altitude": 16.0, "heading": 24.0}.get(mode, 150.0)
+    return {"takeoff": 8.0, "altitude": 16.0, "heading": 24.0, "mission": 40.0}.get(mode, 150.0)
 
 
 def scenario_path(mode: str) -> Path:
@@ -174,6 +174,25 @@ def write_csv(path: Path, rows: list[dict[str, float | str]]) -> None:
     print(f"wrote {path}")
 
 
+def write_trajectory(path: Path, rows: list[dict[str, float | str]]) -> None:
+    fields = ["time_s", "x_m", "y_m", "z_m", "roll_rad", "pitch_rad", "yaw_rad"]
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", newline="", encoding="utf-8") as fp:
+        writer = csv.DictWriter(fp, fieldnames=fields)
+        writer.writeheader()
+        for row in rows:
+            writer.writerow({
+                "time_s": f(row, "time"),
+                "x_m": f(row, "x"),
+                "y_m": f(row, "y"),
+                "z_m": f(row, "z"),
+                "roll_rad": f(row, "roll"),
+                "pitch_rad": f(row, "pitch"),
+                "yaw_rad": f(row, "yaw"),
+            })
+    print(f"wrote {path}")
+
+
 def run_rumoca_stage(mode: str, t_end: float | None = None) -> list[dict[str, float | str]]:
     scenario = load_scenario_config(mode)
     if not scenario.path.exists():
@@ -257,10 +276,27 @@ def assert_heading(rows: list[dict[str, float | str]]) -> None:
 
 def assert_pattern(rows: list[dict[str, float | str]]) -> None:
     laps = max(values(rows, "laps"))
-    assert laps >= 2.0, f"pattern: expected two laps, got {laps:.0f}"
+    assert laps == 2.0, f"pattern: expected exactly two laps, got {laps:.0f}"
     assert max(values(rows, "z")) > 2.0, "pattern: never climbed into pattern altitude"
+    assert max(values(rows, "x")) > 25.0, "pattern: did not reach the east side of the route"
+    assert max(values(rows, "y")) > 15.0, "pattern: did not reach the north side of the route"
+    assert min(values(rows, "x")) < 5.0, "pattern: did not return to the west side of the route"
     assert final(rows, "mission_phase") == 3.0, "pattern: landing phase did not start"
     assert final(rows, "z") < 1.5, f"pattern: did not descend for landing, final z={final(rows, 'z'):.2f}"
+
+
+def assert_mission(rows: list[dict[str, float | str]]) -> None:
+    assert final(rows, "time") >= 39.9, f"mission: trace ended early at {final(rows, 'time'):.3f} s"
+    laps = max(values(rows, "laps"))
+    assert 1.0 <= laps <= 4.0, f"mission: implausible completed-lap count: {laps:.0f}"
+    assert max(values(rows, "z")) > 1.5, "mission: vehicle did not take off"
+    assert min(values(rows, "x")) < -5.0, "mission: did not reach the west side of the route"
+    assert max(values(rows, "x")) > 10.0, "mission: did not reach the east side of the route"
+    assert min(values(rows, "y")) < -5.0, "mission: did not reach the south side of the route"
+    assert max(values(rows, "y")) > 0.0, "mission: did not reach the north side of the route"
+    for key in ("x", "y", "z", "roll", "pitch", "yaw"):
+        assert all(math.isfinite(value) for value in values(rows, key)), \
+            f"mission: {key} trace contains a non-finite value"
 
 
 def save_plot(fig: plt.Figure, name: str) -> Path:
@@ -433,6 +469,7 @@ def run_checks(stages: dict[str, list[dict[str, float | str]]]) -> list[tuple[st
         ("altitude", assert_altitude),
         ("heading", assert_heading),
         ("pattern", assert_pattern),
+        ("mission", assert_mission),
     ]
     results = []
     for name, check in checks:
@@ -541,7 +578,9 @@ def main() -> int:
         "altitude": run_rumoca_stage("altitude"),
         "heading": run_rumoca_stage("heading"),
         "pattern": run_rumoca_stage("pattern", t_end=args.pattern_t_end),
+        "mission": run_rumoca_stage("mission"),
     }
+    write_trajectory(ARTIFACT_DIR / "mission-trajectory.csv", stages["mission"])
     plot_paths = plot(stages)
     check_results = run_checks(stages)
     write_markdown_report(stages, check_results, plot_paths)
