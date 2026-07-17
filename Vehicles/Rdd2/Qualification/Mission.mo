@@ -1,25 +1,33 @@
 within Vehicles.Rdd2.Qualification;
 model Mission
   Vehicles.Rdd2.AvionicsPlant plant;
-  Vehicles.Rdd2.CommandMapping rcMapping;
+  Estimation.ComplementaryAttitude attitudeEstimate(samplePeriod=0.005);
+  Vehicles.Rdd2.CommandMapping rcMapping(samplePeriod=0.000625);
   Vehicles.Rdd2.PidAxis attitudeRoll(
-    kp = 4.0,
-    ki = 0.0,
-    kd = 0.0,
-    i_limit = 0.0,
-    output_limit = 6.0
+    samplePeriod=0.005,
+    kp=4.0,
+    ki=0.0,
+    kd=0.0,
+    i_limit=0.0,
+    output_limit=6.0
   );
   Vehicles.Rdd2.PidAxis attitudePitch(
-    kp = 4.0,
-    ki = 0.0,
-    kd = 0.0,
-    i_limit = 0.0,
-    output_limit = 6.0
+    samplePeriod=0.005,
+    kp=4.0,
+    ki=0.0,
+    kd=0.0,
+    i_limit=0.0,
+    output_limit=6.0
   );
-  Vehicles.Rdd2.PidAxis rateRoll;
-  Vehicles.Rdd2.PidAxis ratePitch;
-  Vehicles.Rdd2.PidAxis rateYaw(kp = 0.20, ki = 0.20, kd = 0.0);
-  Vehicles.Rdd2.Mixer mixer;
+  Vehicles.Rdd2.PidAxis rateRoll(samplePeriod=0.000625);
+  Vehicles.Rdd2.PidAxis ratePitch(samplePeriod=0.000625);
+  Vehicles.Rdd2.PidAxis rateYaw(
+    samplePeriod=0.000625,
+    kp=0.20,
+    ki=0.20,
+    kd=0.0
+  );
+  Vehicles.Rdd2.Mixer mixer(samplePeriod=0.000625);
 
   Real desiredAltitude_m;
   Real throttleNorm;
@@ -67,22 +75,34 @@ equation
   rcYawUs = 1500.0;
   rcArmUs = if armed then 2000.0 else 1000.0;
 
+  attitudeEstimate.gyro_rad_s = {
+    plant.gyro_x_rad_s,
+    plant.gyro_y_rad_s,
+    plant.gyro_z_rad_s
+  };
+  attitudeEstimate.accel_m_s2 = {
+    plant.accel_x_m_s2,
+    plant.accel_y_m_s2,
+    plant.accel_z_m_s2
+  };
+  attitudeEstimate.reset = not armed;
+
   rcMapping.rcRollUs = rcRollUs;
   rcMapping.rcPitchUs = rcPitchUs;
   rcMapping.rcThrottleUs = rcThrottleUs;
   rcMapping.rcYawUs = rcYawUs;
   rcMapping.rcArmUs = rcArmUs;
-  rcMapping.attitudeRoll = plant.roll_rad;
-  rcMapping.attitudePitch = plant.pitch_rad;
-  rcMapping.attitudeYaw = plant.yaw_rad;
+  rcMapping.attitudeRoll = attitudeEstimate.euler_rad[1];
+  rcMapping.attitudePitch = attitudeEstimate.euler_rad[2];
+  rcMapping.attitudeYaw = attitudeEstimate.euler_rad[3];
   rcMapping.throttleInputForCommand = throttleNorm;
   rcMapping.armed = armed;
 
   attitudeRoll.setpoint = rcMapping.attitudeDesiredRoll;
-  attitudeRoll.measurement = plant.roll_rad;
+  attitudeRoll.measurement = attitudeEstimate.euler_rad[1];
   attitudeRoll.integrate = 0.0;
   attitudePitch.setpoint = rcMapping.attitudeDesiredPitch;
-  attitudePitch.measurement = plant.pitch_rad;
+  attitudePitch.measurement = attitudeEstimate.euler_rad[2];
   attitudePitch.integrate = 0.0;
 
   rollRateDesired = attitudeRoll.pidOutput;

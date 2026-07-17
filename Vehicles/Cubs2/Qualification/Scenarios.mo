@@ -51,13 +51,13 @@ end TakeoffOpenLoop;
 model Takeoff
   parameter Vehicles.Cubs2.RouteParameters takeoffRoute =
     Vehicles.Cubs2.RouteParameters(
-      nSegments = 6,
-      cruiseSpeed = 4.5,
+      nSegments=6,
+      cruiseSpeed=4.5,
       waypoints = [
-        0.0,   0.0, 0.0;
-        30.0,  0.0, 3.0;
-        60.0,  0.0, 3.0;
-        90.0,  0.0, 3.0;
+        0.0, 0.0, 0.0;
+        30.0, 0.0, 3.0;
+        60.0, 0.0, 3.0;
+        90.0, 0.0, 3.0;
         120.0, 0.0, 3.0;
         150.0, 0.0, 3.0;
         180.0, 0.0, 3.0
@@ -67,8 +67,8 @@ model Takeoff
   Vehicles.Cubs2.Plant vehicle;
   Vehicles.Cubs2.InnerLoop innerLoop;
   Vehicles.Cubs2.OuterLoop outerLoop(
-    route = takeoffRoute,
-    estimator(useMeasuredRates = 0.0)
+    route=takeoffRoute,
+    estimator(useMeasuredRates=0.0)
   );
 
   output Real time_s;
@@ -125,14 +125,14 @@ model AltitudeHold
   parameter Real targetAltitude_m = 3.0;
   parameter Vehicles.Cubs2.RouteParameters straightRoute =
     Vehicles.Cubs2.RouteParameters(
-      nSegments = 6,
-      cruiseSpeed = 4.0,
-      waypointSwitchingDistance = 3.0,
+      nSegments=6,
+      cruiseSpeed=4.0,
+      waypointSwitchingDistance=3.0,
       waypoints = [
-        0.0,   0.0, 3.0;
-        30.0,  0.0, 3.0;
-        60.0,  0.0, 3.0;
-        90.0,  0.0, 3.0;
+        0.0, 0.0, 3.0;
+        30.0, 0.0, 3.0;
+        60.0, 0.0, 3.0;
+        90.0, 0.0, 3.0;
         120.0, 0.0, 3.0;
         150.0, 0.0, 3.0;
         180.0, 0.0, 3.0
@@ -140,11 +140,11 @@ model AltitudeHold
     );
 
   Vehicles.Cubs2.Plant vehicle(
-    p_start = {0.0, 0.0, targetAltitude_m},
-    v_b_start = {4.0, 0.0, 0.0}
+    p_start={0.0, 0.0, targetAltitude_m},
+    v_b_start={4.0, 0.0, 0.0}
   );
   Vehicles.Cubs2.InnerLoop innerLoop;
-  Vehicles.Cubs2.OuterLoop outerLoop(route = straightRoute);
+  Vehicles.Cubs2.OuterLoop outerLoop(route=straightRoute);
 
   output Real time_s;
   output Real x_m;
@@ -196,14 +196,14 @@ model HeadingHold
   parameter Real targetAltitude_m = 3.0;
   parameter Vehicles.Cubs2.RouteParameters straightRoute =
     Vehicles.Cubs2.RouteParameters(
-      nSegments = 6,
-      cruiseSpeed = targetSpeed_m_s,
-      waypointSwitchingDistance = 3.0,
+      nSegments=6,
+      cruiseSpeed=targetSpeed_m_s,
+      waypointSwitchingDistance=3.0,
       waypoints = [
-        0.0,   0.0, targetAltitude_m;
-        30.0,  0.0, targetAltitude_m;
-        60.0,  0.0, targetAltitude_m;
-        90.0,  0.0, targetAltitude_m;
+        0.0, 0.0, targetAltitude_m;
+        30.0, 0.0, targetAltitude_m;
+        60.0, 0.0, targetAltitude_m;
+        90.0, 0.0, targetAltitude_m;
         120.0, 0.0, targetAltitude_m;
         150.0, 0.0, targetAltitude_m;
         180.0, 0.0, targetAltitude_m
@@ -211,12 +211,12 @@ model HeadingHold
     );
 
   Vehicles.Cubs2.Plant vehicle(
-    p_start = {0.0, 0.0, targetAltitude_m},
-    v_b_start = {4.0, 0.0, 0.0},
-    q_start = {0.9689124217106447, 0.0, 0.0, -0.24740395925452294}
+    p_start={0.0, 0.0, targetAltitude_m},
+    v_b_start={4.0, 0.0, 0.0},
+    q_start={0.9689124217106447, 0.0, 0.0, -0.24740395925452294}
   );
   Vehicles.Cubs2.InnerLoop innerLoop;
-  Vehicles.Cubs2.OuterLoop outerLoop(route = straightRoute);
+  Vehicles.Cubs2.OuterLoop outerLoop(route=straightRoute);
 
   output Real time_s;
   output Real x_m;
@@ -268,26 +268,26 @@ end HeadingHold;
 model PatternMission
   parameter Vehicles.Cubs2.RouteParameters patternRoute =
     Vehicles.Cubs2.RouteParameters(
-      nSegments = 6,
-      cruiseSpeed = 4.0,
-      waypointSwitchingDistance = 3.0,
+      nSegments=6,
+      cruiseSpeed=4.0,
+      waypointSwitchingDistance=3.0,
       waypoints = [
-        0.0,  0.0, 3.0;
+        0.0, 0.0, 3.0;
         12.0, 0.0, 3.0;
         30.0, 0.0, 3.0;
         30.0, 20.0, 3.0;
-        0.0,  20.0, 3.0;
-        0.0,  0.0, 3.0;
+        0.0, 20.0, 3.0;
+        0.0, 0.0, 3.0;
         12.0, 0.0, 3.0
       ]
     );
 
   Vehicles.Cubs2.Plant vehicle(
-    p_start = {0.0, 0.0, 3.0},
-    v_b_start = {4.0, 0.0, 0.0}
+    p_start={0.0, 0.0, 3.0},
+    v_b_start={4.0, 0.0, 0.0}
   );
   Vehicles.Cubs2.InnerLoop innerLoop;
-  Vehicles.Cubs2.OuterLoop outerLoop(route = patternRoute);
+  Vehicles.Cubs2.OuterLoop outerLoop(route=patternRoute);
 
   output Real time_s;
   output Real x_m;
@@ -304,9 +304,9 @@ model PatternMission
 
 protected
   Real euler_rad[3];
-  discrete Integer lapCount(start = 0, fixed = true);
-  discrete Integer previousWaypoint(start = 1, fixed = true);
-  discrete Boolean landing(start = false, fixed = true);
+  discrete Integer lapCount(start=0, fixed=true);
+  discrete Integer previousWaypoint(start=1, fixed=true);
+  discrete Boolean landing(start=false, fixed=true);
 
 algorithm
   when sample(0.0, 0.02) then
@@ -315,48 +315,125 @@ algorithm
        and vehicle.position[3] > 2.0
        and pre(previousWaypoint) == 6
        and outerLoop.currentWaypoint == 1 then
-      lapCount := pre(lapCount) + 1;
-    else
-      lapCount := pre(lapCount);
-    end if;
+    lapCount := pre(lapCount) + 1;
+  else
+    lapCount := pre(lapCount);
+  end if;
 
-    previousWaypoint := outerLoop.currentWaypoint;
-    landing := pre(landing) or lapCount >= 2;
-  end when;
+  previousWaypoint := outerLoop.currentWaypoint;
+  landing := pre(landing) or lapCount >= 2;
+end when;
 
 equation
-  euler_rad = Vehicles.Interfaces.eulerFromQuaternion(vehicle.quat);
+euler_rad = Vehicles.Interfaces.eulerFromQuaternion(vehicle.quat);
 
-  outerLoop.position_m = vehicle.position;
-  outerLoop.euler_rad = euler_rad;
-  outerLoop.velocity_m_s = vehicle.velocity;
-  outerLoop.eulerRate_rad_s = vehicle.gyro;
-  outerLoop.engaged = 1.0;
+outerLoop.position_m = vehicle.position;
+outerLoop.euler_rad = euler_rad;
+outerLoop.velocity_m_s = vehicle.velocity;
+outerLoop.eulerRate_rad_s = vehicle.gyro;
+outerLoop.engaged = 1.0;
 
-  innerLoop.armed = if landing and vehicle.position[3] < 0.4 then 0.0 else 1.0;
-  innerLoop.stick_roll = if landing then 0.0 else outerLoop.aileron;
-  innerLoop.stick_pitch = if landing then -0.25 else outerLoop.elevator;
-  innerLoop.stick_yaw = if landing then 0.0 else outerLoop.rudder;
-  innerLoop.stick_throttle = if landing then 0.12 else outerLoop.throttle;
-  innerLoop.gyro = vehicle.gyro;
-  innerLoop.up_body = vehicle.up_body;
-  innerLoop.airspeed = vehicle.airspeed;
+innerLoop.armed = if landing and vehicle.position[3] < 0.4 then 0.0 else 1.0;
+innerLoop.stick_roll = if landing then 0.0 else outerLoop.aileron;
+innerLoop.stick_pitch = if landing then -0.25 else outerLoop.elevator;
+innerLoop.stick_yaw = if landing then 0.0 else outerLoop.rudder;
+innerLoop.stick_throttle = if landing then 0.12 else outerLoop.throttle;
+innerLoop.gyro = vehicle.gyro;
+innerLoop.up_body = vehicle.up_body;
+innerLoop.airspeed = vehicle.airspeed;
 
-  vehicle.ail = innerLoop.ail;
-  vehicle.elev = innerLoop.elev;
-  vehicle.rud = innerLoop.rud;
-  vehicle.thr = innerLoop.thr;
+vehicle.ail = innerLoop.ail;
+vehicle.elev = innerLoop.elev;
+vehicle.rud = innerLoop.rud;
+vehicle.thr = innerLoop.thr;
 
-  time_s = time;
-  x_m = vehicle.position[1];
-  y_m = vehicle.position[2];
-  z_m = vehicle.position[3];
-  airspeed_m_s = vehicle.airspeed;
-  desired_heading_rad = outerLoop.desiredHeading;
-  current_waypoint = outerLoop.currentWaypoint;
-  laps = lapCount;
-  roll_cmd = innerLoop.stick_roll;
-  pitch_cmd = innerLoop.stick_pitch;
-  throttle_cmd = innerLoop.stick_throttle;
-  mission_phase = if landing then 3.0 else if outerLoop.airborne then 2.0 else 1.0;
+time_s = time;
+x_m = vehicle.position[1];
+y_m = vehicle.position[2];
+z_m = vehicle.position[3];
+airspeed_m_s = vehicle.airspeed;
+desired_heading_rad = outerLoop.desiredHeading;
+current_waypoint = outerLoop.currentWaypoint;
+laps = lapCount;
+roll_cmd = innerLoop.stick_roll;
+pitch_cmd = innerLoop.stick_pitch;
+throttle_cmd = innerLoop.stick_throttle;
+mission_phase = if landing then 3.0 else if outerLoop.airborne then 2.0 else 1.0;
 end PatternMission;
+
+model Mission "CUBS2 route mission used for cross-implementation qualification"
+  Vehicles.Cubs2.Plant vehicle(
+    q_start={0.38268343236508984, 0.0, 0.0, -0.9238795325112867}
+  );
+  Vehicles.Cubs2.InnerLoop innerLoop;
+  Vehicles.Cubs2.OuterLoop outerLoop;
+
+  output Real time_s;
+  output Real x_m;
+  output Real y_m;
+  output Real z_m;
+  output Real vx_m_s;
+  output Real vy_m_s;
+  output Real vz_m_s;
+  output Real roll_rad;
+  output Real pitch_rad;
+  output Real yaw_rad;
+  output Real current_waypoint;
+  output Real laps;
+  output Real desired_heading_rad;
+  output Real desired_speed_m_s;
+
+protected
+  Real euler_rad[3];
+  discrete Integer lapCount(start=0, fixed=true);
+  discrete Integer previousWaypoint(start=1, fixed=true);
+
+algorithm
+  when sample(0.0, 0.02) then
+    if pre(previousWaypoint) == outerLoop.route.nSegments
+       and outerLoop.currentWaypoint == 1 then
+    lapCount := pre(lapCount) + 1;
+  else
+    lapCount := pre(lapCount);
+  end if;
+  previousWaypoint := outerLoop.currentWaypoint;
+end when;
+
+equation
+euler_rad = Vehicles.Interfaces.eulerFromQuaternion(vehicle.quat);
+
+outerLoop.position_m = vehicle.position;
+outerLoop.euler_rad = euler_rad;
+outerLoop.velocity_m_s = vehicle.velocity;
+outerLoop.eulerRate_rad_s = vehicle.gyro;
+outerLoop.engaged = 1.0;
+
+innerLoop.armed = if outerLoop.throttle > 0.05 then 1.0 else 0.0;
+innerLoop.stick_roll = outerLoop.aileron;
+innerLoop.stick_pitch = outerLoop.elevator;
+innerLoop.stick_yaw = outerLoop.rudder;
+innerLoop.stick_throttle = outerLoop.throttle;
+innerLoop.gyro = vehicle.gyro;
+innerLoop.up_body = vehicle.up_body;
+innerLoop.airspeed = vehicle.airspeed;
+
+vehicle.ail = innerLoop.ail;
+vehicle.elev = innerLoop.elev;
+vehicle.rud = innerLoop.rud;
+vehicle.thr = innerLoop.thr;
+
+time_s = time;
+x_m = vehicle.position[1];
+y_m = vehicle.position[2];
+z_m = vehicle.position[3];
+vx_m_s = vehicle.velocity[1];
+vy_m_s = vehicle.velocity[2];
+vz_m_s = vehicle.velocity[3];
+roll_rad = euler_rad[1];
+pitch_rad = euler_rad[2];
+yaw_rad = euler_rad[3];
+current_waypoint = outerLoop.currentWaypoint;
+laps = lapCount;
+desired_heading_rad = outerLoop.desiredHeading;
+desired_speed_m_s = outerLoop.desiredSpeed;
+end Mission;
