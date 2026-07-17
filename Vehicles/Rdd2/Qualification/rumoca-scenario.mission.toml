@@ -1,0 +1,17 @@
+source_roots = [
+  "../../..",
+]
+
+[model]
+file = "Mission.mo"
+name = "Vehicles.Rdd2.Qualification.Mission"
+
+[rumoca]
+task = "simulate"
+version = "1"
+
+[sim]
+dt = 0.005
+t_end = 20.0
+solver = "rk-like"
+output = "artifacts/vehicles/rdd2/mission.csv"

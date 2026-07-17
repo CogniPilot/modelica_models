@@ -114,6 +114,51 @@ def run_rumoca_tests(repository: Path) -> None:
                 f"Rumoca simulation for {model}",
             )
 
+        named_models = (
+            (
+                "Vehicles/Cubs2/OuterLoop.mo",
+                "Vehicles.Cubs2.OuterLoop",
+                "galec-production",
+                "cubs2-controller",
+            ),
+            (
+                "Vehicles/Cubs2/AvionicsPlant.mo",
+                "Vehicles.Cubs2.AvionicsPlant",
+                "fmi3",
+                "cubs2-plant",
+            ),
+            (
+                "Vehicles/Rdd2/Controller.mo",
+                "Vehicles.Rdd2.Controller",
+                "galec-production",
+                "rdd2-controller",
+            ),
+            (
+                "Vehicles/Rdd2/AvionicsPlant.mo",
+                "Vehicles.Rdd2.AvionicsPlant",
+                "fmi3",
+                "rdd2-plant",
+            ),
+        )
+        for model_file, model_name, target, directory in named_models:
+            run_command(
+                [
+                    rumoca,
+                    "compile",
+                    model_file,
+                    "--model",
+                    model_name,
+                    "--source-root",
+                    str(repository),
+                    "--target",
+                    target,
+                    "--output",
+                    str(output / directory),
+                ],
+                repository,
+                f"Rumoca {target} export for {model_name}",
+            )
+
 
 def run_planning_plots(repository: Path) -> None:
     print("==> Planning trajectory plots", flush=True)
