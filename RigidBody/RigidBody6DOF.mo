@@ -52,6 +52,8 @@ equation
     gravity=g,
     inertia=J,
     quaternionNormGain=qnorm_gain);
+  assert(RigidBody.validParameters(physicalParameters),
+    "Rigid-body parameters require positive mass, nonnegative gravity, and symmetric positive-definite inertia");
   worldPositionRate = RigidBody.worldPositionRate(state);
   bodyVelocityRate = RigidBody.bodyVelocityRate(
     state, wrench, physicalParameters);

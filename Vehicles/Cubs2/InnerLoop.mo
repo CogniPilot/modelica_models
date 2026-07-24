@@ -56,16 +56,26 @@ protected
   Real theta_sp "Commanded pitch [rad]";
   Real climb_auth "Nose-up authority [0, 1]";
   Real theta_eff "Protected pitch setpoint [rad]";
+  Real armFactor "Bounded arm command [0, 1]";
+  Real ailRaw "Unsaturated aileron command";
+  Real elevRaw "Unsaturated elevator command";
+  Real rudRaw "Unsaturated rudder command";
+  Real rollIntegralDrive "Roll integrator input";
+  Real pitchIntegralDrive "Pitch integrator input";
+  Real yawIntegralDrive "Yaw integrator input";
 
 equation
+  assert(v_prot_hi > v_prot_lo,
+    "The high airspeed-protection threshold must exceed the low threshold");
+  armFactor = MathUtilities.clip(armed, 0.0, 1.0);
   phi = atan2(up_body[2], up_body[3]);
   theta = atan2(up_body[1], up_body[3]);
 
   climb_auth = MathUtilities.clip(
     (airspeed - v_prot_lo) / (v_prot_hi - v_prot_lo), 0.0, 1.0);
-  phi_sp = armed * MathUtilities.clip(
+  phi_sp = armFactor * MathUtilities.clip(
     stick_roll * phi_sp_max, -phi_sp_max, phi_sp_max);
-  theta_sp = armed * MathUtilities.clip(
+  theta_sp = armFactor * MathUtilities.clip(
     noEvent(if stick_pitch > 0 then
       stick_pitch * theta_sp_max * climb_auth
     else
@@ -89,18 +99,43 @@ equation
   e_q = q_up_sp - q_up;
   e_r = r_sp - r_meas;
 
-  der(i_p) = noEvent(if i_p > ilim_p then min(0, armed * e_p)
-    else if i_p < -ilim_p then max(0, armed * e_p) else armed * e_p);
-  der(i_q) = noEvent(if i_q > ilim_q then min(0, armed * e_q)
-    else if i_q < -ilim_q then max(0, armed * e_q) else armed * e_q);
-  der(i_r) = noEvent(if i_r > ilim_r then min(0, armed * e_r)
-    else if i_r < -ilim_r then max(0, armed * e_r) else armed * e_r);
   i_p_c = MathUtilities.clip(i_p, -ilim_p, ilim_p);
   i_q_c = MathUtilities.clip(i_q, -ilim_q, ilim_q);
   i_r_c = MathUtilities.clip(i_r, -ilim_r, ilim_r);
+  ailRaw = Kp_p * e_p + Ki_p * i_p_c;
+  elevRaw = Kp_q * e_q + Ki_q * i_q_c;
+  rudRaw = Kp_r * e_r + Ki_r * i_r_c;
+  rollIntegralDrive = armFactor * e_p;
+  pitchIntegralDrive = armFactor * e_q;
+  yawIntegralDrive = armFactor * e_r;
 
-  ail = Kp_p * e_p + Ki_p * i_p_c;
-  elev = Kp_q * e_q + Ki_q * i_q_c;
-  rud = Kp_r * e_r + Ki_r * i_r_c;
-  thr = armed * stick_throttle;
+  der(i_p) = noEvent(if
+      (i_p >= ilim_p and rollIntegralDrive > 0.0)
+      or (i_p <= -ilim_p and rollIntegralDrive < 0.0)
+      or (ailRaw >= 1.0 and rollIntegralDrive > 0.0)
+      or (ailRaw <= -1.0 and rollIntegralDrive < 0.0) then
+      0.0
+    else
+      rollIntegralDrive);
+  der(i_q) = noEvent(if
+      (i_q >= ilim_q and pitchIntegralDrive > 0.0)
+      or (i_q <= -ilim_q and pitchIntegralDrive < 0.0)
+      or (elevRaw >= 1.0 and pitchIntegralDrive > 0.0)
+      or (elevRaw <= -1.0 and pitchIntegralDrive < 0.0) then
+      0.0
+    else
+      pitchIntegralDrive);
+  der(i_r) = noEvent(if
+      (i_r >= ilim_r and yawIntegralDrive > 0.0)
+      or (i_r <= -ilim_r and yawIntegralDrive < 0.0)
+      or (rudRaw >= 1.0 and yawIntegralDrive > 0.0)
+      or (rudRaw <= -1.0 and yawIntegralDrive < 0.0) then
+      0.0
+    else
+      yawIntegralDrive);
+
+  ail = armFactor * MathUtilities.clip(ailRaw, -1.0, 1.0);
+  elev = armFactor * MathUtilities.clip(elevRaw, -1.0, 1.0);
+  rud = armFactor * MathUtilities.clip(rudRaw, -1.0, 1.0);
+  thr = armFactor * MathUtilities.clip(stick_throttle, 0.0, 1.0);
 end InnerLoop;

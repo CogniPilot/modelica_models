@@ -89,7 +89,7 @@ def csv_fields() -> list[str]:
         "time", "mode", "x", "y", "z", "roll", "pitch", "yaw", "airspeed",
         "stick_roll", "stick_pitch", "stick_yaw", "stick_throttle",
         "surface_ail", "surface_elev", "surface_rud", "surface_thr",
-        "current_waypoint", "laps", "desired_heading", "desired_altitude",
+        "airborne", "current_waypoint", "laps", "desired_heading", "desired_altitude",
         "desired_flight_path_angle", "desired_acceleration", "heading",
         "course_error", "roll_command", "inner_roll_command", "pitch_command",
         "tecs_pitch_command", "tecs_thrust_command", "mission_phase",
@@ -146,6 +146,7 @@ def normalize_rumoca_result(result: rum.Result, mode: str) -> list[dict[str, flo
             "surface_elev": sample(columns, index, "vehicle.elev", "innerLoop.elev"),
             "surface_rud": sample(columns, index, "vehicle.rud", "innerLoop.rud"),
             "surface_thr": sample(columns, index, "vehicle.thr", "innerLoop.thr"),
+            "airborne": sample(columns, index, "outerLoop.airborne"),
             "current_waypoint": sample(columns, index, "current_waypoint", "outerLoop.currentWaypoint", default=1.0),
             "laps": sample(columns, index, "laps", "lapCount"),
             "desired_heading": sample(columns, index, "desired_heading_rad", "outerLoop.desiredHeading", "outerLoop.guidance.setpoints.heading"),
@@ -248,11 +249,11 @@ def assert_takeoff(rows: list[dict[str, float | str]]) -> None:
     assert final(rows, "x") > 8.0, f"takeoff: did not accelerate down runway: x={final(rows, 'x'):.2f}"
     assert final(rows, "airspeed") > 3.0, f"takeoff: final airspeed too low: {final(rows, 'airspeed'):.2f}"
     assert max_abs(rows, "roll") < 0.45, f"takeoff: wings not level, max |roll|={max_abs(rows, 'roll'):.2f}"
-    grounded = [row for row in rows if f(row, "z") < 0.30]
+    grounded = [row for row in rows if f(row, "airborne") < 0.5]
     assert grounded and min(f(row, "stick_throttle") for row in grounded) > 0.99, \
         "takeoff: ground roll did not use full throttle"
-    airborne = [row for row in rows if f(row, "z") > 0.45]
-    assert airborne, "takeoff: no samples above the airborne threshold"
+    airborne = [row for row in rows if f(row, "airborne") > 0.5]
+    assert airborne, "takeoff: controller never entered the airborne state"
     throttle_error = max(
         abs(f(row, "stick_throttle") - f(row, "tecs_thrust_command") / 0.30)
         for row in airborne
@@ -297,6 +298,23 @@ def assert_mission(rows: list[dict[str, float | str]]) -> None:
     for key in ("x", "y", "z", "roll", "pitch", "yaw"):
         assert all(math.isfinite(value) for value in values(rows, key)), \
             f"mission: {key} trace contains a non-finite value"
+
+
+def assert_trace_integrity(
+    rows: list[dict[str, float | str]], scenario: str
+) -> None:
+    assert rows, f"{scenario}: trace is empty"
+    for key in csv_fields():
+        if key == "mode":
+            continue
+        assert all(math.isfinite(value) for value in values(rows, key)), \
+            f"{scenario}: {key} trace contains a non-finite value"
+    for key in ("surface_ail", "surface_elev", "surface_rud"):
+        assert max(map(abs, values(rows, key))) <= 1.0 + 1.0e-9, \
+            f"{scenario}: {key} exceeded normalized actuator bounds"
+    throttle = values(rows, "surface_thr")
+    assert min(throttle) >= -1.0e-9 and max(throttle) <= 1.0 + 1.0e-9, \
+        f"{scenario}: throttle exceeded normalized actuator bounds"
 
 
 def save_plot(fig: plt.Figure, name: str) -> Path:
@@ -474,6 +492,7 @@ def run_checks(stages: dict[str, list[dict[str, float | str]]]) -> list[tuple[st
     results = []
     for name, check in checks:
         try:
+            assert_trace_integrity(stages[name], name)
             check(stages[name])
             results.append((name, "PASS", ""))
         except AssertionError as exc:
@@ -572,6 +591,11 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--pattern-t-end", type=float, default=None)
     args = parser.parse_args()
+
+    ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
+    for path in ARTIFACT_DIR.iterdir():
+        if path.is_file():
+            path.unlink()
 
     stages = {
         "takeoff": run_rumoca_stage("takeoff"),

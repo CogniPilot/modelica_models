@@ -1,17 +1,23 @@
-source_roots = [
-  "../../..",
-]
+source_roots = ["../../.."]
 
 [model]
 file = "Scenarios.mo"
-name = "Vehicles.Cubs2.Qualification.AltitudeHold"
+name = "Vehicles.Cubs2.Qualification.Scenarios.AltitudeHold"
+
+[plot]
+views = []
 
 [rumoca]
 task = "simulate"
 version = "1"
 
+[signals]
+
 [sim]
 dt = 0.02
-t_end = 16.0
-solver = "rk-like"
 output = "artifacts/vehicles/cubs2/altitude.csv"
+solver = "rk-like"
+t_end = 16
+
+[viewer]
+mode = "results_panel"

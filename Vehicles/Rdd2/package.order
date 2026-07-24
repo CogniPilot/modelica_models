@@ -1,5 +1,6 @@
 Plant
 Controller
+LogLinearController
 CommandMapping
 PidAxis
 Mixer

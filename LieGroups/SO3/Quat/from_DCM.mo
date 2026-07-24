@@ -39,6 +39,9 @@ algorithm
     q[4] := b4;
   end if;
 
+  // Roundoff or a mildly noisy input matrix can perturb the norm.
+  q := LieGroups.SO3.Quat.normalize(q);
+
   // Ensure positive w convention. If-EXPRESSION (not a no-else if-statement) so
   // AD/both-branch compilers evaluate the condition correctly.
   q := if q[1] < 0 then -q else q;

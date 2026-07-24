@@ -4,7 +4,9 @@ function normalize "Normalize quaternion to unit length"
   output Real q_n[4];
 protected
   Real n;
+  constant Real tolerance = 1.0e-12;
 algorithm
-  n := max(sqrt(q[1]^2 + q[2]^2 + q[3]^2 + q[4]^2), 1e-10);
+  n := sqrt(q[1]^2 + q[2]^2 + q[3]^2 + q[4]^2);
+  assert(n > tolerance, "Cannot normalize a zero quaternion");
   q_n := q / n;
 end normalize;

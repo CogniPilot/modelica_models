@@ -25,6 +25,7 @@ model EstimationTests "Initialization, prediction, correction, and failure invar
     Estimation.MocapExternalOdometryIEKF.Covariance transition;
     Estimation.MocapExternalOdometryIEKF.Covariance discreteNoise;
     Estimation.MocapExternalOdometryIEKF.MeasurementMatrix measurementMatrix;
+    Real expectedAttitudeTransition[3, 3];
     Boolean accepted;
     Boolean signAccepted;
     Boolean rejected;
@@ -74,7 +75,10 @@ model EstimationTests "Initialization, prediction, correction, and failure invar
     moving,
     0.1,
     processNoise);
-  transition := Estimation.MocapExternalOdometryIEKF.tangentTransition(0.1);
+  transition := Estimation.MocapExternalOdometryIEKF.tangentTransition(
+    0.1, moving.angularVelocity);
+  expectedAttitudeTransition := transpose(LieGroups.SO3.Quat.to_DCM(
+    LieGroups.SO3.Quat.exp_map(0.1 * moving.angularVelocity)));
   discreteNoise := Estimation.MocapExternalOdometryIEKF.discreteProcessCovariance(
     0.1, processNoise);
   measurementMatrix := Estimation.MocapExternalOdometryIEKF.poseMeasurementMatrix();
@@ -136,7 +140,8 @@ model EstimationTests "Initialization, prediction, correction, and failure invar
   assert(Tests.Assertions.maxAbsVector(
       predicted.position - (moving.position + 0.1 * moving.velocity)) < tolerance,
     "IEKF constant-velocity position prediction failed");
-  assert(abs(transition[1, 10] - 0.1) < tolerance and
+  assert(Tests.Assertions.maxAbsMatrix(
+           transition[1:3, 1:3] - expectedAttitudeTransition) < tolerance and
          abs(transition[7, 4] - 0.1) < tolerance and
          abs(discreteNoise[1, 1] - 0.1 * processNoise.attitude) < tolerance and
          abs(measurementMatrix[1, 1] - 1.0) < tolerance and
