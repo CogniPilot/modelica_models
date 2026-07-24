@@ -44,7 +44,20 @@ jobs:
           stage="${RUNNER_TEMP}/${package_dir}"
 
           mkdir -p "${stage}"
-          cp -R Estimation Geodesy LieGroups RigidBody README.md LICENSE "${stage}/"
+          cp -R \
+            Control \
+            Estimation \
+            Geodesy \
+            LieGroups \
+            LinearAlgebra \
+            MathUtilities \
+            Planning \
+            Polynomials \
+            RigidBody \
+            Vehicles \
+            README.md \
+            LICENSE \
+            "${stage}/"
 
           (
             cd "${RUNNER_TEMP}"
@@ -70,10 +83,16 @@ jobs:
           CogniPilot Modelica Models ${tag}
 
           This release contains the Modelica packages:
+          - Control
           - Estimation
           - Geodesy
           - LieGroups
+          - LinearAlgebra
+          - MathUtilities
+          - Planning
+          - Polynomials
           - RigidBody
+          - Vehicles
           EOF
 
           if gh release view "${tag}" >/dev/null 2>&1; then

@@ -23,15 +23,26 @@ artifacts; they do not own alternate copies of these models.
 - `Geodesy/`: reusable local-frame and geodetic conversion helpers.
 - `RigidBody/`: reusable six-degree-of-freedom rigid-body dynamics.
 - `MathUtilities/`: shared clipping, filtering, angle, rate, and norm helpers.
+- `Control/`: reusable control laws and sampled controller building blocks,
+  including the multirotor SE_2(3)/SO(3) log-linear controller.
 - `Planning/`: forward-only bounded-curvature path planning, including all six
   classical Dubins path families.
 - `Vehicles/Templates/`: parameterized fixed-wing and quadrotor plants.
 - `Vehicles/Cubs2/` and `Vehicles/Rdd2/`: named parameterizations,
   flight-control models, avionics plant interfaces, and qualification missions.
+  RDD2 includes both its cascaded sampled controller and a thin vehicle
+  parameterization of the reusable log-linear controller.
 
 The vehicle library is execution-neutral. Its names describe physical or
 control meaning only. Tooling outside the library decides whether a model is
 executed directly or exported for another runtime.
+
+`Control.Multirotor.LogLinear` contains the alternate controller as one
+documented package. It exposes the left-invariant state error, bounded position
+integral, SE_2(3) outer loop, SO(3) attitude loop, and sampled controller model.
+`Vehicles.Rdd2.LogLinearController` supplies only the RDD2 parameters. A
+differentially flat trajectory connects directly through its world-frame
+position, velocity, acceleration, and yaw-reference quaternion.
 
 ## Vehicle development
 
@@ -62,6 +73,25 @@ nix run .#rdd2-export-controller
 nix run .#rdd2-export-estimator
 nix run .#rdd2-export-plant
 ```
+
+For repeated qualification work, enter the development shell once:
+
+```bash
+nix develop
+vehicle-qualification
+cubs2-qualification
+rdd2-qualification
+trajectory-compare --help
+```
+
+These commands are added to `PATH` by the development shell. The shell also
+sets `MODELICA_MODELS_ROOT` to the checkout root, so qualification commands
+continue to work after changing into a subdirectory.
+
+CI runs the CUBS2 and RDD2 qualifications as independent jobs. Each job
+uploads its traces, PNG plots, and a self-contained HTML report, with a direct
+artifact link in the GitHub Actions job summary. The two jobs use
+`fail-fast: false`, so both vehicles are qualified even if one fails.
 
 Set `MODELICA_MODELS_ROOT` when invoking an application from outside this
 checkout. Extra command-line arguments are forwarded to the selected

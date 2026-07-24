@@ -5,5 +5,7 @@ LieGroupTests
 EstimationTests
 VerificationTests
 PlanningTests
+BezierTests
+LogLinearTests
 DynamicsTests
 All

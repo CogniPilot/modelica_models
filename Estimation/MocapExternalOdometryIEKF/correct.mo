@@ -15,6 +15,8 @@ protected
   Gain gain;
   TangentVector correction;
   Covariance josephFactor;
+  Covariance posteriorCovariance;
+  Covariance resetJacobian;
   NominalState predictedNominal;
   NominalState correctedNominal;
 algorithm
@@ -54,12 +56,17 @@ algorithm
     corrected.angularVelocity := correctedNominal.angularVelocity;
     josephFactor := identity(
       TangentLength) - gain * H;
-    corrected.covariance := LinearAlgebra.symmetrize(
+    posteriorCovariance := LinearAlgebra.symmetrize(
       LinearAlgebra.josephUpdate(
         josephFactor,
         predicted.covariance,
         gain,
         R));
+    resetJacobian := identity(TangentLength);
+    resetJacobian[1:3, 1:3] :=
+      LieGroups.SO3.Quat.right_jacobian(correction[1:3]);
+    corrected.covariance := LinearAlgebra.symmetrize(
+      resetJacobian * posteriorCovariance * transpose(resetJacobian));
   else
     corrected := predicted;
   end if;

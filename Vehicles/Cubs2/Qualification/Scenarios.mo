@@ -1,4 +1,5 @@
 within Vehicles.Cubs2.Qualification;
+package Scenarios "Executable CUBS2 qualification scenarios"
 
 model TakeoffOpenLoop
   Vehicles.Cubs2.Plant vehicle;
@@ -437,3 +438,4 @@ laps = lapCount;
 desired_heading_rad = outerLoop.desiredHeading;
 desired_speed_m_s = outerLoop.desiredSpeed;
 end Mission;
+end Scenarios;

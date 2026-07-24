@@ -14,207 +14,277 @@
       nixpkgs,
       rumoca,
     }:
-    flake-utils.lib.eachDefaultSystem (
-      system:
-      let
-        pkgs = import nixpkgs { inherit system; };
-        rumocaCli = rumoca.packages.${system}.rumoca;
-        rumocaPython = rumoca.packages.${system}.rumoca-python-env;
-        python = pkgs.python312.withPackages (pythonPackages: [
-          pythonPackages.matplotlib
-        ]);
-        ciRunner = pkgs.runCommand "modelica-models-ci" { } ''
-          mkdir -p "$out/bin"
-          cp ${./tools/ci.py} "$out/bin/modelica-models-ci"
-          substituteInPlace "$out/bin/modelica-models-ci" \
-            --replace-fail '#!/usr/bin/env python3' '#!${python}/bin/python3' \
-            --replace-fail 'DEFAULT_DOCKER = None' \
-              'DEFAULT_DOCKER = "${pkgs.docker-client}/bin/docker"' \
-            --replace-fail 'DEFAULT_RUMOCA = None' \
-              'DEFAULT_RUMOCA = "${rumocaCli}/bin/rumoca"'
-          chmod +x "$out/bin/modelica-models-ci"
-          ${python}/bin/python3 -m py_compile "$out/bin/modelica-models-ci"
-        '';
-        testShell = pkgs.mkShell {
-          packages = [
-            pkgs.docker-client
-            python
-            rumocaCli
-          ];
-        };
-        mkQualification =
-          name: script:
-          pkgs.writeShellApplication {
-            inherit name;
+    flake-utils.lib.eachSystem
+      [
+        "x86_64-linux"
+        "aarch64-linux"
+        "aarch64-darwin"
+      ]
+      (
+        system:
+        let
+          pkgs = import nixpkgs { inherit system; };
+          rumocaCli = rumoca.packages.${system}.rumoca;
+          rumocaPython = rumoca.packages.${system}.rumoca-python-env;
+          python = pkgs.python312.withPackages (pythonPackages: [
+            pythonPackages.matplotlib
+          ]);
+          ciRunner = pkgs.runCommand "modelica-models-ci" { } ''
+            mkdir -p "$out/bin"
+            cp ${./tools/ci.py} "$out/bin/modelica-models-ci"
+            substituteInPlace "$out/bin/modelica-models-ci" \
+              --replace-fail '#!/usr/bin/env python3' '#!${python}/bin/python3' \
+              --replace-fail 'DEFAULT_DOCKER = None' \
+                'DEFAULT_DOCKER = "${pkgs.docker-client}/bin/docker"' \
+              --replace-fail 'DEFAULT_RUMOCA = None' \
+                'DEFAULT_RUMOCA = "${rumocaCli}/bin/rumoca"'
+            chmod +x "$out/bin/modelica-models-ci"
+            ${python}/bin/python3 -m py_compile "$out/bin/modelica-models-ci"
+          '';
+          rumocaVersionCheck = pkgs.writeShellApplication {
+            name = "rumoca-version-check";
             runtimeInputs = [
-              python
+              rumocaCli
               rumocaPython
             ];
             text = ''
-              models_root="''${MODELICA_MODELS_ROOT:-$PWD}"
-              if [ ! -f "$models_root/flake.nix" ] || [ ! -d "$models_root/Vehicles" ]; then
-                printf 'error: MODELICA_MODELS_ROOT is not a modelica_models checkout: %s\n' \
-                  "$models_root" >&2
+              cli_version="$(${rumocaCli}/bin/rumoca --version)"
+              cli_version="''${cli_version##* }"
+              python_version="$(
+                ${rumocaPython}/bin/python3 -c \
+                  'import rumoca; print(rumoca.version())'
+              )"
+              if [ "$cli_version" != "$python_version" ]; then
+                printf 'error: Rumoca CLI version %s does not match Python version %s\n' \
+                  "$cli_version" "$python_version" >&2
                 exit 1
               fi
-              export MODELICA_MODELS_ROOT="$models_root"
-              export PYTHONPATH="${python}/${pkgs.python312.sitePackages}''${PYTHONPATH:+:$PYTHONPATH}"
-              exec ${rumocaPython}/bin/python3 ${script} "$@"
+
+              if cli_identity="$(${rumocaCli}/bin/rumoca build-info 2>/dev/null)"; then
+                python_identity="$(
+                  ${rumocaPython}/bin/python3 -c \
+                    'import rumoca; print(rumoca.build_identity())'
+                )"
+                if [ "$cli_identity" != "$python_identity" ]; then
+                  printf 'error: Rumoca CLI build %s does not match Python build %s\n' \
+                    "$cli_identity" "$python_identity" >&2
+                  exit 1
+                fi
+                printf 'Rumoca CLI/Python build: %s\n' "$cli_identity"
+              else
+                printf 'Rumoca CLI/Python version: %s\n' "$cli_version"
+              fi
             '';
           };
-        cubs2Qualification = mkQualification "cubs2-qualification" ./Vehicles/Cubs2/Qualification/run_qualification.py;
-        rdd2Qualification = mkQualification "rdd2-qualification" ./Vehicles/Rdd2/Qualification/run_qualification.py;
-        trajectoryCompare = pkgs.writeShellApplication {
-          name = "trajectory-compare";
-          runtimeInputs = [ python ];
-          text = ''
-            exec ${python}/bin/python3 ${./tools/trajectory_compare.py} "$@"
-          '';
-        };
-        allVehicleQualification = pkgs.writeShellApplication {
-          name = "vehicle-qualification";
-          runtimeInputs = [
-            cubs2Qualification
-            rdd2Qualification
-          ];
-          text = ''
-            cubs2-qualification "$@"
-            rdd2-qualification
-          '';
-        };
-        mkModelExport =
-          {
-            name,
-            modelFile,
-            modelName,
-            target,
-            output,
-          }:
-          pkgs.writeShellApplication {
-            inherit name;
-            runtimeInputs = [ rumocaCli ];
+          mkQualification =
+            name: script:
+            pkgs.writeShellApplication {
+              inherit name;
+              runtimeInputs = [
+                python
+                rumocaPython
+                rumocaVersionCheck
+              ];
+              text = ''
+                models_root="''${MODELICA_MODELS_ROOT:-$PWD}"
+                if [ ! -f "$models_root/flake.nix" ] || [ ! -d "$models_root/Vehicles" ]; then
+                  printf 'error: MODELICA_MODELS_ROOT is not a modelica_models checkout: %s\n' \
+                    "$models_root" >&2
+                  exit 1
+                fi
+                export MODELICA_MODELS_ROOT="$models_root"
+                export PYTHONPATH="${python}/${pkgs.python312.sitePackages}''${PYTHONPATH:+:$PYTHONPATH}"
+                rumoca-version-check
+                exec ${rumocaPython}/bin/python3 ${script} "$@"
+              '';
+            };
+          cubs2Qualification = mkQualification "cubs2-qualification" ./Vehicles/Cubs2/Qualification/run_qualification.py;
+          rdd2Qualification = mkQualification "rdd2-qualification" ./Vehicles/Rdd2/Qualification/run_qualification.py;
+          trajectoryCompare = pkgs.writeShellApplication {
+            name = "trajectory-compare";
+            runtimeInputs = [ python ];
             text = ''
-              models_root="''${MODELICA_MODELS_ROOT:-$PWD}"
-              if [ ! -f "$models_root/${modelFile}" ]; then
-                printf 'error: model source not found: %s/%s\n' \
-                  "$models_root" ${modelFile} >&2
-                exit 1
-              fi
-              mkdir -p "$models_root/${output}"
-              cd "$models_root"
-              exec rumoca compile ${modelFile} \
-                --source-root . \
-                --model ${modelName} \
-                --target ${target} \
-                --output ${output} \
-                "$@"
+              exec ${python}/bin/python3 ${./tools/trajectory_compare.py} "$@"
             '';
           };
-        cubs2ControllerExport = mkModelExport {
-          name = "cubs2-export-controller";
-          modelFile = "Vehicles/Cubs2/OuterLoop.mo";
-          modelName = "Vehicles.Cubs2.OuterLoop";
-          target = "galec-production";
-          output = "artifacts/vehicles/cubs2/controller";
-        };
-        cubs2PlantExport = mkModelExport {
-          name = "cubs2-export-plant";
-          modelFile = "Vehicles/Cubs2/AvionicsPlant.mo";
-          modelName = "Vehicles.Cubs2.AvionicsPlant";
-          target = "fmi3";
-          output = "artifacts/vehicles/cubs2/plant";
-        };
-        rdd2ControllerExport = mkModelExport {
-          name = "rdd2-export-controller";
-          modelFile = "Vehicles/Rdd2/Controller.mo";
-          modelName = "Vehicles.Rdd2.Controller";
-          target = "galec-production";
-          output = "artifacts/vehicles/rdd2/controller";
-        };
-        rdd2EstimatorExport = mkModelExport {
-          name = "rdd2-export-estimator";
-          modelFile = "Estimation/ComplementaryAttitude.mo";
-          modelName = "Estimation.ComplementaryAttitude";
-          target = "galec-production";
-          output = "artifacts/vehicles/rdd2/estimator";
-        };
-        rdd2PlantExport = mkModelExport {
-          name = "rdd2-export-plant";
-          modelFile = "Vehicles/Rdd2/AvionicsPlant.mo";
-          modelName = "Vehicles.Rdd2.AvionicsPlant";
-          target = "fmi3";
-          output = "artifacts/vehicles/rdd2/plant";
-        };
-      in
-      {
-        packages.default = ciRunner;
-        packages.ci = ciRunner;
-        packages.cubs2-qualification = cubs2Qualification;
-        packages.rdd2-qualification = rdd2Qualification;
-        packages.trajectory-compare = trajectoryCompare;
-        packages.vehicle-qualification = allVehicleQualification;
-        packages.cubs2-export-controller = cubs2ControllerExport;
-        packages.cubs2-export-plant = cubs2PlantExport;
-        packages.rdd2-export-controller = rdd2ControllerExport;
-        packages.rdd2-export-estimator = rdd2EstimatorExport;
-        packages.rdd2-export-plant = rdd2PlantExport;
-        apps.default = {
-          type = "app";
-          program = "${ciRunner}/bin/modelica-models-ci";
-          meta.description = "Run the Modelica compiler and plotting checks";
-        };
-        apps.ci = {
-          type = "app";
-          program = "${ciRunner}/bin/modelica-models-ci";
-          meta.description = "Run the Modelica compiler and plotting checks";
-        };
-        apps.cubs2-qualification = {
-          type = "app";
-          program = "${cubs2Qualification}/bin/cubs2-qualification";
-          meta.description = "Run CUBS2 model-level flight qualification";
-        };
-        apps.rdd2-qualification = {
-          type = "app";
-          program = "${rdd2Qualification}/bin/rdd2-qualification";
-          meta.description = "Run RDD2 model-level flight qualification";
-        };
-        apps.trajectory-compare = {
-          type = "app";
-          program = "${trajectoryCompare}/bin/trajectory-compare";
-          meta.description = "Compare canonical vehicle trajectory logs";
-        };
-        apps.vehicle-qualification = {
-          type = "app";
-          program = "${allVehicleQualification}/bin/vehicle-qualification";
-          meta.description = "Run all named-vehicle model qualification";
-        };
-        apps.cubs2-export-controller = {
-          type = "app";
-          program = "${cubs2ControllerExport}/bin/cubs2-export-controller";
-          meta.description = "Export the CUBS2 controller as eFMI Production Code";
-        };
-        apps.cubs2-export-plant = {
-          type = "app";
-          program = "${cubs2PlantExport}/bin/cubs2-export-plant";
-          meta.description = "Export the CUBS2 avionics plant as FMI 3";
-        };
-        apps.rdd2-export-controller = {
-          type = "app";
-          program = "${rdd2ControllerExport}/bin/rdd2-export-controller";
-          meta.description = "Export the RDD2 controller as eFMI Production Code";
-        };
-        apps.rdd2-export-estimator = {
-          type = "app";
-          program = "${rdd2EstimatorExport}/bin/rdd2-export-estimator";
-          meta.description = "Export the RDD2 attitude estimator as eFMI Production Code";
-        };
-        apps.rdd2-export-plant = {
-          type = "app";
-          program = "${rdd2PlantExport}/bin/rdd2-export-plant";
-          meta.description = "Export the RDD2 avionics plant as FMI 3";
-        };
-        devShells.default = testShell;
-        devShells.ci = testShell;
-      }
-    );
+          allVehicleQualification = pkgs.writeShellApplication {
+            name = "vehicle-qualification";
+            runtimeInputs = [
+              cubs2Qualification
+              rdd2Qualification
+            ];
+            text = ''
+              cubs2-qualification "$@"
+              rdd2-qualification
+            '';
+          };
+          mkModelExport =
+            {
+              name,
+              modelFile,
+              modelName,
+              target,
+              output,
+            }:
+            pkgs.writeShellApplication {
+              inherit name;
+              runtimeInputs = [ rumocaCli ];
+              text = ''
+                models_root="''${MODELICA_MODELS_ROOT:-$PWD}"
+                if [ ! -f "$models_root/${modelFile}" ]; then
+                  printf 'error: model source not found: %s/%s\n' \
+                    "$models_root" ${modelFile} >&2
+                  exit 1
+                fi
+                mkdir -p "$models_root/${output}"
+                cd "$models_root"
+                exec rumoca compile ${modelFile} \
+                  --source-root . \
+                  --model ${modelName} \
+                  --target ${target} \
+                  --output ${output} \
+                  "$@"
+              '';
+            };
+          cubs2ControllerExport = mkModelExport {
+            name = "cubs2-export-controller";
+            modelFile = "Vehicles/Cubs2/OuterLoop.mo";
+            modelName = "Vehicles.Cubs2.OuterLoop";
+            target = "galec-production";
+            output = "artifacts/vehicles/cubs2/controller";
+          };
+          cubs2PlantExport = mkModelExport {
+            name = "cubs2-export-plant";
+            modelFile = "Vehicles/Cubs2/AvionicsPlant.mo";
+            modelName = "Vehicles.Cubs2.AvionicsPlant";
+            target = "fmi3";
+            output = "artifacts/vehicles/cubs2/plant";
+          };
+          rdd2ControllerExport = mkModelExport {
+            name = "rdd2-export-controller";
+            modelFile = "Vehicles/Rdd2/Controller.mo";
+            modelName = "Vehicles.Rdd2.Controller";
+            target = "galec-production";
+            output = "artifacts/vehicles/rdd2/controller";
+          };
+          rdd2EstimatorExport = mkModelExport {
+            name = "rdd2-export-estimator";
+            modelFile = "Estimation/ComplementaryAttitude.mo";
+            modelName = "Estimation.ComplementaryAttitude";
+            target = "galec-production";
+            output = "artifacts/vehicles/rdd2/estimator";
+          };
+          rdd2PlantExport = mkModelExport {
+            name = "rdd2-export-plant";
+            modelFile = "Vehicles/Rdd2/AvionicsPlant.mo";
+            modelName = "Vehicles.Rdd2.AvionicsPlant";
+            target = "fmi3";
+            output = "artifacts/vehicles/rdd2/plant";
+          };
+          testShell = pkgs.mkShell {
+            packages = [
+              pkgs.docker-client
+              python
+              rumocaCli
+              ciRunner
+              cubs2Qualification
+              rdd2Qualification
+              allVehicleQualification
+              rumocaVersionCheck
+              trajectoryCompare
+            ];
+            shellHook = ''
+              if [ -z "''${MODELICA_MODELS_ROOT:-}" ] \
+                && [ -f "$PWD/flake.nix" ] \
+                && [ -d "$PWD/Vehicles" ]; then
+                export MODELICA_MODELS_ROOT="$PWD"
+              fi
+
+              printf '%s\n' \
+                'Vehicle qualification commands:' \
+                '  vehicle-qualification  Run every named vehicle qualification' \
+                '  cubs2-qualification    Run the CUBS2 qualification' \
+                '  rdd2-qualification     Run the RDD2 qualification' \
+                '  rumoca-version-check   Verify CLI/Python compiler identity' \
+                '  trajectory-compare     Compare canonical trajectory logs'
+            '';
+          };
+        in
+        {
+          packages.default = ciRunner;
+          packages.ci = ciRunner;
+          packages.cubs2-qualification = cubs2Qualification;
+          packages.rdd2-qualification = rdd2Qualification;
+          packages.rumoca-version-check = rumocaVersionCheck;
+          packages.trajectory-compare = trajectoryCompare;
+          packages.vehicle-qualification = allVehicleQualification;
+          packages.cubs2-export-controller = cubs2ControllerExport;
+          packages.cubs2-export-plant = cubs2PlantExport;
+          packages.rdd2-export-controller = rdd2ControllerExport;
+          packages.rdd2-export-estimator = rdd2EstimatorExport;
+          packages.rdd2-export-plant = rdd2PlantExport;
+          apps.default = {
+            type = "app";
+            program = "${ciRunner}/bin/modelica-models-ci";
+            meta.description = "Run the Modelica compiler and plotting checks";
+          };
+          apps.ci = {
+            type = "app";
+            program = "${ciRunner}/bin/modelica-models-ci";
+            meta.description = "Run the Modelica compiler and plotting checks";
+          };
+          apps.cubs2-qualification = {
+            type = "app";
+            program = "${cubs2Qualification}/bin/cubs2-qualification";
+            meta.description = "Run CUBS2 model-level flight qualification";
+          };
+          apps.rdd2-qualification = {
+            type = "app";
+            program = "${rdd2Qualification}/bin/rdd2-qualification";
+            meta.description = "Run RDD2 model-level flight qualification";
+          };
+          apps.rumoca-version-check = {
+            type = "app";
+            program = "${rumocaVersionCheck}/bin/rumoca-version-check";
+            meta.description = "Verify Rumoca CLI and Python compiler identity";
+          };
+          apps.trajectory-compare = {
+            type = "app";
+            program = "${trajectoryCompare}/bin/trajectory-compare";
+            meta.description = "Compare canonical vehicle trajectory logs";
+          };
+          apps.vehicle-qualification = {
+            type = "app";
+            program = "${allVehicleQualification}/bin/vehicle-qualification";
+            meta.description = "Run all named-vehicle model qualification";
+          };
+          apps.cubs2-export-controller = {
+            type = "app";
+            program = "${cubs2ControllerExport}/bin/cubs2-export-controller";
+            meta.description = "Export the CUBS2 controller as eFMI Production Code";
+          };
+          apps.cubs2-export-plant = {
+            type = "app";
+            program = "${cubs2PlantExport}/bin/cubs2-export-plant";
+            meta.description = "Export the CUBS2 avionics plant as FMI 3";
+          };
+          apps.rdd2-export-controller = {
+            type = "app";
+            program = "${rdd2ControllerExport}/bin/rdd2-export-controller";
+            meta.description = "Export the RDD2 controller as eFMI Production Code";
+          };
+          apps.rdd2-export-estimator = {
+            type = "app";
+            program = "${rdd2EstimatorExport}/bin/rdd2-export-estimator";
+            meta.description = "Export the RDD2 attitude estimator as eFMI Production Code";
+          };
+          apps.rdd2-export-plant = {
+            type = "app";
+            program = "${rdd2PlantExport}/bin/rdd2-export-plant";
+            meta.description = "Export the RDD2 avionics plant as FMI 3";
+          };
+          devShells.default = testShell;
+          devShells.ci = testShell;
+        }
+      );
 }

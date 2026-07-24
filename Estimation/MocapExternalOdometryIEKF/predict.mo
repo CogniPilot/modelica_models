@@ -20,7 +20,7 @@ algorithm
   predicted.velocity := predictedNominal.velocity;
   predicted.position := predictedNominal.position;
   predicted.angularVelocity := predictedNominal.angularVelocity;
-  transition := tangentTransition(dt);
+  transition := tangentTransition(dt, previous.angularVelocity);
   discreteProcessNoise := discreteProcessCovariance(dt, processNoise);
 
   predicted.covariance := LinearAlgebra.symmetrize(

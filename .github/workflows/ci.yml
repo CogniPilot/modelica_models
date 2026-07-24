@@ -32,3 +32,68 @@ jobs:
         with:
           name: planning-trajectories
           path: artifacts/planning
+
+  qualification:
+    name: ${{ matrix.label }} Mission Qualification
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - vehicle: cubs2
+            label: CUBS2
+            figure: cubs2-qualification-summary.png
+            report: qualification-report.html
+          - vehicle: rdd2
+            label: RDD2
+            figure: rdd2-qualification-summary.png
+            report: modelica-report.html
+
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up Nix
+        uses: DeterminateSystems/nix-installer-action@v22
+      - name: Cache Nix builds
+        uses: DeterminateSystems/magic-nix-cache-action@v14
+        with:
+          use-flakehub: disabled
+          use-gha-cache: enabled
+      - id: qualify
+        name: Run ${{ matrix.label }} qualification
+        run: nix develop --command ${{ matrix.vehicle }}-qualification
+      - id: verify-report
+        name: Verify ${{ matrix.label }} qualification plots and report
+        if: always()
+        env:
+          FIGURE_NAME: ${{ matrix.figure }}
+          REPORT_NAME: ${{ matrix.report }}
+          VEHICLE: ${{ matrix.vehicle }}
+        run: |
+          test -s "artifacts/vehicles/$VEHICLE/$FIGURE_NAME"
+          test -s "artifacts/vehicles/$VEHICLE/$REPORT_NAME"
+      - id: qualification-artifact
+        name: Upload ${{ matrix.label }} qualification plots and report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vehicle-qualification-${{ matrix.vehicle }}
+          path: artifacts/vehicles/${{ matrix.vehicle }}
+          if-no-files-found: error
+      - name: Link qualification report in job summary
+        if: always()
+        env:
+          ARTIFACT_URL: ${{ steps.qualification-artifact.outputs.artifact-url }}
+          QUALIFICATION_OUTCOME: ${{ steps.qualify.outcome }}
+          REPORT_OUTCOME: ${{ steps.verify-report.outcome }}
+          REPORT_NAME: ${{ matrix.report }}
+          VEHICLE_LABEL: ${{ matrix.label }}
+        run: |
+          {
+            printf '## %s mission qualification\n\n' "$VEHICLE_LABEL"
+            printf 'Qualification: **%s**  \n' "$QUALIFICATION_OUTCOME"
+            printf 'Plot and report: **%s**\n\n' "$REPORT_OUTCOME"
+            if [ -n "$ARTIFACT_URL" ]; then
+              printf '[Download the plots and self-contained HTML report](%s)\n\n' "$ARTIFACT_URL"
+            fi
+            printf 'Open **%s** from the artifact to view the qualification plots and checks.\n' "$REPORT_NAME"
+          } >> "$GITHUB_STEP_SUMMARY"

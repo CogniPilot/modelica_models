@@ -4,7 +4,7 @@ source_roots = [
 
 [model]
 file = "Scenarios.mo"
-name = "Vehicles.Cubs2.Qualification.HeadingHold"
+name = "Vehicles.Cubs2.Qualification.Scenarios.HeadingHold"
 
 [rumoca]
 task = "simulate"
