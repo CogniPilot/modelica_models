@@ -20,11 +20,14 @@ artifacts; they do not own alternate copies of these models.
   with replaceable quaternion, DCM, MRP, and Euler rotation representations.
   All 12 axis sequences are available in both body-fixed and space-fixed form,
   including `B232` and `S123`.
-- `Geodesy/`: reusable local-frame and geodetic conversion helpers.
+- `Geodesy/`: reusable local-frame and geodetic conversion helpers, including
+  the East-North-Up projection and its inverse about a `GeodeticOrigin` used to
+  turn global lat/lon/alt waypoints into local-frame references.
 - `RigidBody/`: reusable six-degree-of-freedom rigid-body dynamics.
 - `MathUtilities/`: shared clipping, filtering, angle, rate, and norm helpers.
 - `Control/`: reusable control laws and sampled controller building blocks,
-  including the multirotor SE_2(3)/SO(3) log-linear controller.
+  including the multirotor SE_2(3)/SO(3) log-linear controller and the
+  `Multirotor.RateLoop` and `Multirotor.Allocation` inner-loop building blocks.
 - `Planning/`: forward-only bounded-curvature path planning, including all six
   classical Dubins path families.
 - `Vehicles/Templates/`: parameterized fixed-wing and quadrotor plants.
@@ -43,6 +46,20 @@ integral, SE_2(3) outer loop, SO(3) attitude loop, and sampled controller model.
 `Vehicles.Rdd2.LogLinearController` supplies only the RDD2 parameters. A
 differentially flat trajectory connects directly through its world-frame
 position, velocity, acceleration, and yaw-reference quaternion.
+
+GPS waypoint navigation runs entirely on this local-frame controller. The
+reusable `Planning.Bezier.waypointTrajectory` builds a piecewise-septic
+differentially flat trajectory that passes through each waypoint at a commanded
+velocity (zero for rest-to-rest), feeding world-frame position, velocity, and
+acceleration to the log-linear controller; its collective thrust and body-rate
+command pass through `Control.Multirotor.RateLoop` and
+`Control.Multirotor.Allocation` onto the four rotors.
+`Vehicles.Rdd2.Qualification.WaypointMission` takes off, flies a box, and lands
+in the local East-North-Up frame, and
+`Vehicles.Rdd2.Qualification.GlobalWaypointMission` authors the same box in
+latitude/longitude/altitude and projects it back through a fixed mission origin,
+so control always runs in the local frame while missions may be authored locally
+or globally.
 
 ## Vehicle development
 

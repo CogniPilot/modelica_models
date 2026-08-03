@@ -16,6 +16,10 @@ if not loadFile("LieGroups/package.mo") then
   print(getErrorString());
   exit(1);
 end if;
+if not loadFile("Geodesy/package.mo") then
+  print(getErrorString());
+  exit(1);
+end if;
 if not loadFile("Control/package.mo") then
   print(getErrorString());
   exit(1);

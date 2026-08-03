@@ -349,11 +349,119 @@ package Bezier
     </html>"));
   end flatReference;
 
+  function waypointDurations
+    "Per-segment durations that hold a nominal average speed between waypoints"
+    input Real waypoints[:, 3] "World-frame waypoints, one [x, y, z] per row";
+    input Real nominalSpeed(unit = "m/s") "Average speed along each segment";
+    input Real minDuration(unit = "s") = 1.0 "Lower bound on any segment";
+    output Real durations[size(waypoints, 1) - 1] "Segment durations [s]";
+  algorithm
+    assert(nominalSpeed > 0.0, "Nominal speed must be positive");
+    assert(minDuration > 0.0, "Minimum duration must be positive");
+    // Inline the chord so the loop's only target is the output array, which the
+    // eFMI lowering proves totally defined element by element.
+    for i in 1:(size(waypoints, 1) - 1) loop
+      durations[i] := max(minDuration, sqrt(
+        (waypoints[i + 1, 1] - waypoints[i, 1])^2
+        + (waypoints[i + 1, 2] - waypoints[i, 2])^2
+        + (waypoints[i + 1, 3] - waypoints[i, 3])^2) / nominalSpeed);
+    end for;
+    annotation(Documentation(info="<html>
+      <p>Assigns each segment a duration equal to its chord length divided by a
+      nominal average speed, floored at <code>minDuration</code>. For a
+      rest-to-rest septic segment the peak speed is roughly 2.2 times this
+      average. Use it to size a waypoint trajectory from a single cruise
+      parameter.</p>
+    </html>"));
+  end waypointDurations;
+
+  function waypointTrajectory
+    "Differentially flat trajectory through waypoints with endpoint velocities"
+    input Real waypoints[:, 3] "World-frame waypoints, one [x, y, z] per row";
+    input Real velocities[size(waypoints, 1), 3]
+      "World-frame velocity at each waypoint (zeros give rest-to-rest)";
+    input Real yawWaypoints[size(waypoints, 1)](each unit = "rad")
+      "Heading at each waypoint";
+    input Real durations[size(waypoints, 1) - 1](each unit = "s")
+      "Segment durations";
+    input Real t(unit = "s") "Time since the trajectory start";
+    output Planning.Bezier.MultirotorTrajectory trajectory;
+  protected
+    Integer n;
+    Integer segment;
+    Real totalDuration(unit = "s");
+    Real segmentStart(unit = "s");
+    Real elapsed(unit = "s");
+    Real clampedTime(unit = "s");
+    Real localTime(unit = "s");
+    Real startDerivative[3, 4];
+    Real endDerivative[3, 4];
+    Real positionControlPoint[3, 8];
+    Real yawControlPoint[1, 4];
+  algorithm
+    n := size(waypoints, 1);
+    assert(n >= 2, "A waypoint trajectory needs at least two waypoints");
+
+    totalDuration := 0.0;
+    for i in 1:(n - 1) loop
+      totalDuration := totalDuration + durations[i];
+    end for;
+    // Before the start hold the first waypoint; after the end hold the last.
+    clampedTime := max(0.0, min(t, totalDuration));
+
+    // Locate the active segment and its start time without dynamic model
+    // indexing (this runs inside a function, so the loop index is procedural).
+    segment := 1;
+    segmentStart := 0.0;
+    elapsed := 0.0;
+    for i in 1:(n - 1) loop
+      if clampedTime >= elapsed then
+        segment := i;
+        segmentStart := elapsed;
+      end if;
+      elapsed := elapsed + durations[i];
+    end for;
+    localTime := max(0.0, min(clampedTime - segmentStart, durations[segment]));
+
+    // Each segment is a septic constrained by endpoint position and velocity
+    // with zero acceleration and jerk at the waypoints. Assign the boundary
+    // matrices whole so no partial-row write leaves a loop-carried target.
+    startDerivative := [
+      waypoints[segment, 1], velocities[segment, 1], 0.0, 0.0;
+      waypoints[segment, 2], velocities[segment, 2], 0.0, 0.0;
+      waypoints[segment, 3], velocities[segment, 3], 0.0, 0.0];
+    endDerivative := [
+      waypoints[segment + 1, 1], velocities[segment + 1, 1], 0.0, 0.0;
+      waypoints[segment + 1, 2], velocities[segment + 1, 2], 0.0, 0.0;
+      waypoints[segment + 1, 3], velocities[segment + 1, 3], 0.0, 0.0];
+    positionControlPoint := Planning.Bezier.septicControlPoints(
+      startDerivative, endDerivative, durations[segment]);
+    yawControlPoint := Planning.Bezier.cubicControlPoints(
+      [yawWaypoints[segment], 0.0],
+      [yawWaypoints[segment + 1], 0.0],
+      durations[segment]);
+    trajectory := Planning.Bezier.evaluateMultirotor(
+      positionControlPoint, yawControlPoint, durations[segment], localTime);
+    annotation(Documentation(info="<html>
+      <p>Builds a piecewise-septic differentially flat trajectory that passes
+      through each waypoint at its commanded velocity (zero for rest-to-rest),
+      with zero acceleration and jerk at the knots. Given the elapsed trajectory
+      time it selects the active segment, constructs that segment's control
+      points, and returns position through snap and yaw through angular
+      acceleration. Time is clamped to the trajectory span, so the vehicle holds
+      the first waypoint before the start and the last waypoint after the end.</p>
+      <p>Connect <code>position</code>, <code>velocity</code>, and
+      <code>acceleration</code> to a multirotor controller's world references and
+      build a heading quaternion from <code>yaw</code>.</p>
+    </html>"));
+  end waypointTrajectory;
+
   annotation(Documentation(info="<html>
     <h4>Overview</h4>
     <p>This package provides dimension-generic Bezier evaluation, endpoint
-    construction for cubic and septic segments, and a multirotor
-    differential-flatness reconstruction.</p>
+    construction for cubic and septic segments, a multirotor
+    differential-flatness reconstruction, and a piecewise-septic waypoint
+    trajectory generator.</p>
     <h4>Conventions</h4>
     <ul>
       <li>Control points are matrix columns; rows are independent signals.</li>

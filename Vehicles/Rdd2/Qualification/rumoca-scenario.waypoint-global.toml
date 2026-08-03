@@ -1,0 +1,17 @@
+source_roots = [
+  "../../..",
+]
+
+[model]
+file = "GlobalWaypointMission.mo"
+name = "Vehicles.Rdd2.Qualification.GlobalWaypointMission"
+
+[rumoca]
+task = "simulate"
+version = "1"
+
+[sim]
+dt = 0.005
+t_end = 45.0
+solver = "rk-like"
+output = "artifacts/vehicles/rdd2/waypoint-global.csv"
