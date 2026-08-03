@@ -17,6 +17,14 @@ model BezierTests "Bezier endpoint and multirotor flatness tests"
     Planning.Bezier.MultirotorTrajectory headingSingularityTrajectory;
     Planning.Bezier.FlatReference reference;
     Planning.Bezier.FlatReference headingSingularityReference;
+    Real waypoints[3, 3];
+    Real waypointVelocities[3, 3];
+    Real waypointYaw[3];
+    Real segmentDurations[2];
+    Planning.Bezier.MultirotorTrajectory waypointStart;
+    Planning.Bezier.MultirotorTrajectory waypointKnot;
+    Planning.Bezier.MultirotorTrajectory waypointEnd;
+    Planning.Bezier.MultirotorTrajectory waypointHold;
   algorithm
     startDerivative := [1.0, -0.5, 0.25, -0.125];
     endDerivative := [2.0, 0.75, -0.1, 0.2];
@@ -87,6 +95,41 @@ model BezierTests "Bezier endpoint and multirotor flatness tests"
         Tests.Assertions.isFiniteVector(
           headingSingularityReference.angularVelocityBody),
       "Flatness heading-singularity fallback was not orthonormal");
+    // A rest-to-rest waypoint trajectory passes through every waypoint at rest,
+    // holds the first waypoint before the start, and the last one after the end.
+    waypoints := [
+      0.0, 0.0, 0.0;
+      2.0, 0.0, 1.0;
+      2.0, 3.0, 1.0];
+    waypointVelocities := zeros(3, 3);
+    waypointYaw := {0.0, 0.0, 0.0};
+    segmentDurations := Planning.Bezier.waypointDurations(waypoints, 1.0, 1.0);
+    waypointStart := Planning.Bezier.waypointTrajectory(
+      waypoints, waypointVelocities, waypointYaw, segmentDurations, 0.0);
+    waypointKnot := Planning.Bezier.waypointTrajectory(
+      waypoints, waypointVelocities, waypointYaw, segmentDurations,
+      segmentDurations[1]);
+    waypointEnd := Planning.Bezier.waypointTrajectory(
+      waypoints, waypointVelocities, waypointYaw, segmentDurations,
+      segmentDurations[1] + segmentDurations[2]);
+    waypointHold := Planning.Bezier.waypointTrajectory(
+      waypoints, waypointVelocities, waypointYaw, segmentDurations, -1.0);
+    assert(Tests.Assertions.maxAbsVector(
+        waypointStart.position - waypoints[1, :]) < 1.0e-9
+      and Tests.Assertions.maxAbsVector(waypointStart.velocity) < 1.0e-9,
+      "Waypoint trajectory did not start at the first waypoint at rest");
+    assert(Tests.Assertions.maxAbsVector(
+        waypointKnot.position - waypoints[2, :]) < 1.0e-9
+      and Tests.Assertions.maxAbsVector(waypointKnot.velocity) < 1.0e-9,
+      "Waypoint trajectory did not pass through the interior waypoint at rest");
+    assert(Tests.Assertions.maxAbsVector(
+        waypointEnd.position - waypoints[3, :]) < 1.0e-9
+      and Tests.Assertions.maxAbsVector(waypointEnd.velocity) < 1.0e-9,
+      "Waypoint trajectory did not end at the last waypoint at rest");
+    assert(Tests.Assertions.maxAbsVector(
+        waypointHold.position - waypoints[1, :]) < 1.0e-9,
+      "Waypoint trajectory did not hold the first waypoint before the start");
+
     passed := true;
   end run;
 

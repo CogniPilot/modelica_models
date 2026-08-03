@@ -7,5 +7,7 @@ VerificationTests
 PlanningTests
 BezierTests
 LogLinearTests
+GeodesyTests
+MultirotorInnerLoopTests
 DynamicsTests
 All
