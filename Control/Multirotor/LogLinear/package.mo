@@ -273,7 +273,7 @@ package LogLinear
     </html>"));
   end outerLoop;
 
-  model Controller
+  block Controller
     "Sampled integral state around the continuous log-linear control maps"
     parameter Real samplePeriod(unit = "s") = 0.01;
     parameter Real mass(unit = "kg") = 1.0;
@@ -345,17 +345,19 @@ package LogLinear
       quaternionWorldBody,
       attitudeSetpoint);
 
+  algorithm
     when sample(0.0, samplePeriod) then
-      positionIntegral = if resetIntegral then
-          zeros(3)
-        else
-          Control.Multirotor.LogLinear.integratePositionError(
-            stateError,
-            pre(positionIntegral),
-            samplePeriod,
-            thrustTrim,
-            integralGain,
-            integralFractionLimit);
+      if resetIntegral then
+        positionIntegral := zeros(3);
+      else
+        positionIntegral := Control.Multirotor.LogLinear.integratePositionError(
+          stateError,
+          pre(positionIntegral),
+          samplePeriod,
+          thrustTrim,
+          integralGain,
+          integralFractionLimit);
+      end if;
     end when;
 
     annotation(Documentation(info="<html>

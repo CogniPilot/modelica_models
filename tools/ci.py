@@ -67,10 +67,11 @@ def run_openmodelica_tests(repository: Path) -> None:
     print("==> OpenModelica assertion suite", flush=True)
     run_omc_script(repository, "Tests/run.mos")
     run_omc_script(repository, "Tests/run-loglinear.mos")
+    run_omc_script(repository, "Tests/check-vehicle-boundaries.mos")
 
 
 def run_rumoca_tests(repository: Path) -> None:
-    print("==> Rumoca compatibility checks", flush=True)
+    print("==> Rumoca compiler checks", flush=True)
     rumoca = program("MODELICA_MODELS_RUMOCA", DEFAULT_RUMOCA, "rumoca")
     require_program(rumoca, "Rumoca")
 
@@ -119,29 +120,40 @@ def run_rumoca_tests(repository: Path) -> None:
             (
                 "Vehicles/Cubs2/OuterLoop.mo",
                 "Vehicles.Cubs2.OuterLoop",
+                "--target",
                 "galec-production",
                 "cubs2-controller",
             ),
             (
                 "Vehicles/Cubs2/AvionicsPlant.mo",
                 "Vehicles.Cubs2.AvionicsPlant",
-                "fmi3",
-                "cubs2-plant",
+                "--emit",
+                "dae-json",
+                "cubs2-plant.dae.json",
             ),
             (
                 "Vehicles/Rdd2/Controller.mo",
                 "Vehicles.Rdd2.Controller",
+                "--target",
                 "galec-production",
                 "rdd2-controller",
             ),
             (
-                "Vehicles/Rdd2/AvionicsPlant.mo",
-                "Vehicles.Rdd2.AvionicsPlant",
-                "fmi3",
-                "rdd2-plant",
+                "Estimation/ComplementaryAttitude.mo",
+                "Estimation.ComplementaryAttitude",
+                "--target",
+                "galec-production",
+                "rdd2-estimator",
+            ),
+            (
+                "Vehicles/Rdd2/PlantAdapter.mo",
+                "Vehicles.Rdd2.PlantAdapter",
+                "--emit",
+                "dae-json",
+                "rdd2-plant-adapter.dae.json",
             ),
         )
-        for model_file, model_name, target, directory in named_models:
+        for model_file, model_name, option, format_name, artifact in named_models:
             run_command(
                 [
                     rumoca,
@@ -151,13 +163,13 @@ def run_rumoca_tests(repository: Path) -> None:
                     model_name,
                     "--source-root",
                     str(repository),
-                    "--target",
-                    target,
+                    option,
+                    format_name,
                     "--output",
-                    str(output / directory),
+                    str(output / artifact),
                 ],
                 repository,
-                f"Rumoca {target} export for {model_name}",
+                f"Rumoca {format_name} compile for {model_name}",
             )
 
 

@@ -140,18 +140,18 @@ package Geodesy "Local-frame and geodetic conversion helpers"
     input Real earth_radius_m = 6378137.0 "Spherical Earth radius [m]";
     output Real localWaypoints[size(globalWaypoints, 1), 3]
       "Route rows are [east_m, north_m, up_m]";
+  protected
+    Real localWaypoint[3];
   algorithm
-    // Element-wise assignment over both axes so the loop totally defines the
-    // output array (the eFMI lowering proves definedness per scalar element).
+    // Keep one waypoint cohesive: compute the vector once, then write one row.
     for row in 1:size(globalWaypoints, 1) loop
-      for col in 1:3 loop
-        localWaypoints[row, col] := geodeticToLocalEnu(
-          origin,
-          globalWaypoints[row, 1],
-          globalWaypoints[row, 2],
-          globalWaypoints[row, 3],
-          earth_radius_m)[col];
-      end for;
+      localWaypoint := geodeticToLocalEnu(
+        origin,
+        globalWaypoints[row, 1],
+        globalWaypoints[row, 2],
+        globalWaypoints[row, 3],
+        earth_radius_m);
+      localWaypoints[row, :] := localWaypoint;
     end for;
   end projectRouteToLocalEnu;
 
@@ -163,18 +163,18 @@ package Geodesy "Local-frame and geodetic conversion helpers"
     input Real earth_radius_m = 6378137.0 "Spherical Earth radius [m]";
     output Real globalWaypoints[size(localWaypoints, 1), 3]
       "Route rows are [latitude_deg, longitude_deg, altitude_m]";
+  protected
+    Real globalWaypoint[3];
   algorithm
-    // Element-wise assignment over both axes so the loop totally defines the
-    // output array (the eFMI lowering proves definedness per scalar element).
+    // Keep one waypoint cohesive: compute the vector once, then write one row.
     for row in 1:size(localWaypoints, 1) loop
-      for col in 1:3 loop
-        globalWaypoints[row, col] := localEnuToGeodetic(
-          origin,
-          localWaypoints[row, 1],
-          localWaypoints[row, 2],
-          localWaypoints[row, 3],
-          earth_radius_m)[col];
-      end for;
+      globalWaypoint := localEnuToGeodetic(
+        origin,
+        localWaypoints[row, 1],
+        localWaypoints[row, 2],
+        localWaypoints[row, 3],
+        earth_radius_m);
+      globalWaypoints[row, :] := globalWaypoint;
     end for;
   end routeLocalEnuToGeodetic;
 

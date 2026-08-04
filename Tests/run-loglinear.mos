@@ -1,52 +1,10 @@
 setCommandLineOptions("--std=3.6");
 
-if not loadFile("MathUtilities/package.mo") then
-  print(getErrorString());
-  exit(1);
-end if;
-if not loadFile("LieGroups/package.mo") then
-  print(getErrorString());
-  exit(1);
-end if;
-if not loadFile("Control/package.mo") then
-  print(getErrorString());
-  exit(1);
-end if;
-if not loadString("within; package Vehicles end Vehicles;") then
-  print(getErrorString());
-  exit(1);
-end if;
-if not loadString("within Vehicles; package Rdd2 end Rdd2;") then
-  print(getErrorString());
-  exit(1);
-end if;
-if not loadFile("Vehicles/Rdd2/LogLinearController.mo") then
-  print(getErrorString());
-  exit(1);
-end if;
-if not loadString("within; package Tests end Tests;") then
-  print(getErrorString());
-  exit(1);
-end if;
-if not loadString("within Tests; package Assertions end Assertions;") then
-  print(getErrorString());
-  exit(1);
-end if;
-if not loadFile("Tests/Assertions/maxAbsVector.mo") then
-  print(getErrorString());
-  exit(1);
-end if;
-if not loadFile("Tests/Assertions/isFiniteVector.mo") then
-  print(getErrorString());
-  exit(1);
-end if;
-if not loadFile("Tests/LogLinearTests.mo") then
+if not loadModel(Tests) then
   print(getErrorString());
   exit(1);
 end if;
 
-print(checkModel(Vehicles.Rdd2.LogLinearController));
-print(getErrorString());
 print(checkModel(Tests.LogLinearTests));
 print(getErrorString());
 

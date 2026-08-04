@@ -1,42 +1,6 @@
 setCommandLineOptions("--std=3.6");
 
-if not loadFile("MathUtilities/package.mo") then
-  print(getErrorString());
-  exit(1);
-end if;
-if not loadFile("LinearAlgebra/package.mo") then
-  print(getErrorString());
-  exit(1);
-end if;
-if not loadFile("Polynomials/package.mo") then
-  print(getErrorString());
-  exit(1);
-end if;
-if not loadFile("LieGroups/package.mo") then
-  print(getErrorString());
-  exit(1);
-end if;
-if not loadFile("Geodesy/package.mo") then
-  print(getErrorString());
-  exit(1);
-end if;
-if not loadFile("Control/package.mo") then
-  print(getErrorString());
-  exit(1);
-end if;
-if not loadFile("RigidBody/package.mo") then
-  print(getErrorString());
-  exit(1);
-end if;
-if not loadFile("Planning/package.mo") then
-  print(getErrorString());
-  exit(1);
-end if;
-if not loadFile("Estimation/package.mo") then
-  print(getErrorString());
-  exit(1);
-end if;
-if not loadFile("Tests/package.mo") then
+if not loadModel(Tests) then
   print(getErrorString());
   exit(1);
 end if;

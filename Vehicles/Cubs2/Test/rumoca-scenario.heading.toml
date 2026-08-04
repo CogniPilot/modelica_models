@@ -1,0 +1,17 @@
+source_roots = [
+  "../../..",
+]
+
+[model]
+file = "Scenarios.mo"
+name = "Vehicles.Cubs2.Test.Scenarios.HeadingHold"
+
+[rumoca]
+task = "simulate"
+version = "1"
+
+[sim]
+dt = 0.02
+t_end = 24.0
+solver = "rk-like"
+output = "artifacts/vehicles/cubs2/heading.csv"

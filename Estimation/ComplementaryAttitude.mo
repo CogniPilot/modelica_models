@@ -1,5 +1,5 @@
 within Estimation;
-model ComplementaryAttitude "Quaternion attitude estimate corrected by gravity"
+block ComplementaryAttitude "Quaternion attitude estimate corrected by gravity"
   parameter Real samplePeriod(unit="s") = 0.005;
   parameter Real gravity(unit="m/s2") = 9.81;
   parameter Real correctionKp = 0.35;
