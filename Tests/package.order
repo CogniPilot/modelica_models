@@ -9,5 +9,6 @@ BezierTests
 LogLinearTests
 GeodesyTests
 MultirotorInnerLoopTests
+Cubs2EstimatorTests
 DynamicsTests
 All

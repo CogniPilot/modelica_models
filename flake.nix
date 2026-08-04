@@ -4,6 +4,7 @@
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    openmodelica.url = "git+https://github.com/jgoppert/OpenModelica?submodules=1&rev=a96aa1a682c463b0fd2d285b486c09a8b7fe496d";
     rumoca.url = "github:CogniPilot/rumoca/149c2ff3939937f5a1345db600830ae4a9a83ca9";
   };
 
@@ -12,6 +13,7 @@
       self,
       flake-utils,
       nixpkgs,
+      openmodelica,
       rumoca,
     }:
     flake-utils.lib.eachSystem
@@ -26,6 +28,7 @@
           pkgs = import nixpkgs { inherit system; };
           rumocaCli = rumoca.packages.${system}.rumoca;
           rumocaPython = rumoca.packages.${system}.rumoca-python-env;
+          openModelicaCli = openmodelica.packages.${system}.default;
           python = pkgs.python312.withPackages (pythonPackages: [
             pythonPackages.matplotlib
           ]);
@@ -98,8 +101,8 @@
                 exec ${rumocaPython}/bin/python3 ${script} "$@"
               '';
             };
-          cubs2Qualification = mkQualification "cubs2-qualification" ./Vehicles/Cubs2/Qualification/run_qualification.py;
-          rdd2Qualification = mkQualification "rdd2-qualification" ./Vehicles/Rdd2/Qualification/run_qualification.py;
+          cubs2Qualification = mkQualification "cubs2-qualification" ./Vehicles/Cubs2/Test/run_qualification.py;
+          rdd2Qualification = mkQualification "rdd2-qualification" ./Vehicles/Rdd2/Test/run_waypoint_qualification.py;
           trajectoryCompare = pkgs.writeShellApplication {
             name = "trajectory-compare";
             runtimeInputs = [ python ];
@@ -123,7 +126,8 @@
               name,
               modelFile,
               modelName,
-              target,
+              target ? null,
+              emit ? null,
               output,
             }:
             pkgs.writeShellApplication {
@@ -136,12 +140,12 @@
                     "$models_root" ${modelFile} >&2
                   exit 1
                 fi
-                mkdir -p "$models_root/${output}"
+                mkdir -p "$(dirname "$models_root/${output}")"
                 cd "$models_root"
                 exec rumoca compile ${modelFile} \
                   --source-root . \
                   --model ${modelName} \
-                  --target ${target} \
+                  ${if target != null then "--target ${target}" else "--emit ${emit}"} \
                   --output ${output} \
                   "$@"
               '';
@@ -157,8 +161,8 @@
             name = "cubs2-export-plant";
             modelFile = "Vehicles/Cubs2/AvionicsPlant.mo";
             modelName = "Vehicles.Cubs2.AvionicsPlant";
-            target = "fmi3";
-            output = "artifacts/vehicles/cubs2/plant";
+            emit = "dae-json";
+            output = "artifacts/vehicles/cubs2/plant.dae.json";
           };
           rdd2ControllerExport = mkModelExport {
             name = "rdd2-export-controller";
@@ -176,28 +180,35 @@
           };
           rdd2PlantExport = mkModelExport {
             name = "rdd2-export-plant";
-            modelFile = "Vehicles/Rdd2/AvionicsPlant.mo";
-            modelName = "Vehicles.Rdd2.AvionicsPlant";
-            target = "fmi3";
-            output = "artifacts/vehicles/rdd2/plant";
+            modelFile = "Vehicles/Rdd2/PlantAdapter.mo";
+            modelName = "Vehicles.Rdd2.PlantAdapter";
+            emit = "dae-json";
+            output = "artifacts/vehicles/rdd2/plant-adapter.dae.json";
           };
           testShell = pkgs.mkShell {
-            packages = [
-              pkgs.docker-client
-              python
-              rumocaCli
-              ciRunner
-              cubs2Qualification
-              rdd2Qualification
-              allVehicleQualification
-              rumocaVersionCheck
-              trajectoryCompare
-            ];
+            packages =
+              [
+                pkgs.docker-client
+                python
+                rumocaCli
+                ciRunner
+                cubs2Qualification
+                rdd2Qualification
+                allVehicleQualification
+                rumocaVersionCheck
+                trajectoryCompare
+              ]
+              ++ pkgs.lib.optionals pkgs.stdenv.isLinux [ openModelicaCli ];
             shellHook = ''
               if [ -z "''${MODELICA_MODELS_ROOT:-}" ] \
                 && [ -f "$PWD/flake.nix" ] \
                 && [ -d "$PWD/Vehicles" ]; then
                 export MODELICA_MODELS_ROOT="$PWD"
+              fi
+
+              if [ -n "''${MODELICA_MODELS_ROOT:-}" ]; then
+                export MODELICAPATH="$MODELICA_MODELS_ROOT''${MODELICAPATH:+:$MODELICAPATH}"
+                export OPENMODELICALIBRARY="$MODELICA_MODELS_ROOT''${OPENMODELICALIBRARY:+:$OPENMODELICALIBRARY}"
               fi
 
               printf '%s\n' \

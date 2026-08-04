@@ -1,5 +1,5 @@
 within Vehicles.Rdd2;
-model LogLinearController "RDD2 parameterization of the log-linear controller"
+block LogLinearController "RDD2 parameterization of the log-linear controller"
   extends Control.Multirotor.LogLinear.Controller(
     mass = 2.0,
     gravity = 9.8,

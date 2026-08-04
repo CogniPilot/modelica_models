@@ -1,0 +1,15 @@
+MultirotorTrajectory
+FlatReference
+evaluate
+derivativeControlPoints
+evaluateDerivative
+septicControlPoints
+cubicControlPoints
+evaluateMultirotor
+flatReference
+waypointDurations
+waypointTrajectory
+prepareWaypointPlan
+activeWaypointSegment
+trackWaypointTrajectory
+WaypointTrajectoryPlanner

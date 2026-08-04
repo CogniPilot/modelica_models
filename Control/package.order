@@ -1,1 +1,8 @@
+PidParameters
+PidCoefficients
+PidState
+PidResult
+pidTransition
+PidController
+tiltRateSetpoint
 Multirotor

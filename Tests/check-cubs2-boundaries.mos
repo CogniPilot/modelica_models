@@ -1,0 +1,39 @@
+setCommandLineOptions("--std=3.6");
+
+if not loadModel(Vehicles) then
+  print(getErrorString());
+  exit(1);
+end if;
+
+buildDirectory := getTempDirectoryPath();
+cd(buildDirectory);
+
+outerLoopTranslation := translateModel(Vehicles.Cubs2.OuterLoop);
+outerLoopMessages := getErrorString();
+print(outerLoopMessages);
+if not outerLoopTranslation then
+  exit(1);
+end if;
+
+flightControlTranslation := translateModel(Vehicles.Cubs2.FlightControlSystem);
+flightControlMessages := getErrorString();
+print(flightControlMessages);
+if not flightControlTranslation then
+  exit(1);
+end if;
+
+vehicleTranslation := translateModel(Vehicles.Cubs2.ClosedLoopVehicle);
+vehicleMessages := getErrorString();
+print(vehicleMessages);
+if not vehicleTranslation then
+  exit(1);
+end if;
+
+missionTranslation := translateModel(Vehicles.Cubs2.Test.Scenarios.Mission);
+missionMessages := getErrorString();
+print(missionMessages);
+if not missionTranslation then
+  exit(1);
+end if;
+
+exit(0);

@@ -1,42 +1,46 @@
 within Control.Multirotor;
 package Allocation "Multirotor control allocation"
 
-  function motorCommands
+  function rotorCommands
     "Normalized rotor commands from a collective thrust and body moment"
+    input Integer nRotors(min = 1) "Number of independently commanded rotors";
     input Real thrust(unit = "N") "Collective thrust force";
     input Real moment[3](each unit = "N.m") "Commanded body moment";
-    input Real wrenchToThrust[4, 4]
-      "Maps {thrust, moment} to the four rotor thrusts [N]";
-    input Real thrustCoefficient(unit = "N.s2")
-      "Rotor thrust coefficient in F = Ct omega^2";
-    input Real maxMotorSpeed(unit = "rad/s") "Rotor speed at full command";
-    output Real motor[4](each unit = "1")
+    input Real wrenchToRotorThrust[nRotors, 4]
+      "Maps {thrust, moment} to per-rotor thrust [N]";
+    input Real thrustCoefficient[nRotors](each unit = "N.s2")
+      "Per-rotor coefficient in F = Ct omega^2";
+    input Real maximumRotorSpeed[nRotors](each unit = "rad/s")
+      "Per-rotor speed at full command";
+    output Real command[nRotors](each unit = "1")
       "Normalized rotor commands in [0, 1]";
   protected
     Real wrench[4];
-    Real motorThrust[4](each unit = "N");
-    Real motorSpeed(unit = "rad/s");
+    Real rotorThrust[nRotors](each unit = "N");
+    Real rotorSpeed[nRotors](each unit = "rad/s");
   algorithm
-    assert(thrustCoefficient > 0.0, "Thrust coefficient must be positive");
-    assert(maxMotorSpeed > 0.0, "Maximum rotor speed must be positive");
     wrench := {thrust, moment[1], moment[2], moment[3]};
-    motorThrust := wrenchToThrust * wrench;
-    for rotor in 1:4 loop
+    rotorThrust := wrenchToRotorThrust * wrench;
+    for rotor in 1:nRotors loop
+      assert(thrustCoefficient[rotor] > 0.0,
+        "Every rotor thrust coefficient must be positive");
+      assert(maximumRotorSpeed[rotor] > 0.0,
+        "Every maximum rotor speed must be positive");
       // A saturated rotor cannot pull, so clamp the demanded thrust to the
       // non-negative producible range before inverting F = Ct omega^2.
-      motorSpeed := sqrt(max(0.0, motorThrust[rotor]) / thrustCoefficient);
-      motor[rotor] := max(0.0, min(1.0, motorSpeed / maxMotorSpeed));
+      rotorSpeed[rotor] :=
+        sqrt(max(0.0, rotorThrust[rotor]) / thrustCoefficient[rotor]);
+      command[rotor] := MathUtilities.clip(
+        rotorSpeed[rotor] / maximumRotorSpeed[rotor], 0.0, 1.0);
     end for;
     annotation(Documentation(info="<html>
-      <p>Inverts the rotor-thrust-to-wrench map to recover the four rotor
-      thrusts from a collective thrust and body moment, then converts each rotor
-      thrust to a normalized speed command through the quadratic rotor model.
-      <code>wrenchToThrust</code> is the inverse of
-      <code>[ones(1,4); momentMap]</code> and is supplied by the vehicle so the
-      reusable allocator stays free of any airframe geometry. Negative rotor
-      thrusts (a saturated allocation) are clipped to zero.</p>
+      <p>Applies a vehicle-supplied right inverse of the rotor effectiveness
+      tensor, then converts every demanded rotor thrust through its own
+      quadratic rotor model. The reusable allocator therefore supports any
+      rotor count and heterogeneous propulsion without owning airframe
+      geometry. Negative rotor thrusts are clipped to zero.</p>
     </html>"));
-  end motorCommands;
+  end rotorCommands;
 
   annotation(Documentation(info="<html>
     <p>Control allocation for multirotors. Given the collective thrust and body

@@ -6,6 +6,7 @@ model MultirotorInnerLoopTests "Multirotor body-rate and allocation tests"
     constant Real tolerance = 1.0e-3;
     Real moment[3];
     Real motor[4];
+    Real hexRotor[6];
     // RDD2 allocation: inverse of [ones(1,4); RDD2 motor_moment_map].
     constant Real wrenchToThrust[4, 4] = [
       0.25, -1.4142135623730951, -1.4142135623730951, -15.625;
@@ -24,11 +25,32 @@ model MultirotorInnerLoopTests "Multirotor body-rate and allocation tests"
 
     // Hover on the RDD2 airframe: 19.6 N split evenly is 4.9 N per rotor, which
     // is 0.688 normalized against the 1100 rad/s rotor limit.
-    motor := Control.Multirotor.Allocation.motorCommands(
-      19.6, {0.0, 0.0, 0.0}, wrenchToThrust, 8.54858e-6, 1100.0);
+    motor := Control.Multirotor.Allocation.rotorCommands(
+      4,
+      19.6,
+      {0.0, 0.0, 0.0},
+      wrenchToThrust,
+      fill(8.54858e-6, 4),
+      fill(1100.0, 4));
     assert(Tests.Assertions.maxAbsVector(motor - {
         0.6882, 0.6882, 0.6882, 0.6882}) < 2.0e-3,
       "Hover allocation did not match the RDD2 hover throttle");
+
+    hexRotor := Control.Multirotor.Allocation.rotorCommands(
+      6,
+      12.0,
+      zeros(3),
+      [1.0 / 6.0, 0.0, 0.0, 0.0;
+       1.0 / 6.0, 0.0, 0.0, 0.0;
+       1.0 / 6.0, 0.0, 0.0, 0.0;
+       1.0 / 6.0, 0.0, 0.0, 0.0;
+       1.0 / 6.0, 0.0, 0.0, 0.0;
+       1.0 / 6.0, 0.0, 0.0, 0.0],
+      fill(1.0, 6),
+      fill(2.0, 6));
+    assert(Tests.Assertions.maxAbsVector(
+        hexRotor - fill(0.7071067811865476, 6)) < tolerance,
+      "Allocator did not preserve a six-rotor tensor");
     passed := true;
   end run;
 

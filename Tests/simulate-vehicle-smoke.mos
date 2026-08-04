@@ -1,0 +1,39 @@
+setCommandLineOptions("--std=3.6");
+
+if not loadModel(Vehicles) then
+  print(getErrorString());
+  exit(1);
+end if;
+
+buildDirectory := getTempDirectoryPath();
+cd(buildDirectory);
+
+rdd2Result := simulate(
+  Vehicles.Rdd2.Test.WaypointMission,
+  startTime = 0.0,
+  stopTime = 0.01,
+  numberOfIntervals = 2,
+  tolerance = 1.0e-6,
+  outputFormat = "csv");
+rdd2Messages := getErrorString();
+print(rdd2Messages);
+rdd2File := rdd2Result.resultFile;
+if rdd2File == "" then
+  exit(1);
+end if;
+
+cubs2Result := simulate(
+  Vehicles.Cubs2.Test.Scenarios.Mission,
+  startTime = 0.0,
+  stopTime = 0.04,
+  numberOfIntervals = 4,
+  tolerance = 1.0e-6,
+  outputFormat = "csv");
+cubs2Messages := getErrorString();
+print(cubs2Messages);
+cubs2File := cubs2Result.resultFile;
+if cubs2File == "" then
+  exit(1);
+end if;
+
+exit(0);

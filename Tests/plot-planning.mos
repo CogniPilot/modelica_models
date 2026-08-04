@@ -1,14 +1,6 @@
 setCommandLineOptions("--std=3.6");
 
-if not loadFile("LinearAlgebra/package.mo") then
-  print(getErrorString());
-  exit(1);
-end if;
-if not loadFile("Polynomials/package.mo") then
-  print(getErrorString());
-  exit(1);
-end if;
-if not loadFile("Planning/package.mo") then
+if not loadModel(Planning) then
   print(getErrorString());
   exit(1);
 end if;

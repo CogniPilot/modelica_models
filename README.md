@@ -54,9 +54,9 @@ velocity (zero for rest-to-rest), feeding world-frame position, velocity, and
 acceleration to the log-linear controller; its collective thrust and body-rate
 command pass through `Control.Multirotor.RateLoop` and
 `Control.Multirotor.Allocation` onto the four rotors.
-`Vehicles.Rdd2.Qualification.WaypointMission` takes off, flies a box, and lands
+`Vehicles.Rdd2.Test.WaypointMission` takes off, flies a box, and lands
 in the local East-North-Up frame, and
-`Vehicles.Rdd2.Qualification.GlobalWaypointMission` authors the same box in
+`Vehicles.Rdd2.Test.GlobalWaypointMission` authors the same box in
 latitude/longitude/altitude and projects it back through a fixed mission origin,
 so control always runs in the local frame while missions may be authored locally
 or globally.

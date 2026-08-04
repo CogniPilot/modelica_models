@@ -1,0 +1,23 @@
+source_roots = ["../../.."]
+
+[model]
+file = "Scenarios.mo"
+name = "Vehicles.Cubs2.Test.Scenarios.Takeoff"
+
+[plot]
+views = []
+
+[rumoca]
+task = "simulate"
+version = "1"
+
+[signals]
+
+[sim]
+dt = 0.02
+output = "artifacts/vehicles/cubs2/takeoff.csv"
+solver = "rk-like"
+t_end = 8
+
+[viewer]
+mode = "results_panel"
