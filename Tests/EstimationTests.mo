@@ -26,10 +26,21 @@ model EstimationTests "Initialization, prediction, correction, and failure invar
     Estimation.MocapExternalOdometryIEKF.Covariance discreteNoise;
     Estimation.MocapExternalOdometryIEKF.MeasurementMatrix measurementMatrix;
     Real expectedAttitudeTransition[3, 3];
+    Estimation.PositionVelocityKF.State positionInitialized;
+    Estimation.PositionVelocityKF.State positionPrevious;
+    Estimation.PositionVelocityKF.State positionPredicted;
+    Estimation.PositionVelocityKF.State positionCorrected;
+    Estimation.PositionVelocityKF.State positionStepped;
+    Estimation.PositionVelocityKF.Gain positionGain;
+    Real restAcceleration[3];
+    Real positionResidual[3];
+    Real stepAcceleration[3];
+    Real stepResidual[3];
     Boolean accepted;
     Boolean signAccepted;
     Boolean rejected;
     Boolean skippedAccepted;
+    Boolean positionCorrectionApplied;
   algorithm
   initialVariances := Estimation.MocapExternalOdometryIEKF.InitialVariances(
     attitude=0.04,
@@ -123,6 +134,40 @@ model EstimationTests "Initialization, prediction, correction, and failure invar
       angularVelocity=moving.angularVelocity),
     {0.0, 0.0, 0.1, 1.0, 2.0, 3.0, -1.0, -2.0, -3.0, 0.4, 0.5, 0.6});
 
+  positionInitialized := Estimation.PositionVelocityKF.initialize(
+    {1.0, -2.0, 0.5},
+    {2.0, 0.0, -1.0});
+  restAcceleration :=
+    Estimation.PositionVelocityKF.bodySpecificForceToWorld(
+      {1.0, 0.0, 0.0, 0.0},
+      {0.0, 0.0, 9.81},
+      9.81);
+  positionPrevious := positionInitialized;
+  positionPredicted := Estimation.PositionVelocityKF.predict(
+    positionPrevious,
+    {4.0, -2.0, 1.0},
+    0.25);
+  positionGain := zeros(6, 3);
+  for axis in 1:3 loop
+    positionGain[axis, axis] := 0.5;
+    positionGain[axis + 3, axis] := 0.25;
+  end for;
+  (positionCorrected, positionResidual) :=
+    Estimation.PositionVelocityKF.correct(
+      positionPredicted,
+      positionPredicted.position + {2.0, -4.0, 1.0},
+      positionGain);
+  (positionStepped, stepAcceleration, stepResidual,
+    positionCorrectionApplied) := Estimation.PositionVelocityKF.step(
+      positionPrevious,
+      0.1,
+      {1.0, 0.0, 0.0, 0.0},
+      {0.0, 0.0, 9.81},
+      false,
+      zeros(3),
+      positionGain,
+      9.81);
+
   assert(Tests.Assertions.maxAbsVector(initialized.attitude - {1, 0, 0, 0}) < tolerance,
     "IEKF initialization did not normalize attitude");
   assert(Tests.Assertions.maxAbsVector(initialized.velocity) < tolerance,
@@ -176,6 +221,31 @@ model EstimationTests "Initialization, prediction, correction, and failure invar
          Tests.Assertions.maxAbsVector(injected.position - (moving.position - {1, 2, 3})) < tolerance and
          Tests.Assertions.maxAbsVector(injected.angularVelocity - (moving.angularVelocity + {0.4, 0.5, 0.6})) < tolerance,
     "IEKF tangent injection ordering failed");
+  assert(Tests.Assertions.maxAbsVector(
+      restAcceleration) < tolerance,
+    "Position filter did not remove gravity from a stationary IMU");
+  assert(Tests.Assertions.maxAbsVector(
+      positionPredicted.position - {1.625, -2.0625, 0.28125}) < tolerance and
+      Tests.Assertions.maxAbsVector(
+        positionPredicted.velocity - {3.0, -0.5, -0.75}) < tolerance,
+    "Position filter constant-acceleration prediction failed");
+  assert(Tests.Assertions.maxAbsVector(
+      positionResidual - {2.0, -4.0, 1.0}) < tolerance and
+      Tests.Assertions.maxAbsVector(
+        positionCorrected.position -
+          (positionPredicted.position + {1.0, -2.0, 0.5})) < tolerance and
+      Tests.Assertions.maxAbsVector(
+        positionCorrected.velocity -
+          (positionPredicted.velocity + {0.5, -1.0, 0.25})) < tolerance,
+    "Position filter fixed-gain correction failed");
+  assert(not positionCorrectionApplied and
+      Tests.Assertions.maxAbsVector(stepAcceleration) < tolerance and
+      Tests.Assertions.maxAbsVector(stepResidual) < tolerance and
+      Tests.Assertions.maxAbsVector(
+        positionStepped.position - {1.2, -2.0, 0.4}) < tolerance and
+      Tests.Assertions.maxAbsVector(
+        positionStepped.velocity - positionPrevious.velocity) < tolerance,
+    "Position filter prediction-only step failed");
   for i in 1:12 loop
     assert(corrected.covariance[i, i] >= -tolerance,
       "IEKF corrected covariance had a negative diagonal");
