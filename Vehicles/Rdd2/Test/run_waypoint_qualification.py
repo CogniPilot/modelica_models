@@ -57,10 +57,34 @@ SCENARIOS = {
     "local": MODEL_DIR / "rumoca-scenario.waypoint-local.toml",
     "global": MODEL_DIR / "rumoca-scenario.waypoint-global.toml",
 }
+TRACE_NAMES = [
+    "time_s",
+    *[f"position_m[{index}]" for index in range(1, 4)],
+    "velocity_m_s[3]",
+    *[f"euler_rad[{index}]" for index in range(1, 4)],
+    "thrust_N",
+    *[f"motorCommand[{index}]" for index in range(1, 5)],
+    *[f"flightControl.reference.position[{index}]" for index in range(1, 4)],
+    "flightControl.reference.trajectoryTime",
+    *[f"geodetic[{index}]" for index in range(1, 4)],
+    "missionPhase",
+]
+
+
 def columns(result: "rum.Result") -> dict[str, list[float]]:
+    """Copy only qualification signals, then release Rumoca's full trace."""
     values = {"time": [float(value) for value in result.time]}
-    for name in result.names:
-        values[name] = [float(value) for value in result[name]]
+    for requested in TRACE_NAMES:
+        matches = [
+            name
+            for name in result.names
+            if name == requested or name.endswith(f".{requested}")
+        ]
+        if len(matches) != 1:
+            raise KeyError(
+                f"Rumoca result has no unambiguous signal {requested!r}: {matches}"
+            )
+        values[requested] = [float(value) for value in result[matches[0]]]
     return values
 
 
@@ -165,24 +189,12 @@ def mode_agreement(
 
 
 def write_trace(values: dict[str, list[float]], path: Path) -> None:
-    names = [
-        "time_s",
-        *[f"position_m[{index}]" for index in range(1, 4)],
-        "velocity_m_s[3]",
-        *[f"euler_rad[{index}]" for index in range(1, 4)],
-        "thrust_N",
-        *[f"motorCommand[{index}]" for index in range(1, 5)],
-        *[f"flightControl.reference.position[{index}]" for index in range(1, 4)],
-        "flightControl.reference.trajectoryTime",
-        *[f"geodetic[{index}]" for index in range(1, 4)],
-        "missionPhase",
-    ]
-    selected = {name: signal(values, name) for name in names}
+    selected = {name: signal(values, name) for name in TRACE_NAMES}
     with path.open("w", newline="", encoding="utf-8") as stream:
-        writer = csv.DictWriter(stream, fieldnames=names)
+        writer = csv.DictWriter(stream, fieldnames=TRACE_NAMES)
         writer.writeheader()
         for index in range(len(selected["time_s"])):
-            writer.writerow({name: selected[name][index] for name in names})
+            writer.writerow({name: selected[name][index] for name in TRACE_NAMES})
 
 
 def plot_missions(
