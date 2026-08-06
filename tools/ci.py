@@ -209,6 +209,8 @@ def run_omc_script(repository: Path, script: str) -> None:
                 f"{repository}:/workspace",
                 "--workdir",
                 "/workspace",
+                "--env",
+                "OPENMODELICALIBRARY=/workspace:/root/.openmodelica/libraries",
                 OPENMODELICA_IMAGE,
                 "omc",
                 script,
@@ -219,7 +221,20 @@ def run_omc_script(repository: Path, script: str) -> None:
 
     omc = program("MODELICA_MODELS_OMC", DEFAULT_OMC, "omc")
     if executable_exists(omc):
-        run_command((omc, script), repository, f"OpenModelica script {script}")
+        environment = os.environ.copy()
+        default_library = Path.home() / ".openmodelica" / "libraries"
+        inherited_library = environment.get(
+            "OPENMODELICALIBRARY", str(default_library)
+        )
+        environment["OPENMODELICALIBRARY"] = os.pathsep.join(
+            (str(repository), inherited_library)
+        )
+        run_command(
+            (omc, script),
+            repository,
+            f"OpenModelica script {script}",
+            environment,
+        )
         return
 
     raise TaskError(
@@ -227,9 +242,19 @@ def run_omc_script(repository: Path, script: str) -> None:
     )
 
 
-def run_command(command: Sequence[str], working_directory: Path, label: str) -> None:
+def run_command(
+    command: Sequence[str],
+    working_directory: Path,
+    label: str,
+    environment: dict[str, str] | None = None,
+) -> None:
     print(f"    {label}", flush=True)
-    subprocess.run(command, cwd=working_directory, check=True)
+    subprocess.run(
+        command,
+        cwd=working_directory,
+        env=environment,
+        check=True,
+    )
 
 
 def program(environment: str, packaged: str | None, fallback: str) -> str:
