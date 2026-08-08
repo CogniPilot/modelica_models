@@ -13,8 +13,6 @@ protected
   Real pivotMagnitude;
   Real matrix[size(A, 1), size(A, 1)];
   Real rightHandSide[size(A, 1), size(B, 2)];
-  Real temporaryMatrixRow[size(A, 1)];
-  Real temporaryRightHandSideRow[size(B, 2)];
 algorithm
   assert(n > 0, "Linear solve requires a nonempty square matrix");
   matrix := A;
@@ -35,19 +33,16 @@ algorithm
       accepted := false;
     elseif accepted then
       if pivotRow <> column then
-        temporaryMatrixRow := matrix[column, :];
-        matrix[column, :] := matrix[pivotRow, :];
-        matrix[pivotRow, :] := temporaryMatrixRow;
-        temporaryRightHandSideRow := rightHandSide[column, :];
-        rightHandSide[column, :] := rightHandSide[pivotRow, :];
-        rightHandSide[pivotRow, :] := temporaryRightHandSideRow;
+        matrix[{column, pivotRow}, :] := matrix[{pivotRow, column}, :];
+        rightHandSide[{column, pivotRow}, :] :=
+          rightHandSide[{pivotRow, column}, :];
       end if;
       for row in column + 1:n loop
         factor := matrix[row, column] / matrix[column, column];
-        matrix[row, column:n] := matrix[row, column:n]
-          - factor * matrix[column, column:n];
         rightHandSide[row, :] := rightHandSide[row, :]
           - factor * rightHandSide[column, :];
+        matrix[row, column:n] := matrix[row, column:n]
+          - factor * matrix[column, column:n];
       end for;
     end if;
   end for;

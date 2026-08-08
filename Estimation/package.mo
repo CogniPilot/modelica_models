@@ -1,3 +1,4 @@
+within;
 package Estimation
-  annotation(uses(LieGroups, LinearAlgebra, MathUtilities));
+  annotation(uses(Avionics, LieGroups, LinearAlgebra, MathUtilities));
 end Estimation;

@@ -3,6 +3,7 @@ LinearAlgebraTests
 LieGroupsTests
 LieGroupTests
 EstimationTests
+MultiSensorInvariantTests
 VerificationTests
 PlanningTests
 BezierTests

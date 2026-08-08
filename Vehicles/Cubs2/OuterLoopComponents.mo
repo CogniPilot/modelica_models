@@ -77,16 +77,16 @@ connector TecsCommandsInput = input TecsCommands
 connector TecsCommandsOutput = output TecsCommands
   "Single-producer port for one sampled TECS command";
 
-record ActuatorCommands
-  "Normalized primary actuator command value"
+record StabilizerCommands
+  "Normalized command sent to the proprietary onboard stabilizer"
   Real normalized[4]
-    "{aileron, elevator, rudder, throttle}";
-end ActuatorCommands;
+    "{roll, pitch, yaw, throttle}";
+end StabilizerCommands;
 
-connector ActuatorCommandsOutput = output ActuatorCommands
-  "Single-producer port for one sampled actuator command";
-connector ActuatorCommandsInput = input ActuatorCommands
-  "Typed consumer port for one sampled actuator command";
+connector StabilizerCommandsOutput = output StabilizerCommands
+  "Single-producer port for one sampled onboard-stabilizer command";
+connector StabilizerCommandsInput = input StabilizerCommands
+  "Typed consumer port for one sampled onboard-stabilizer command";
 
 record RouteParameters
   Integer nSegments = 6 "flyable segments between route points";
@@ -627,7 +627,7 @@ block AttitudeController
   FlightStateInput estimate;
   TecsCommandsInput tecsCommands;
 
-  ActuatorCommandsOutput commands;
+  StabilizerCommandsOutput commands;
   discrete output Real rollCommand(start=0.0);
   discrete output Real rollCommandPreview(start=0.0)
     "integral-free bank; what guidance would fly while disengaged";

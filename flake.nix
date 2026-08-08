@@ -39,6 +39,8 @@
               --replace-fail '#!/usr/bin/env python3' '#!${python}/bin/python3' \
               --replace-fail 'DEFAULT_DOCKER = None' \
                 'DEFAULT_DOCKER = "${pkgs.docker-client}/bin/docker"' \
+              --replace-fail 'DEFAULT_OMC = None' \
+                'DEFAULT_OMC = "${openModelicaCli}/bin/omc"' \
               --replace-fail 'DEFAULT_RUMOCA = None' \
                 'DEFAULT_RUMOCA = "${rumocaCli}/bin/rumoca"'
             chmod +x "$out/bin/modelica-models-ci"
@@ -161,8 +163,8 @@
             name = "cubs2-export-plant";
             modelFile = "Vehicles/Cubs2/AvionicsPlant.mo";
             modelName = "Vehicles.Cubs2.AvionicsPlant";
-            emit = "dae-json";
-            output = "artifacts/vehicles/cubs2/plant.dae.json";
+            target = "fmi3";
+            output = "artifacts/vehicles/cubs2/plant";
           };
           rdd2ControllerExport = mkModelExport {
             name = "rdd2-export-controller";
@@ -173,17 +175,17 @@
           };
           rdd2EstimatorExport = mkModelExport {
             name = "rdd2-export-estimator";
-            modelFile = "Estimation/ComplementaryAttitude.mo";
-            modelName = "Estimation.ComplementaryAttitude";
+            modelFile = "Vehicles/Rdd2/NavigationEstimator.mo";
+            modelName = "Vehicles.Rdd2.NavigationEstimator";
             target = "galec-production";
             output = "artifacts/vehicles/rdd2/estimator";
           };
           rdd2PlantExport = mkModelExport {
             name = "rdd2-export-plant";
-            modelFile = "Vehicles/Rdd2/PlantAdapter.mo";
-            modelName = "Vehicles.Rdd2.PlantAdapter";
-            emit = "dae-json";
-            output = "artifacts/vehicles/rdd2/plant-adapter.dae.json";
+            modelFile = "Vehicles/Rdd2/Plant.mo";
+            modelName = "Vehicles.Rdd2.Plant";
+            target = "fmi3";
+            output = "artifacts/vehicles/rdd2/plant";
           };
           testShell = pkgs.mkShell {
             packages =

@@ -132,6 +132,20 @@ def run_rumoca_tests(repository: Path) -> None:
                 "cubs2-plant.dae.json",
             ),
             (
+                "Vehicles/Cubs2/AvionicsSystem.mo",
+                "Vehicles.Cubs2.AvionicsSystem",
+                "--emit",
+                "dae-json",
+                "cubs2-avionics-system.dae.json",
+            ),
+            (
+                "Vehicles/Cubs2/Test/Scenarios.mo",
+                "Vehicles.Cubs2.Test.Scenarios.Mission",
+                "--emit",
+                "dae-json",
+                "cubs2-mission.dae.json",
+            ),
+            (
                 "Vehicles/Rdd2/Controller.mo",
                 "Vehicles.Rdd2.Controller",
                 "--target",
@@ -139,18 +153,32 @@ def run_rumoca_tests(repository: Path) -> None:
                 "rdd2-controller",
             ),
             (
-                "Estimation/ComplementaryAttitude.mo",
-                "Estimation.ComplementaryAttitude",
+                "Vehicles/Rdd2/NavigationEstimator.mo",
+                "Vehicles.Rdd2.NavigationEstimator",
                 "--target",
                 "galec-production",
                 "rdd2-estimator",
             ),
             (
-                "Vehicles/Rdd2/PlantAdapter.mo",
-                "Vehicles.Rdd2.PlantAdapter",
+                "Vehicles/Rdd2/Plant.mo",
+                "Vehicles.Rdd2.Plant",
                 "--emit",
                 "dae-json",
-                "rdd2-plant-adapter.dae.json",
+                "rdd2-plant.dae.json",
+            ),
+            (
+                "Vehicles/Rdd2/AvionicsSystem.mo",
+                "Vehicles.Rdd2.AvionicsSystem",
+                "--emit",
+                "dae-json",
+                "rdd2-avionics-system.dae.json",
+            ),
+            (
+                "Vehicles/Rdd2/Test/WaypointMission.mo",
+                "Vehicles.Rdd2.Test.WaypointMission",
+                "--emit",
+                "dae-json",
+                "rdd2-waypoint-mission.dae.json",
             ),
         )
         for model_file, model_name, option, format_name, artifact in named_models:

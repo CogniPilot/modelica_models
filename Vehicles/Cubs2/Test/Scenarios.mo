@@ -5,7 +5,7 @@ package Scenarios "Executable CUBS2 test missions"
 
 model TakeoffOpenLoop
   Vehicles.Cubs2.Plant plant;
-  Vehicles.Cubs2.InnerLoop innerLoop;
+  Vehicles.Cubs2.OnboardStabilizerSurrogate onboardStabilizer;
 
   output Real time_s;
   output Real position_m[3];
@@ -20,12 +20,12 @@ equation
   else
     stickCommand = {0.0, 0.55, 0.0, 1.0};
   end if;
-  innerLoop.armed = 1.0;
-  innerLoop.stick = stickCommand;
-  innerLoop.gyro = plant.gyro;
-  innerLoop.up_body = plant.up_body;
-  innerLoop.airspeed = plant.airspeed;
-  actuatorCommand = innerLoop.actuator;
+  onboardStabilizer.armed = 1.0;
+  onboardStabilizer.pilotCommand = stickCommand;
+  onboardStabilizer.gyro = plant.gyro;
+  onboardStabilizer.up_body = plant.up_body;
+  onboardStabilizer.airspeed = plant.airspeed;
+  actuatorCommand = onboardStabilizer.surfaceCommand;
   {plant.ail, plant.elev, plant.rud, plant.thr} = actuatorCommand;
   time_s = time;
   position_m = plant.position;

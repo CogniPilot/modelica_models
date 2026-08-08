@@ -7,7 +7,7 @@ model AvionicsPlant "CUBS2 PWM and odometry boundary around the physical plant"
 
   Plant vehicle(
     q_start = {0.38268343236508984, 0.0, 0.0, -0.9238795325112867});
-  InnerLoop innerLoop;
+  OnboardStabilizerSurrogate onboardStabilizer;
 
   input Real pwm_us[9](start = {
     1500.0,
@@ -27,7 +27,7 @@ model AvionicsPlant "CUBS2 PWM and odometry boundary around the physical plant"
   output Real euler_rad[3] "{roll, pitch, yaw}";
   output Real actuatorCommand[4] "{aileron, elevator, rudder, throttle}";
   output Real stickCommand[4] "{roll, pitch, yaw, throttle}";
-  output Boolean armedCommand;
+  output Real armCommand "continuous normalized arm command [0, 1]";
   output Vehicles.Cubs2.Interfaces.AutopilotDebug autopilotDebug;
   output Vehicles.Cubs2.Interfaces.Odometry odometry;
 
@@ -40,19 +40,14 @@ equation
     -Vehicles.Interfaces.centeredPwmToUnit(pwm_us[2]),
     Vehicles.Interfaces.centeredPwmToUnit(pwm_us[4]),
     Vehicles.Interfaces.throttlePwmToUnit(pwm_us[3])};
-  armedCommand = pwm_us[3] > 1050.0;
+  armCommand = MathUtilities.clip((pwm_us[3] - 1000.0) / 50.0, 0.0, 1.0);
+  onboardStabilizer.armed = armCommand;
+  onboardStabilizer.pilotCommand = stickCommand;
+  onboardStabilizer.gyro = vehicle.gyro;
+  onboardStabilizer.up_body = vehicle.up_body;
+  onboardStabilizer.airspeed = vehicle.airspeed;
 
-  if armedCommand then
-    innerLoop.armed = 1.0;
-  else
-    innerLoop.armed = 0.0;
-  end if;
-  innerLoop.stick = stickCommand;
-  innerLoop.gyro = vehicle.gyro;
-  innerLoop.up_body = vehicle.up_body;
-  innerLoop.airspeed = vehicle.airspeed;
-
-  actuatorCommand = innerLoop.actuator;
+  actuatorCommand = onboardStabilizer.surfaceCommand;
   {vehicle.ail, vehicle.elev, vehicle.rud, vehicle.thr} = actuatorCommand;
 
   time_s = time;

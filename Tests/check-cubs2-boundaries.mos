@@ -15,10 +15,10 @@ if not outerLoopTranslation then
   exit(1);
 end if;
 
-flightControlTranslation := translateModel(Vehicles.Cubs2.FlightControlSystem);
-flightControlMessages := getErrorString();
-print(flightControlMessages);
-if not flightControlTranslation then
+avionicsTranslation := translateModel(Vehicles.Cubs2.AvionicsSystem);
+avionicsMessages := getErrorString();
+print(avionicsMessages);
+if not avionicsTranslation then
   exit(1);
 end if;
 

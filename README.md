@@ -1,5 +1,11 @@
 # modelica_models
 
+[![Modelica library checks](https://github.com/CogniPilot/modelica_models/actions/workflows/ci.yml/badge.svg)](https://github.com/CogniPilot/modelica_models/actions/workflows/ci.yml)
+
+This project badge reports repository CI; it is not a Modelica Association
+certification. The checked rules and their MSL rationale are documented in
+[CONTRIBUTING.md](CONTRIBUTING.md).
+
 Reusable Modelica building blocks for rigid-body simulation, estimation,
 control, and verification.
 
@@ -11,6 +17,8 @@ artifacts; they do not own alternate copies of these models.
 
 ## Layout
 
+- `Avionics/`: transport-independent sensor, navigation, and estimator
+  lifecycle contracts shared by drivers, estimation, and control.
 - `Estimation/`: structured estimator prediction and correction functions.
 - `LinearAlgebra/`: dimension-generic matrix algorithms used by estimation
   and control code.
@@ -35,6 +43,37 @@ artifacts; they do not own alternate copies of these models.
   flight-control models, avionics plant interfaces, and qualification missions.
   RDD2 includes both its cascaded sampled controller and a thin vehicle
   parameterization of the reusable log-linear controller.
+
+## Navigation estimator boundary
+
+`Avionics` is the pure-Modelica boundary between sensor drivers,
+navigation algorithms, and control. Its IMU, motion-capture, GPS, and optical-
+flow records use physical quantities with explicit ENU-world and FLU-body frame
+conventions; transport adapters may map Synapse/FlatBuffers messages into these
+records, but this library has no dependency on those message definitions.
+
+Every estimator publishes `Avionics.NavigationEstimate`. It
+contains only algorithm-independent physical state: position, velocity,
+acceleration, body and world angular velocity, and mutually consistent
+quaternion, direction-cosine-matrix, and roll-pitch-yaw attitude forms. Internal
+bias states, tangent ordering, and covariance stay private because they are not
+comparable across arbitrary filter implementations.
+
+Sensor `timestamp_s` is capture time. `valid` may remain true while a usable
+sample is held; `fresh` pulses for one estimator tick when a new sample arrives,
+preventing a slow sensor value from being fused repeatedly. Latency compensation
+belongs in a reusable fixed-lag wrapper over a private estimator-backend contract:
+the wrapper buffers backend snapshots and IMU increments, corrects at the capture
+time, and replays prediction to the present. This keeps replay logic shared while
+allowing each backend to retain its own opaque state and uncertainty model.
+
+The CUBS2 deployment boundary is intentionally narrower than the closed-loop
+test model. `Vehicles.Cubs2.OuterLoop` is the deployable Modelica controller;
+it sends pilot-style commands to an onboard inner-loop stabilizer whose
+proprietary implementation is unavailable to this project. Closed-loop CUBS2
+tests use `OnboardStabilizerSurrogate` only as an explicit simulation fixture.
+Those tests verify the open outer loop and its assumed boundary behavior; they
+do not establish equivalence to, or qualify, the unseen stabilizer.
 
 The vehicle library is execution-neutral. Its names describe physical or
 control meaning only. Tooling outside the library decides whether a model is
@@ -74,8 +113,11 @@ An aerospace change follows one source path:
 4. Export the same avionics plant interface as FMI 3 Co-Simulation.
 5. Let the consuming firmware repository integrate those generated artifacts.
 
-Landing-gear contact is intentionally eventful. Touchdown relations are
-preserved as Modelica events through direct simulation and FMI export.
+Landing-gear contact is intentionally eventful. Direct simulation preserves
+the touchdown relations. The current source-FMU profile rejects plant exports
+that contain event/action partitions; it must continue to fail closed until
+the FMI execution kernel preserves those partitions and its conformance tests
+cover them.
 
 The pinned Nix applications are:
 
