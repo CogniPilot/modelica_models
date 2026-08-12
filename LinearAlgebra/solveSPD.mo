@@ -96,6 +96,21 @@ algorithm
       for reverseRow in 1:size(A, 1) loop
         solveRow := size(A, 1) + 1 - reverseRow;
         value := Y[solveRow, rhs];
+        // DO NOT add a multi-output (tuple-assigning) call anywhere in this
+        // function. rumoca 0.9.20 silently drops loop-carried writes when
+        // three ingredients coincide: (1) a nested loop whose trip count
+        // depends on an enclosing loop index, (2) that loop reading an array
+        // indexed by its own inner variable, and (3) a multi-output call in
+        // the enclosing loop. The back substitution below already has (1) and
+        // (2) -- `(solveRow + 1):size(A, 1)` reading `L[k, solveRow]` and
+        // `X[k, rhs]`, accumulating into `value` across iterations -- so only
+        // (3) is missing. Adding it would silently return a wrong solution
+        // from the flight estimator's Cholesky path, with no diagnostic.
+        // tools/check-modelica-library.sh enforces the absence of (3); drop
+        // that check only once the compiler defect is fixed.
+        // Evidence: PlanTrigger2.mo, PlanShapeProbe.mo and PlanJointShape2.mo
+        // under .claude/jobs/de80c98d/tmp/planaudit/. The real instance was
+        // DubinsPolynomial.smoothOffsets, repaired in commit 2b255b3.
         for k in (solveRow + 1):size(A, 1) loop
           value := value - L[k, solveRow] * X[k, rhs];
         end for;

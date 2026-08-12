@@ -60,6 +60,24 @@ while IFS= read -r modelica_file; do
   fi
 done < <(find . -type f -name '*.mo' ! -path './.git/*' ! -path './tools/rumoca-repros/*' | sort)
 
+# Guarded solvers. These functions contain a nested loop whose trip count
+# depends on an enclosing loop index and which reads an array indexed by its
+# own inner variable. rumoca 0.9.20 silently drops loop-carried writes in that
+# shape as soon as a multi-output (tuple-assigning) call is also present in the
+# enclosing loop, so the third ingredient must stay absent. See the comments in
+# each file. Remove this check when the compiler defect is fixed.
+for guarded_file in LinearAlgebra/solve.mo LinearAlgebra/solveSPD.mo; do
+  if [ ! -f "$guarded_file" ]; then
+    report_error "guarded solver $guarded_file is missing; update this check"
+    continue
+  fi
+  if rg -q '^[[:space:]]*\([^()]*,[^()]*\)[[:space:]]*:=' "$guarded_file"; then
+    report_error "$guarded_file contains a multi-output (tuple-assigning) call; \
+this combination silently miscompiles under rumoca and corrupts the solver \
+(see the guard comment in that file)"
+  fi
+done
+
 if [ "$failed" -ne 0 ]; then
   exit 1
 fi
