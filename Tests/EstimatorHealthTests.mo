@@ -2,6 +2,122 @@ within Tests;
 
 model EstimatorHealthTests
   "Precision-scaled pivoting, variance limiting, gating, and auto-reinit"
+
+  function mocapTick
+    "One estimator tick against a mocap-only fixture at a fixed sample rate"
+    input Boolean initialized;
+    input Real position[3];
+    input Real velocity[3];
+    input Real quaternion[4];
+    input Real gyroscopeBias[3];
+    input Real accelerometerBias[3];
+    input Estimation.MultiSensorInvariant.Covariance covariance;
+    input Integer rejections;
+    input Real mocapPosition[3];
+    input Real timestamp_s;
+    input Real dt;
+    input Real innovationGate;
+    input Integer rejectedCorrectionLimit;
+    output Real positionNext[3];
+    output Real velocityNext[3];
+    output Real quaternionNext[4];
+    output Real gyroscopeBiasNext[3];
+    output Real accelerometerBiasNext[3];
+    output Estimation.MultiSensorInvariant.Covariance covarianceNext;
+    output Boolean initializedNext;
+    output Integer rejectionsNext;
+    output Boolean mocapAccepted;
+    output Boolean reinitialized;
+    output Boolean gateFired;
+  protected
+    Boolean predictionOk;
+    Boolean gpsPositionOk;
+    Boolean gpsVelocityOk;
+    Boolean flowOk;
+  algorithm
+    // Level flight: the specific force exactly cancels gravity, so an
+    // accepted prediction leaves the nominal state where it was and every
+    // position change below is attributable to the aiding path alone.
+    (positionNext,
+     velocityNext,
+     quaternionNext,
+     gyroscopeBiasNext,
+     accelerometerBiasNext,
+     covarianceNext,
+     initializedNext,
+     predictionOk,
+     mocapAccepted,
+     gpsPositionOk,
+     gpsVelocityOk,
+     flowOk,
+     rejectionsNext,
+     reinitialized,
+     gateFired) := Estimation.MultiSensorInvariant.step(
+      initialized,
+      position,
+      velocity,
+      quaternion,
+      gyroscopeBias,
+      accelerometerBias,
+      covariance,
+      false,
+      true,
+      true,
+      timestamp_s,
+      zeros(3),
+      {0.0, 0.0, 9.81},
+      true,
+      true,
+      timestamp_s,
+      mocapPosition,
+      {1.0, 0.0, 0.0, 0.0},
+      identity(3) * 1.0e-4,
+      identity(3) * 1.0e-4,
+      false,
+      false,
+      false,
+      false,
+      0.0,
+      zeros(3),
+      zeros(3),
+      zeros(3),
+      identity(3),
+      identity(3),
+      false,
+      false,
+      0.0,
+      zeros(2),
+      identity(2),
+      zeros(2),
+      0.0,
+      1.0,
+      0.0,
+      {0.0, 0.0, -9.81},
+      dt,
+      fill(1.0, 3),
+      fill(1.0, 3),
+      fill(0.25, 3),
+      fill(1.0e-4, 3),
+      fill(1.0e-2, 3),
+      identity(3) * 1.0e-5,
+      identity(3) * 1.0e-3,
+      identity(3) * 1.0e-8,
+      identity(3) * 1.0e-6,
+      zeros(3),
+      zeros(3),
+      {1.0, 0.0, 0.0, 0.0},
+      zeros(3),
+      zeros(3),
+      fill(1.0e4, 3),
+      fill(4.0e2, 3),
+      fill(10.0, 3),
+      fill(1.0e-2, 3),
+      fill(1.0, 3),
+      innovationGate,
+      rejectedCorrectionLimit,
+      rejections);
+  end mocapTick;
+
   function run
     output Boolean passed;
   protected
@@ -9,6 +125,7 @@ model EstimatorHealthTests
     constant Real dt = 0.01;
     constant Integer rejectionLimit = 3;
     constant Real gate = 6.0;
+    constant Real farAway[3] = {1.0e3, 0.0, 0.0};
     Real marginal[2, 2];
     Real solution[2, 1];
     Boolean okDefault;
@@ -40,15 +157,10 @@ model EstimatorHealthTests
     Estimation.MultiSensorInvariant.Covariance covarianceNext;
     Boolean initializedNext;
     Integer rejectionsNext;
-    Boolean predictionOk;
-    Boolean mocapOk;
-    Boolean gpsPositionOk;
-    Boolean gpsVelocityOk;
-    Boolean flowOk;
     Integer rejections;
+    Boolean mocapOk;
     Boolean reinitialized;
     Boolean gateFired;
-    Real mocapPosition[3];
     Boolean boundsOk;
     Boolean startupOk;
     Boolean rejectionOk;
@@ -138,6 +250,18 @@ model EstimatorHealthTests
     // rejects; tick 5 sees the counter at the limit and re-initializes
     // from the current mocap sample; tick 6 accepts the now-consistent
     // correction.
+    //
+    // The six ticks are written out rather than driven by a `for` loop.
+    // A loop body has to hand each tick's outputs back to the next tick
+    // through `state := stateNext` copies, and rumoca 0.9.20 drops such a
+    // copy across the loop back-edge in both the folded-parameter and the
+    // compiled simulation paths: every iteration then re-reads the
+    // pre-loop value, the estimator re-initializes on every tick, and the
+    // health assertions below fail against a correct model. See
+    // Tests.LinearAlgebraTests-adjacent notes and the standalone repro
+    // kept with this slice; OpenModelica evaluates the loop form
+    // correctly. Straight-line copies are compiled correctly, so the
+    // unrolled form below tests exactly the intended sequence.
     position := zeros(3);
     velocity := zeros(3);
     quaternion := {1.0, 0.0, 0.0, 0.0};
@@ -146,135 +270,126 @@ model EstimatorHealthTests
     covariance := zeros(15, 15);
     initialized := false;
     rejections := 0;
-    predictionOk := false;
-    mocapOk := false;
-    gpsPositionOk := false;
-    gpsVelocityOk := false;
-    flowOk := false;
-    reinitialized := false;
-    gateFired := false;
-    mocapPosition := zeros(3);
-    positionNext := zeros(3);
-    velocityNext := zeros(3);
-    quaternionNext := {1.0, 0.0, 0.0, 0.0};
-    gyroscopeBiasNext := zeros(3);
-    accelerometerBiasNext := zeros(3);
-    covarianceNext := zeros(15, 15);
-    initializedNext := false;
-    rejectionsNext := 0;
     boundsOk := true;
-    startupOk := false;
-    rejectionOk := true;
-    reinitOk := false;
-    recoveryOk := false;
-    for tick in 1:6 loop
-      mocapPosition := if tick == 1 then zeros(3)
-        else {1.0e3, 0.0, 0.0};
-      (positionNext,
-       velocityNext,
-       quaternionNext,
-       gyroscopeBiasNext,
-       accelerometerBiasNext,
-       covarianceNext,
-       initializedNext,
-       predictionOk,
-       mocapOk,
-       gpsPositionOk,
-       gpsVelocityOk,
-       flowOk,
-       rejectionsNext,
-       reinitialized,
-       gateFired) := Estimation.MultiSensorInvariant.step(
-        initialized,
-        position,
-        velocity,
-        quaternion,
-        gyroscopeBias,
-        accelerometerBias,
-        covariance,
-        false,
-        true,
-        true,
-        tick * dt,
-        zeros(3),
-        {0.0, 0.0, 9.81},
-        true,
-        true,
-        tick * dt,
-        mocapPosition,
-        {1.0, 0.0, 0.0, 0.0},
-        identity(3) * 1.0e-4,
-        identity(3) * 1.0e-4,
-        false,
-        false,
-        false,
-        false,
-        0.0,
-        zeros(3),
-        zeros(3),
-        zeros(3),
-        identity(3),
-        identity(3),
-        false,
-        false,
-        0.0,
-        zeros(2),
-        identity(2),
-        zeros(2),
-        0.0,
-        1.0,
-        0.0,
-        {0.0, 0.0, -9.81},
-        dt,
-        fill(1.0, 3),
-        fill(1.0, 3),
-        fill(0.25, 3),
-        fill(1.0e-4, 3),
-        fill(1.0e-2, 3),
-        identity(3) * 1.0e-5,
-        identity(3) * 1.0e-3,
-        identity(3) * 1.0e-8,
-        identity(3) * 1.0e-6,
-        zeros(3),
-        zeros(3),
-        {1.0, 0.0, 0.0, 0.0},
-        zeros(3),
-        zeros(3),
-        fill(1.0e4, 3),
-        fill(4.0e2, 3),
-        fill(10.0, 3),
-        fill(1.0e-2, 3),
-        fill(1.0, 3),
-        gate,
-        rejectionLimit,
-        rejections);
-      position := positionNext;
-      velocity := velocityNext;
-      quaternion := quaternionNext;
-      gyroscopeBias := gyroscopeBiasNext;
-      accelerometerBias := accelerometerBiasNext;
-      covariance := covarianceNext;
-      initialized := initializedNext;
-      rejections := rejectionsNext;
-      boundsOk := boundsOk and covariance[1, 1] <= 1.0e4 + tolerance;
-      if tick == 1 then
-        startupOk := initialized and rejections == 0 and not reinitialized;
-      elseif tick <= 4 then
-        rejectionOk := rejectionOk and not mocapOk and gateFired
-          and rejections == tick - 1
-          and abs(position[1]) < 1.0
-          and not reinitialized;
-      elseif tick == 5 then
-        reinitOk := reinitialized and rejections == 0
-          and abs(position[1] - 1.0e3) < tolerance
-          and abs(covariance[1, 1] - 1.0) < tolerance;
-      else
-        // The accepted correction must also actually contract the
-        // covariance (guards the accepted-branch covariance store).
-        recoveryOk := mocapOk and not gateFired and rejections == 0
-          and covariance[1, 1] < 0.1;
-      end if;
-    end for;
+
+    // Tick 1: first sample initializes from mocap at the origin.
+    (positionNext, velocityNext, quaternionNext, gyroscopeBiasNext,
+     accelerometerBiasNext, covarianceNext, initializedNext, rejectionsNext,
+     mocapOk, reinitialized, gateFired) := mocapTick(
+      initialized, position, velocity, quaternion, gyroscopeBias,
+      accelerometerBias, covariance, rejections, zeros(3), dt, dt, gate,
+      rejectionLimit);
+    position := positionNext;
+    velocity := velocityNext;
+    quaternion := quaternionNext;
+    gyroscopeBias := gyroscopeBiasNext;
+    accelerometerBias := accelerometerBiasNext;
+    covariance := covarianceNext;
+    initialized := initializedNext;
+    rejections := rejectionsNext;
+    boundsOk := boundsOk and covariance[1, 1] <= 1.0e4 + tolerance;
+    startupOk := initialized and rejections == 0 and not reinitialized;
+
+    // Tick 2: the first 1 km mocap sample is gate-rejected; the counter
+    // advances to 1 and the estimate must not move.
+    (positionNext, velocityNext, quaternionNext, gyroscopeBiasNext,
+     accelerometerBiasNext, covarianceNext, initializedNext, rejectionsNext,
+     mocapOk, reinitialized, gateFired) := mocapTick(
+      initialized, position, velocity, quaternion, gyroscopeBias,
+      accelerometerBias, covariance, rejections, farAway, 2.0 * dt, dt,
+      gate, rejectionLimit);
+    position := positionNext;
+    velocity := velocityNext;
+    quaternion := quaternionNext;
+    gyroscopeBias := gyroscopeBiasNext;
+    accelerometerBias := accelerometerBiasNext;
+    covariance := covarianceNext;
+    initialized := initializedNext;
+    rejections := rejectionsNext;
+    boundsOk := boundsOk and covariance[1, 1] <= 1.0e4 + tolerance;
+    rejectionOk := not mocapOk and gateFired and rejections == 1
+      and abs(position[1]) < 1.0 and not reinitialized;
+
+    // Tick 3: counter advances to 2, still below the limit.
+    (positionNext, velocityNext, quaternionNext, gyroscopeBiasNext,
+     accelerometerBiasNext, covarianceNext, initializedNext, rejectionsNext,
+     mocapOk, reinitialized, gateFired) := mocapTick(
+      initialized, position, velocity, quaternion, gyroscopeBias,
+      accelerometerBias, covariance, rejections, farAway, 3.0 * dt, dt,
+      gate, rejectionLimit);
+    position := positionNext;
+    velocity := velocityNext;
+    quaternion := quaternionNext;
+    gyroscopeBias := gyroscopeBiasNext;
+    accelerometerBias := accelerometerBiasNext;
+    covariance := covarianceNext;
+    initialized := initializedNext;
+    rejections := rejectionsNext;
+    boundsOk := boundsOk and covariance[1, 1] <= 1.0e4 + tolerance;
+    rejectionOk := rejectionOk and not mocapOk and gateFired
+      and rejections == 2 and abs(position[1]) < 1.0 and not reinitialized;
+
+    // Tick 4: counter reaches the limit; re-initialization is armed for
+    // the next tick but must not have fired yet.
+    (positionNext, velocityNext, quaternionNext, gyroscopeBiasNext,
+     accelerometerBiasNext, covarianceNext, initializedNext, rejectionsNext,
+     mocapOk, reinitialized, gateFired) := mocapTick(
+      initialized, position, velocity, quaternion, gyroscopeBias,
+      accelerometerBias, covariance, rejections, farAway, 4.0 * dt, dt,
+      gate, rejectionLimit);
+    position := positionNext;
+    velocity := velocityNext;
+    quaternion := quaternionNext;
+    gyroscopeBias := gyroscopeBiasNext;
+    accelerometerBias := accelerometerBiasNext;
+    covariance := covarianceNext;
+    initialized := initializedNext;
+    rejections := rejectionsNext;
+    boundsOk := boundsOk and covariance[1, 1] <= 1.0e4 + tolerance;
+    rejectionOk := rejectionOk and not mocapOk and gateFired
+      and rejections == 3 and abs(position[1]) < 1.0 and not reinitialized;
+
+    // Tick 5: the limit forces the declared initialization policy to run
+    // again, seeded from the current mocap sample with declared variances.
+    (positionNext, velocityNext, quaternionNext, gyroscopeBiasNext,
+     accelerometerBiasNext, covarianceNext, initializedNext, rejectionsNext,
+     mocapOk, reinitialized, gateFired) := mocapTick(
+      initialized, position, velocity, quaternion, gyroscopeBias,
+      accelerometerBias, covariance, rejections, farAway, 5.0 * dt, dt,
+      gate, rejectionLimit);
+    position := positionNext;
+    velocity := velocityNext;
+    quaternion := quaternionNext;
+    gyroscopeBias := gyroscopeBiasNext;
+    accelerometerBias := accelerometerBiasNext;
+    covariance := covarianceNext;
+    initialized := initializedNext;
+    rejections := rejectionsNext;
+    boundsOk := boundsOk and covariance[1, 1] <= 1.0e4 + tolerance;
+    reinitOk := reinitialized and rejections == 0
+      and abs(position[1] - 1.0e3) < tolerance
+      and abs(covariance[1, 1] - 1.0) < tolerance;
+
+    // Tick 6: the now-consistent correction is accepted and contracts the
+    // covariance (this also guards the accepted-branch covariance store).
+    (positionNext, velocityNext, quaternionNext, gyroscopeBiasNext,
+     accelerometerBiasNext, covarianceNext, initializedNext, rejectionsNext,
+     mocapOk, reinitialized, gateFired) := mocapTick(
+      initialized, position, velocity, quaternion, gyroscopeBias,
+      accelerometerBias, covariance, rejections, farAway, 6.0 * dt, dt,
+      gate, rejectionLimit);
+    position := positionNext;
+    velocity := velocityNext;
+    quaternion := quaternionNext;
+    gyroscopeBias := gyroscopeBiasNext;
+    accelerometerBias := accelerometerBiasNext;
+    covariance := covarianceNext;
+    initialized := initializedNext;
+    rejections := rejectionsNext;
+    boundsOk := boundsOk and covariance[1, 1] <= 1.0e4 + tolerance;
+    recoveryOk := mocapOk and not gateFired and rejections == 0
+      and covariance[1, 1] < 0.1;
+
     assert(boundsOk,
       "Bounded covariance propagation exceeded the position limit");
     assert(startupOk,
