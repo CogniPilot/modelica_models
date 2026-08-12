@@ -1,6 +1,6 @@
 within Estimation.MultiSensorInvariant;
 
-function initialize "Initialize the mixed-invariant filter"
+function initialize "Initialize the geometric error-state filter"
   input Real positionWorldEnu_m[3];
   input Real quaternionWorldBody[4];
   input Estimation.MultiSensorInvariant.InitialVariances variances;

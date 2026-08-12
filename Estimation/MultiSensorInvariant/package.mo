@@ -1,7 +1,7 @@
 within Estimation;
 
 package MultiSensorInvariant
-  "Bias-aware left-invariant EKF on SE_2(3) with multiple aiding sensors"
+  "Bias-aware geometric error-state EKF with an SE_2(3) navigation state"
   constant Integer TangentLength = 15;
   constant Integer ProcessNoiseLength = 12;
 
@@ -17,9 +17,13 @@ package MultiSensorInvariant
     left-invariant tangent error ordered as body-frame position, velocity,
     attitude, gyroscope bias, and accelerometer bias.</p>
     <p>Over one IMU interval the corrected IMU input is held constant. The
-    continuous log-linear transition is discretized with a third-order matrix
+    locally linearized error transition is discretized with a third-order matrix
     exponential polynomial; the process-noise integral is evaluated by
     Simpson quadrature. Both operations retain full cross-axis covariance and
     use matrix expressions rather than three scalar filters.</p>
+    <p>The additive bias states are not part of a group-affine, exactly
+    log-linear augmented system. The invariant pose error and manifold
+    retraction are deliberate geometric choices inside an otherwise ordinary
+    error-state EKF.</p>
   </html>"));
 end MultiSensorInvariant;

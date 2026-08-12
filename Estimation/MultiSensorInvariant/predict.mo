@@ -1,6 +1,6 @@
 within Estimation.MultiSensorInvariant;
 
-function predict "Mixed SE_2(3) nominal and invariant covariance prediction"
+function predict "Mixed SE_2(3) nominal and local error covariance prediction"
   input Estimation.MultiSensorInvariant.State previous;
   input Real angularVelocityMeasuredBodyFlu_rad_s[3];
   input Real specificForceMeasuredBodyFlu_m_s2[3];

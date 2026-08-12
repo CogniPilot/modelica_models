@@ -141,9 +141,13 @@ equation
   for i in 1:4 loop
     leg_v_b[:, i] = v_b + cross(omega, leg_r_b[:, i]);
     leg_h_w[i] = p[3] + R[3, :] * leg_r_b[:, i];
-    leg_f_w[1, i] = if leg_h_w[i] < ground_z then -ground_tangent_c * (R[1, :] * leg_v_b[:, i]) else 0;
-    leg_f_w[2, i] = if leg_h_w[i] < ground_z then -ground_tangent_c * (R[2, :] * leg_v_b[:, i]) else 0;
-    leg_f_w[3, i] = if leg_h_w[i] < ground_z then max(0, ground_k * (ground_z - leg_h_w[i]) - ground_c * (R[3, :] * leg_v_b[:, i])) else 0;
+    leg_f_w[1, i] = if noEvent(leg_h_w[i] < ground_z) then
+      -ground_tangent_c * (R[1, :] * leg_v_b[:, i]) else 0;
+    leg_f_w[2, i] = if noEvent(leg_h_w[i] < ground_z) then
+      -ground_tangent_c * (R[2, :] * leg_v_b[:, i]) else 0;
+    leg_f_w[3, i] = if noEvent(leg_h_w[i] < ground_z) then
+      noEvent(max(0, ground_k * (ground_z - leg_h_w[i]) -
+        ground_c * (R[3, :] * leg_v_b[:, i]))) else 0;
     leg_m_b[:, i] = cross(leg_r_b[:, i], leg_f_b[:, i]);
   end for;
 
