@@ -4,8 +4,11 @@ function correctOpticalFlow
   "Correct planar body velocity from range-compensated optical flow"
   input Estimation.MultiSensorInvariant.State predicted;
   input Avionics.OpticalFlowSample measurement;
+  input Real innovationGate = 0.0
+    "Per-degree-of-freedom NIS gate; non-positive disables";
   output Estimation.MultiSensorInvariant.State corrected;
   output Boolean accepted;
+  output Boolean gateRejected;
 protected
   Real rotationWorldBody[3, 3];
   Real predictedVelocityBody[3];
@@ -25,6 +28,7 @@ algorithm
     [1.0, 0.0, 0.0; 0.0, 1.0, 0.0],
     velocityCross[1:2, :],
     zeros(2, TangentLength - 9));
-  (corrected, accepted) := correctLinear(
-    predicted, residual, H, measurement.velocityCovarianceBody_m2_s2);
+  (corrected, accepted, gateRejected) := correctLinear(
+    predicted, residual, H, measurement.velocityCovarianceBody_m2_s2,
+    innovationGate);
 end correctOpticalFlow;

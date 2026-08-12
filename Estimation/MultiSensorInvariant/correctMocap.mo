@@ -3,8 +3,11 @@ within Estimation.MultiSensorInvariant;
 function correctMocap "Correct position and attitude from motion capture"
   input Estimation.MultiSensorInvariant.State predicted;
   input Avionics.MocapSample measurement;
+  input Real innovationGate = 0.0
+    "Per-degree-of-freedom NIS gate; non-positive disables";
   output Estimation.MultiSensorInvariant.State corrected;
   output Boolean accepted;
+  output Boolean gateRejected;
 protected
   Real rotationWorldBody[3, 3];
   Real residual[6];
@@ -30,6 +33,6 @@ algorithm
       * measurement.positionCovarianceWorld_m2 * rotationWorldBody,
       zeros(3, 3)),
     cat(2, zeros(3, 3), measurement.attitudeCovarianceBody_rad2));
-  (corrected, accepted) := correctLinear(
-    predicted, residual, H, measurementCovariance);
+  (corrected, accepted, gateRejected) := correctLinear(
+    predicted, residual, H, measurementCovariance, innovationGate);
 end correctMocap;

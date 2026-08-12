@@ -57,6 +57,16 @@ function step
   input Real initialQuaternion[4];
   input Real initialGyroscopeBias[3];
   input Real initialAccelerometerBias[3];
+  input Real positionVarianceLimit[3];
+  input Real velocityVarianceLimit[3];
+  input Real attitudeVarianceLimit[3];
+  input Real gyroscopeBiasVarianceLimit[3];
+  input Real accelerometerBiasVarianceLimit[3];
+  input Real innovationGate
+    "Per-degree-of-freedom NIS gate; non-positive disables";
+  input Integer rejectedCorrectionLimit
+    "Consecutive rejected corrections that force re-initialization";
+  input Integer consecutiveRejectionsPrevious;
   output Real positionNext[3];
   output Real velocityNext[3];
   output Real quaternionNext[4];
@@ -69,6 +79,11 @@ function step
   output Boolean gpsPositionCorrectionAccepted;
   output Boolean gpsVelocityCorrectionAccepted;
   output Boolean opticalFlowCorrectionAccepted;
+  output Integer consecutiveRejectionsNext;
+  output Boolean covarianceReinitialized
+    "True on a tick where persistent rejection forced re-initialization";
+  output Boolean innovationGateRejected
+    "True when this tick's attempted correction failed the NIS gate";
 protected
   Estimation.MultiSensorInvariant.State previous;
   Estimation.MultiSensorInvariant.State working;
@@ -77,9 +92,13 @@ protected
   Avionics.GpsSample gps;
   Avionics.OpticalFlowSample opticalFlow;
   Estimation.MultiSensorInvariant.InitialVariances initialVariances;
+  Estimation.MultiSensorInvariant.VarianceLimits varianceLimits;
   Estimation.MultiSensorInvariant.ProcessNoise processNoise;
   Real initializationPosition[3];
   Real initializationQuaternion[4];
+  Boolean correctionAttempted;
+  Boolean correctionAccepted;
+  Boolean gateRejected;
 algorithm
   imu := Avionics.ImuSample(
     valid=imuValid,
@@ -122,6 +141,12 @@ algorithm
     attitude_rad2=initialAttitudeVariance,
     gyroscopeBias_rad2_s2=initialGyroscopeBiasVariance,
     accelerometerBias_m2_s4=initialAccelerometerBiasVariance);
+  varianceLimits := Estimation.MultiSensorInvariant.VarianceLimits(
+    position_m2=positionVarianceLimit,
+    velocity_m2_s2=velocityVarianceLimit,
+    attitude_rad2=attitudeVarianceLimit,
+    gyroscopeBias_rad2_s2=gyroscopeBiasVarianceLimit,
+    accelerometerBias_m2_s4=accelerometerBiasVarianceLimit);
   processNoise := Estimation.MultiSensorInvariant.ProcessNoise(
     gyroscope_rad2_s=gyroscopeProcessNoise,
     accelerometer_m2_s3=accelerometerProcessNoise,
@@ -132,8 +157,28 @@ algorithm
   gpsPositionCorrectionAccepted := false;
   gpsVelocityCorrectionAccepted := false;
   opticalFlowCorrectionAccepted := false;
+  correctionAttempted := false;
+  correctionAccepted := false;
+  gateRejected := false;
+  innovationGateRejected := false;
+  consecutiveRejectionsNext := 0;
 
-  if not initializedPrevious or reset then
+  // Auto-reinitialization: the counter only advances on ticks where a
+  // fresh aiding sample was actually attempted, so the threshold measures
+  // sustained rejection while aiding is streaming, never mere aiding
+  // dropout. Once it fires, the full declared initialization policy runs
+  // (position and attitude seeded from the active aiding source when
+  // available, covariance from the declared initial variances).
+  // Reinitializing the covariance alone would deadlock: after long
+  // dead-reckoning the position residual can reach kilometers, and no
+  // mission-envelope covariance makes such a residual pass a chi-square
+  // gate, so every later correction would be re-rejected. The declared
+  // initialization path is the one already exercised at startup and on
+  // commanded reset; re-running it is the smallest honest recovery.
+  covarianceReinitialized := initializedPrevious and not reset
+    and consecutiveRejectionsPrevious >= rejectedCorrectionLimit;
+
+  if not initializedPrevious or reset or covarianceReinitialized then
     initializationPosition := if mocap.valid then
         mocap.positionWorldEnu_m
       elseif gps.valid and gps.positionValid then
@@ -178,22 +223,52 @@ algorithm
           previous.accelerometerBiasBodyFlu_m_s2,
         covariance=previous.covariance);
     end if;
+    working := Estimation.MultiSensorInvariant.State(
+      positionWorldEnu_m=working.positionWorldEnu_m,
+      velocityWorldEnu_m_s=working.velocityWorldEnu_m_s,
+      quaternionWorldBody=working.quaternionWorldBody,
+      gyroscopeBiasBodyFlu_rad_s=working.gyroscopeBiasBodyFlu_rad_s,
+      accelerometerBiasBodyFlu_m_s2=working.accelerometerBiasBodyFlu_m_s2,
+      covariance=limitCovariance(working.covariance, varianceLimits));
 
     if mocap.valid and mocap.fresh then
-      (working, mocapCorrectionAccepted) := correctMocap(working, mocap);
+      (working, mocapCorrectionAccepted, gateRejected) :=
+        correctMocap(working, mocap, innovationGate);
+      correctionAttempted := true;
+      correctionAccepted := mocapCorrectionAccepted;
     elseif gps.valid and gps.fresh and gps.positionValid
         and gps.velocityValid then
-      (working, gpsPositionCorrectionAccepted) := correctGps(working, gps);
+      (working, gpsPositionCorrectionAccepted, gateRejected) :=
+        correctGps(working, gps, innovationGate);
       gpsVelocityCorrectionAccepted := gpsPositionCorrectionAccepted;
+      correctionAttempted := true;
+      correctionAccepted := gpsPositionCorrectionAccepted;
     elseif gps.valid and gps.fresh and gps.positionValid then
-      (working, gpsPositionCorrectionAccepted) :=
-        correctGpsPosition(working, gps);
+      (working, gpsPositionCorrectionAccepted, gateRejected) :=
+        correctGpsPosition(working, gps, innovationGate);
+      correctionAttempted := true;
+      correctionAccepted := gpsPositionCorrectionAccepted;
     elseif gps.valid and gps.fresh and gps.velocityValid then
-      (working, gpsVelocityCorrectionAccepted) :=
-        correctGpsVelocity(working, gps);
+      (working, gpsVelocityCorrectionAccepted, gateRejected) :=
+        correctGpsVelocity(working, gps, innovationGate);
+      correctionAttempted := true;
+      correctionAccepted := gpsVelocityCorrectionAccepted;
     elseif opticalFlow.valid and opticalFlow.fresh then
-      (working, opticalFlowCorrectionAccepted) :=
-        correctOpticalFlow(working, opticalFlow);
+      (working, opticalFlowCorrectionAccepted, gateRejected) :=
+        correctOpticalFlow(working, opticalFlow, innovationGate);
+      correctionAttempted := true;
+      correctionAccepted := opticalFlowCorrectionAccepted;
+    end if;
+
+    if correctionAttempted then
+      innovationGateRejected := gateRejected;
+      if correctionAccepted then
+        consecutiveRejectionsNext := 0;
+      else
+        consecutiveRejectionsNext := consecutiveRejectionsPrevious + 1;
+      end if;
+    else
+      consecutiveRejectionsNext := consecutiveRejectionsPrevious;
     end if;
   end if;
 

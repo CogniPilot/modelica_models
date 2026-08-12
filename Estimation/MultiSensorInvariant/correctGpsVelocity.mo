@@ -3,8 +3,11 @@ within Estimation.MultiSensorInvariant;
 function correctGpsVelocity "Correct world velocity from GPS Doppler velocity"
   input Estimation.MultiSensorInvariant.State predicted;
   input Avionics.GpsSample measurement;
+  input Real innovationGate = 0.0
+    "Per-degree-of-freedom NIS gate; non-positive disables";
   output Estimation.MultiSensorInvariant.State corrected;
   output Boolean accepted;
+  output Boolean gateRejected;
 protected
   Real rotationWorldBody[3, 3];
   Real residual[3];
@@ -19,6 +22,6 @@ algorithm
     zeros(3, TangentLength - 6));
   measurementCovariance := transpose(rotationWorldBody)
     * measurement.velocityCovarianceWorld_m2_s2 * rotationWorldBody;
-  (corrected, accepted) := correctLinear(
-    predicted, residual, H, measurementCovariance);
+  (corrected, accepted, gateRejected) := correctLinear(
+    predicted, residual, H, measurementCovariance, innovationGate);
 end correctGpsVelocity;

@@ -6,14 +6,23 @@ function correctLinear
   input Real residual[:];
   input Real H[size(residual, 1), TangentLength];
   input Real measurementCovariance[size(residual, 1), size(residual, 1)];
+  input Real innovationGate = 0.0
+    "Reject when NIS exceeds innovationGate * size(residual, 1);
+     non-positive disables the gate";
   output Estimation.MultiSensorInvariant.State corrected;
   output Boolean accepted;
+  output Boolean gateRejected
+    "True when the Cholesky solve succeeded but the innovation gate fired";
 protected
   Integer measurementLength = size(residual, 1);
   Real crossCovariance[TangentLength, size(residual, 1)];
   Real innovationCovariance[size(residual, 1), size(residual, 1)];
+  Real augmentedRhs[size(residual, 1), TangentLength + 1];
+  Real augmentedSolution[size(residual, 1), TangentLength + 1];
   Real gainTranspose[size(residual, 1), TangentLength];
   Real gain[TangentLength, size(residual, 1)];
+  Real normalizedInnovationSquared;
+  Boolean factorized;
   Estimation.MultiSensorInvariant.TangentVector correction;
   Real josephFactor[TangentLength, TangentLength];
   Real posteriorCovariance[TangentLength, TangentLength];
@@ -25,9 +34,30 @@ algorithm
   crossCovariance := predicted.covariance * transpose(H);
   innovationCovariance := LinearAlgebra.symmetrize(
     H * crossCovariance + measurementCovariance);
-  (gainTranspose, accepted) := LinearAlgebra.solveSPD(
-    innovationCovariance, transpose(crossCovariance));
+  // One factorization serves both the gain solve S*K' = (P*H')' and the
+  // whitened residual S^-1 * r needed for the innovation gate: append the
+  // residual as one extra right-hand side.
+  augmentedRhs := zeros(measurementLength, TangentLength + 1);
+  augmentedRhs[:, 1:TangentLength] := transpose(crossCovariance);
+  augmentedRhs[:, TangentLength + 1] := residual;
+  (augmentedSolution, factorized) := LinearAlgebra.solveSPD(
+    innovationCovariance, augmentedRhs);
+  // Scalar normalized innovation squared (NIS) chi-square gate:
+  // r' * S^-1 * r is chi-square distributed with size(residual, 1)
+  // degrees of freedom when the filter is consistent, so a residual
+  // grossly inconsistent with the predicted innovation covariance is
+  // rejected even though S itself factors fine. The threshold is
+  // expressed per degree of freedom so one configurable number covers
+  // the 2-, 3-, and 6-dimensional corrections used here. The whitened
+  // residual is all zeros when the factorization failed, so the gate
+  // terms below are well defined on every path.
+  normalizedInnovationSquared :=
+    residual * augmentedSolution[:, TangentLength + 1];
+  gateRejected := factorized and innovationGate > 0.0
+    and normalizedInnovationSquared > innovationGate * measurementLength;
+  accepted := factorized and not gateRejected;
   if accepted then
+    gainTranspose := augmentedSolution[:, 1:TangentLength];
     gain := transpose(gainTranspose);
     correction := gain * residual;
     nominal := NominalState(
@@ -51,6 +81,8 @@ algorithm
     correctedCovariance := LinearAlgebra.symmetrize(
       resetJacobian * posteriorCovariance * transpose(resetJacobian));
   else
+    // A rejected correction (factorization failure or gate) never
+    // modifies the state.
     correctedNominal := Estimation.MultiSensorInvariant.NominalState(
       positionWorldEnu_m=predicted.positionWorldEnu_m,
       velocityWorldEnu_m_s=predicted.velocityWorldEnu_m_s,

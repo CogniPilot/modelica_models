@@ -82,6 +82,15 @@ package Avionics
     Boolean gpsPositionCorrectionAccepted;
     Boolean gpsVelocityCorrectionAccepted;
     Boolean opticalFlowCorrectionAccepted;
+    Integer consecutiveRejectedCorrections
+      "Consecutive attempted aiding corrections rejected by conditioning
+       or innovation gating; zero after any accepted correction";
+    Boolean covarianceReinitialized
+      "True on a tick where persistent rejection forced the estimator to
+       re-run its declared initialization policy";
+    Boolean innovationGateRejected
+      "True when the most recent attempted correction was rejected by the
+       chi-square innovation gate rather than by factorization failure";
   end EstimatorStatus;
 
   connector ImuSampleInput = input Avionics.ImuSample;
@@ -104,8 +113,31 @@ package Avionics
     Avionics.MocapSampleInput mocap;
     Avionics.GpsSampleInput gps;
     Avionics.OpticalFlowSampleInput opticalFlow;
-    discrete Avionics.NavigationEstimateOutput estimate;
-    discrete Avionics.EstimatorStatusOutput status;
+    discrete Avionics.NavigationEstimateOutput estimate(
+      valid(start = false, fixed = true),
+      timestamp_s(start = 0.0, fixed = true),
+      positionWorldEnu_m(each start = 0.0, each fixed = true),
+      velocityWorldEnu_m_s(each start = 0.0, each fixed = true),
+      accelerationWorldEnu_m_s2(each start = 0.0, each fixed = true),
+      quaternionWorldBody(
+        start = {1.0, 0.0, 0.0, 0.0}, each fixed = true),
+      rotationWorldBody(
+        start = [1.0, 0.0, 0.0;
+                 0.0, 1.0, 0.0;
+                 0.0, 0.0, 1.0], each fixed = true),
+      eulerRpy_rad(each start = 0.0, each fixed = true),
+      angularVelocityBodyFlu_rad_s(each start = 0.0, each fixed = true),
+      angularVelocityWorldEnu_rad_s(each start = 0.0, each fixed = true));
+    discrete Avionics.EstimatorStatusOutput status(
+      initialized(start = false, fixed = true),
+      predictionAccepted(start = false, fixed = true),
+      mocapCorrectionAccepted(start = false, fixed = true),
+      gpsPositionCorrectionAccepted(start = false, fixed = true),
+      gpsVelocityCorrectionAccepted(start = false, fixed = true),
+      opticalFlowCorrectionAccepted(start = false, fixed = true),
+      consecutiveRejectedCorrections(start = 0, fixed = true),
+      covarianceReinitialized(start = false, fixed = true),
+      innovationGateRejected(start = false, fixed = true));
   end PartialNavigationEstimator;
 
   annotation(Documentation(info = "<html>

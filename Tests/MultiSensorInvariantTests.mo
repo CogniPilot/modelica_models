@@ -41,6 +41,10 @@ model MultiSensorInvariantTests
     Boolean gpsVelocityAccepted;
     Boolean mocapAccepted;
     Boolean flowAccepted;
+    Boolean gpsPositionGateRejected;
+    Boolean gpsVelocityGateRejected;
+    Boolean mocapGateRejected;
+    Boolean flowGateRejected;
   algorithm
     initialVariances := Estimation.MultiSensorInvariant.InitialVariances(
       position_m2=fill(1.0, 3),
@@ -137,10 +141,10 @@ model MultiSensorInvariantTests
       velocityWorldEnu_m_s={0.5, 0.0, 0.0},
       positionCovarianceWorld_m2=identity(3) * 0.01,
       velocityCovarianceWorld_m2_s2=identity(3) * 0.02);
-    (gpsPositionCorrection, gpsPositionAccepted) :=
+    (gpsPositionCorrection, gpsPositionAccepted, gpsPositionGateRejected) :=
       Estimation.MultiSensorInvariant.correctGpsPosition(
         hoverPrediction, gps);
-    (gpsVelocityCorrection, gpsVelocityAccepted) :=
+    (gpsVelocityCorrection, gpsVelocityAccepted, gpsVelocityGateRejected) :=
       Estimation.MultiSensorInvariant.correctGpsVelocity(
         gpsPositionCorrection, gps);
 
@@ -152,7 +156,7 @@ model MultiSensorInvariantTests
       quaternionWorldBody=LieGroups.SO3.Quat.exp_map({0.0, 0.0, 0.1}),
       positionCovarianceWorld_m2=identity(3) * 0.001,
       attitudeCovarianceBody_rad2=identity(3) * 0.001);
-    (mocapCorrection, mocapAccepted) :=
+    (mocapCorrection, mocapAccepted, mocapGateRejected) :=
       Estimation.MultiSensorInvariant.correctMocap(
         gpsVelocityCorrection, mocap);
 
@@ -168,7 +172,7 @@ model MultiSensorInvariantTests
       integrationTime_s=0.01,
       groundDistance_m=1.0,
       quality=1.0);
-    (flowCorrection, flowAccepted) :=
+    (flowCorrection, flowAccepted, flowGateRejected) :=
       Estimation.MultiSensorInvariant.correctOpticalFlow(
         flowPrior, opticalFlow);
 
@@ -199,6 +203,9 @@ model MultiSensorInvariantTests
     assert(gpsPositionAccepted and gpsVelocityAccepted and mocapAccepted
       and flowAccepted,
       "A positive-definite multisensor correction was rejected");
+    assert(not (gpsPositionGateRejected or gpsVelocityGateRejected
+      or mocapGateRejected or flowGateRejected),
+      "A disabled innovation gate reported a rejection");
     assert(gpsPositionCorrection.positionWorldEnu_m[1] > 0.0 and
       gpsPositionCorrection.positionWorldEnu_m[1] < 1.0,
       "GPS position correction did not move the estimate toward the sample");

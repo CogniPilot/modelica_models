@@ -1,7 +1,7 @@
 within Estimation;
 
 block MixedInvariantNavigationEstimator
-  "Sampled multisensor IEKF using mixed SE_2(3) prediction"
+  "Sampled geometric error-state EKF using mixed SE_2(3) prediction"
   extends Avionics.PartialNavigationEstimator;
 
   parameter Real gravityWorldEnu_m_s2[3] = {0.0, 0.0, -9.81};
@@ -23,6 +23,36 @@ block MixedInvariantNavigationEstimator
       accelerometer_m2_s3=identity(3) * 1.0e-3,
       gyroscopeBias_rad2_s3=identity(3) * 1.0e-8,
       accelerometerBias_m2_s5=identity(3) * 1.0e-6);
+  parameter Estimation.MultiSensorInvariant.VarianceLimits varianceLimits =
+    Estimation.MultiSensorInvariant.VarianceLimits(
+      position_m2=fill(1.0e4, 3),
+      velocity_m2_s2=fill(4.0e2, 3),
+      attitude_rad2=fill(10.0, 3),
+      gyroscopeBias_rad2_s2=fill(1.0e-2, 3),
+      accelerometerBias_m2_s4=fill(1.0, 3))
+    "Diagonal covariance growth bounds from the state units and mission
+     envelope: position sigma 100 m dwarfs the sub-100 m RDD2 flight
+     volume; velocity sigma 20 m/s is beyond the airframe speed
+     envelope; attitude sigma sqrt(10) ~ pi rad means orientation fully
+     unknown; gyro-bias sigma 0.1 rad/s and accelerometer-bias sigma
+     1 m/s2 (~0.1 g) bound consumer-MEMS turn-on bias. At these values
+     the state is already maximally uninformative, so capping there
+     loses no information while keeping the covariance inside the
+     dynamic range a binary32 Cholesky can factor.";
+  parameter Real innovationGate(unit = "1") = 6.0
+    "Chi-square innovation gate per degree of freedom; non-positive
+     disables. NIS is chi-square with m degrees of freedom for a
+     consistent filter; 6.0 per dof keeps the false-rejection
+     probability at or below ~0.25% for the m = 2, 3, 6 corrections
+     used here (chi-square tails: 12 @ m=2 -> 0.25%, 18 @ m=3 ->
+     0.044%, 36 @ m=6 -> 2.8e-6).";
+  parameter Integer rejectedCorrectionLimit(min = 1) = 50
+    "Consecutive rejected aiding corrections before automatic
+     re-initialization. Aiding streams at 20-100 Hz, so 50 rejections
+     spans roughly 0.5-2.5 s: long enough that a short outlier burst
+     cannot force a spurious re-init, short enough that dead-reckoning
+     drift stays small relative to the mission envelope before the
+     aiding-seeded re-initialization recovers.";
 
 protected
   discrete Real statePosition[3](each start = 0.0, each fixed = true);
@@ -38,6 +68,9 @@ protected
   discrete Boolean gpsPositionCorrectionAccepted(start = false, fixed = true);
   discrete Boolean gpsVelocityCorrectionAccepted(start = false, fixed = true);
   discrete Boolean opticalFlowCorrectionAccepted(start = false, fixed = true);
+  discrete Integer consecutiveRejectedCorrections(start = 0, fixed = true);
+  discrete Boolean covarianceReinitialized(start = false, fixed = true);
+  discrete Boolean innovationGateRejected(start = false, fixed = true);
 
 algorithm
   when sample(0.0, samplePeriod) then
@@ -52,7 +85,10 @@ algorithm
      mocapCorrectionAccepted,
      gpsPositionCorrectionAccepted,
      gpsVelocityCorrectionAccepted,
-     opticalFlowCorrectionAccepted) :=
+     opticalFlowCorrectionAccepted,
+     consecutiveRejectedCorrections,
+     covarianceReinitialized,
+     innovationGateRejected) :=
       Estimation.MultiSensorInvariant.step(
         pre(initialized),
         pre(statePosition),
@@ -108,7 +144,15 @@ algorithm
         initialVelocityWorldEnu_m_s,
         initialQuaternionWorldBody,
         initialGyroscopeBiasBodyFlu_rad_s,
-        initialAccelerometerBiasBodyFlu_m_s2);
+        initialAccelerometerBiasBodyFlu_m_s2,
+        varianceLimits.position_m2,
+        varianceLimits.velocity_m2_s2,
+        varianceLimits.attitude_rad2,
+        varianceLimits.gyroscopeBias_rad2_s2,
+        varianceLimits.accelerometerBias_m2_s4,
+        innovationGate,
+        rejectedCorrectionLimit,
+        pre(consecutiveRejectedCorrections));
     (estimate.valid,
      estimate.timestamp_s,
      estimate.positionWorldEnu_m,
@@ -139,6 +183,9 @@ algorithm
     status.gpsPositionCorrectionAccepted := gpsPositionCorrectionAccepted;
     status.gpsVelocityCorrectionAccepted := gpsVelocityCorrectionAccepted;
     status.opticalFlowCorrectionAccepted := opticalFlowCorrectionAccepted;
+    status.consecutiveRejectedCorrections := consecutiveRejectedCorrections;
+    status.covarianceReinitialized := covarianceReinitialized;
+    status.innovationGateRejected := innovationGateRejected;
   end when;
 
   annotation(Documentation(info = "<html>
@@ -148,5 +195,10 @@ algorithm
     correlation. One fresh aiding packet is accepted per estimator tick with
     deterministic priority mocap, GPS, then optical flow; GPS position and
     velocity are fused jointly when both are valid.</p>
+    <p>The SE_2(3) pose/velocity/position part uses geometric propagation,
+    injection, and covariance reset. The additive gyroscope and accelerometer
+    bias states make the complete augmented system neither strictly invariant
+    nor exactly log-linear, so this implementation is described as a geometric
+    error-state EKF rather than an IEKF performance claim.</p>
   </html>"));
 end MixedInvariantNavigationEstimator;

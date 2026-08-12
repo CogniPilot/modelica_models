@@ -3,8 +3,9 @@ function solveSPD
   "Solve A*X=B for symmetric positive-definite A using Cholesky"
   input Real A[:, size(A, 1)] "Symmetric positive-definite system matrix";
   input Real B[size(A, 1), :] "One or more right-hand sides";
-  input Real relativeTolerance = 1.0e-12
-    "Minimum Cholesky pivot relative to the largest input diagonal";
+  input Real relativeTolerance = 0.0
+    "Optional extra floor on the Cholesky pivot threshold relative to the
+     largest input diagonal; the working-precision term always applies";
   output Real X[size(B, 1), size(B, 2)] "Solution";
   output Boolean ok "False when A is not numerically positive definite";
 protected
@@ -12,6 +13,9 @@ protected
   Real Y[size(B, 1), size(B, 2)] "Forward-substitution result";
   Real value;
   Real scale;
+  Real one;
+  Real workingEpsilon;
+  Real pivotThreshold;
   Integer solveRow;
 algorithm
   L := zeros(size(A, 1), size(A, 2));
@@ -22,6 +26,39 @@ algorithm
     scale := max(scale, abs(A[i, i]));
   end for;
   scale := max(scale, 1.0e-30);
+
+  // Measure the machine epsilon of the precision actually executing this
+  // function. The same source is evaluated as binary64 during simulation
+  // and as binary32 in generated GALEC flight code, so no fixed literal
+  // can serve both: binary32 epsilon is 2^-23 ~ 1.19e-7, and any fixed
+  // relative tolerance far below it (the former default was 1.0e-12)
+  // is unreachable in binary32 - the pivot check degenerates to
+  // "value <= ~0", so pivots destroyed by rounding are accepted until one
+  // finally goes non-positive, after which the factorization is rejected
+  // on every call. Halving from 1.0 until adding half of it no longer
+  // changes 1.0 converges to the epsilon of the working precision; "one"
+  // is derived from the input data so a constant-folding pass evaluated
+  // in a wider precision cannot bake in the wrong epsilon. 60 guarded
+  // iterations cover binary64 (epsilon 2^-52); once converged the guard
+  // fails and the remaining iterations are no-ops, negligible next to
+  // the O(n^3) factorization.
+  one := scale / scale;
+  workingEpsilon := 1.0;
+  for k in 1:60 loop
+    if one + 0.5 * workingEpsilon > one then
+      workingEpsilon := 0.5 * workingEpsilon;
+    end if;
+  end for;
+
+  // Scaled Cholesky pivot criterion: a pivot at or below
+  // n * epsilon * max|A[i,i]| is indistinguishable from accumulated
+  // rounding noise in the working precision (cf. Higham, "Accuracy and
+  // Stability of Numerical Algorithms", ch. 10). This yields ~1.8e-6
+  // relative in binary32 (n = 15) and ~3.3e-15 in binary64. Callers can
+  // only tighten the threshold via relativeTolerance, never defeat the
+  // precision floor.
+  pivotThreshold :=
+    max(relativeTolerance, size(A, 1) * workingEpsilon) * scale;
   ok := true;
 
   for row in 1:size(A, 1) loop
@@ -32,7 +69,7 @@ algorithm
       end for;
 
       if row == column then
-        if value <= relativeTolerance * scale then
+        if value <= pivotThreshold then
           ok := false;
           // Keep subsequent arithmetic finite for tools that continue
           // evaluating after a failed pivot; X is rejected when ok=false.

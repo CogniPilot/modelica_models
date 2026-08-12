@@ -1,6 +1,7 @@
 NominalState
 State
 InitialVariances
+VarianceLimits
 ProcessNoise
 initialize
 continuousTransition
@@ -10,6 +11,7 @@ discreteTransition
 discreteProcessCovariance
 predictNominal
 predict
+limitCovariance
 inject
 correctLinear
 correctMocap

@@ -5,6 +5,7 @@ model All "Complete Modelica assertion suite"
   Tests.LieGroupTests.Suite lieGroups;
   Tests.EstimationTests estimation;
   Tests.MultiSensorInvariantTests multiSensorInvariant;
+  Tests.EstimatorHealthTests estimatorHealth;
   Tests.VerificationTests verification;
   Tests.PlanningTests planning;
   Tests.BezierTests bezier;

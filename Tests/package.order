@@ -4,6 +4,7 @@ LieGroupsTests
 LieGroupTests
 EstimationTests
 MultiSensorInvariantTests
+EstimatorHealthTests
 VerificationTests
 PlanningTests
 BezierTests
