@@ -2,12 +2,13 @@ within Vehicles.Cubs2;
 
 // SPDX-License-Identifier: Apache-2.0
 
-block FlightControlSystem
-  "Ideal RTOS composition of the CUBS2 outer and inner flight-control tasks"
+block AvionicsSystem
+  "CUBS2 outer-loop runtime composed with a simulation-only stabilizer"
   import Components = Vehicles.Cubs2.OuterLoopComponents;
 
   parameter Real outerLoopPeriod(unit = "s") = 0.02;
-  parameter Real innerLoopPeriod(unit = "s") = 0.005;
+  parameter Real stabilizerPeriod(unit = "s") = 0.005
+    "Assumed update period of the simulation surrogate";
   parameter Components.RouteParameters route = Components.RouteParameters();
   parameter Components.VehicleParameters vehicle = Components.VehicleParameters();
   parameter Components.TecsParameters tecs = Components.TecsParameters();
@@ -44,7 +45,7 @@ protected
     vehicle = vehicle,
     tecsParams = tecs,
     attitudeParams = attitude);
-  Vehicles.Cubs2.InnerLoop innerLoopTask(samplePeriod = innerLoopPeriod);
+  Vehicles.Cubs2.OnboardStabilizerSurrogate onboardStabilizer;
 
 equation
   outerLoopTask.position_m = position_m;
@@ -58,15 +59,15 @@ equation
   else
     stickCommand = zeros(4);
   end if;
-  innerLoopTask.stick = stickCommand;
+  onboardStabilizer.pilotCommand = stickCommand;
   if armed then
-    innerLoopTask.armed = 1.0;
+    onboardStabilizer.armed = 1.0;
   else
-    innerLoopTask.armed = 0.0;
+    onboardStabilizer.armed = 0.0;
   end if;
-  innerLoopTask.gyro = angularVelocityBody_rad_s;
-  innerLoopTask.up_body = upBody;
-  innerLoopTask.airspeed = airspeed_m_s;
+  onboardStabilizer.gyro = angularVelocityBody_rad_s;
+  onboardStabilizer.up_body = upBody;
+  onboardStabilizer.airspeed = airspeed_m_s;
 
   connect(outerLoopTask.estimate, estimate);
   connect(outerLoopTask.setpoints, setpoints);
@@ -75,20 +76,21 @@ equation
   stabilizerCommand_us = outerLoopTask.stabilizer;
   courseError_rad = outerLoopTask.courseError;
   rollCommand_rad = outerLoopTask.rollCommand;
-  attitudeCommand_rad = innerLoopTask.attitudeCommand_rad;
+  attitudeCommand_rad = onboardStabilizer.attitudeCommand_rad;
 
 algorithm
-  when sample(0.0, innerLoopPeriod) then
-    actuatorCommand := innerLoopTask.actuator;
+  when sample(0.0, stabilizerPeriod) then
+    actuatorCommand := onboardStabilizer.surfaceCommand;
   end when;
 
   annotation(Documentation(info = "<html>
-    <p>This model is the ideal deterministic RTOS routing for the CUBS2 eFMU
-    candidates. The navigation message feeds the 50 Hz outer-loop task. Its
-    tensor command feeds the faster inner-loop task, whose actuator publication
-    is sampled and held at <code>innerLoopPeriod</code>.</p>
-    <p>Both releases start at phase zero and transport has zero delay. Hardware
-    RTOS integration can be compared against this model without changing either
-    control component.</p>
+    <p>The navigation message feeds the deployable 50 Hz outer-loop eFMU. Its
+    tensor pilot command crosses the real system boundary into the proprietary
+    onboard stabilizer.</p>
+    <p>For closed-loop simulation only, this model connects that boundary to
+    <code>OnboardStabilizerSurrogate</code>. The RTOS holds its continuous
+    surrogate response at <code>stabilizerPeriod</code>; that schedule and zero
+    transport delay are test-fixture choices, not claims about the proprietary
+    implementation.</p>
   </html>"));
-end FlightControlSystem;
+end AvionicsSystem;

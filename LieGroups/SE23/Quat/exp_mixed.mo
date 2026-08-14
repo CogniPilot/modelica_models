@@ -10,7 +10,9 @@ protected
   Real theta_sq;
   Real C1, C2, C3;
   Real theta;
-  constant Real eps = 1e-8;
+  // The closed coefficients are cancellation-prone below 0.1 rad in
+  // single-precision generated code; the retained series is accurate there.
+  constant Real eps = 1e-2;
 
   // Omega matrix and its square
   Real Om[3,3], Om2[3,3];

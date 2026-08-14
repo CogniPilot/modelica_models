@@ -102,10 +102,11 @@ algorithm
           pre(quaternion[2]) * correctedGyro[2] -
           pre(quaternion[3]) * correctedGyro[1]) * samplePeriod;
       quaternionNorm := MathUtilities.norm4(unnormalizedQuaternion);
-      quaternion := if quaternionNorm > 1.0e-3 then
-          unnormalizedQuaternion / quaternionNorm
-        else
-          {1.0, 0.0, 0.0, 0.0};
+      if quaternionNorm > 1.0e-3 then
+        quaternion := unnormalizedQuaternion / quaternionNorm;
+      else
+        quaternion := {1.0, 0.0, 0.0, 0.0};
+      end if;
     end if;
 
     euler_rad[1] := atan2(

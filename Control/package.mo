@@ -1,7 +1,7 @@
 within;
 package Control "Reusable control algorithms"
   annotation(
-    uses(LieGroups, MathUtilities, Planning),
+    uses(LieGroups, LinearAlgebra, MathUtilities, Planning),
     Documentation(info="<html>
     <p>Execution-neutral feedback, guidance, and control components. Pure
     control maps are kept independent of vehicle parameterizations; named

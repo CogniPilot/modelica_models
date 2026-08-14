@@ -3,7 +3,7 @@ within Vehicles.Cubs2;
 // SPDX-License-Identifier: Apache-2.0
 
 model ClosedLoopVehicle
-  "Closed-loop CUBS2 plant driven by the ideal RTOS flight-control system"
+  "Closed-loop CUBS2 plant using the onboard-stabilizer surrogate"
   import Components = Vehicles.Cubs2.OuterLoopComponents;
 
   parameter Components.RouteParameters route = Components.RouteParameters();
@@ -20,7 +20,7 @@ model ClosedLoopVehicle
     p_start = initialPosition_m,
     v_b_start = initialVelocityBody_m_s,
     q_start = initialQuaternion);
-  Vehicles.Cubs2.FlightControlSystem flightControl(route = route);
+  Vehicles.Cubs2.AvionicsSystem avionics(route = route);
 
   output Real time_s;
   output Real position_m[3];
@@ -38,29 +38,29 @@ model ClosedLoopVehicle
 
 equation
   euler_rad = Vehicles.Interfaces.eulerFromQuaternion(plant.quat);
-  flightControl.position_m = plant.position;
-  flightControl.euler_rad = euler_rad;
-  flightControl.velocity_m_s = plant.velocity;
-  flightControl.angularVelocityBody_rad_s = plant.gyro;
-  flightControl.upBody = plant.up_body;
-  flightControl.airspeed_m_s = plant.airspeed;
-  flightControl.engaged = engaged;
-  flightControl.armed = armed;
-  flightControl.stickOverrideActive = stickOverrideActive;
-  flightControl.stickOverride = stickOverride;
+  avionics.position_m = plant.position;
+  avionics.euler_rad = euler_rad;
+  avionics.velocity_m_s = plant.velocity;
+  avionics.angularVelocityBody_rad_s = plant.gyro;
+  avionics.upBody = plant.up_body;
+  avionics.airspeed_m_s = plant.airspeed;
+  avionics.engaged = engaged;
+  avionics.armed = armed;
+  avionics.stickOverrideActive = stickOverrideActive;
+  avionics.stickOverride = stickOverride;
 
-  actuatorCommand = flightControl.actuatorCommand;
-  stickCommand = flightControl.stickCommand;
-  attitudeCommand_rad = flightControl.attitudeCommand_rad;
+  actuatorCommand = avionics.actuatorCommand;
+  stickCommand = avionics.stickCommand;
+  attitudeCommand_rad = avionics.attitudeCommand_rad;
   {plant.ail, plant.elev, plant.rud, plant.thr} = actuatorCommand;
 
   time_s = time;
   position_m = plant.position;
   velocity_m_s = plant.velocity;
   airspeed_m_s = plant.airspeed;
-  currentWaypoint = flightControl.currentWaypoint;
-  connect(flightControl.setpoints, setpoints);
-  connect(flightControl.tecsCommands, tecsCommands);
-  courseError_rad = flightControl.courseError_rad;
-  rollCommand_rad = flightControl.rollCommand_rad;
+  currentWaypoint = avionics.currentWaypoint;
+  connect(avionics.setpoints, setpoints);
+  connect(avionics.tecsCommands, tecsCommands);
+  courseError_rad = avionics.courseError_rad;
+  rollCommand_rad = avionics.rollCommand_rad;
 end ClosedLoopVehicle;

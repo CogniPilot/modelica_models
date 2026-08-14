@@ -4,6 +4,7 @@ segmentStartPose
 evaluateSegment
 evaluate
 invertNormalDerivatives
+segmentOffset
 smoothOffsets
 jointOptimizeOffsets
 smoothOffsetCoefficients

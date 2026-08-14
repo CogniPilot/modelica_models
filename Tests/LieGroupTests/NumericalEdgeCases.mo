@@ -45,6 +45,12 @@ model NumericalEdgeCases "Zero, near-zero, pi, singular-chart, and threshold tes
   Real thresholdJ3[3, 3];
   Real thresholdJ4[3, 3];
   Real thresholdJ5[3, 3];
+  Real float32CriticalJl[3, 3];
+  Real float32CriticalJr[3, 3];
+  Real float32CriticalJlInv[3, 3];
+  Real float32CriticalJrInv[3, 3];
+  Real float32CriticalJlNegative[3, 3];
+  Real float32CriticalQ[3, 3];
 equation
   zeroJl = LieGroups.SO3.Quat.left_jacobian(zeros(3));
   zeroJr = LieGroups.SO3.Quat.right_jacobian(zeros(3));
@@ -96,6 +102,16 @@ equation
   thresholdJ3 = LieGroups.SO3.Quat.left_jacobian({sqrt(1.0e-5), 0, 0});
   thresholdJ4 = LieGroups.SO3.Quat.left_jacobian({sqrt(1.0e-9), 0, 0});
   thresholdJ5 = LieGroups.SO3.Quat.left_jacobian({sqrt(1.0e-6), 0, 0});
+  // 1.67142628e-4 rad reproduces the first real RDD2 flight perturbation.
+  // Its squared angle lies above the old 1e-8 cutoff, although Float32
+  // cos(theta) rounds to one and makes the inverse closed form singular.
+  float32CriticalJl = LieGroups.SO3.Quat.left_jacobian({1.67142628e-4, 0, 0});
+  float32CriticalJr = LieGroups.SO3.Quat.right_jacobian({1.67142628e-4, 0, 0});
+  float32CriticalJlInv = LieGroups.SO3.Quat.left_jacobian_inv({1.67142628e-4, 0, 0});
+  float32CriticalJrInv = LieGroups.SO3.Quat.right_jacobian_inv({1.67142628e-4, 0, 0});
+  float32CriticalJlNegative = LieGroups.SO3.Quat.left_jacobian({-1.67142628e-4, 0, 0});
+  float32CriticalQ = LieGroups.SE3.Quat.left_Q(
+    {0.0, 0.0, 0.18}, {1.67142628e-4, 0, 0});
 
   assert(Tests.Assertions.maxAbsMatrix(zeroJl - identity(3)) < 1.0e-12 and
          Tests.Assertions.maxAbsMatrix(zeroJr - identity(3)) < 1.0e-12 and
@@ -149,4 +165,16 @@ equation
          Tests.Assertions.isFiniteMatrix(thresholdJ4) and
          Tests.Assertions.isFiniteMatrix(thresholdJ5),
     "Taylor-series threshold evaluation was not finite");
+  assert(Tests.Assertions.isFiniteMatrix(float32CriticalJl) and
+         Tests.Assertions.isFiniteMatrix(float32CriticalJr) and
+         Tests.Assertions.isFiniteMatrix(float32CriticalJlInv) and
+         Tests.Assertions.isFiniteMatrix(float32CriticalJrInv) and
+         Tests.Assertions.maxAbsMatrix(
+           float32CriticalJl * float32CriticalJlInv - identity(3)) < 1.0e-10 and
+         Tests.Assertions.maxAbsMatrix(
+           float32CriticalJr * float32CriticalJrInv - identity(3)) < 1.0e-10 and
+         Tests.Assertions.maxAbsMatrix(
+           float32CriticalJr - float32CriticalJlNegative) < 1.0e-12 and
+         Tests.Assertions.isFiniteMatrix(float32CriticalQ),
+    "Float32-critical Lie-group Jacobian evaluation was not finite");
 end NumericalEdgeCases;
