@@ -1,12 +1,14 @@
+RotorGeometry
 Plant
 ControllerInterfaces
 CommandMapping
 ProportionalController
 Mixer
 RateControlAllocator
+GuidanceController
 Controller
 LogLinearController
-PlantAdapter
-FlightControlSystem
+NavigationEstimator
+AvionicsSystem
 WaypointVehicleSystem
 Test

@@ -5,7 +5,7 @@
     flake-utils.url = "github:numtide/flake-utils";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     openmodelica.url = "git+https://github.com/jgoppert/OpenModelica?submodules=1&rev=a96aa1a682c463b0fd2d285b486c09a8b7fe496d";
-    rumoca.url = "github:CogniPilot/rumoca/149c2ff3939937f5a1345db600830ae4a9a83ca9";
+    rumoca.url = "github:CogniPilot/rumoca/4d0e521d9a0bd2527808dbce2c5689834d1a0349";
   };
 
   outputs =
@@ -39,6 +39,8 @@
               --replace-fail '#!/usr/bin/env python3' '#!${python}/bin/python3' \
               --replace-fail 'DEFAULT_DOCKER = None' \
                 'DEFAULT_DOCKER = "${pkgs.docker-client}/bin/docker"' \
+              --replace-fail 'DEFAULT_OMC = None' \
+                'DEFAULT_OMC = "${openModelicaCli}/bin/omc"' \
               --replace-fail 'DEFAULT_RUMOCA = None' \
                 'DEFAULT_RUMOCA = "${rumocaCli}/bin/rumoca"'
             chmod +x "$out/bin/modelica-models-ci"
@@ -103,6 +105,48 @@
             };
           cubs2Qualification = mkQualification "cubs2-qualification" ./Vehicles/Cubs2/Test/run_qualification.py;
           rdd2Qualification = mkQualification "rdd2-qualification" ./Vehicles/Rdd2/Test/run_waypoint_qualification.py;
+          mkRdd2MissionPlot =
+            name: mode:
+            pkgs.writeShellApplication {
+              inherit name;
+              runtimeInputs = [
+                pkgs.gitMinimal
+                python
+                rumocaPython
+              ]
+              ++ pkgs.lib.optionals pkgs.stdenv.isLinux [ openModelicaCli ];
+              text = ''
+                if [ "$(uname -s)" != Linux ]; then
+                  printf 'error: RDD2 OpenModelica/Rumoca mission plots are currently Linux-only\n' >&2
+                  exit 1
+                fi
+                models_root="''${MODELICA_MODELS_ROOT:-$PWD}"
+                if [ ! -f "$models_root/flake.nix" ] || [ ! -d "$models_root/Vehicles" ]; then
+                  printf 'error: MODELICA_MODELS_ROOT is not a modelica_models checkout: %s\n' \
+                    "$models_root" >&2
+                  exit 1
+                fi
+                export MODELICA_MODELS_ROOT="$models_root"
+                export MODELICAPATH="$models_root"
+                export OPENMODELICALIBRARY="$models_root"
+                unset PYTHONHOME
+                export PYTHONNOUSERSITE=1
+                export PYTHONSAFEPATH=1
+                export PYTHONPATH="${python}/${pkgs.python312.sitePackages}"
+                export RDD2_MISSION_GIT="${pkgs.gitMinimal}/bin/git"
+                export RDD2_MISSION_OMC="${openModelicaCli}/bin/omc"
+                export RDD2_MISSION_OMC_REVISION="a96aa1a682c463b0fd2d285b486c09a8b7fe496d"
+                export RDD2_MISSION_PYTHON="${rumocaPython}/bin/python3"
+                export RDD2_MISSION_RUMOCA_REVISION="4d0e521d9a0bd2527808dbce2c5689834d1a0349"
+                exec ${rumocaPython}/bin/python3 -P \
+                  ${./Vehicles/Rdd2/Test/run_mission_plot.py} \
+                  "$@" \
+                  ${pkgs.lib.optionalString (mode != null) "--mode ${mode}"}
+              '';
+            };
+          rdd2MissionPlot = mkRdd2MissionPlot "rdd2-mission-plot" null;
+          rdd2OpticalMissionPlot = mkRdd2MissionPlot "rdd2-optical-mission-plot" "optical";
+          rdd2GpsMissionPlot = mkRdd2MissionPlot "rdd2-gps-mission-plot" "gps";
           trajectoryCompare = pkgs.writeShellApplication {
             name = "trajectory-compare";
             runtimeInputs = [ python ];
@@ -161,8 +205,8 @@
             name = "cubs2-export-plant";
             modelFile = "Vehicles/Cubs2/AvionicsPlant.mo";
             modelName = "Vehicles.Cubs2.AvionicsPlant";
-            emit = "dae-json";
-            output = "artifacts/vehicles/cubs2/plant.dae.json";
+            target = "fmi3";
+            output = "artifacts/vehicles/cubs2/plant";
           };
           rdd2ControllerExport = mkModelExport {
             name = "rdd2-export-controller";
@@ -173,32 +217,34 @@
           };
           rdd2EstimatorExport = mkModelExport {
             name = "rdd2-export-estimator";
-            modelFile = "Estimation/ComplementaryAttitude.mo";
-            modelName = "Estimation.ComplementaryAttitude";
+            modelFile = "Vehicles/Rdd2/NavigationEstimator.mo";
+            modelName = "Vehicles.Rdd2.NavigationEstimator";
             target = "galec-production";
             output = "artifacts/vehicles/rdd2/estimator";
           };
           rdd2PlantExport = mkModelExport {
             name = "rdd2-export-plant";
-            modelFile = "Vehicles/Rdd2/PlantAdapter.mo";
-            modelName = "Vehicles.Rdd2.PlantAdapter";
-            emit = "dae-json";
-            output = "artifacts/vehicles/rdd2/plant-adapter.dae.json";
+            modelFile = "Vehicles/Rdd2/Plant.mo";
+            modelName = "Vehicles.Rdd2.Plant";
+            target = "fmi3";
+            output = "artifacts/vehicles/rdd2/plant";
           };
           testShell = pkgs.mkShell {
-            packages =
-              [
-                pkgs.docker-client
-                python
-                rumocaCli
-                ciRunner
-                cubs2Qualification
-                rdd2Qualification
-                allVehicleQualification
-                rumocaVersionCheck
-                trajectoryCompare
-              ]
-              ++ pkgs.lib.optionals pkgs.stdenv.isLinux [ openModelicaCli ];
+            packages = [
+              pkgs.docker-client
+              python
+              rumocaCli
+              ciRunner
+              cubs2Qualification
+              rdd2Qualification
+              rdd2MissionPlot
+              rdd2OpticalMissionPlot
+              rdd2GpsMissionPlot
+              allVehicleQualification
+              rumocaVersionCheck
+              trajectoryCompare
+            ]
+            ++ pkgs.lib.optionals pkgs.stdenv.isLinux [ openModelicaCli ];
             shellHook = ''
               if [ -z "''${MODELICA_MODELS_ROOT:-}" ] \
                 && [ -f "$PWD/flake.nix" ] \
@@ -216,6 +262,9 @@
                 '  vehicle-qualification  Run every named vehicle qualification' \
                 '  cubs2-qualification    Run the CUBS2 qualification' \
                 '  rdd2-qualification     Run the RDD2 qualification' \
+                '  rdd2-mission-plot      Report a named RDD2 optical/GPS trace' \
+                '  rdd2-optical-mission-plot  Report the optical-flow mission trace' \
+                '  rdd2-gps-mission-plot      Report the GPS mission trace' \
                 '  rumoca-version-check   Verify CLI/Python compiler identity' \
                 '  trajectory-compare     Compare canonical trajectory logs'
             '';
@@ -226,6 +275,9 @@
           packages.ci = ciRunner;
           packages.cubs2-qualification = cubs2Qualification;
           packages.rdd2-qualification = rdd2Qualification;
+          packages.rdd2-mission-plot = rdd2MissionPlot;
+          packages.rdd2-optical-mission-plot = rdd2OpticalMissionPlot;
+          packages.rdd2-gps-mission-plot = rdd2GpsMissionPlot;
           packages.rumoca-version-check = rumocaVersionCheck;
           packages.trajectory-compare = trajectoryCompare;
           packages.vehicle-qualification = allVehicleQualification;
@@ -253,6 +305,21 @@
             type = "app";
             program = "${rdd2Qualification}/bin/rdd2-qualification";
             meta.description = "Run RDD2 model-level flight qualification";
+          };
+          apps.rdd2-mission-plot = {
+            type = "app";
+            program = "${rdd2MissionPlot}/bin/rdd2-mission-plot";
+            meta.description = "Report an explicit RDD2 optical-flow or GPS mission trace";
+          };
+          apps.rdd2-optical-mission-plot = {
+            type = "app";
+            program = "${rdd2OpticalMissionPlot}/bin/rdd2-optical-mission-plot";
+            meta.description = "Report the RDD2 optical-flow waypoint mission trace";
+          };
+          apps.rdd2-gps-mission-plot = {
+            type = "app";
+            program = "${rdd2GpsMissionPlot}/bin/rdd2-gps-mission-plot";
+            meta.description = "Report the RDD2 GPS waypoint mission trace";
           };
           apps.rumoca-version-check = {
             type = "app";

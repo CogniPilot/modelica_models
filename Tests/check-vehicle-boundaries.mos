@@ -16,7 +16,15 @@ if not controllerTranslation then
 end if;
 print(controllerMessages);
 
-plantTranslation := translateModel(Vehicles.Rdd2.PlantAdapter);
+estimatorTranslation := translateModel(Vehicles.Rdd2.NavigationEstimator);
+estimatorMessages := getErrorString();
+if not estimatorTranslation then
+  print(estimatorMessages);
+  exit(1);
+end if;
+print(estimatorMessages);
+
+plantTranslation := translateModel(Vehicles.Rdd2.Plant);
 plantMessages := getErrorString();
 if not plantTranslation then
   print(plantMessages);
@@ -50,7 +58,7 @@ if not globalWaypointMissionTranslation then
 end if;
 print(globalWaypointMissionMessages);
 
-cubs2ControlTranslation := translateModel(Vehicles.Cubs2.FlightControlSystem);
+cubs2ControlTranslation := translateModel(Vehicles.Cubs2.AvionicsSystem);
 cubs2ControlMessages := getErrorString();
 if not cubs2ControlTranslation then
   print(cubs2ControlMessages);

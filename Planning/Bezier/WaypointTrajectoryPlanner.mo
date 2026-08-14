@@ -89,18 +89,16 @@ algorithm
       referenceYawRate := pre(referenceYawRate);
       referenceYawAcceleration := pre(referenceYawAcceleration);
     end if;
+    reference.activeSegment := activeSegment;
+    reference.position := referencePosition;
+    reference.velocity := referenceVelocity;
+    reference.acceleration := referenceAcceleration;
+    reference.jerk := referenceJerk;
+    reference.snap := referenceSnap;
+    reference.yaw := referenceYaw;
+    reference.yawRate := referenceYawRate;
+    reference.yawAcceleration := referenceYawAcceleration;
   end when;
-
-equation
-  reference.activeSegment = activeSegment;
-  reference.position = referencePosition;
-  reference.velocity = referenceVelocity;
-  reference.acceleration = referenceAcceleration;
-  reference.jerk = referenceJerk;
-  reference.snap = referenceSnap;
-  reference.yaw = referenceYaw;
-  reference.yawRate = referenceYawRate;
-  reference.yawAcceleration = referenceYawAcceleration;
 
   annotation(Documentation(info = "<html>
     <p>This block is the deployable mission-to-control boundary. A transport

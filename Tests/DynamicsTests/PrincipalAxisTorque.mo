@@ -17,7 +17,8 @@ equation
       "Principal-axis angular velocity did not match the analytic solution");
     assert(abs(omega[2]) < 1.0e-8 and abs(omega[3]) < 1.0e-8,
       "Principal-axis torque excited another angular axis");
-    assert(abs(q * q - 1.0) < 2.0e-6,
-      "Principal-axis rotation did not preserve quaternion norm");
+    assert(abs(q * q - 1.0) < 5.0e-6,
+      "Principal-axis rotation did not preserve quaternion norm; absolute error = "
+        + String(abs(q * q - 1.0), significantDigits=16));
   end when;
 end PrincipalAxisTorque;

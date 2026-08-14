@@ -121,9 +121,46 @@
         "type": "github"
       }
     },
+    "nixpkgs_4": {
+      "locked": {
+        "lastModified": 1784432872,
+        "narHash": "sha256-n3gKTBIV4ZA5VQpUakffBe3KGu4+mhPoA34rrqS0GkA=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "fd1462031fdee08f65fd0b4c6b64e22239a77870",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-26.05",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "openmodelica": {
       "inputs": {
         "nixpkgs": "nixpkgs_2"
+      },
+      "locked": {
+        "lastModified": 1784624586,
+        "narHash": "sha256-x9BsyhMjfTnB+7wpwBi5ShZLUVONzU8+QcTQ16fwy8w=",
+        "ref": "refs/heads/master",
+        "rev": "a96aa1a682c463b0fd2d285b486c09a8b7fe496d",
+        "revCount": 38709,
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/jgoppert/OpenModelica"
+      },
+      "original": {
+        "rev": "a96aa1a682c463b0fd2d285b486c09a8b7fe496d",
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/jgoppert/OpenModelica"
+      }
+    },
+    "openmodelica_2": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_4"
       },
       "locked": {
         "lastModified": 1784624586,
@@ -155,20 +192,21 @@
         "crane": "crane",
         "fenix": "fenix",
         "flake-utils": "flake-utils_2",
-        "nixpkgs": "nixpkgs_3"
+        "nixpkgs": "nixpkgs_3",
+        "openmodelica": "openmodelica_2"
       },
       "locked": {
-        "lastModified": 1784257469,
-        "narHash": "sha256-Z/1K3Ncc2TYVtHuJBeekC89CO1kBdyzO9gGiigSo0To=",
+        "lastModified": 1786730309,
+        "narHash": "sha256-hyYgJj2J7p19kFg7Bu83c/dFPseqez3zNI8KjAL9wAA=",
         "owner": "CogniPilot",
         "repo": "rumoca",
-        "rev": "149c2ff3939937f5a1345db600830ae4a9a83ca9",
+        "rev": "4d0e521d9a0bd2527808dbce2c5689834d1a0349",
         "type": "github"
       },
       "original": {
         "owner": "CogniPilot",
         "repo": "rumoca",
-        "rev": "149c2ff3939937f5a1345db600830ae4a9a83ca9",
+        "rev": "4d0e521d9a0bd2527808dbce2c5689834d1a0349",
         "type": "github"
       }
     },

@@ -132,6 +132,20 @@ def run_rumoca_tests(repository: Path) -> None:
                 "cubs2-plant.dae.json",
             ),
             (
+                "Vehicles/Cubs2/AvionicsSystem.mo",
+                "Vehicles.Cubs2.AvionicsSystem",
+                "--emit",
+                "dae-json",
+                "cubs2-avionics-system.dae.json",
+            ),
+            (
+                "Vehicles/Cubs2/Test/Scenarios.mo",
+                "Vehicles.Cubs2.Test.Scenarios.Mission",
+                "--emit",
+                "dae-json",
+                "cubs2-mission.dae.json",
+            ),
+            (
                 "Vehicles/Rdd2/Controller.mo",
                 "Vehicles.Rdd2.Controller",
                 "--target",
@@ -139,18 +153,32 @@ def run_rumoca_tests(repository: Path) -> None:
                 "rdd2-controller",
             ),
             (
-                "Estimation/ComplementaryAttitude.mo",
-                "Estimation.ComplementaryAttitude",
+                "Vehicles/Rdd2/NavigationEstimator.mo",
+                "Vehicles.Rdd2.NavigationEstimator",
                 "--target",
                 "galec-production",
                 "rdd2-estimator",
             ),
             (
-                "Vehicles/Rdd2/PlantAdapter.mo",
-                "Vehicles.Rdd2.PlantAdapter",
+                "Vehicles/Rdd2/Plant.mo",
+                "Vehicles.Rdd2.Plant",
                 "--emit",
                 "dae-json",
-                "rdd2-plant-adapter.dae.json",
+                "rdd2-plant.dae.json",
+            ),
+            (
+                "Vehicles/Rdd2/AvionicsSystem.mo",
+                "Vehicles.Rdd2.AvionicsSystem",
+                "--emit",
+                "dae-json",
+                "rdd2-avionics-system.dae.json",
+            ),
+            (
+                "Vehicles/Rdd2/Test/WaypointMission.mo",
+                "Vehicles.Rdd2.Test.WaypointMission",
+                "--emit",
+                "dae-json",
+                "rdd2-waypoint-mission.dae.json",
             ),
         )
         for model_file, model_name, option, format_name, artifact in named_models:
@@ -209,6 +237,8 @@ def run_omc_script(repository: Path, script: str) -> None:
                 f"{repository}:/workspace",
                 "--workdir",
                 "/workspace",
+                "--env",
+                "OPENMODELICALIBRARY=/workspace:/root/.openmodelica/libraries",
                 OPENMODELICA_IMAGE,
                 "omc",
                 script,
@@ -219,7 +249,20 @@ def run_omc_script(repository: Path, script: str) -> None:
 
     omc = program("MODELICA_MODELS_OMC", DEFAULT_OMC, "omc")
     if executable_exists(omc):
-        run_command((omc, script), repository, f"OpenModelica script {script}")
+        environment = os.environ.copy()
+        default_library = Path.home() / ".openmodelica" / "libraries"
+        inherited_library = environment.get(
+            "OPENMODELICALIBRARY", str(default_library)
+        )
+        environment["OPENMODELICALIBRARY"] = os.pathsep.join(
+            (str(repository), inherited_library)
+        )
+        run_command(
+            (omc, script),
+            repository,
+            f"OpenModelica script {script}",
+            environment,
+        )
         return
 
     raise TaskError(
@@ -227,9 +270,19 @@ def run_omc_script(repository: Path, script: str) -> None:
     )
 
 
-def run_command(command: Sequence[str], working_directory: Path, label: str) -> None:
+def run_command(
+    command: Sequence[str],
+    working_directory: Path,
+    label: str,
+    environment: dict[str, str] | None = None,
+) -> None:
     print(f"    {label}", flush=True)
-    subprocess.run(command, cwd=working_directory, check=True)
+    subprocess.run(
+        command,
+        cwd=working_directory,
+        env=environment,
+        check=True,
+    )
 
 
 def program(environment: str, packaged: str | None, fallback: str) -> str:

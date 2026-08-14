@@ -1,9 +1,9 @@
 Plant
 Interfaces
-InnerLoop
+OnboardStabilizerSurrogate
 OuterLoopComponents
 OuterLoop
-FlightControlSystem
+AvionicsSystem
 ClosedLoopVehicle
 AvionicsPlant
 Test

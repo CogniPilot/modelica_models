@@ -1,12 +1,13 @@
 within Vehicles.Rdd2.Test;
 
 model WaypointMission
-  "Takeoff, box, and landing mission in the local East-North-Up frame"
+  "Optical-flow-navigated takeoff, box, and landing mission in the local East-North-Up frame"
   parameter Real cruiseAltitude_m = 2.0;
   parameter Real boxSide_m = 4.0;
 
   extends Vehicles.Rdd2.WaypointVehicleSystem(
     useGlobalWaypoints = false,
+    navigationSource = 2,
     localRoute = [
       0.0,       0.0,       0.0;
       0.0,       0.0,       cruiseAltitude_m;
@@ -27,5 +28,9 @@ model WaypointMission
       <p>Defines only the local box route and experiment. Plant, task periods,
       signal routing, planning, guidance, rate control, and allocation belong
       to the reusable <code>Vehicles.Rdd2.WaypointVehicleSystem</code> stack.</p>
+      <p>Guidance flies on the optical-flow-aided inertial solution
+      (<code>navigationSource&nbsp;=&nbsp;2</code>): position is dead-reckoned
+      from the IMU with planar body-velocity aiding, matching a GPS-denied
+      indoor flight over a textured floor.</p>
     </html>"));
 end WaypointMission;

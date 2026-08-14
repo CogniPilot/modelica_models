@@ -18,6 +18,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
+      - name: Check Modelica library structure
+        run: tools/check-modelica-library.sh
       - name: Set up Nix
         uses: DeterminateSystems/nix-installer-action@v22
       - name: Cache Nix builds

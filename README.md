@@ -1,5 +1,11 @@
 # modelica_models
 
+[![Modelica library checks](https://github.com/CogniPilot/modelica_models/actions/workflows/ci.yml/badge.svg)](https://github.com/CogniPilot/modelica_models/actions/workflows/ci.yml)
+
+This project badge reports repository CI; it is not a Modelica Association
+certification. The checked rules and their MSL rationale are documented in
+[CONTRIBUTING.md](CONTRIBUTING.md).
+
 Reusable Modelica building blocks for rigid-body simulation, estimation,
 control, and verification.
 
@@ -11,6 +17,8 @@ artifacts; they do not own alternate copies of these models.
 
 ## Layout
 
+- `Avionics/`: transport-independent sensor, navigation, and estimator
+  lifecycle contracts shared by drivers, estimation, and control.
 - `Estimation/`: structured estimator prediction and correction functions.
 - `LinearAlgebra/`: dimension-generic matrix algorithms used by estimation
   and control code.
@@ -35,6 +43,37 @@ artifacts; they do not own alternate copies of these models.
   flight-control models, avionics plant interfaces, and qualification missions.
   RDD2 includes both its cascaded sampled controller and a thin vehicle
   parameterization of the reusable log-linear controller.
+
+## Navigation estimator boundary
+
+`Avionics` is the pure-Modelica boundary between sensor drivers,
+navigation algorithms, and control. Its IMU, motion-capture, GPS, and optical-
+flow records use physical quantities with explicit ENU-world and FLU-body frame
+conventions; transport adapters may map Synapse/FlatBuffers messages into these
+records, but this library has no dependency on those message definitions.
+
+Every estimator publishes `Avionics.NavigationEstimate`. It
+contains only algorithm-independent physical state: position, velocity,
+acceleration, body and world angular velocity, and mutually consistent
+quaternion, direction-cosine-matrix, and roll-pitch-yaw attitude forms. Internal
+bias states, tangent ordering, and covariance stay private because they are not
+comparable across arbitrary filter implementations.
+
+Sensor `timestamp_s` is capture time. `valid` may remain true while a usable
+sample is held; `fresh` pulses for one estimator tick when a new sample arrives,
+preventing a slow sensor value from being fused repeatedly. Latency compensation
+belongs in a reusable fixed-lag wrapper over a private estimator-backend contract:
+the wrapper buffers backend snapshots and IMU increments, corrects at the capture
+time, and replays prediction to the present. This keeps replay logic shared while
+allowing each backend to retain its own opaque state and uncertainty model.
+
+The CUBS2 deployment boundary is intentionally narrower than the closed-loop
+test model. `Vehicles.Cubs2.OuterLoop` is the deployable Modelica controller;
+it sends pilot-style commands to an onboard inner-loop stabilizer whose
+proprietary implementation is unavailable to this project. Closed-loop CUBS2
+tests use `OnboardStabilizerSurrogate` only as an explicit simulation fixture.
+Those tests verify the open outer loop and its assumed boundary behavior; they
+do not establish equivalence to, or qualify, the unseen stabilizer.
 
 The vehicle library is execution-neutral. Its names describe physical or
 control meaning only. Tooling outside the library decides whether a model is
@@ -74,8 +113,11 @@ An aerospace change follows one source path:
 4. Export the same avionics plant interface as FMI 3 Co-Simulation.
 5. Let the consuming firmware repository integrate those generated artifacts.
 
-Landing-gear contact is intentionally eventful. Touchdown relations are
-preserved as Modelica events through direct simulation and FMI export.
+Landing-gear contact is intentionally eventful. Direct simulation preserves
+the touchdown relations. The current source-FMU profile rejects plant exports
+that contain event/action partitions; it must continue to fail closed until
+the FMI execution kernel preserves those partitions and its conformance tests
+cover them.
 
 The pinned Nix applications are:
 
@@ -98,6 +140,8 @@ nix develop
 vehicle-qualification
 cubs2-qualification
 rdd2-qualification
+rdd2-optical-mission-plot --help
+rdd2-gps-mission-plot --help
 trajectory-compare --help
 ```
 
@@ -113,6 +157,82 @@ artifact link in the GitHub Actions job summary. The two jobs use
 Set `MODELICA_MODELS_ROOT` when invoking an application from outside this
 checkout. Extra command-line arguments are forwarded to the selected
 qualification or Rumoca export command.
+
+### RDD2 optical-flow and GPS mission trace reports
+
+These commands render the explicit optical-flow and GPS mission models and
+write a PNG, self-contained HTML report, JSON observation report, and selected
+CSV under `artifacts/vehicles/rdd2/mission-plots/<mode>/`. They report model
+traces; they do not qualify a physical aircraft or issue a flight-acceptance
+verdict.
+
+Live simulation is selected when no CSV is passed:
+
+```bash
+nix develop path:. --command rdd2-optical-mission-plot --engine omc
+nix develop path:. --command rdd2-gps-mission-plot --engine omc
+```
+
+The wrapper fixes the OpenModelica executable to the pinned Nix store path; it
+has no command-line executable override. It also removes inherited Python and
+Modelica search paths, disables the user Python site and unsafe current-working-
+directory imports, and executes the reporter with the pinned Nix Python. Live
+simulation refuses tracked modifications or untracked files among Modelica
+sources, scenario TOML, `Resources/`, and `package.order`, and checks again
+after simulation so a report cannot label dirty inputs with the clean revision.
+Live provenance records the resolved Nix compiler executable or module and its
+SHA-256 digest in addition to the pinned source revision and reporter Python.
+
+The optical command always selects `Vehicles.Rdd2.Test.WaypointMission`; the
+GPS command always selects `Vehicles.Rdd2.Test.GlobalWaypointMission`. Defaults
+match the collected model evidence: 45 seconds with a 5 ms output step. The
+GPS report shows the existing 0.5 m model navigation-error criterion as a
+diagnostic. The optical report shows absolute-position drift without applying
+a threshold because velocity-only optical aiding does not observe absolute
+position.
+
+The frozen Rumoca flight compiler revision `9860c307` is not yet remotely
+resolvable by this flake, so live Rumoca reporting fails closed instead of
+silently using the older pin. A receipted Rumoca CSV remains convenient to
+replay through Nix:
+
+```bash
+nix develop path:. --command rdd2-optical-mission-plot \
+  --engine rumoca --rumoca-csv /path/to/trace.csv \
+  --rumoca-receipt /path/to/trace.receipt.json
+nix develop path:. --command rdd2-gps-mission-plot \
+  --engine rumoca --rumoca-csv /path/to/trace.csv \
+  --rumoca-receipt /path/to/trace.receipt.json
+```
+
+Replay refuses a CSV without a sidecar whose JSON fields exactly identify its
+mode, model, compiler, model revision, duration, cadence, and SHA-256 digest.
+The receipt schema is:
+
+```json
+{
+  "schema": "rdd2-mission-trace-receipt-v1",
+  "engine": "rumoca",
+  "mode": "gps",
+  "model": "Vehicles.Rdd2.Test.GlobalWaypointMission",
+  "compiler": {
+    "name": "Rumoca",
+    "identity": "rdd2-flight-freeze-2-9860c307",
+    "revision": "9860c30781242ff65dfcf47b136385ac5ecf4350"
+  },
+  "model_revision": "a9e5037ab3e57b3fac6ca783c0bdbfdd2b6dd98e",
+  "stop_time_s": 45.0,
+  "step_s": 0.005,
+  "csv_sha256": "<exactly 64 lowercase hexadecimal characters>"
+}
+```
+
+OpenModelica replay uses the same schema with engine `omc`, identity
+`OpenModelica/a96aa1a682c463b0fd2d285b486c09a8b7fe496d`, and revision
+`a96aa1a682c463b0fd2d285b486c09a8b7fe496d`. Trace validation also requires
+finite samples, time zero, strict ordering, exact cadence, and complete
+requested coverage. Use `--stop-time` and `--step` to match a shorter receipted
+trace. These commands are currently Linux-only.
 
 ## Mission trajectory logs
 

@@ -29,7 +29,8 @@ block OuterLoop
   input Real velocity_m_s[3](each unit="m/s") "current velocity sample [x, y, z] [m/s]";
   input Real eulerRate_rad_s[3](each unit="rad/s") "current body-rate sample [roll, pitch, yaw] [rad/s]";
 
-  output Real command[4] "{aileron, elevator, rudder, throttle}";
+  output Real command[4]
+    "normalized {roll, pitch, yaw, throttle} inputs to the onboard stabilizer";
   Components.GuidanceSetpointsOutput setpoints;
   Components.TecsCommandsOutput tecsCommands;
   Components.FlightStateOutput estimate;

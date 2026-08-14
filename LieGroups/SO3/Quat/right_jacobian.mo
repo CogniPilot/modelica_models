@@ -9,7 +9,9 @@ protected
   Real theta;
   Real S[3,3] "Skew-symmetric [v]x";
   Real S2[3,3] "[v]x * [v]x";
-  constant Real eps = 1e-8;
+  // Below 0.1 rad the series error is negligible, while the closed form
+  // loses its numerator to cancellation in single-precision generated code.
+  constant Real eps = 1e-2;
 algorithm
   theta_sq := v[1]^2 + v[2]^2 + v[3]^2;
 

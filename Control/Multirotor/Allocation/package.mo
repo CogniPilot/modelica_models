@@ -1,6 +1,41 @@
 within Control.Multirotor;
 package Allocation "Multirotor control allocation"
 
+  function rotorEffectiveness
+    "Map individual upward rotor thrusts into collective thrust and body moment"
+    input Real positionBodyFlu_m[:, 3]
+      "Rotor centers relative to the center of mass";
+    input Real yawMomentPerThrust_m[size(positionBodyFlu_m, 1)]
+      "Signed reaction-torque ratio; positive produces positive FLU yaw moment";
+    output Real effectiveness[4, size(positionBodyFlu_m, 1)]
+      "Maps rotor thrust into {collective thrust, body moment}";
+  algorithm
+    for rotor in 1:size(positionBodyFlu_m, 1) loop
+      effectiveness[:, rotor] := {
+        1.0,
+        positionBodyFlu_m[rotor, 2],
+        -positionBodyFlu_m[rotor, 1],
+        yawMomentPerThrust_m[rotor]};
+    end for;
+  end rotorEffectiveness;
+
+  function quadrotorWrenchToThrust
+    "Derive the square quadrotor allocation inverse from physical geometry"
+    input Real positionBodyFlu_m[4, 3];
+    input Real yawMomentPerThrust_m[4];
+    output Real wrenchToRotorThrust[4, 4];
+  protected
+    Real effectiveness[4, 4];
+    Boolean accepted;
+  algorithm
+    effectiveness := rotorEffectiveness(
+      positionBodyFlu_m, yawMomentPerThrust_m);
+    (wrenchToRotorThrust, accepted) := LinearAlgebra.solve(
+      effectiveness, identity(4));
+    assert(accepted,
+      "Quadrotor geometry must provide independent thrust, roll, pitch, and yaw authority");
+  end quadrotorWrenchToThrust;
+
   function rotorCommands
     "Normalized rotor commands from a collective thrust and body moment"
     input Integer nRotors(min = 1) "Number of independently commanded rotors";

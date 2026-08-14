@@ -14,7 +14,9 @@ protected
   Real C2;
   Real C3;
   Real I2[2, 2];
-  constant Real epsilon = 1.0e-8;
+  // The closed coefficients are cancellation-prone below 0.1 rad in
+  // single-precision generated code; the retained series is accurate there.
+  constant Real epsilon = 1.0e-2;
 algorithm
   omega := tangent[7:9];
   Omega := LieGroups.SO3.Quat.wedge(omega);

@@ -5,4 +5,5 @@ PidResult
 pidTransition
 PidController
 tiltRateSetpoint
+Allocation
 Multirotor

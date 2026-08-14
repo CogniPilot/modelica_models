@@ -16,7 +16,9 @@ protected
   Real O2[3,3], OV[3,3], VO[3,3], O2V[3,3], VO2[3,3];
   Real OVO2[3,3], O2VO[3,3], O2VO2[3,3], OVO[3,3];
   Real s, ct, st;
-  constant Real eps = 1e-8;
+  // The closed coefficients are cancellation-prone below 0.1 rad in
+  // single-precision generated code; the retained series is accurate there.
+  constant Real eps = 1e-2;
 algorithm
   theta_sq := omega[1]^2 + omega[2]^2 + omega[3]^2;
   s := theta_sq;

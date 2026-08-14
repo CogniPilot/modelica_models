@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
-"""Qualify RDD2 GPS waypoint navigation in local and global mission modes.
+"""Qualify RDD2 waypoint navigation in local and global mission modes.
 
-The local mission follows a box authored in the local East-North-Up frame. The
-global mission authors the same box in latitude/longitude/altitude and projects
-it back through the mission origin. Both run the reusable log-linear controller,
-waypoint guidance, body-rate loop, and control allocation, so a passing run
-proves the geometric stack flies the box and that the geodetic projection is a
-faithful round trip (the two ground tracks must coincide).
+The local mission follows a box authored in the local East-North-Up frame and
+navigates on the optical-flow-aided inertial solution (GPS denied). The global
+mission authors the same box in latitude/longitude/altitude, projects it back
+through the mission origin, and navigates on the GPS-aided inertial solution.
+Both run the multisensor invariant estimator in the loop with the reusable
+log-linear controller, waypoint guidance, body-rate loop, and control
+allocation, so a passing run proves each aiding modality is observable enough
+to fly the box, that the geodetic projection is a faithful round trip, and
+that the two modalities agree on the flown track.
 """
 
 from __future__ import annotations
@@ -64,10 +67,11 @@ TRACE_NAMES = [
     *[f"euler_rad[{index}]" for index in range(1, 4)],
     "thrust_N",
     *[f"motorCommand[{index}]" for index in range(1, 5)],
-    *[f"flightControl.reference.position[{index}]" for index in range(1, 4)],
-    "flightControl.reference.trajectoryTime",
+    *[f"avionics.reference.position[{index}]" for index in range(1, 4)],
+    "avionics.reference.trajectoryTime",
     *[f"geodetic[{index}]" for index in range(1, 4)],
     "missionPhase",
+    "navigationError_m",
 ]
 
 
@@ -126,6 +130,7 @@ def evaluate(values: dict[str, list[float]]) -> dict[str, object]:
     pitch_deg = [math.degrees(value) for value in signal(values, "euler_rad[2]")]
     motors = [signal(values, f"motorCommand[{index}]") for index in range(1, 5)]
     thrust = signal(values, "thrust_N")
+    navigation_error = signal(values, "navigationError_m")
 
     corner_errors = {
         name: corner_error(time, x, y, target) for name, target in BOX_CORNERS
@@ -149,6 +154,7 @@ def evaluate(values: dict[str, list[float]]) -> dict[str, object]:
         "final_horizontal_error_m": math.hypot(x[-1], y[-1]),
         "minimum_motor_command": minimum_motor,
         "maximum_motor_command": maximum_motor,
+        "max_navigation_error_m": max(navigation_error),
     }
     checks = {
         "finite_trace": finite_trace,
@@ -162,6 +168,7 @@ def evaluate(values: dict[str, list[float]]) -> dict[str, object]:
         "landing_altitude": metrics["final_altitude_m"] <= 0.30,
         "landing_speed": abs(metrics["final_vertical_speed_m_s"]) <= 0.50,
         "landing_position": metrics["final_horizontal_error_m"] <= 1.0,
+        "bounded_navigation_error": metrics["max_navigation_error_m"] <= 0.5,
     }
     return {"passed": all(checks.values()), "checks": checks, "metrics": metrics}
 
@@ -169,7 +176,12 @@ def evaluate(values: dict[str, list[float]]) -> dict[str, object]:
 def mode_agreement(
     local: dict[str, list[float]], glob: dict[str, list[float]]
 ) -> dict[str, object]:
-    """Local and global modes must fly the same local trajectory."""
+    """Both navigation modalities must fly the same local trajectory.
+
+    The missions share the commanded box but navigate on different aiding
+    sensors (optical flow versus GPS), so the tracks agree to within the
+    estimation difference between the modalities rather than exactly.
+    """
     max_difference_m = 0.0
     for name in ("position_m[1]", "position_m[2]", "position_m[3]"):
         local_samples = signal(local, name)
@@ -180,7 +192,7 @@ def mode_agreement(
                 max_difference_m,
                 abs(local_samples[index] - global_samples[index]),
             )
-    passed = max_difference_m <= 1.0e-3
+    passed = max_difference_m <= 0.5
     return {
         "passed": passed,
         "checks": {"local_global_tracks_match": passed},
@@ -209,13 +221,13 @@ def plot_missions(
     axes[0, 0].plot(
         signal(local, "position_m[1]"),
         signal(local, "position_m[2]"),
-        label="local mode",
+        label="local mode (optical flow)",
     )
     axes[0, 0].plot(
         signal(glob, "position_m[1]"),
         signal(glob, "position_m[2]"),
         linestyle=":",
-        label="global mode",
+        label="global mode (GPS)",
     )
     axes[0, 0].set_title("Ground Track")
     axes[0, 0].set_xlabel("east [m]")
@@ -231,13 +243,23 @@ def plot_missions(
     )
     axes[0, 1].plot(
         signal(local, "time_s"),
-        signal(local, "flightControl.reference.position[3]"),
+        signal(local, "avionics.reference.position[3]"),
         linestyle="--",
         label="target",
     )
-    axes[0, 1].set_title("Altitude")
+    axes[0, 1].plot(
+        signal(local, "time_s"),
+        signal(local, "navigationError_m"),
+        label="flow navigation error",
+    )
+    axes[0, 1].plot(
+        signal(glob, "time_s"),
+        signal(glob, "navigationError_m"),
+        label="GPS navigation error",
+    )
+    axes[0, 1].set_title("Altitude and Navigation Error")
     axes[0, 1].set_xlabel("time [s]")
-    axes[0, 1].set_ylabel("up [m]")
+    axes[0, 1].set_ylabel("up [m] / error [m]")
     axes[0, 1].grid(True)
     axes[0, 1].legend(loc="best")
 
@@ -300,8 +322,9 @@ def write_reports(report: dict[str, object], plot_path: Path) -> None:
             "",
             f"- `{plot_path.name}`",
             "",
-            "Local and global modes fly the same box; the geodetic track is the "
-            "local pose lifted through the mission origin.",
+            "The local mission navigates on optical flow and the global mission "
+            "on GPS; both fly the same box, and the geodetic track is the local "
+            "pose lifted through the mission origin.",
         ]
     )
     markdown = "\n".join(lines) + "\n"
@@ -354,6 +377,12 @@ def main() -> None:
             "geodesy": {
                 "path": "Geodesy/package.mo",
                 "sha256": source_digest(ROOT / "Geodesy" / "package.mo"),
+            },
+            "estimator": {
+                "path": "Estimation/MixedInvariantNavigationEstimator.mo",
+                "sha256": source_digest(
+                    ROOT / "Estimation" / "MixedInvariantNavigationEstimator.mo"
+                ),
             },
             "rumoca": getattr(rum, "__version__", "workspace"),
         },
