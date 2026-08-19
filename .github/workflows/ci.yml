@@ -22,11 +22,13 @@ jobs:
         run: tools/check-modelica-library.sh
       - name: Set up Nix
         uses: DeterminateSystems/nix-installer-action@v22
-      - name: Cache Nix builds
-        uses: DeterminateSystems/magic-nix-cache-action@v14
+      - name: Configure CogniPilot Cachix cache
+        uses: cachix/cachix-action@v17
         with:
-          use-flakehub: disabled
-          use-gha-cache: enabled
+          name: cognipilot
+          # Empty for forked PRs or until configured, which leaves the public
+          # cache available read-only. A token enables automatic build uploads.
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
       - name: Run tests
         run: nix run .#ci
       - name: Upload planning trajectories
@@ -55,11 +57,13 @@ jobs:
       - uses: actions/checkout@v7
       - name: Set up Nix
         uses: DeterminateSystems/nix-installer-action@v22
-      - name: Cache Nix builds
-        uses: DeterminateSystems/magic-nix-cache-action@v14
+      - name: Configure CogniPilot Cachix cache
+        uses: cachix/cachix-action@v17
         with:
-          use-flakehub: disabled
-          use-gha-cache: enabled
+          name: cognipilot
+          # Empty for forked PRs or until configured, which leaves the public
+          # cache available read-only. A token enables automatic build uploads.
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
       - id: qualify
         name: Run ${{ matrix.label }} qualification
         run: nix develop --command ${{ matrix.vehicle }}-qualification
