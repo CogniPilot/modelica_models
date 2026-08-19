@@ -30,7 +30,7 @@ while IFS= read -r order_file; do
   while IFS= read -r child_file; do
     child_name="${child_file##*/}"
     child_name="${child_name%.mo}"
-    if ! rg -q "^${child_name}$" "$order_file"; then
+    if ! grep -Fqx -- "$child_name" "$order_file"; then
       report_error "$order_file does not list $child_name"
     fi
   done < <(find "$package_directory" -maxdepth 1 -type f -name '*.mo' ! -name package.mo | sort)
@@ -71,7 +71,7 @@ for guarded_file in LinearAlgebra/solve.mo LinearAlgebra/solveSPD.mo; do
     report_error "guarded solver $guarded_file is missing; update this check"
     continue
   fi
-  if rg -q '^[[:space:]]*\([^()]*,[^()]*\)[[:space:]]*:=' "$guarded_file"; then
+  if grep -Eq '^[[:space:]]*\([^()]*,[^()]*\)[[:space:]]*:=' "$guarded_file"; then
     report_error "$guarded_file contains a multi-output (tuple-assigning) call; \
 this combination silently miscompiles under rumoca and corrupts the solver \
 (see the guard comment in that file)"

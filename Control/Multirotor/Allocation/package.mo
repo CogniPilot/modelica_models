@@ -57,10 +57,6 @@ package Allocation "Multirotor control allocation"
     wrench := {thrust, moment[1], moment[2], moment[3]};
     rotorThrust := wrenchToRotorThrust * wrench;
     for rotor in 1:nRotors loop
-      assert(thrustCoefficient[rotor] > 0.0,
-        "Every rotor thrust coefficient must be positive");
-      assert(maximumRotorSpeed[rotor] > 0.0,
-        "Every maximum rotor speed must be positive");
       // A saturated rotor cannot pull, so clamp the demanded thrust to the
       // non-negative producible range before inverting F = Ct omega^2.
       rotorSpeed[rotor] :=

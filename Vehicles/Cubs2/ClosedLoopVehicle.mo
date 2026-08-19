@@ -7,14 +7,19 @@ model ClosedLoopVehicle
   import Components = Vehicles.Cubs2.OuterLoopComponents;
 
   parameter Components.RouteParameters route = Components.RouteParameters();
-  parameter Real initialPosition_m[3] = {0.0, 0.0, 0.0};
+  parameter Real initialPosition_m[3] = {0.0, 0.0, 0.1}
+    "Body origin; 0.1 m places the main wheels on the ground plane";
   parameter Real initialVelocityBody_m_s[3] = {0.0, 0.0, 0.0};
   parameter Real initialQuaternion[4] = {1.0, 0.0, 0.0, 0.0};
 
-  input Boolean engaged;
-  input Boolean armed;
-  input Boolean stickOverrideActive;
-  input Real stickOverride[4];
+  // This is a closed test composition, not an exported input boundary.
+  // Ordinary bound variables permit scenarios to supply runtime mode logic
+  // (for example landing/disarm) without treating it as an input default that
+  // must be evaluated as a compile-time coordinate.
+  Boolean engaged = false;
+  Boolean armed = false;
+  Boolean stickOverrideActive = false;
+  Real stickOverride[4] = zeros(4);
 
   Vehicles.Cubs2.Plant plant(
     p_start = initialPosition_m,
@@ -27,6 +32,8 @@ model ClosedLoopVehicle
   output Real velocity_m_s[3];
   output Real euler_rad[3];
   output Real airspeed_m_s;
+  output Boolean airborne
+    "Qualification takeoff transition: clear of gear height and flying speed";
   output Real actuatorCommand[4];
   output Real stickCommand[4];
   output Real attitudeCommand_rad[2];
@@ -58,6 +65,7 @@ equation
   position_m = plant.position;
   velocity_m_s = plant.velocity;
   airspeed_m_s = plant.airspeed;
+  airborne = position_m[3] > 0.25 and airspeed_m_s > 3.0;
   currentWaypoint = avionics.currentWaypoint;
   connect(avionics.setpoints, setpoints);
   connect(avionics.tecsCommands, tecsCommands);

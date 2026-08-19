@@ -19,7 +19,8 @@ artifacts; they do not own alternate copies of these models.
 
 - `Avionics/`: transport-independent sensor, navigation, and estimator
   lifecycle contracts shared by drivers, estimation, and control.
-- `Estimation/`: structured estimator prediction and correction functions.
+- `Estimation/`: structured estimator prediction and correction functions,
+  including the replaceable `StrapdownINS` ESKF and manifold UKF.
 - `LinearAlgebra/`: dimension-generic matrix algorithms used by estimation
   and control code.
 - `Polynomials/`: dimension-generic Hermite construction, derivative
@@ -59,6 +60,15 @@ quaternion, direction-cosine-matrix, and roll-pitch-yaw attitude forms. Internal
 bias states, tangent ordering, and covariance stay private because they are not
 comparable across arbitrary filter implementations.
 
+`Estimation.StrapdownINS.PartialEstimator` is the common aided inertial-
+navigation interface. `StrapdownINS.ESKF` implements a 15-state local
+right-error ESKF, while `StrapdownINS.UKF` implements a 31-point manifold UKF
+over the same position, velocity, attitude, and IMU-bias state. The ESKF name
+is intentional: additive bias states mean that calling it an invariant Kalman
+filter would overstate its mathematics. Both filters accept identical sensor,
+noise, initialization, and terrain-plane assumptions so their closed-loop
+comparison is meaningful.
+
 Sensor `timestamp_s` is capture time. `valid` may remain true while a usable
 sample is held; `fresh` pulses for one estimator tick when a new sample arrives,
 preventing a slow sensor value from being fused repeatedly. Latency compensation
@@ -93,12 +103,24 @@ velocity (zero for rest-to-rest), feeding world-frame position, velocity, and
 acceleration to the log-linear controller; its collective thrust and body-rate
 command pass through `Control.Multirotor.RateLoop` and
 `Control.Multirotor.Allocation` onto the four rotors.
-`Vehicles.Rdd2.Test.WaypointMission` takes off, flies a box, and lands
-in the local East-North-Up frame, and
+`Vehicles.Rdd2.Test.TruthWaypointMission` flies a truth-feedback comparison
+baseline. `Vehicles.Rdd2.Test.WaypointMission` takes off, flies a box, and
+lands in the local East-North-Up frame using the optical-flow-aided ESKF, and
 `Vehicles.Rdd2.Test.GlobalWaypointMission` authors the same box in
-latitude/longitude/altitude and projects it back through a fixed mission origin,
-so control always runs in the local frame while missions may be authored locally
-or globally.
+latitude/longitude/altitude, projects it back through a fixed mission origin,
+and flies it using the GPS-aided ESKF. Parallel `UkfWaypointMission` and
+`UkfGlobalWaypointMission` models fly the same missions with the UKF. All four
+aided tracks are compared with the truth-feedback baseline so controller/plant
+failures can be distinguished from estimator or aiding failures.
+
+The optical-flow sensor traces a normalized image feature grid against the
+configured plane `n' p = d`; it therefore does not require that the observed
+surface be aligned with local vertical. Raw line-of-sight flow contains both
+translation and camera rotation. The compensated velocity and slant-range
+measurement use the same plane geometry as each filter's observation model.
+The default plane is horizontal because that is a common local-terrain
+approximation, and an inclined-plane regression prevents that default from
+becoming a hidden assumption.
 
 ## Vehicle development
 
@@ -149,10 +171,19 @@ These commands are added to `PATH` by the development shell. The shell also
 sets `MODELICA_MODELS_ROOT` to the checkout root, so qualification commands
 continue to work after changing into a subdirectory.
 
-CI runs the CUBS2 and RDD2 qualifications as independent jobs. Each job
-uploads its traces, PNG plots, and a self-contained HTML report, with a direct
-artifact link in the GitHub Actions job summary. The two jobs use
+CI runs the CUBS2 and RDD2 qualifications as independent jobs. RDD2 flies the
+truth-feedback baseline plus optical-flow- and GPS-aided ESKF and UKF missions. Each
+job uploads its traces, PNG plots, and a self-contained HTML report, with a
+direct artifact link in the GitHub Actions job summary. The two jobs use
 `fail-fast: false`, so both vehicles are qualified even if one fails.
+
+RDD2 sensor noise is deterministic and compiler-portable. Each Gaussian sample
+is produced by a Box-Muller transform of indexed uniform fixtures, then scaled
+from the exact measurement covariance or continuous IMU/bias-walk spectral
+density supplied to the selected filter. This is deliberately not the stateful
+Modelica Standard Library/OpenModelica Xorshift sequence. Qualification checks
+the empirical variance and cross-correlation against the declared assumptions;
+`enableSensorNoise=false` provides a noiseless diagnostic run.
 
 Set `MODELICA_MODELS_ROOT` when invoking an application from outside this
 checkout. Extra command-line arguments are forwarded to the selected
@@ -261,7 +292,7 @@ execution terminology or log decoder belongs in this library.
 
 All mathematical test definitions are Modelica classes under `Tests/`. The
 suite uses Modelica `assert` equations for Lie-group identities, generic
-linear-algebra systems, IEKF invariants, Dubins paths, and analytic rigid-body
+linear-algebra systems, geometric error-state filters, Dubins paths, and analytic rigid-body
 trajectories.
 No Python source generation or numerical oracle is involved.
 
@@ -356,8 +387,8 @@ The library keeps simulation equations and proof expressions aligned:
   candidates.
 - `LinearAlgebra.contractionResidual`, `quadraticForm`, and
   `quadraticFormDerivative` provide dimension-generic certificate expressions.
-- The estimator exposes its nominal discrete map, tangent transition, process
-  covariance, measurement map, measurement covariance, and invariant residual
+- The ESKF exposes its nominal discrete map, tangent transition, process
+  covariance, measurement map, measurement covariance, and local residual
   as separate pure functions for reachable-set propagation.
 
 These functions produce certificate quantities; they do not claim a proof by

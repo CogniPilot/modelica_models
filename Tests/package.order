@@ -3,7 +3,10 @@ LinearAlgebraTests
 LieGroupsTests
 LieGroupTests
 EstimationTests
-MultiSensorInvariantTests
+StrapdownESKFTests
+StrapdownUKFTests
+OpticalFlowPlaneTests
+StrapdownEstimatorInterfaceTests
 EstimatorHealthTests
 EstimatorHardeningTests
 VerificationTests

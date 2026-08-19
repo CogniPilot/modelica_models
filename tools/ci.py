@@ -160,6 +160,20 @@ def run_rumoca_tests(repository: Path) -> None:
                 "rdd2-estimator",
             ),
             (
+                "Tests/StrapdownEstimatorInterfaceTests.mo",
+                "Tests.StrapdownEstimatorInterfaceTests",
+                "--emit",
+                "dae-json",
+                "strapdown-estimator-interface.dae.json",
+            ),
+            (
+                "Estimation/StrapdownINS/UKF/Estimator.mo",
+                "Estimation.StrapdownINS.UKF.Estimator",
+                "--target",
+                "galec-production",
+                "strapdown-ukf-estimator",
+            ),
+            (
                 "Vehicles/Rdd2/Plant.mo",
                 "Vehicles.Rdd2.Plant",
                 "--emit",

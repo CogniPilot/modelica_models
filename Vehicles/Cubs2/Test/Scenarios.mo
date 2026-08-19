@@ -48,8 +48,8 @@ model Takeoff
     route = takeoffRoute,
     engaged = true,
     armed = true,
-    stickOverrideActive = false,
-    stickOverride = zeros(4));
+    stickOverrideActive = not airborne,
+    stickOverride = {0.0, 0.0, 0.0, 1.0});
 end Takeoff;
 
 model AltitudeHold
