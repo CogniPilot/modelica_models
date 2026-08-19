@@ -1,4 +1,5 @@
 /artifacts/
+/.ci-cache/
 __pycache__/
 *.py[cod]
 target/
