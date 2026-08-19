@@ -7,7 +7,7 @@ algorithm
   for row in 1:size(values, 1) loop
     for column in 1:size(values, 2) loop
       result := result and values[row, column] == values[row, column]
-        and abs(values[row, column]) < Estimation.MultiSensorInvariant.FiniteMagnitudeLimit;
+        and abs(values[row, column]) < Estimation.StrapdownINS.ESKF.FiniteMagnitudeLimit;
     end for;
   end for;
 end isFiniteMatrix;

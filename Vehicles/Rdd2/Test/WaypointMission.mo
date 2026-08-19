@@ -8,6 +8,7 @@ model WaypointMission
   extends Vehicles.Rdd2.WaypointVehicleSystem(
     useGlobalWaypoints = false,
     navigationSource = 2,
+    estimatorInitialPositionWorldEnu_m = {0.08, -0.06, 0.04},
     localRoute = [
       0.0,       0.0,       0.0;
       0.0,       0.0,       cruiseAltitude_m;
@@ -31,6 +32,8 @@ model WaypointMission
       <p>Guidance flies on the optical-flow-aided inertial solution
       (<code>navigationSource&nbsp;=&nbsp;2</code>): position is dead-reckoned
       from the IMU with planar body-velocity aiding, matching a GPS-denied
-      indoor flight over a textured floor.</p>
+      indoor flight over a textured floor. The small deterministic initial
+      position error is a qualification witness: controller feedback must
+      follow the Kalman estimate rather than coincident plant truth.</p>
     </html>"));
 end WaypointMission;

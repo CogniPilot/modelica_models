@@ -11,7 +11,7 @@ model EstimatorHealthTests
     input Real quaternion[4];
     input Real gyroscopeBias[3];
     input Real accelerometerBias[3];
-    input Estimation.MultiSensorInvariant.Covariance covariance;
+    input Estimation.StrapdownINS.ESKF.Covariance covariance;
     input Integer rejections;
     input Real rejectionElapsed_s;
     input Real mocapPosition[3];
@@ -28,7 +28,7 @@ model EstimatorHealthTests
     output Real quaternionNext[4];
     output Real gyroscopeBiasNext[3];
     output Real accelerometerBiasNext[3];
-    output Estimation.MultiSensorInvariant.Covariance covarianceNext;
+    output Estimation.StrapdownINS.ESKF.Covariance covarianceNext;
     output Boolean initializedNext;
     output Integer rejectionsNext;
     output Real rejectionElapsedNext_s;
@@ -42,6 +42,7 @@ model EstimatorHealthTests
     Boolean gpsVelocityOk;
     Boolean flowOk;
     Integer correctionSource;
+    Real correctionNis;
     Integer mocapRejections;
     Integer gpsRejections;
     Integer flowRejections;
@@ -74,6 +75,7 @@ model EstimatorHealthTests
      recoveryStage,
      correctionOutcome,
      correctionSource,
+     correctionNis,
      estimateValid,
      mocapRejections,
      gpsRejections,
@@ -85,9 +87,9 @@ model EstimatorHealthTests
      imuOmegaHeld,
      imuAccelHeld,
      imuStampHeld,
-     imuHeldFlag) := Estimation.MultiSensorInvariant.step(
+     imuHeldFlag) := Estimation.StrapdownINS.ESKF.step(
       initialized,
-      Estimation.MultiSensorInvariant.State(
+      Estimation.StrapdownINS.ESKF.State(
         positionWorldEnu_m=position,
         velocityWorldEnu_m_s=velocity,
         quaternionWorldBody=quaternion,
@@ -129,34 +131,37 @@ model EstimatorHealthTests
         integratedLineOfSight_rad=zeros(2),
         integrationTime_s=0.0,
         groundDistance_m=1.0,
+        groundDistanceVariance_m2=0.01,
         quality=0.0),
       {0.0, 0.0, -9.81},
       dt,
-      Estimation.MultiSensorInvariant.Tuning(
-        initialState=Estimation.MultiSensorInvariant.NominalState(
+      Estimation.StrapdownINS.ESKF.Tuning(
+        initialState=Estimation.StrapdownINS.ESKF.NominalState(
           positionWorldEnu_m=zeros(3),
           velocityWorldEnu_m_s=zeros(3),
           quaternionWorldBody={1.0, 0.0, 0.0, 0.0},
           gyroscopeBiasBodyFlu_rad_s=zeros(3),
           accelerometerBiasBodyFlu_m_s2=zeros(3)),
-        initialVariances=Estimation.MultiSensorInvariant.InitialVariances(
+        initialVariances=Estimation.StrapdownINS.InitialVariances(
           position_m2=fill(1.0, 3),
           velocity_m2_s2=fill(1.0, 3),
           attitude_rad2=fill(0.25, 3),
           gyroscopeBias_rad2_s2=fill(1.0e-4, 3),
           accelerometerBias_m2_s4=fill(1.0e-2, 3)),
-        processNoise=Estimation.MultiSensorInvariant.ProcessNoise(
+        processNoise=Estimation.StrapdownINS.ProcessNoise(
           gyroscope_rad2_s=identity(3) * 1.0e-5,
           accelerometer_m2_s3=identity(3) * 1.0e-3,
           gyroscopeBias_rad2_s3=identity(3) * 1.0e-8,
           accelerometerBias_m2_s5=identity(3) * 1.0e-6),
-        varianceLimits=Estimation.MultiSensorInvariant.VarianceLimits(
+        varianceLimits=Estimation.StrapdownINS.ESKF.VarianceLimits(
           position_m2=fill(1.0e4, 3),
           velocity_m2_s2=fill(4.0e2, 3),
           attitude_rad2=fill(10.0, 3),
           gyroscopeBias_rad2_s2=fill(1.0e-2, 3),
           accelerometerBias_m2_s4=fill(1.0, 3)),
         innovationGate=innovationGate,
+        opticalFlowGroundNormalWorldEnu={0.0, 0.0, 1.0},
+        opticalFlowGroundPlaneOffset_m=0.0,
         covarianceInflateWindow_s=covarianceInflateWindow_s,
         covarianceInflateTimeConstant_s=covarianceInflateTimeConstant_s,
         aidingDivergentWindow_s=aidingDivergentWindow_s,
@@ -195,13 +200,13 @@ model EstimatorHealthTests
     Real solution[2, 1];
     Boolean okDefault;
     Boolean okTightened;
-    Estimation.MultiSensorInvariant.VarianceLimits limits;
-    Estimation.MultiSensorInvariant.Covariance inflated;
-    Estimation.MultiSensorInvariant.Covariance limited;
-    Estimation.MultiSensorInvariant.InitialVariances initialVariances;
-    Estimation.MultiSensorInvariant.State prior;
-    Estimation.MultiSensorInvariant.State gatedState;
-    Estimation.MultiSensorInvariant.State ungatedState;
+    Estimation.StrapdownINS.ESKF.VarianceLimits limits;
+    Estimation.StrapdownINS.ESKF.Covariance inflated;
+    Estimation.StrapdownINS.ESKF.Covariance limited;
+    Estimation.StrapdownINS.InitialVariances initialVariances;
+    Estimation.StrapdownINS.ESKF.State prior;
+    Estimation.StrapdownINS.ESKF.State gatedState;
+    Estimation.StrapdownINS.ESKF.State ungatedState;
     Avionics.GpsSample gpsFar;
     Boolean gatedAccepted;
     Boolean ungatedAccepted;
@@ -210,14 +215,14 @@ model EstimatorHealthTests
     Real quaternion[4];
     Real gyroscopeBias[3];
     Real accelerometerBias[3];
-    Estimation.MultiSensorInvariant.Covariance covariance;
+    Estimation.StrapdownINS.ESKF.Covariance covariance;
     Boolean initialized;
     Real positionNext[3];
     Real velocityNext[3];
     Real quaternionNext[4];
     Real gyroscopeBiasNext[3];
     Real accelerometerBiasNext[3];
-    Estimation.MultiSensorInvariant.Covariance covarianceNext;
+    Estimation.StrapdownINS.ESKF.Covariance covarianceNext;
     Boolean initializedNext;
     Integer rejectionsNext;
     Integer rejections;
@@ -237,6 +242,8 @@ model EstimatorHealthTests
     Real varianceBeforeInflate;
     Real varianceBeforeAccept;
     Integer ungatedReason;
+    Real gatedNis;
+    Real ungatedNis;
   algorithm
     // Fix 1: the pivot threshold scales with the working precision. A
     // trailing pivot of 1e-8 is comfortably above the binary64 floor
@@ -253,7 +260,7 @@ model EstimatorHealthTests
 
     // Fix 2: diagonal variance limiting preserves symmetry and
     // correlation coefficients while capping out-of-envelope growth.
-    limits := Estimation.MultiSensorInvariant.VarianceLimits(
+    limits := Estimation.StrapdownINS.ESKF.VarianceLimits(
       position_m2=fill(1.0e4, 3),
       velocity_m2_s2=fill(4.0e2, 3),
       attitude_rad2=fill(10.0, 3),
@@ -264,7 +271,7 @@ model EstimatorHealthTests
     inflated[4, 4] := 1.6e3;
     inflated[1, 4] := 2.0e3;
     inflated[4, 1] := 2.0e3;
-    limited := Estimation.MultiSensorInvariant.limitCovariance(
+    limited := Estimation.StrapdownINS.ESKF.limitCovariance(
       inflated, limits);
     assert(abs(limited[1, 1] - 1.0e4) < tolerance and
       abs(limited[4, 4] - 4.0e2) < tolerance,
@@ -279,13 +286,13 @@ model EstimatorHealthTests
     // ~1 m2 innovation variance has NIS ~ 1e4, far beyond 6 per degree
     // of freedom, so the gated call must reject without touching the
     // state while the ungated call still accepts.
-    initialVariances := Estimation.MultiSensorInvariant.InitialVariances(
+    initialVariances := Estimation.StrapdownINS.InitialVariances(
       position_m2=fill(1.0, 3),
       velocity_m2_s2=fill(1.0, 3),
       attitude_rad2=fill(0.25, 3),
       gyroscopeBias_rad2_s2=fill(1.0e-4, 3),
       accelerometerBias_m2_s4=fill(1.0e-2, 3));
-    prior := Estimation.MultiSensorInvariant.initialize(
+    prior := Estimation.StrapdownINS.ESKF.initialize(
       zeros(3), {1.0, 0.0, 0.0, 0.0}, initialVariances);
     gpsFar := Avionics.GpsSample(
       valid=true,
@@ -298,13 +305,14 @@ model EstimatorHealthTests
       velocityWorldEnu_m_s=zeros(3),
       positionCovarianceWorld_m2=identity(3) * 0.01,
       velocityCovarianceWorld_m2_s2=identity(3) * 0.01);
-    (gatedState, gatedAccepted, gatedReason) :=
-      Estimation.MultiSensorInvariant.correctGpsPosition(
+    (gatedState, gatedAccepted, gatedReason, gatedNis) :=
+      Estimation.StrapdownINS.ESKF.correctGpsPosition(
         prior, gpsFar, gate);
-    (ungatedState, ungatedAccepted, ungatedReason) :=
-      Estimation.MultiSensorInvariant.correctGpsPosition(prior, gpsFar);
+    (ungatedState, ungatedAccepted, ungatedReason, ungatedNis) :=
+      Estimation.StrapdownINS.ESKF.correctGpsPosition(prior, gpsFar);
     assert(not gatedAccepted and
-      gatedReason == Estimation.MultiSensorInvariant.CorrectionRejectedGate,
+      gatedReason == Estimation.StrapdownINS.CorrectionRejectedGate
+      and gatedNis > gate * 3.0,
       "The innovation gate did not reject a grossly inconsistent residual");
     assert(Tests.Assertions.maxAbsVector(
         gatedState.positionWorldEnu_m - prior.positionWorldEnu_m)
@@ -313,7 +321,7 @@ model EstimatorHealthTests
         gatedState.covariance - prior.covariance) < tolerance,
       "A gate-rejected correction modified the state");
     assert(ungatedAccepted and
-      ungatedReason == Estimation.MultiSensorInvariant.CorrectionAccepted,
+      ungatedReason == Estimation.StrapdownINS.CorrectionAccepted,
       "Disabling the innovation gate did not restore acceptance");
 
     // Fix 3: persistent rejection drives the two-stage recovery ladder,
@@ -372,10 +380,10 @@ model EstimatorHealthTests
     initialized := initializedNext;
     rejections := rejectionsNext;
     rejectionElapsed := rejectionElapsedNext_s;
-    anchorPrev := Estimation.MultiSensorInvariant.SourceMocap;
+    anchorPrev := Estimation.StrapdownINS.SourceMocap;
     boundsOk := boundsOk and covariance[1, 1] <= 1.0e4 + tolerance;
     startupOk := initialized and rejections == 0 and estimateValid
-      and recoveryStage == Estimation.MultiSensorInvariant.RecoveryNominal;
+      and recoveryStage == Estimation.StrapdownINS.RecoveryNominal;
 
     // Tick 2: the first 1 km mocap sample is gate-rejected; the clock
     // advances by one interval and the estimate must not move.
@@ -395,14 +403,14 @@ model EstimatorHealthTests
     initialized := initializedNext;
     rejections := rejectionsNext;
     rejectionElapsed := rejectionElapsedNext_s;
-    anchorPrev := Estimation.MultiSensorInvariant.SourceMocap;
+    anchorPrev := Estimation.StrapdownINS.SourceMocap;
     boundsOk := boundsOk and covariance[1, 1] <= 1.0e4 + tolerance;
     rejectionOk := not mocapOk and rejections == 1
       and correctionOutcome
-        == Estimation.MultiSensorInvariant.CorrectionRejectedGate
+        == Estimation.StrapdownINS.CorrectionRejectedGate
       and abs(rejectionElapsed - dt) < tolerance
       and abs(position[1]) < 1.0
-      and recoveryStage == Estimation.MultiSensorInvariant.RecoveryNominal;
+      and recoveryStage == Estimation.StrapdownINS.RecoveryNominal;
 
     // Tick 3: clock reaches two intervals, still below the window.
     (positionNext, velocityNext, quaternionNext, gyroscopeBiasNext,
@@ -421,14 +429,14 @@ model EstimatorHealthTests
     initialized := initializedNext;
     rejections := rejectionsNext;
     rejectionElapsed := rejectionElapsedNext_s;
-    anchorPrev := Estimation.MultiSensorInvariant.SourceMocap;
+    anchorPrev := Estimation.StrapdownINS.SourceMocap;
     boundsOk := boundsOk and covariance[1, 1] <= 1.0e4 + tolerance;
     rejectionOk := rejectionOk and not mocapOk and rejections == 2
       and correctionOutcome
-        == Estimation.MultiSensorInvariant.CorrectionRejectedGate
+        == Estimation.StrapdownINS.CorrectionRejectedGate
       and abs(rejectionElapsed - 2.0 * dt) < tolerance
       and abs(position[1]) < 1.0
-      and recoveryStage == Estimation.MultiSensorInvariant.RecoveryNominal;
+      and recoveryStage == Estimation.StrapdownINS.RecoveryNominal;
 
     // Tick 4: the clock reaches the inflate window on this tick's OUTPUT,
     // so stage 1 is armed for the next tick but has not fired yet.
@@ -448,15 +456,15 @@ model EstimatorHealthTests
     initialized := initializedNext;
     rejections := rejectionsNext;
     rejectionElapsed := rejectionElapsedNext_s;
-    anchorPrev := Estimation.MultiSensorInvariant.SourceMocap;
+    anchorPrev := Estimation.StrapdownINS.SourceMocap;
     boundsOk := boundsOk and covariance[1, 1] <= 1.0e4 + tolerance;
     varianceBeforeInflate := covariance[1, 1];
     rejectionOk := rejectionOk and not mocapOk and rejections == 3
       and correctionOutcome
-        == Estimation.MultiSensorInvariant.CorrectionRejectedGate
+        == Estimation.StrapdownINS.CorrectionRejectedGate
       and abs(rejectionElapsed - inflateWindow) < tolerance
       and abs(position[1]) < 1.0
-      and recoveryStage == Estimation.MultiSensorInvariant.RecoveryNominal;
+      and recoveryStage == Estimation.StrapdownINS.RecoveryNominal;
 
     // Tick 5: stage 1 fires. The position covariance RAMPS by one bounded
     // step and the state is UNTOUCHED. The 1 km sample is still rejected,
@@ -484,10 +492,10 @@ model EstimatorHealthTests
     initialized := initializedNext;
     rejections := rejectionsNext;
     rejectionElapsed := rejectionElapsedNext_s;
-    anchorPrev := Estimation.MultiSensorInvariant.SourceMocap;
+    anchorPrev := Estimation.StrapdownINS.SourceMocap;
     boundsOk := boundsOk and covariance[1, 1] <= 1.0e4 + tolerance;
     inflateOk := recoveryStage
-        == Estimation.MultiSensorInvariant.RecoveryCovarianceInflated
+        == Estimation.StrapdownINS.RecoveryCovarianceInflated
       and not mocapOk
       and abs(position[1]) < 1.0
       and abs(velocity[1]) < tolerance
@@ -522,11 +530,11 @@ model EstimatorHealthTests
     initialized := initializedNext;
     rejections := rejectionsNext;
     rejectionElapsed := rejectionElapsedNext_s;
-    anchorPrev := Estimation.MultiSensorInvariant.SourceMocap;
+    anchorPrev := Estimation.StrapdownINS.SourceMocap;
     boundsOk := boundsOk and covariance[1, 1] <= 1.0e4 + tolerance;
     recoveryOk := mocapOk and rejections == 0
       and correctionOutcome
-        == Estimation.MultiSensorInvariant.CorrectionAccepted
+        == Estimation.StrapdownINS.CorrectionAccepted
       and abs(rejectionElapsed) < tolerance
       // Moved toward the fix without teleporting onto it. The bound is
       // deliberately loose at the low end: if the attitude trust region

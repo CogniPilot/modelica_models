@@ -30,7 +30,7 @@ jobs:
       - name: Run tests
         run: nix run .#ci
       - name: Upload planning trajectories
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: planning-trajectories
           path: artifacts/planning
@@ -48,8 +48,8 @@ jobs:
             report: qualification-report.html
           - vehicle: rdd2
             label: RDD2
-            figure: rdd2-qualification-summary.png
-            report: modelica-report.html
+            figure: rdd2-waypoint-summary.png
+            report: waypoint-report.html
 
     steps:
       - uses: actions/checkout@v7
@@ -76,7 +76,7 @@ jobs:
       - id: qualification-artifact
         name: Upload ${{ matrix.label }} qualification plots and report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: vehicle-qualification-${{ matrix.vehicle }}
           path: artifacts/vehicles/${{ matrix.vehicle }}
@@ -89,6 +89,7 @@ jobs:
           REPORT_OUTCOME: ${{ steps.verify-report.outcome }}
           REPORT_NAME: ${{ matrix.report }}
           VEHICLE_LABEL: ${{ matrix.label }}
+          VEHICLE: ${{ matrix.vehicle }}
         run: |
           {
             printf '## %s mission qualification\n\n' "$VEHICLE_LABEL"
@@ -98,4 +99,18 @@ jobs:
               printf '[Download the plots and self-contained HTML report](%s)\n\n' "$ARTIFACT_URL"
             fi
             printf 'Open **%s** from the artifact to view the qualification plots and checks.\n' "$REPORT_NAME"
+            if [ "$VEHICLE" = rdd2 ]; then
+              printf '\nThe RDD2 artifact contains directly viewable PNGs:\n\n'
+              printf '%s\n' \
+                '- `rdd2-waypoint-summary.png` (top-down trajectory)' \
+                '- `rdd2-position-history.png` (east/north/altitude versus time)' \
+                '- `rdd2-velocity-history.png` (ENU velocity versus time)' \
+                '- `rdd2-nees-nis-consistency.png` (ESKF covariance consistency)' \
+                '- `rdd2-estimator-consistency.png` (ESKF/UKF NEES and NIS)' \
+                '- `rdd2-estimator-comparison.png` (accuracy and runtime comparison)'
+              if [ -s artifacts/vehicles/rdd2/waypoint-summary.md ]; then
+                printf '\n'
+                cat artifacts/vehicles/rdd2/waypoint-summary.md
+              fi
+            fi
           } >> "$GITHUB_STEP_SUMMARY"

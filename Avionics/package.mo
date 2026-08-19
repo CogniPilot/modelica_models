@@ -53,6 +53,8 @@ package Avionics
       "Optional raw flow integral retained for transport adapters";
     Real integrationTime_s(unit = "s");
     Real groundDistance_m(unit = "m");
+    Real groundDistanceVariance_m2(unit = "m2")
+      "Variance of the range along the camera boresight";
     Real quality(min = 0.0, max = 1.0)
       "Normalized driver quality indicator";
   end OpticalFlowSample;
@@ -113,6 +115,8 @@ package Avionics
     Integer correctionSource
       "Aiding source the outcome above refers to: 0 none, 1 mocap, 2 GPS,
        3 optical flow";
+    Real normalizedInnovationSquared
+      "NIS of this tick's attempted aiding correction; zero if none was attempted";
     Integer recoveryStage
       "Automatic recovery ladder: 0 nominal, 1 covariance ramping toward
        the mission envelope with the state untouched, 2 anchor still

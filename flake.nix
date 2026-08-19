@@ -5,7 +5,7 @@
     flake-utils.url = "github:numtide/flake-utils";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     openmodelica.url = "git+https://github.com/jgoppert/OpenModelica?submodules=1&rev=a96aa1a682c463b0fd2d285b486c09a8b7fe496d";
-    rumoca.url = "github:CogniPilot/rumoca/4d0e521d9a0bd2527808dbce2c5689834d1a0349";
+    rumoca.url = "github:CogniPilot/rumoca/1ae998516e12cb31675c5c14afcd803baa2b7f4a";
   };
 
   outputs =
@@ -137,7 +137,7 @@
                 export RDD2_MISSION_OMC="${openModelicaCli}/bin/omc"
                 export RDD2_MISSION_OMC_REVISION="a96aa1a682c463b0fd2d285b486c09a8b7fe496d"
                 export RDD2_MISSION_PYTHON="${rumocaPython}/bin/python3"
-                export RDD2_MISSION_RUMOCA_REVISION="4d0e521d9a0bd2527808dbce2c5689834d1a0349"
+                export RDD2_MISSION_RUMOCA_REVISION="1ae998516e12cb31675c5c14afcd803baa2b7f4a"
                 exec ${rumocaPython}/bin/python3 -P \
                   ${./Vehicles/Rdd2/Test/run_mission_plot.py} \
                   "$@" \

@@ -35,6 +35,16 @@ equation
     else
       zeros(4);
 
+initial algorithm
+  assert(inertia[1] > 0.0 and inertia[2] > 0.0 and inertia[3] > 0.0,
+    "Every body inertia must be positive");
+  assert(rateGain[1] >= 0.0 and rateGain[2] >= 0.0 and rateGain[3] >= 0.0,
+    "Every body-rate gain must be nonnegative");
+  assert(thrustCoefficient > 0.0,
+    "Every rotor thrust coefficient must be positive");
+  assert(maxMotorSpeed > 0.0,
+    "Every maximum rotor speed must be positive");
+
 algorithm
   when sample(0.0, samplePeriod) then
     momentBodyFlu_Nm := Control.Multirotor.RateLoop.bodyMoment(

@@ -1,0 +1,320 @@
+within Estimation.StrapdownINS.ESKF;
+
+block Estimator
+  "Sampled aided strapdown inertial-navigation ESKF"
+  extends Estimation.StrapdownINS.PartialEstimator;
+
+  parameter Estimation.StrapdownINS.ESKF.VarianceLimits varianceLimits =
+    Estimation.StrapdownINS.ESKF.VarianceLimits(
+      position_m2=fill(1.0e4, 3),
+      velocity_m2_s2=fill(4.0e2, 3),
+      attitude_rad2=fill(10.0, 3),
+      gyroscopeBias_rad2_s2=fill(1.0e-2, 3),
+      accelerometerBias_m2_s4=fill(1.0, 3))
+    "Diagonal covariance growth bounds from the state units and mission
+     envelope: position sigma 100 m dwarfs the sub-100 m RDD2 flight
+     volume; velocity sigma 20 m/s is beyond the airframe speed
+     envelope; attitude sigma sqrt(10) ~ pi rad means orientation fully
+     unknown; gyro-bias sigma 0.1 rad/s and accelerometer-bias sigma
+     1 m/s2 (~0.1 g) bound consumer-MEMS turn-on bias. At these values
+     the state is already maximally uninformative, so capping there
+     loses no information while keeping the covariance inside the
+     dynamic range a binary32 Cholesky can factor.";
+  parameter Real innovationGate(unit = "1") = 6.0
+    "Chi-square innovation gate per degree of freedom; non-positive
+     disables. NIS is chi-square with m degrees of freedom for a
+     consistent filter; 6.0 per dof keeps the false-rejection
+     probability at or below ~0.25% for the m = 2, 3, 6 corrections
+     used here (chi-square tails: 12 @ m=2 -> 0.25%, 18 @ m=3 ->
+     0.044%, 36 @ m=6 -> 2.8e-6).";
+  // The four ladder tunables below carry `min` bounds that are strictly
+  // positive, not merely non-negative, and are additionally checked by
+  // assertions in the equation section. Both are needed. A `min` of 0.0
+  // does not reject a misconfigured negative value: rumoca CLAMPS it, and
+  // clamping a negative window to 0.0 lands on the one value that makes
+  // the ladder fire on the very first tick and never stop -- measured,
+  // with `both = -1` written as the conventional "disabled" idiom, as a
+  // permanently degraded filter from t = 0. A strictly positive `min`
+  // makes the clamp land somewhere harmless; the assertions make the
+  // misconfiguration visible instead of silently reinterpreted.
+  parameter Real covarianceInflateWindow_s(unit = "s") = 1.0
+    "Unbroken wall-clock time during which the anchor source has been
+     unable to move the state, after which the position and velocity
+     covariance begins ramping toward the mission envelope with the state
+     left untouched. Long enough that a short outlier burst cannot provoke
+     it, short enough that an over-tight covariance is reopened well
+     before dead-reckoning drift matters.
+
+     This is a TIME, not a count of rejected corrections. The count it
+     replaces was documented as 'aiding streams at 20-100 Hz, so 50
+     rejections spans roughly 0.5-2.5 s' -- but nothing tied the count to
+     the aiding rate, and at the 1 kHz rate this block is actually wired
+     at, with aiding asserted every tick, 50 rejections was 51 ms:
+     10-50x faster than the latency the value was chosen for. It is
+     advanced on estimator ticks while the anchor holds without accepting,
+     so it measures elapsed time at every wiring and aiding rate, and in
+     particular under the pulsed sensor wiring the deployed GPS driver
+     actually produces.";
+  parameter Real covarianceInflateTimeConstant_s(unit = "s")
+      = 0.5
+    "e-folding time of the covariance ramp once the window has elapsed.
+
+     The ramp exists because the alternative -- setting the covariance
+     straight to the mission envelope -- converts gating into adoption:
+     at envelope variance against a typical reported measurement noise the
+     Kalman gain is 0.9998, so the next sample simply becomes the state.
+     Measured with that jump in place, and strictly worse than taking no
+     action at all: a cold-start filter against a truthful 8-12 m/s stream
+     acquired tens of m/s of spurious velocity and +52 m of position
+     error, and the discrepancy at which a lying sole optical-flow sensor
+     was adopted rather than rejected fell from 3.63 m/s to 0.72 m/s.
+
+     0.5 s doubles a variance about every 0.35 s, so a gate locked out by
+     a factor of ten reopens in roughly a second while any single tick can
+     widen it by at most a factor of 1.004 at 1 kHz. That bound is the
+     point: the gain available immediately after inflation cannot swing
+     the state outside the pre-inflation gate.";
+  parameter Real aidingDivergentWindow_s(unit = "s") = 5.0
+    "Unbroken wall-clock time after which the anchor is REPORTED
+     divergent on status.recoveryStage. Five times the inflate window: if
+     ramping the covariance to the full mission envelope has not let the
+     anchor back in within that span, the disagreement is larger than the
+     envelope the vehicle is declared to operate in.
+
+     This raises a status flag and nothing else. It deliberately does NOT
+     withdraw estimate.valid: on the deployed stack that clears
+     RatesValid, zeroes the motors and latches the fault in every mode
+     including ACRO, so it is a crash rather than the failsafe handover it
+     was intended to be. The wrapper maps this stage onto a non-latching
+     mode demotion.";
+  parameter Real aidingStaleTimeout_s(unit = "s") = 0.5
+    "How long a source may go without a fresh sample before it stops
+     counting as available for anchor selection.
+
+     Sensor `valid` cannot be read as availability on a single tick. The
+     deployed GPS driver pulses `valid` with `fresh`, asserting it only on
+     the ticks that carry a fix, so a rule keyed on `valid` sees GPS as
+     absent for 99 of every 100 ticks at 10 Hz. The mocap wrapper has the
+     opposite property -- it derives `valid` from record contents and
+     `fresh` from subscription updates, independently, so a source can be
+     permanently valid and never fresh. 0.5 s spans ten intervals of the
+     slowest aiding rate this block is specified for while still demoting
+     a genuinely stalled source well inside the divergence window.";
+
+protected
+  discrete Real statePosition[3](each start = 0.0, each fixed = true);
+  discrete Real stateVelocity[3](each start = 0.0, each fixed = true);
+  discrete Real stateQuaternion[4](
+    start = {1.0, 0.0, 0.0, 0.0}, each fixed = true);
+  discrete Real stateGyroscopeBias[3](each start = 0.0, each fixed = true);
+  discrete Real stateAccelerometerBias[3](each start = 0.0, each fixed = true);
+  discrete Real stateCovariance[15, 15](each start = 0.0, each fixed = true);
+  discrete Boolean initialized(start = false, fixed = true);
+  discrete Boolean predictionAccepted(start = false, fixed = true);
+  discrete Boolean mocapCorrectionAccepted(start = false, fixed = true);
+  discrete Boolean gpsPositionCorrectionAccepted(start = false, fixed = true);
+  discrete Boolean gpsVelocityCorrectionAccepted(start = false, fixed = true);
+  discrete Boolean opticalFlowCorrectionAccepted(start = false, fixed = true);
+  discrete Integer consecutiveRejectedCorrections(start = 0, fixed = true);
+  discrete Real rejectionElapsed_s(start = 0.0, fixed = true);
+  discrete Integer mocapRejections(start = 0, fixed = true);
+  discrete Integer gpsRejections(start = 0, fixed = true);
+  discrete Integer opticalFlowRejections(start = 0, fixed = true);
+  discrete Integer recoveryStage(start = 0, fixed = true);
+  discrete Integer correctionOutcome(start = 0, fixed = true);
+  discrete Integer correctionSource(start = 0, fixed = true);
+  discrete Real normalizedInnovationSquared(start = 0.0, fixed = true);
+  discrete Boolean estimateValid(start = false, fixed = true);
+  discrete Integer anchorSource(start = 0, fixed = true);
+  discrete Real mocapStale_s(start = 1.0e30, fixed = true);
+  discrete Real gpsStale_s(start = 1.0e30, fixed = true);
+  discrete Real opticalFlowStale_s(start = 1.0e30, fixed = true);
+  discrete Real imuAngularVelocityHeld_rad_s[3](each start = 0.0, each fixed = true);
+  discrete Real imuSpecificForceHeld_m_s2[3](each start = 0.0, each fixed = true);
+  discrete Real imuTimestampHeld_s(start = 0.0, fixed = true);
+  discrete Boolean imuPayloadHeld(start = false, fixed = true);
+
+algorithm
+  when sample(0.0, samplePeriod) then
+    (statePosition,
+     stateVelocity,
+     stateQuaternion,
+     stateGyroscopeBias,
+     stateAccelerometerBias,
+     stateCovariance,
+     initialized,
+     predictionAccepted,
+     mocapCorrectionAccepted,
+     gpsPositionCorrectionAccepted,
+     gpsVelocityCorrectionAccepted,
+     opticalFlowCorrectionAccepted,
+     consecutiveRejectedCorrections,
+     rejectionElapsed_s,
+     recoveryStage,
+     correctionOutcome,
+     correctionSource,
+     normalizedInnovationSquared,
+     estimateValid,
+     mocapRejections,
+     gpsRejections,
+     opticalFlowRejections,
+     anchorSource,
+     mocapStale_s,
+     gpsStale_s,
+     opticalFlowStale_s,
+     imuAngularVelocityHeld_rad_s,
+     imuSpecificForceHeld_m_s2,
+     imuTimestampHeld_s,
+     imuPayloadHeld) :=
+      Estimation.StrapdownINS.ESKF.step(
+        pre(initialized),
+        Estimation.StrapdownINS.ESKF.State(
+          positionWorldEnu_m=pre(statePosition),
+          velocityWorldEnu_m_s=pre(stateVelocity),
+          quaternionWorldBody=pre(stateQuaternion),
+          gyroscopeBiasBodyFlu_rad_s=pre(stateGyroscopeBias),
+          accelerometerBiasBodyFlu_m_s2=pre(stateAccelerometerBias),
+          covariance=pre(stateCovariance)),
+        reset,
+        imu,
+        mocap,
+        gps,
+        opticalFlow,
+        gravityWorldEnu_m_s2,
+        samplePeriod,
+        Estimation.StrapdownINS.ESKF.Tuning(
+          initialState=Estimation.StrapdownINS.ESKF.NominalState(
+            positionWorldEnu_m=initialPositionWorldEnu_m,
+            velocityWorldEnu_m_s=initialVelocityWorldEnu_m_s,
+            quaternionWorldBody=initialQuaternionWorldBody,
+            gyroscopeBiasBodyFlu_rad_s=initialGyroscopeBiasBodyFlu_rad_s,
+            accelerometerBiasBodyFlu_m_s2=
+              initialAccelerometerBiasBodyFlu_m_s2),
+          initialVariances=initialVariances,
+          processNoise=processNoise,
+          varianceLimits=varianceLimits,
+          innovationGate=innovationGate,
+          opticalFlowGroundNormalWorldEnu=
+            opticalFlowGroundNormalWorldEnu,
+          opticalFlowGroundPlaneOffset_m=opticalFlowGroundPlaneOffset_m,
+          covarianceInflateWindow_s=covarianceInflateWindow_s,
+          covarianceInflateTimeConstant_s=covarianceInflateTimeConstant_s,
+          aidingDivergentWindow_s=aidingDivergentWindow_s,
+          aidingStaleTimeout_s=aidingStaleTimeout_s),
+        pre(consecutiveRejectedCorrections),
+        pre(rejectionElapsed_s),
+        pre(mocapRejections),
+        pre(gpsRejections),
+        pre(opticalFlowRejections),
+        pre(anchorSource),
+        pre(mocapStale_s),
+        pre(gpsStale_s),
+        pre(opticalFlowStale_s),
+        pre(imuAngularVelocityHeld_rad_s),
+        pre(imuSpecificForceHeld_m_s2),
+        pre(imuTimestampHeld_s));
+    (estimate.valid,
+     estimate.timestamp_s,
+     estimate.positionWorldEnu_m,
+     estimate.velocityWorldEnu_m_s,
+     estimate.accelerationWorldEnu_m_s2,
+     estimate.quaternionWorldBody,
+     estimate.rotationWorldBody,
+     estimate.eulerRpy_rad,
+     estimate.angularVelocityBodyFlu_rad_s,
+     estimate.angularVelocityWorldEnu_rad_s) :=
+      Estimation.StrapdownINS.ESKF.navigationEstimate(
+        Estimation.StrapdownINS.ESKF.State(
+          positionWorldEnu_m=statePosition,
+          velocityWorldEnu_m_s=stateVelocity,
+          quaternionWorldBody=stateQuaternion,
+          gyroscopeBiasBodyFlu_rad_s=stateGyroscopeBias,
+          accelerometerBiasBodyFlu_m_s2=stateAccelerometerBias,
+          covariance=stateCovariance),
+        // The HELD sample, never the raw connector: three published fields
+        // are computed from the IMU rather than from the state, so passing
+        // the raw sample here is what let a non-finite reading reach the
+        // payload while prediction was correctly refusing it.
+        Avionics.ImuSample(
+          valid=imu.valid,
+          fresh=imu.fresh,
+          timestamp_s=imuTimestampHeld_s,
+          angularVelocityBodyFlu_rad_s=imuAngularVelocityHeld_rad_s,
+          specificForceBodyFlu_m_s2=imuSpecificForceHeld_m_s2),
+        gravityWorldEnu_m_s2,
+        estimateValid);
+    status.initialized := initialized;
+    status.predictionAccepted := predictionAccepted;
+    status.mocapCorrectionAccepted := mocapCorrectionAccepted;
+    status.gpsPositionCorrectionAccepted := gpsPositionCorrectionAccepted;
+    status.gpsVelocityCorrectionAccepted := gpsVelocityCorrectionAccepted;
+    status.opticalFlowCorrectionAccepted := opticalFlowCorrectionAccepted;
+    status.consecutiveRejectedCorrections := consecutiveRejectedCorrections;
+    status.rejectionElapsed_s := rejectionElapsed_s;
+    status.mocapConsecutiveRejections := mocapRejections;
+    status.gpsConsecutiveRejections := gpsRejections;
+    status.opticalFlowConsecutiveRejections := opticalFlowRejections;
+    status.correctionOutcome := correctionOutcome;
+    status.correctionSource := correctionSource;
+    status.normalizedInnovationSquared := normalizedInnovationSquared;
+    status.recoveryStage := recoveryStage;
+    status.anchorSource := anchorSource;
+    status.imuPayloadHeld := imuPayloadHeld;
+  end when;
+
+equation
+  navigationCovarianceLocal = stateCovariance[1:6, 1:6];
+  gyroscopeBiasBodyFlu_rad_s = stateGyroscopeBias;
+  accelerometerBiasBodyFlu_m_s2 = stateAccelerometerBias;
+
+  // Misconfiguration must be loud, not silently reinterpreted. The `min`
+  // attributes above stop a negative value landing on 0.0, which is the
+  // one value that arms the ladder permanently; these state the ordering
+  // and finiteness the ladder actually depends on. A NaN window would
+  // otherwise disable the ladder silently, since every comparison against
+  // it is false -- the same predicate-exhaustion defect this whole change
+  // exists to remove, and it must not reappear in the tuning surface.
+  assert(covarianceInflateWindow_s > 0.0
+    and covarianceInflateWindow_s < Estimation.StrapdownINS.ESKF.FiniteMagnitudeLimit,
+    "covarianceInflateWindow_s must be finite and strictly positive");
+  assert(covarianceInflateTimeConstant_s > 0.0
+    and covarianceInflateTimeConstant_s < Estimation.StrapdownINS.ESKF.FiniteMagnitudeLimit,
+    "covarianceInflateTimeConstant_s must be finite and strictly positive");
+  assert(aidingStaleTimeout_s > 0.0
+    and aidingStaleTimeout_s < Estimation.StrapdownINS.ESKF.FiniteMagnitudeLimit,
+    "aidingStaleTimeout_s must be finite and strictly positive");
+  assert(aidingDivergentWindow_s > covarianceInflateWindow_s
+    and aidingDivergentWindow_s < Estimation.StrapdownINS.ESKF.FiniteMagnitudeLimit,
+    "aidingDivergentWindow_s must be finite and exceed covarianceInflateWindow_s");
+
+  annotation(Documentation(info = "<html>
+    <p>This block is a concrete implementation of the stable estimator
+    contract and can be exported directly as an eFMU. Prediction uses one
+    vectorized 15-state covariance, including every cross-axis and bias
+    correlation. One fresh aiding packet is accepted per estimator tick with
+    deterministic priority mocap, GPS, then optical flow; GPS position and
+    velocity are fused jointly when both are valid.</p>
+    <p>The SE_2(3) pose/velocity/position part uses geometric propagation,
+    injection, and covariance reset. The additive gyroscope and accelerometer
+    bias states make the complete augmented system neither strictly invariant
+    nor exactly log-linear. It is therefore an aided strapdown INS error-state
+    Kalman filter, not a strict invariant-filter construction.</p>
+    <p><b>Acceptance is affirmative.</b> A measurement moves the state only
+    when it has proven it should: the residual is finite, the innovation
+    covariance factors, and the normalized innovation squared is non-negative
+    and within the gate. Nothing is accepted merely because no rejection test
+    happened to fire, which is what allowed a NaN measurement -- against which
+    every comparison is false -- to be applied and to poison the state
+    permanently.</p>
+    <p><b>The estimator never re-seeds its own state from aiding it is
+    rejecting.</b> Sustained rejection drives a two-stage ladder timed in
+    wall-clock seconds: first the covariance is inflated to the declared
+    mission envelope with the state untouched, which is the only recovery
+    action that cannot itself be wrong and which is sufficient whenever
+    recovery is possible at all; then, if the aiding still does not fit,
+    <code>estimate.valid</code> goes false and the vehicle's failsafe takes
+    over. Re-seeding position, attitude, and velocity remains available
+    through the commanded <code>reset</code> input, where it is a deliberate
+    act rather than a filter's guess.</p>
+  </html>"));
+end Estimator;
