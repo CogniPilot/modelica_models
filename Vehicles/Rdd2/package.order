@@ -9,6 +9,8 @@ GuidanceController
 Controller
 LogLinearController
 NavigationEstimator
+standardNormalNoise
+simulateOpticalFlowPlane
 AvionicsSystem
 WaypointVehicleSystem
 Test

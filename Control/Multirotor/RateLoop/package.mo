@@ -18,8 +18,6 @@ package RateLoop "Multirotor body-rate control"
     Real angularMomentum[3](each unit = "kg.m2/s");
   algorithm
     for axis in 1:3 loop
-      assert(inertia[axis] > 0.0, "Every body inertia must be positive");
-      assert(rateGain[axis] >= 0.0, "Every body-rate gain must be nonnegative");
       moment[axis] := inertia[axis] * rateGain[axis]
         * (angularVelocitySetpoint[axis] - angularVelocity[axis]);
     end for;

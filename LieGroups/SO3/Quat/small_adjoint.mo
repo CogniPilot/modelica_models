@@ -9,6 +9,7 @@ algorithm
   annotation(Documentation(info="<html>
     <p>The small adjoint ad_xi for so(3) is the skew-symmetric (hat/wedge) matrix:
     ad_v(w) = v x w (cross product). [xi_1, xi_2] = ad_{xi_1} xi_2.</p>
-    <p>Used in continuous-time IEKF: A_c = -ad_{xi_hat}</p>
+    <p>Used in continuous-time local Lie-group error dynamics:
+    A_c = -ad_{xi_hat}</p>
   </html>"));
 end small_adjoint;

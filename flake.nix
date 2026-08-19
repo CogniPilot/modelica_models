@@ -5,7 +5,7 @@
     flake-utils.url = "github:numtide/flake-utils";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     openmodelica.url = "git+https://github.com/jgoppert/OpenModelica?submodules=1&rev=a96aa1a682c463b0fd2d285b486c09a8b7fe496d";
-    rumoca.url = "github:CogniPilot/rumoca/4d0e521d9a0bd2527808dbce2c5689834d1a0349";
+    rumoca.url = "github:CogniPilot/rumoca/1ae998516e12cb31675c5c14afcd803baa2b7f4a";
   };
 
   outputs =
@@ -28,6 +28,36 @@
           pkgs = import nixpkgs { inherit system; };
           rumocaCli = rumoca.packages.${system}.rumoca;
           rumocaPython = rumoca.packages.${system}.rumoca-python-env;
+          rumocaPythonPackage = rumoca.packages.${system}.rumoca-python;
+          rumocaRustToolchain =
+            pkgs.lib.findFirst (input: pkgs.lib.hasPrefix "rust-nightly-" (input.name or ""))
+              (throw "Rumoca Python package has no Rust toolchain build input")
+              (rumocaPythonPackage.nativeBuildInputs or [ ]);
+          # The native extension embeds its build-time Rust toolchain path even
+          # though it does not load anything from that path at runtime. Remove
+          # that false reference so CI can cache the compiler runtime without a
+          # multi-gigabyte Rust build closure.
+          rumocaPythonRuntime =
+            pkgs.runCommand "rumoca-python-runtime-${rumocaPythonPackage.version}"
+              {
+                nativeBuildInputs = [ pkgs.removeReferencesTo ];
+              }
+              ''
+                cp -a ${rumocaPythonPackage} "$out"
+                chmod -R u+w "$out"
+                find "$out" -type f -exec \
+                  remove-references-to \
+                    -t ${rumocaRustToolchain} \
+                    -t ${rumocaPythonPackage} \
+                    {} +
+              '';
+          rumocaRuntime = pkgs.symlinkJoin {
+            name = "rumoca-runtime-${rumocaCli.version}";
+            paths = [
+              rumocaCli
+              rumocaPythonRuntime
+            ];
+          };
           openModelicaCli = openmodelica.packages.${system}.default;
           python = pkgs.python312.withPackages (pythonPackages: [
             pythonPackages.matplotlib
@@ -50,13 +80,14 @@
             name = "rumoca-version-check";
             runtimeInputs = [
               rumocaCli
-              rumocaPython
+              python
             ];
             text = ''
               cli_version="$(${rumocaCli}/bin/rumoca --version)"
               cli_version="''${cli_version##* }"
               python_version="$(
-                ${rumocaPython}/bin/python3 -c \
+                PYTHONPATH=${rumocaPythonRuntime}/lib/python3.12/site-packages \
+                ${python}/bin/python3 -c \
                   'import rumoca; print(rumoca.version())'
               )"
               if [ "$cli_version" != "$python_version" ]; then
@@ -67,7 +98,8 @@
 
               if cli_identity="$(${rumocaCli}/bin/rumoca build-info 2>/dev/null)"; then
                 python_identity="$(
-                  ${rumocaPython}/bin/python3 -c \
+                  PYTHONPATH=${rumocaPythonRuntime}/lib/python3.12/site-packages \
+                  ${python}/bin/python3 -c \
                     'import rumoca; print(rumoca.build_identity())'
                 )"
                 if [ "$cli_identity" != "$python_identity" ]; then
@@ -87,7 +119,7 @@
               inherit name;
               runtimeInputs = [
                 python
-                rumocaPython
+                rumocaCli
                 rumocaVersionCheck
               ];
               text = ''
@@ -98,9 +130,9 @@
                   exit 1
                 fi
                 export MODELICA_MODELS_ROOT="$models_root"
-                export PYTHONPATH="${python}/${pkgs.python312.sitePackages}''${PYTHONPATH:+:$PYTHONPATH}"
+                export PYTHONPATH="${rumocaPythonRuntime}/lib/python3.12/site-packages:${python}/${pkgs.python312.sitePackages}''${PYTHONPATH:+:$PYTHONPATH}"
                 rumoca-version-check
-                exec ${rumocaPython}/bin/python3 ${script} "$@"
+                exec ${python}/bin/python3 ${script} "$@"
               '';
             };
           cubs2Qualification = mkQualification "cubs2-qualification" ./Vehicles/Cubs2/Test/run_qualification.py;
@@ -137,7 +169,7 @@
                 export RDD2_MISSION_OMC="${openModelicaCli}/bin/omc"
                 export RDD2_MISSION_OMC_REVISION="a96aa1a682c463b0fd2d285b486c09a8b7fe496d"
                 export RDD2_MISSION_PYTHON="${rumocaPython}/bin/python3"
-                export RDD2_MISSION_RUMOCA_REVISION="4d0e521d9a0bd2527808dbce2c5689834d1a0349"
+                export RDD2_MISSION_RUMOCA_REVISION="1ae998516e12cb31675c5c14afcd803baa2b7f4a"
                 exec ${rumocaPython}/bin/python3 -P \
                   ${./Vehicles/Rdd2/Test/run_mission_plot.py} \
                   "$@" \
@@ -273,6 +305,9 @@
         {
           packages.default = ciRunner;
           packages.ci = ciRunner;
+          packages.rumoca-cli = rumocaCli;
+          packages.rumoca-python-runtime = rumocaPythonRuntime;
+          packages.rumoca-runtime = rumocaRuntime;
           packages.cubs2-qualification = cubs2Qualification;
           packages.rdd2-qualification = rdd2Qualification;
           packages.rdd2-mission-plot = rdd2MissionPlot;

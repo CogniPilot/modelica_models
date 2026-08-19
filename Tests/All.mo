@@ -4,7 +4,9 @@ model All "Complete Modelica assertion suite"
   Tests.LieGroupsTests lieGroupsSmoke;
   Tests.LieGroupTests.Suite lieGroups;
   Tests.EstimationTests estimation;
-  Tests.MultiSensorInvariantTests multiSensorInvariant;
+  Tests.StrapdownESKFTests strapdownESKF;
+  Tests.StrapdownUKFTests strapdownUKF;
+  Tests.OpticalFlowPlaneTests opticalFlowPlane;
   Tests.EstimatorHealthTests estimatorHealth;
   Tests.EstimatorHardeningTests estimatorHardening;
   Tests.VerificationTests verification;
