@@ -12,6 +12,8 @@ block RateControlAllocator
     0.02166666666666667,
     0.04000000000000001};
   parameter Real rateGain[3] = {20.0, 20.0, 10.0};
+  parameter Real maximumBodyMoment_Nm[3] = {2.6, 2.6, 0.30}
+    "Conservative requested-moment bounds before allocation";
   parameter Real thrustCoefficient = 8.54858e-6
     "Rotor thrust coefficient [N/(rad/s)^2]";
   parameter Real maxMotorSpeed(unit = "rad/s") = 1100.0;
@@ -26,6 +28,7 @@ block RateControlAllocator
   Interfaces.MotorCommands commands;
 
 protected
+  discrete Real unboundedMomentBodyFlu_Nm[3](each start = 0.0);
   discrete Real momentBodyFlu_Nm[3](each start = 0.0);
   discrete Real allocatedMotorCommand[4](each start = 0.0, each fixed = true);
 
@@ -47,11 +50,18 @@ initial algorithm
 
 algorithm
   when sample(0.0, samplePeriod) then
-    momentBodyFlu_Nm := Control.Multirotor.RateLoop.bodyMoment(
+    unboundedMomentBodyFlu_Nm := Control.Multirotor.RateLoop.bodyMoment(
       inputSignal.angularVelocityCommandFlu_rad_s,
       inputSignal.angularVelocityMeasuredFlu_rad_s,
       inertia,
       rateGain);
+    momentBodyFlu_Nm := {
+      MathUtilities.clip(unboundedMomentBodyFlu_Nm[1],
+        -maximumBodyMoment_Nm[1], maximumBodyMoment_Nm[1]),
+      MathUtilities.clip(unboundedMomentBodyFlu_Nm[2],
+        -maximumBodyMoment_Nm[2], maximumBodyMoment_Nm[2]),
+      MathUtilities.clip(unboundedMomentBodyFlu_Nm[3],
+        -maximumBodyMoment_Nm[3], maximumBodyMoment_Nm[3])};
     allocatedMotorCommand := Control.Multirotor.Allocation.rotorCommands(
       4,
       inputSignal.thrust_N,

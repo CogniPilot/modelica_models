@@ -7,12 +7,7 @@ model PlanningTests "Dubins family, endpoint, optimality, invariance, and forwar
     constant Real pi = 2.0 * asin(1.0);
     Planning.Dubins.PathType types[6];
     Planning.Dubins.Candidate candidateResult;
-    Planning.Dubins.Candidate candidateLsl;
-    Planning.Dubins.Candidate candidateRsr;
-    Planning.Dubins.Candidate candidateLsr;
-    Planning.Dubins.Candidate candidateRsl;
-    Planning.Dubins.Candidate candidateRlr;
-    Planning.Dubins.Candidate candidateLrl;
+    Planning.Dubins.Candidate candidates[6];
     Planning.Dubins.Path candidatePath;
     Planning.Dubins.Path straightPath;
     Planning.Dubins.Path plannedPath;
@@ -109,38 +104,17 @@ model PlanningTests "Dubins family, endpoint, optimality, invariance, and forwar
 
     plannedPath := Planning.Dubins.plan(
       {0.0, 0.0}, -0.4, {10.0, 7.0}, 1.3, 1.7);
-    // Six separate record locals rather than a Candidate[6] array: rumoca
-    // rejects assigning a function result into a record-array element
-    // (EX002), which would make this suite unrunnable on the toolchain that
-    // generates flight code. Same reason as Planning.Dubins.plan itself.
-    candidateLsl := Planning.Dubins.candidate(
-      {0.0, 0.0}, -0.4, {10.0, 7.0}, 1.3, 1.7, types[1]);
-    candidateRsr := Planning.Dubins.candidate(
-      {0.0, 0.0}, -0.4, {10.0, 7.0}, 1.3, 1.7, types[2]);
-    candidateLsr := Planning.Dubins.candidate(
-      {0.0, 0.0}, -0.4, {10.0, 7.0}, 1.3, 1.7, types[3]);
-    candidateRsl := Planning.Dubins.candidate(
-      {0.0, 0.0}, -0.4, {10.0, 7.0}, 1.3, 1.7, types[4]);
-    candidateRlr := Planning.Dubins.candidate(
-      {0.0, 0.0}, -0.4, {10.0, 7.0}, 1.3, 1.7, types[5]);
-    candidateLrl := Planning.Dubins.candidate(
-      {0.0, 0.0}, -0.4, {10.0, 7.0}, 1.3, 1.7, types[6]);
-    minimumLength := candidateLsl.length;
-    if candidateRsr.feasible then
-      minimumLength := min(minimumLength, candidateRsr.length);
-    end if;
-    if candidateLsr.feasible then
-      minimumLength := min(minimumLength, candidateLsr.length);
-    end if;
-    if candidateRsl.feasible then
-      minimumLength := min(minimumLength, candidateRsl.length);
-    end if;
-    if candidateRlr.feasible then
-      minimumLength := min(minimumLength, candidateRlr.length);
-    end if;
-    if candidateLrl.feasible then
-      minimumLength := min(minimumLength, candidateLrl.length);
-    end if;
+    for familyIndex in 1:6 loop
+      candidates[familyIndex] := Planning.Dubins.candidate(
+        {0.0, 0.0}, -0.4, {10.0, 7.0}, 1.3, 1.7,
+        types[familyIndex]);
+    end for;
+    minimumLength := candidates[1].length;
+    for familyIndex in 2:6 loop
+      if candidates[familyIndex].feasible then
+        minimumLength := min(minimumLength, candidates[familyIndex].length);
+      end if;
+    end for;
     assert(abs(plannedPath.length - minimumLength) < tolerance,
       "Dubins planner did not select the shortest feasible family");
     candidatePath := Planning.Dubins.plan(

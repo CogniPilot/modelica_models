@@ -40,6 +40,8 @@ model EstimatorHealthTests
     Boolean predictionOk;
     Boolean gpsPositionOk;
     Boolean gpsVelocityOk;
+    Boolean magnetometerOk;
+    Boolean barometerOk;
     Boolean flowOk;
     Integer correctionSource;
     Real correctionNis;
@@ -54,6 +56,11 @@ model EstimatorHealthTests
     Real mocapStaleNext_s;
     Real gpsStaleNext_s;
     Real flowStaleNext_s;
+    Real mocapTimestampConsumedNext_s;
+    Real gpsTimestampConsumedNext_s;
+    Real magnetometerTimestampConsumedNext_s;
+    Real barometerTimestampConsumedNext_s;
+    Real opticalFlowTimestampConsumedNext_s;
   algorithm
     // Level flight: the specific force exactly cancels gravity, so an
     // accepted prediction leaves the nominal state where it was and every
@@ -69,6 +76,8 @@ model EstimatorHealthTests
      mocapAccepted,
      gpsPositionOk,
      gpsVelocityOk,
+     magnetometerOk,
+     barometerOk,
      flowOk,
      rejectionsNext,
      rejectionElapsedNext_s,
@@ -87,7 +96,13 @@ model EstimatorHealthTests
      imuOmegaHeld,
      imuAccelHeld,
      imuStampHeld,
-     imuHeldFlag) := Estimation.StrapdownINS.ESKF.step(
+     imuHeldFlag,
+     mocapTimestampConsumedNext_s,
+     gpsTimestampConsumedNext_s,
+     magnetometerTimestampConsumedNext_s,
+     barometerTimestampConsumedNext_s,
+     opticalFlowTimestampConsumedNext_s) :=
+      Estimation.StrapdownINS.ESKF.step(
       initialized,
       Estimation.StrapdownINS.ESKF.State(
         positionWorldEnu_m=position,
@@ -102,7 +117,20 @@ model EstimatorHealthTests
         fresh=true,
         timestamp_s=timestamp_s,
         angularVelocityBodyFlu_rad_s=zeros(3),
-        specificForceBodyFlu_m_s2={0.0, 0.0, 9.81}),
+        specificForceBodyFlu_m_s2={0.0, 0.0, 9.81},
+        deltaAngleBodyFlu_rad=zeros(3),
+        deltaVelocityBodyFlu_m_s={0.0, 0.0, 0.00981},
+        deltaPositionBodyFlu_m={0.0, 0.0, 4.905e-6},
+        deltaQuaternionBodyFlu={1.0, 0.0, 0.0, 0.0},
+        gyroscopeBiasLinearizationBodyFlu_rad_s=zeros(3),
+        accelerometerBiasLinearizationBodyFlu_m_s2=zeros(3),
+        deltaRotationGyroscopeBiasJacobian_s=-identity(3) * 0.001,
+        deltaVelocityGyroscopeBiasJacobian_m=zeros(3, 3),
+        deltaVelocityAccelerometerBiasJacobian_s=-identity(3) * 0.001,
+        deltaPositionGyroscopeBiasJacobian_m_s=zeros(3, 3),
+        deltaPositionAccelerometerBiasJacobian_s2=
+          -0.5 * identity(3) * 1.0e-6,
+        integrationTime_s=0.001),
       Avionics.MocapSample(
         valid=true,
         fresh=true,
@@ -122,13 +150,26 @@ model EstimatorHealthTests
         velocityWorldEnu_m_s=zeros(3),
         positionCovarianceWorld_m2=identity(3),
         velocityCovarianceWorld_m2_s2=identity(3)),
+      Avionics.MagnetometerSample(
+        valid=false,
+        fresh=false,
+        timestamp_s=0.0,
+        magneticFieldBodyFlu_T={18.0e-6, 4.0e-6, -47.0e-6},
+        covarianceBody_T2=identity(3) * 1.0e-12),
+      Avionics.BarometerSample(
+        valid=false,
+        fresh=false,
+        timestamp_s=0.0,
+        altitudeWorldEnu_m=0.0,
+        variance_m2=1.0),
       Avionics.OpticalFlowSample(
         valid=false,
         fresh=false,
         timestamp_s=0.0,
-        velocityBodyFlu_m_s=zeros(2),
-        velocityCovarianceBody_m2_s2=identity(2),
         integratedLineOfSight_rad=zeros(2),
+        integratedLineOfSightCovariance_rad2=identity(2),
+        integratedGyroscopeBodyFlu_rad=zeros(3),
+        integratedGyroscopeCovariance_rad2=identity(3),
         integrationTime_s=0.0,
         groundDistance_m=1.0,
         groundDistanceVariance_m2=0.01,
@@ -160,8 +201,12 @@ model EstimatorHealthTests
           gyroscopeBias_rad2_s2=fill(1.0e-2, 3),
           accelerometerBias_m2_s4=fill(1.0, 3)),
         innovationGate=innovationGate,
-        opticalFlowGroundNormalWorldEnu={0.0, 0.0, 1.0},
-        opticalFlowGroundPlaneOffset_m=0.0,
+        localMagneticFieldWorldEnu_T={18.0e-6, 4.0e-6, -47.0e-6},
+        barometerBias_m=0.0,
+        barometerBiasVariance_m2=1.0,
+        maximumAidingDelay_s=0.25,
+        minimumOpticalFlowQuality=0.2,
+        minimumOpticalFlowGroundDistance_m=0.2,
         covarianceInflateWindow_s=covarianceInflateWindow_s,
         covarianceInflateTimeConstant_s=covarianceInflateTimeConstant_s,
         aidingDivergentWindow_s=aidingDivergentWindow_s,
@@ -177,7 +222,12 @@ model EstimatorHealthTests
       0.0,
       zeros(3),
       zeros(3),
-      0.0);
+      0.0,
+      timestamp_s - dt,
+      -1.0e30,
+      -1.0e30,
+      -1.0e30,
+      -1.0e30);
   end mocapTick;
 
   function run

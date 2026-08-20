@@ -117,40 +117,36 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def trusted_nix_executable(environment_name: str) -> Path:
+def declared_executable(environment_name: str) -> Path:
     configured = os.environ.get(environment_name)
     if not configured:
-        raise RuntimeError(
-            f"{environment_name} is unset; run this tool through its Nix wrapper"
-        )
+        raise RuntimeError(f"{environment_name} is unset")
     declared = Path(configured)
     if not declared.is_absolute():
-        raise RuntimeError(f"{environment_name} must be an absolute Nix store path")
+        raise RuntimeError(f"{environment_name} must be an absolute path")
     try:
         resolved = declared.resolve(strict=True)
     except OSError as error:
         raise RuntimeError(
             f"{environment_name} does not resolve to an executable: {declared}"
         ) from error
-    if not str(resolved).startswith("/nix/store/") or not os.access(resolved, os.X_OK):
-        raise RuntimeError(
-            f"{environment_name} is not a trusted executable in /nix/store: {resolved}"
-        )
+    if not os.access(resolved, os.X_OK):
+        raise RuntimeError(f"{environment_name} is not executable: {resolved}")
     return resolved
 
 
-def require_trusted_python() -> dict[str, str]:
-    expected = trusted_nix_executable("RDD2_MISSION_PYTHON")
+def require_declared_python() -> dict[str, str]:
+    expected = declared_executable("RDD2_MISSION_PYTHON")
     actual = Path(sys.executable).resolve(strict=True)
     if actual != expected:
         raise RuntimeError(
-            f"Python executable is {actual}, expected trusted wrapper {expected}"
+            f"Python executable is {actual}, expected declared interpreter {expected}"
         )
     return {"path": str(actual), "sha256": sha256(actual)}
 
 
 def git_run(root: Path, *arguments: str) -> subprocess.CompletedProcess[str]:
-    executable = trusted_nix_executable("RDD2_MISSION_GIT")
+    executable = declared_executable("RDD2_MISSION_GIT")
     return subprocess.run(
         [str(executable), "-C", str(root), *arguments],
         check=False,
@@ -468,17 +464,13 @@ def run_rumoca(
         import rumoca as rum
     except ImportError as error:
         raise RuntimeError(
-            "Rumoca Python bindings are unavailable; use the pinned Nix command"
+            "Rumoca Python bindings are unavailable"
         ) from error
 
     module_path_text = getattr(rum, "__file__", None)
     if not isinstance(module_path_text, str):
-        raise RuntimeError("Rumoca module has no inspectable Nix-store origin")
+        raise RuntimeError("Rumoca module has no inspectable file origin")
     module_path = Path(module_path_text).resolve(strict=True)
-    if not str(module_path).startswith("/nix/store/"):
-        raise RuntimeError(
-            f"Rumoca module did not load from the trusted Nix store: {module_path}"
-        )
     compiler_version = rum.version()
     if compiler_version != EXPECTED_RUMOCA_VERSION:
         raise RuntimeError(
@@ -964,13 +956,13 @@ def require_live_compiler(engine: str) -> Path | None:
             f"{environment_name}={revision!r}, expected {expected['revision']}"
         )
     if engine == "omc":
-        return trusted_nix_executable("RDD2_MISSION_OMC")
+        return declared_executable("RDD2_MISSION_OMC")
     return None
 
 
 def main() -> int:
     args = parse_args()
-    python_identity = require_trusted_python()
+    python_identity = require_declared_python()
     root = repository_root()
     revision = model_revision(root)
     mode = MODELS[args.mode]

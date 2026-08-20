@@ -5,7 +5,9 @@ LieGroupTests
 EstimationTests
 StrapdownESKFTests
 StrapdownUKFTests
+StrapdownPreintegrationTests
 OpticalFlowPlaneTests
+SensorCorrectionTests
 StrapdownEstimatorInterfaceTests
 EstimatorHealthTests
 EstimatorHardeningTests

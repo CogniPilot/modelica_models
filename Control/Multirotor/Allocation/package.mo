@@ -37,7 +37,7 @@ package Allocation "Multirotor control allocation"
   end quadrotorWrenchToThrust;
 
   function rotorCommands
-    "Normalized rotor commands from a collective thrust and body moment"
+    "Axis-prioritized, desaturating normalized rotor commands"
     input Integer nRotors(min = 1) "Number of independently commanded rotors";
     input Real thrust(unit = "N") "Collective thrust force";
     input Real moment[3](each unit = "N.m") "Commanded body moment";
@@ -50,26 +50,88 @@ package Allocation "Multirotor control allocation"
     output Real command[nRotors](each unit = "1")
       "Normalized rotor commands in [0, 1]";
   protected
-    Real wrench[4];
+    Real maximumRotorThrust[nRotors](each unit = "N");
+    Real collectiveRotorThrust[nRotors](each unit = "N");
+    Real rollPitchRotorDelta[nRotors](each unit = "N");
+    Real yawRotorDelta[nRotors](each unit = "N");
     Real rotorThrust[nRotors](each unit = "N");
     Real rotorSpeed[nRotors](each unit = "rad/s");
+    Real collectiveScale;
+    Real rollPitchScale;
+    Real yawScale;
   algorithm
-    wrench := {thrust, moment[1], moment[2], moment[3]};
-    rotorThrust := wrenchToRotorThrust * wrench;
     for rotor in 1:nRotors loop
-      // A saturated rotor cannot pull, so clamp the demanded thrust to the
-      // non-negative producible range before inverting F = Ct omega^2.
-      rotorSpeed[rotor] :=
-        sqrt(max(0.0, rotorThrust[rotor]) / thrustCoefficient[rotor]);
-      command[rotor] := MathUtilities.clip(
-        rotorSpeed[rotor] / maximumRotorSpeed[rotor], 0.0, 1.0);
+      assert(thrustCoefficient[rotor] > 0.0,
+        "Every rotor thrust coefficient must be positive");
+      assert(maximumRotorSpeed[rotor] > 0.0,
+        "Every maximum rotor speed must be positive");
+      assert(wrenchToRotorThrust[rotor, 1] >= 0.0,
+        "Collective thrust must not demand negative rotor thrust");
+      maximumRotorThrust[rotor] := thrustCoefficient[rotor]
+        * maximumRotorSpeed[rotor] * maximumRotorSpeed[rotor];
+    end for;
+
+    // Collective has first priority. Scale it only when the requested thrust
+    // alone exceeds a rotor's physical range.
+    collectiveRotorThrust := wrenchToRotorThrust[:, 1] * max(thrust, 0.0);
+    collectiveScale := 1.0;
+    for rotor in 1:nRotors loop
+      if collectiveRotorThrust[rotor] > maximumRotorThrust[rotor] then
+        collectiveScale := min(collectiveScale,
+          maximumRotorThrust[rotor] / collectiveRotorThrust[rotor]);
+      end if;
+    end for;
+    collectiveRotorThrust := collectiveScale * collectiveRotorThrust;
+
+    // Roll and pitch keep the second priority because they maintain the
+    // thrust-vector attitude. Apply both with one scale to preserve direction.
+    rollPitchRotorDelta := wrenchToRotorThrust[:, 2] * moment[1]
+      + wrenchToRotorThrust[:, 3] * moment[2];
+    rollPitchScale := 1.0;
+    for rotor in 1:nRotors loop
+      if rollPitchRotorDelta[rotor] > 0.0 then
+        rollPitchScale := min(rollPitchScale,
+          max(maximumRotorThrust[rotor]
+            - collectiveRotorThrust[rotor], 0.0)
+              / rollPitchRotorDelta[rotor]);
+      elseif rollPitchRotorDelta[rotor] < 0.0 then
+        rollPitchScale := min(rollPitchScale,
+          max(collectiveRotorThrust[rotor], 0.0)
+            / (-rollPitchRotorDelta[rotor]));
+      end if;
+    end for;
+    rotorThrust := collectiveRotorThrust
+      + rollPitchScale * rollPitchRotorDelta;
+
+    // Yaw is least important for immediate vehicle stability. Use only the
+    // headroom left after collective, roll, and pitch have been allocated.
+    yawRotorDelta := wrenchToRotorThrust[:, 4] * moment[3];
+    yawScale := 1.0;
+    for rotor in 1:nRotors loop
+      if yawRotorDelta[rotor] > 0.0 then
+        yawScale := min(yawScale,
+          max(maximumRotorThrust[rotor] - rotorThrust[rotor], 0.0)
+            / yawRotorDelta[rotor]);
+      elseif yawRotorDelta[rotor] < 0.0 then
+        yawScale := min(yawScale,
+          max(rotorThrust[rotor], 0.0) / (-yawRotorDelta[rotor]));
+      end if;
+    end for;
+    rotorThrust := rotorThrust + yawScale * yawRotorDelta;
+
+    for rotor in 1:nRotors loop
+      rotorThrust[rotor] := MathUtilities.clip(rotorThrust[rotor], 0.0,
+        maximumRotorThrust[rotor]);
+      rotorSpeed[rotor] := sqrt(
+        rotorThrust[rotor] / thrustCoefficient[rotor]);
+      command[rotor] := rotorSpeed[rotor] / maximumRotorSpeed[rotor];
     end for;
     annotation(Documentation(info="<html>
-      <p>Applies a vehicle-supplied right inverse of the rotor effectiveness
-      tensor, then converts every demanded rotor thrust through its own
-      quadratic rotor model. The reusable allocator therefore supports any
-      rotor count and heterogeneous propulsion without owning airframe
-      geometry. Negative rotor thrusts are clipped to zero.</p>
+      <p>Applies a vehicle-supplied right inverse while preserving collective
+      thrust first, roll/pitch moment second, and yaw moment last. Each group
+      is uniformly desaturated against the physical thrust range before the
+      quadratic rotor model is inverted. An infeasible yaw request therefore
+      cannot corrupt the roll and pitch moments that maintain attitude.</p>
     </html>"));
   end rotorCommands;
 

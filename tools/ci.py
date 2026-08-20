@@ -18,8 +18,8 @@ from typing import NoReturn, Sequence
 
 OPENMODELICA_IMAGE = "openmodelica/openmodelica:v1.27.0-minimal"
 
-# Nix substitutes absolute store paths into its packaged copy. Running this
-# source module directly uses environment overrides or the executable PATH.
+# Packaged environments may provide absolute defaults. Native use relies on
+# environment overrides or executable discovery through PATH.
 DEFAULT_DOCKER = None
 DEFAULT_OMC = None
 DEFAULT_RUMOCA = None
@@ -57,7 +57,7 @@ def main(arguments: Sequence[str] | None = None) -> int:
 def find_repository_root(start: Path) -> Path:
     for directory in (start, *start.parents):
         if (directory / "Tests/run.mos").is_file() and (
-            directory / "flake.nix"
+            directory / "Vehicles/package.mo"
         ).is_file():
             return directory
     raise TaskError(f"could not find the repository root above {start}")
@@ -365,7 +365,8 @@ def render_planning_plots(directory: Path) -> None:
         import matplotlib.pyplot as plt
     except ImportError as error:
         raise TaskError(
-            "planning plots require Matplotlib; use 'nix run .#ci -- plots'"
+            "planning plots require Matplotlib; install the project tools with "
+            "'python -m pip install -e .'"
         ) from error
 
     families = read_csv_columns(directory / "dubins_families_res.csv")

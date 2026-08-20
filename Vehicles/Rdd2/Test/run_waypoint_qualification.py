@@ -64,6 +64,7 @@ SCENARIOS = {
 }
 TRACE_NAMES = [
     "time_s",
+    "imuSamplePeriod_s",
     *[f"position_m[{index}]" for index in range(1, 4)],
     *[f"velocity_m_s[{index}]" for index in range(1, 4)],
     *[f"euler_rad[{index}]" for index in range(1, 4)],
@@ -78,12 +79,19 @@ TRACE_NAMES = [
     "estimatorUpdatePeriod_s",
     *[f"gpsPositionNoise_m[{index}]" for index in range(1, 4)],
     *[f"gpsVelocityNoise_m_s[{index}]" for index in range(1, 4)],
-    *[f"opticalFlowVelocityNoise_m_s[{index}]" for index in range(1, 3)],
+    *[f"opticalFlowIntegratedNoise_rad[{index}]" for index in range(1, 3)],
+    *[
+        f"opticalFlowGyroscopeIntegratedNoise_rad[{index}]"
+        for index in range(1, 3)
+    ],
     "opticalFlowGroundDistanceNoise_m",
     "opticalFlowIdealGroundDistance_m",
     "opticalFlowSurfaceVisible",
     *[f"imuAngularVelocityNoise_rad_s[{index}]" for index in range(1, 4)],
     *[f"imuSpecificForceNoise_m_s2[{index}]" for index in range(1, 4)],
+    *[f"imuPreintegratedDeltaAngle_rad[{index}]" for index in range(1, 4)],
+    *[f"imuPreintegratedDeltaVelocity_m_s[{index}]" for index in range(1, 4)],
+    "imuPreintegrationTime_s",
     *[f"imuGyroscopeBias_rad_s[{index}]" for index in range(1, 4)],
     *[f"imuAccelerometerBias_m_s2[{index}]" for index in range(1, 4)],
     *[f"imuAngularVelocityNoiseVariance_rad2_s2[{index}]" for index in range(1, 4)],
@@ -105,7 +113,11 @@ TRACE_NAMES = [
         for index in range(1, 4)
     ],
     *[
-        f"estimator.opticalFlow.velocityCovarianceBody_m2_s2[{index},{index}]"
+        f"estimator.opticalFlow.integratedLineOfSightCovariance_rad2[{index},{index}]"
+        for index in range(1, 3)
+    ],
+    *[
+        f"estimator.opticalFlow.integratedGyroscopeCovariance_rad2[{index},{index}]"
         for index in range(1, 3)
     ],
     "estimator.opticalFlow.groundDistanceVariance_m2",
@@ -181,15 +193,30 @@ def aiding_event_indices(
     values: dict[str, list[float]], expected_source: int
 ) -> list[int]:
     """Indices on the estimator clock where the expected source was attempted."""
-    times = signal(values, "time_s")
     sources = signal(values, "estimator.status.correctionSource")
     period = signal(values, "estimatorUpdatePeriod_s")[0]
     return [
         index
-        for index, sample_time in enumerate(times)
-        if abs(sample_time / period - round(sample_time / period)) < 1.0e-7
-        and abs(sources[index] - expected_source) < 0.5
+        for index in native_sample_indices(values, period)
+        if abs(sources[index] - expected_source) < 0.5
     ]
+
+
+def native_sample_indices(
+    values: dict[str, list[float]], period_s: float
+) -> list[int]:
+    """Return one post-event trace row for every native sensor tick."""
+    times = np.asarray(signal(values, "time_s"))
+    selected: dict[int, int] = {}
+    for index, sample_time in enumerate(times):
+        tick = round(sample_time / period_s)
+        if abs(sample_time / period_s - tick) < 1.0e-7:
+            # Rumoca can retain multiple event rows at the same timestamp.
+            # Keeping the last row observes discrete random-walk updates after
+            # the sensor clock event and never samples one packet repeatedly on
+            # the faster trace/output clock.
+            selected[tick] = index
+    return [selected[tick] for tick in sorted(selected)]
 
 
 def corner_error(
@@ -227,7 +254,9 @@ def navigation_nees(values: dict[str, list[float]]) -> tuple[list[float], list[f
 
     nees_time: list[float] = []
     nees_values: list[float] = []
-    for sample_index, sample_time in enumerate(times):
+    estimator_period_s = signal(values, "estimatorUpdatePeriod_s")[0]
+    for sample_index in native_sample_indices(values, estimator_period_s):
+        sample_time = times[sample_index]
         if valid[sample_index] <= 0.5 or mission_phase[sample_index] <= 0.5:
             continue
         rotation = np.array(
@@ -288,7 +317,7 @@ def innovation_nis(
     ]
     if not selected:
         return [], [], 0
-    degree = 6 if expected_source == 2 else 3
+    degree = 6 if expected_source == 2 else 2
     return (
         [times[index] for index in selected],
         [nis[index] for index in selected],
@@ -322,6 +351,12 @@ def maximum_noise_correlation(sample_sets: list[np.ndarray]) -> float:
                 abs(float(np.corrcoef(sample_sets[first], sample_sets[second])[0, 1]))
             )
     return max(correlations, default=0.0)
+
+
+def empirical_whiteness_limit(sample_sets: list[np.ndarray]) -> float:
+    """Three-sigma finite-record bound, retaining the historical 0.06 floor."""
+    sample_count = min((len(samples) for samples in sample_sets), default=0)
+    return max(0.06, 3.0 / math.sqrt(max(sample_count - 1, 1)))
 
 
 def evaluate(values: dict[str, list[float]], feedback_mode: str) -> dict[str, object]:
@@ -465,14 +500,22 @@ def evaluate(values: dict[str, list[float]], feedback_mode: str) -> dict[str, ob
         if feedback_mode == "optical_flow":
             noise_names = [
                 *[
-                    f"opticalFlowVelocityNoise_m_s[{index}]"
+                    f"opticalFlowIntegratedNoise_rad[{index}]"
+                    for index in range(1, 3)
+                ],
+                *[
+                    f"opticalFlowGyroscopeIntegratedNoise_rad[{index}]"
                     for index in range(1, 3)
                 ],
                 "opticalFlowGroundDistanceNoise_m",
             ]
             covariance_names = [
                 *[
-                    f"estimator.opticalFlow.velocityCovarianceBody_m2_s2[{index},{index}]"
+                    f"estimator.opticalFlow.integratedLineOfSightCovariance_rad2[{index},{index}]"
+                    for index in range(1, 3)
+                ],
+                *[
+                    f"estimator.opticalFlow.integratedGyroscopeCovariance_rad2[{index},{index}]"
                     for index in range(1, 3)
                 ],
                 "estimator.opticalFlow.groundDistanceVariance_m2",
@@ -492,12 +535,14 @@ def evaluate(values: dict[str, list[float]], feedback_mode: str) -> dict[str, ob
                     for index in range(1, 4)
                 ],
             ]
-        correction_sources = signal(values, "estimator.status.correctionSource")
-        fresh_indices = aiding_event_indices(values, int(expected_anchor))
+        measurement_period_s = 0.01 if feedback_mode == "optical_flow" else 0.1
+        measurement_indices = native_sample_indices(values, measurement_period_s)
+        raw_imu_period_s = signal(values, "imuSamplePeriod_s")[0]
+        imu_indices = native_sample_indices(values, raw_imu_period_s)
         variance_ratios = []
         measurement_noise_samples = []
         for noise_name, covariance_name in zip(noise_names, covariance_names):
-            noise_samples = np.array(signal(values, noise_name))[fresh_indices]
+            noise_samples = np.array(signal(values, noise_name))[measurement_indices]
             measurement_noise_samples.append(noise_samples)
             assumed_variance = signal(values, covariance_name)[0]
             empirical_variance = float(np.var(noise_samples, ddof=1))
@@ -518,7 +563,7 @@ def evaluate(values: dict[str, list[float]], feedback_mode: str) -> dict[str, ob
             for component in range(1, 4):
                 noise_samples = np.array(
                     signal(values, f"{noise_prefix}[{component}]")
-                )[fresh_indices]
+                )[imu_indices]
                 imu_noise_samples.append(noise_samples)
                 assumed_variance = signal(
                     values, f"{variance_prefix}[{component}]"
@@ -530,6 +575,8 @@ def evaluate(values: dict[str, list[float]], feedback_mode: str) -> dict[str, ob
 
         bias_increment_variance_ratios = []
         bias_increment_samples = []
+        imu_sample_times = np.array(signal(values, "time_s"))[imu_indices]
+        bias_increment_periods = np.diff(imu_sample_times) / raw_imu_period_s
         for bias_prefix, variance_prefix in (
             (
                 "imuGyroscopeBias_rad_s",
@@ -543,16 +590,18 @@ def evaluate(values: dict[str, list[float]], feedback_mode: str) -> dict[str, ob
             for component in range(1, 4):
                 increments = np.diff(
                     np.array(signal(values, f"{bias_prefix}[{component}]"))[
-                        fresh_indices
+                        imu_indices
                     ]
                 )
-                bias_increment_samples.append(increments)
                 assumed_increment_variance = signal(
                     values, f"{variance_prefix}[{component}]"
                 )[0]
+                normalized_increments = increments / np.sqrt(
+                    assumed_increment_variance * bias_increment_periods
+                )
+                bias_increment_samples.append(normalized_increments)
                 bias_increment_variance_ratios.append(
-                    float(np.var(increments, ddof=1))
-                    / assumed_increment_variance
+                    float(np.var(normalized_increments, ddof=1))
                 )
 
         metrics.update(
@@ -633,7 +682,8 @@ def evaluate(values: dict[str, list[float]], feedback_mode: str) -> dict[str, ob
                     for ratio in bias_increment_variance_ratios
                 ),
                 "generated_noise_is_empirically_white": all(
-                    maximum_noise_correlation(samples) <= 0.06
+                    maximum_noise_correlation(samples)
+                    <= empirical_whiteness_limit(samples)
                     for samples in (
                         measurement_noise_samples,
                         imu_noise_samples,

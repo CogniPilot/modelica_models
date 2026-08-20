@@ -123,36 +123,39 @@ package LogLinear
   end attitudeControl;
 
   function integratePositionError
-    "Advance and symmetrically bound the position-error integral"
-    input Real stateError[9]
-      "SE_2(3) tangent ordered {position,velocity,rotation}";
-    input Real positionIntegral[3] "Current integral state";
+    "Advance and symmetrically bound the world-frame position-error integral"
+    input Real positionErrorWorld[3](each unit = "m");
+    input Real positionIntegralWorld[3]
+      "Current world-frame integral state";
     input Real dt(unit = "s") "Integration interval";
-    input Real thrustTrim(unit = "N") "Nominal collective thrust";
-    input Real integralGain[3] = {0.1, 0.1, 0.1};
+    input Real gravity(unit = "m/s2") "Positive gravitational acceleration";
+    input Real integralGain[3] = {0.05, 0.05, 0.05};
     input Real integralFractionLimit[3] = {0.25, 0.25, 0.25}
-      "Maximum integral contribution as a fraction of trim thrust";
-    output Real nextPositionIntegral[3] "Bounded next integral state";
+      "Maximum integral acceleration as a fraction of gravity";
+    output Real nextPositionIntegralWorld[3]
+      "Bounded next world-frame integral state";
   protected
     Real limit;
   algorithm
     assert(dt >= 0.0, "Controller time step must be nonnegative");
-    assert(thrustTrim >= 0.0, "Trim thrust must be nonnegative");
+    assert(gravity > 0.0, "Gravity must be positive");
     for axis in 1:3 loop
       assert(integralGain[axis] > 0.0,
         "Every position integral gain must be positive");
       assert(integralFractionLimit[axis] >= 0.0,
         "Every position integral limit must be nonnegative");
-      limit := thrustTrim * integralFractionLimit[axis] / integralGain[axis];
-      nextPositionIntegral[axis] := MathUtilities.clip(
-        positionIntegral[axis] + dt * stateError[axis],
+      limit := gravity * integralFractionLimit[axis] / integralGain[axis];
+      nextPositionIntegralWorld[axis] := MathUtilities.clip(
+        positionIntegralWorld[axis] + dt * positionErrorWorld[axis],
         -limit,
         limit);
     end for;
     annotation(Documentation(info="<html>
-      <p>Applies a forward-Euler step to the translational part of the
-      invariant error. Each axis is limited so that its gain-weighted
-      contribution cannot exceed the configured fraction of trim thrust.</p>
+      <p>Applies a forward-Euler step to world-frame position error. Keeping
+      the memory in a fixed frame prevents a yaw manoeuvre from rotating an
+      accumulated disturbance estimate. Each axis is limited so its
+      acceleration contribution cannot exceed the configured fraction of
+      gravity.</p>
     </html>"));
   end integratePositionError;
 
@@ -166,25 +169,28 @@ package LogLinear
       "Actual body-to-world quaternion used to rotate invariant errors";
     input Real headingQuaternionWorldBody[4](each unit = "1")
       "Yaw reference used to construct the commanded body frame";
-    input Real positionIntegral[3] "Position-error integral state";
+    input Real positionIntegralWorld[3]
+      "World-frame position-error integral state";
     input Real thrustTrim(unit = "N") "Nominal collective thrust";
     input Real mass(unit = "kg") = 1.0 "Vehicle mass";
     input Real gravity(unit = "m/s2") = 9.80665
       "Positive gravitational acceleration";
-    input Real integralGain[3] = {0.1, 0.1, 0.1};
+    input Real positionGain_s2[3] = {1.5, 1.5, 2.0}
+      "Position-error to acceleration gain";
+    input Real velocityGain_s[3] = {2.2, 2.2, 2.5}
+      "Velocity-error to acceleration gain";
+    input Real integralGain[3] = {0.05, 0.05, 0.05};
     input Real translationalCorrectionFraction = 0.3
       "Maximum feedback force divided by vehicle weight";
-    input Real feedbackGain[9, 9] =
-      Control.Multirotor.LogLinear.Gains.feedback;
     output Control.Multirotor.LogLinear.OuterLoopResult result;
   protected
     constant Real worldX[3] = {1.0, 0.0, 0.0};
     constant Real worldY[3] = {0.0, 1.0, 0.0};
     constant Real worldZ[3] = {0.0, 0.0, 1.0};
-    Real correction[9];
-    Real translationalCorrectionWorld[3](each unit = "N");
-    Real translationalCorrectionNorm(unit = "N");
-    Real translationalCorrectionLimit(unit = "N");
+    Real feedbackAccelerationBody[3](each unit = "m/s2");
+    Real feedbackAccelerationWorld[3](each unit = "m/s2");
+    Real feedbackAccelerationNorm(unit = "m/s2");
+    Real feedbackAccelerationLimit(unit = "m/s2");
     Real thrustVectorWorld[3](each unit = "N");
     Real thrustDirectionWorld[3];
     Real headingEuler[3](each unit = "rad");
@@ -200,28 +206,43 @@ package LogLinear
     assert(thrustTrim >= 0.0, "Trim thrust must be nonnegative");
     assert(translationalCorrectionFraction >= 0.0,
       "The translational correction fraction must be nonnegative");
+    for axis in 1:3 loop
+      assert(positionGain_s2[axis] >= 0.0,
+        "Every position gain must be nonnegative");
+      assert(velocityGain_s[axis] >= 0.0,
+        "Every velocity gain must be nonnegative");
+    end for;
 
-    correction := -LieGroups.SE23.Quat.left_jacobian(stateError)
-      * feedbackGain * stateError;
-    result.angularVelocityCorrection := correction[7:9];
-
-    translationalCorrectionWorld :=
-      LieGroups.SO3.Quat.rotate(quaternionWorldBody, correction[1:3])
-      + LieGroups.SO3.Quat.rotate(
-          quaternionWorldBody, correction[4:6])
-      + mass * accelerationReferenceWorld;
-    translationalCorrectionNorm :=
-      MathUtilities.norm3(translationalCorrectionWorld);
-    translationalCorrectionLimit :=
-      translationalCorrectionFraction * mass * gravity;
-    if translationalCorrectionNorm > translationalCorrectionLimit then
-      translationalCorrectionWorld := translationalCorrectionLimit
-        * translationalCorrectionWorld / translationalCorrectionNorm;
+    // The SE_2(3) logarithm expresses position and velocity error in the
+    // current body frame. Map those errors to an acceleration with explicit
+    // physical gains, then rotate once into world coordinates. The previous
+    // implementation added two unit-incompatible LQR output blocks directly
+    // to a force while leaving a coupled angular-rate block unscaled by mass;
+    // at the RDD2's 2 kg mass that changes the horizontal feedback sign and
+    // creates a +0.0418 1/s pole.
+    feedbackAccelerationBody := positionGain_s2 .* stateError[1:3]
+      + velocityGain_s .* stateError[4:6];
+    feedbackAccelerationWorld := LieGroups.SO3.Quat.rotate(
+      quaternionWorldBody, feedbackAccelerationBody);
+    feedbackAccelerationNorm :=
+      MathUtilities.norm3(feedbackAccelerationWorld);
+    feedbackAccelerationLimit := translationalCorrectionFraction * gravity;
+    if feedbackAccelerationNorm > feedbackAccelerationLimit then
+      feedbackAccelerationWorld := feedbackAccelerationLimit
+        * feedbackAccelerationWorld / feedbackAccelerationNorm;
     end if;
 
-    thrustVectorWorld := translationalCorrectionWorld + thrustTrim * worldZ
-      + LieGroups.SO3.Quat.rotate(
-          quaternionWorldBody, integralGain .* positionIntegral);
+    // Feed-forward is deliberately outside the feedback limiter: clipping a
+    // feasible trajectory acceleration must not consume the error-feedback
+    // authority. All acceleration terms become force through the same mass.
+    thrustVectorWorld := mass * (accelerationReferenceWorld
+        + feedbackAccelerationWorld
+        + integralGain .* positionIntegralWorld)
+      + thrustTrim * worldZ;
+    // The attitude setpoint already represents the horizontal position
+    // correction. Adding the old LQR rotation rows as a second body-rate
+    // command double-counted that correction and caused the unstable pole.
+    result.angularVelocityCorrection := zeros(3);
     result.thrust := MathUtilities.norm3(thrustVectorWorld);
     thrustDirectionWorld := if result.thrust > 1.0e-3 then
         thrustVectorWorld / result.thrust
@@ -260,14 +281,12 @@ package LogLinear
     bodyToWorld[:, 3] := thrustDirectionWorld;
     result.attitudeSetpoint := LieGroups.SO3.Quat.from_DCM(bodyToWorld);
     annotation(Documentation(info="<html>
-      <p>Applies the nonlinear left-Jacobian correction
-      <code>-J_l(zeta) K zeta</code>, rotates its translational components by
-      the actual body-to-world attitude, adds acceleration feed-forward and trim, and
-      converts the resulting thrust vector into collective thrust and a
-      body-to-world attitude setpoint.</p>
-      <p>The feedback force magnitude is limited before trim and integral
-      terms are added. The full body-frame integral correction is rotated to
-      world coordinates. If the thrust vector is nearly zero, world z is used
+      <p>Maps the body-local SE_2(3) position and velocity errors into a
+      bounded world-frame acceleration, adds un-clipped trajectory
+      feed-forward, world-frame integral acceleration, and trim, and converts
+      the resulting force into collective thrust and a body-to-world attitude
+      setpoint.</p>
+      <p>If the thrust vector is nearly zero, world z is used
       as the thrust direction; a least-aligned Cartesian axis resolves the
       heading singularity.</p>
     </html>"));
@@ -280,11 +299,11 @@ package LogLinear
     parameter Real gravity(unit = "m/s2") = 9.80665;
     parameter Real thrustTrim(unit = "N") = mass * gravity;
     parameter Real attitudeGain[3](each unit = "1/s") = {2.0, 2.0, 1.0};
-    parameter Real integralGain[3] = {0.1, 0.1, 0.1};
+    parameter Real positionGain_s2[3] = {1.5, 1.5, 2.0};
+    parameter Real velocityGain_s[3] = {2.2, 2.2, 2.5};
+    parameter Real integralGain[3] = {0.05, 0.05, 0.05};
     parameter Real integralFractionLimit[3] = {0.25, 0.25, 0.25};
     parameter Real translationalCorrectionFraction = 0.3;
-    parameter Real feedbackGain[9, 9] =
-      Control.Multirotor.LogLinear.Gains.feedback;
 
     input Real positionWorld[3](each unit = "m", each start = 0.0);
     input Real velocityWorld[3](each unit = "m/s", each start = 0.0);
@@ -310,7 +329,7 @@ package LogLinear
       "Commanded body angular velocity";
     output Real angularVelocityCorrection[3](each unit = "rad/s")
       "Rotational part of the SE_2(3) correction";
-    discrete output Real positionIntegral[3](
+    discrete output Real positionIntegralWorld[3](
       each start = 0.0,
       each fixed = true);
 
@@ -330,13 +349,14 @@ package LogLinear
       accelerationReferenceWorld,
       quaternionWorldBody,
       headingQuaternionReference,
-      positionIntegral,
+      positionIntegralWorld,
       thrustTrim,
       mass,
       gravity,
+      positionGain_s2,
+      velocityGain_s,
       integralGain,
-      translationalCorrectionFraction,
-      feedbackGain);
+      translationalCorrectionFraction);
     thrust = outerLoopResult.thrust;
     attitudeSetpoint = outerLoopResult.attitudeSetpoint;
     angularVelocityCorrection = outerLoopResult.angularVelocityCorrection;
@@ -348,13 +368,14 @@ package LogLinear
   algorithm
     when sample(0.0, samplePeriod) then
       if resetIntegral then
-        positionIntegral := zeros(3);
+        positionIntegralWorld := zeros(3);
       else
-        positionIntegral := Control.Multirotor.LogLinear.integratePositionError(
-          stateError,
-          pre(positionIntegral),
+        positionIntegralWorld :=
+          Control.Multirotor.LogLinear.integratePositionError(
+          positionReferenceWorld - positionWorld,
+          pre(positionIntegralWorld),
           samplePeriod,
-          thrustTrim,
+          gravity,
           integralGain,
           integralFractionLimit);
       end if;

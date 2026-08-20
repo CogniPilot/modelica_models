@@ -162,9 +162,11 @@ model EstimatorHardeningTests
     // Optical-flow channel, measurement and covariance.
     flowSample := Avionics.OpticalFlowSample(
       valid=true, fresh=true, timestamp_s=0.0,
-      velocityBodyFlu_m_s={notFinite, 0.0},
-      velocityCovarianceBody_m2_s2=identity(2) * 0.01,
-      integratedLineOfSight_rad=zeros(2), integrationTime_s=0.0,
+      integratedLineOfSight_rad={notFinite, 0.0},
+      integratedLineOfSightCovariance_rad2=identity(2) * 0.01,
+      integratedGyroscopeBodyFlu_rad=zeros(3),
+      integratedGyroscopeCovariance_rad2=identity(3) * 1.0e-8,
+      integrationTime_s=0.01,
       groundDistance_m=1.0, groundDistanceVariance_m2=0.01, quality=1.0);
     (corrected, accepted, reason, nis) :=
       Estimation.StrapdownINS.ESKF.correctOpticalFlow(
@@ -176,9 +178,11 @@ model EstimatorHardeningTests
 
     flowSample := Avionics.OpticalFlowSample(
       valid=true, fresh=true, timestamp_s=0.0,
-      velocityBodyFlu_m_s={1.0, 0.0},
-      velocityCovarianceBody_m2_s2=identity(2) * badVariance,
-      integratedLineOfSight_rad=zeros(2), integrationTime_s=0.0,
+      integratedLineOfSight_rad={0.0, 0.01},
+      integratedLineOfSightCovariance_rad2=identity(2) * badVariance,
+      integratedGyroscopeBodyFlu_rad=zeros(3),
+      integratedGyroscopeCovariance_rad2=identity(3) * 1.0e-8,
+      integrationTime_s=0.01,
       groundDistance_m=1.0, groundDistanceVariance_m2=0.01, quality=1.0);
     (corrected, accepted, reason, nis) :=
       Estimation.StrapdownINS.ESKF.correctOpticalFlow(

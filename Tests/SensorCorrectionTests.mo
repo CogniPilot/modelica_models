@@ -1,0 +1,106 @@
+within Tests;
+
+model SensorCorrectionTests
+  "Barometer, terrain, and optical-flow measurement-structure checks"
+  function run
+    output Boolean passed;
+  protected
+    Real covariance[15, 15];
+    Boolean initialized;
+    Real bias_m;
+    Real biasVariance_m2;
+    Boolean biasAccepted;
+    Real terrainAltitude_m;
+    Real terrainVariance_m2;
+    Boolean terrainAccepted;
+    Estimation.StrapdownINS.ESKF.State predicted;
+    Estimation.StrapdownINS.ESKF.State correctedNear;
+    Estimation.StrapdownINS.ESKF.State correctedFar;
+    Boolean acceptedNear;
+    Boolean acceptedFar;
+    Integer reasonNear;
+    Integer reasonFar;
+    Real nisNear;
+    Real nisFar;
+    Avionics.OpticalFlowSample flowNear;
+    Avionics.OpticalFlowSample flowFar;
+  algorithm
+    covariance := identity(15) * 0.01;
+    (initialized, bias_m, biasVariance_m2, biasAccepted) :=
+      Estimation.StrapdownINS.updateBarometerBias(
+        false, 0.0, 4.0, {0.0, 0.0, 2.0},
+        {1.0, 0.0, 0.0, 0.0}, covariance,
+        Avionics.BarometerSample(
+          valid=true, fresh=true, timestamp_s=0.0,
+          altitudeWorldEnu_m=2.4, variance_m2=0.25),
+        0.01, 0.0, 4.0, 1.0e-4);
+    assert(initialized and biasAccepted and bias_m > 0.35 and bias_m < 0.4,
+      "Barometer bias filter did not learn the pressure-altitude offset");
+    assert(biasVariance_m2 > 0.0 and biasVariance_m2 < 4.0,
+      "Barometer bias variance did not contract after a valid observation");
+
+    (initialized, terrainAltitude_m, terrainVariance_m2, terrainAccepted) :=
+      Estimation.StrapdownINS.updateTerrainAltitude(
+        false, 0.0, 4.0, {0.0, 0.0, 2.0},
+        {1.0, 0.0, 0.0, 0.0}, covariance,
+        Avionics.OpticalFlowSample(
+          valid=true, fresh=true, timestamp_s=0.0,
+          integratedLineOfSight_rad=zeros(2),
+          integratedLineOfSightCovariance_rad2=identity(2) * 1.0e-6,
+          integratedGyroscopeBodyFlu_rad=zeros(3),
+          integratedGyroscopeCovariance_rad2=identity(3) * 1.0e-8,
+          integrationTime_s=0.01, groundDistance_m=3.0,
+          groundDistanceVariance_m2=0.01, quality=1.0),
+        0.01, 0.0, 4.0, 1.0e-3, 0.5, 0.2);
+    assert(initialized and terrainAccepted
+        and terrainAltitude_m < -0.95 and terrainAltitude_m > -1.0,
+      "Vertical range did not estimate terrain altitude as z minus range");
+    assert(terrainVariance_m2 > 0.0 and terrainVariance_m2 < 4.0,
+      "Terrain variance did not contract after a valid range observation");
+
+    predicted := Estimation.StrapdownINS.ESKF.State(
+      positionWorldEnu_m={0.0, 0.0, 2.0},
+      velocityWorldEnu_m_s={1.0, 0.0, 0.0},
+      quaternionWorldBody={1.0, 0.0, 0.0, 0.0},
+      gyroscopeBiasBodyFlu_rad_s=zeros(3),
+      accelerometerBiasBodyFlu_m_s2=zeros(3),
+      covariance=covariance);
+    flowNear := Avionics.OpticalFlowSample(
+      valid=true, fresh=true, timestamp_s=0.0,
+      integratedLineOfSight_rad={0.0, 0.005},
+      integratedLineOfSightCovariance_rad2=identity(2) * 1.0e-6,
+      integratedGyroscopeBodyFlu_rad=zeros(3),
+      integratedGyroscopeCovariance_rad2=identity(3) * 1.0e-8,
+      integrationTime_s=0.01, groundDistance_m=2.0,
+      groundDistanceVariance_m2=0.01, quality=1.0);
+    flowFar := Avionics.OpticalFlowSample(
+      valid=flowNear.valid, fresh=flowNear.fresh,
+      timestamp_s=flowNear.timestamp_s,
+      integratedLineOfSight_rad=flowNear.integratedLineOfSight_rad,
+      integratedLineOfSightCovariance_rad2=
+        flowNear.integratedLineOfSightCovariance_rad2,
+      integratedGyroscopeBodyFlu_rad=
+        flowNear.integratedGyroscopeBodyFlu_rad,
+      integratedGyroscopeCovariance_rad2=
+        flowNear.integratedGyroscopeCovariance_rad2,
+      integrationTime_s=flowNear.integrationTime_s,
+      groundDistance_m=50.0,
+      groundDistanceVariance_m2=flowNear.groundDistanceVariance_m2,
+      quality=flowNear.quality);
+    (correctedNear, acceptedNear, reasonNear, nisNear) :=
+      Estimation.StrapdownINS.ESKF.correctOpticalFlow(
+        predicted, flowNear, 6.0);
+    (correctedFar, acceptedFar, reasonFar, nisFar) :=
+      Estimation.StrapdownINS.ESKF.correctOpticalFlow(
+        predicted, flowFar, 6.0);
+    assert(acceptedNear and not acceptedFar
+        and reasonFar == Estimation.StrapdownINS.CorrectionRejectedGate
+        and nisFar > nisNear,
+      "Optical-flow correction did not use co-timed range to form body velocity");
+    passed := true;
+  end run;
+
+  parameter Boolean passed = run();
+equation
+  assert(passed, "Sensor correction assertions did not complete");
+end SensorCorrectionTests;

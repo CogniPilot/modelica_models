@@ -56,11 +56,8 @@ algorithm
   // expanded form nor the left-to-right order Modelica specifies for a*b*c.
   // The row form below is the left-associative one.
   //
-  // Written with whole-row slices rather than a scalar `limited[i, j] :=
-  // rescale[i] * covariance[i, j] * rescale[j]` because rumoca rejects the
-  // scalar form: reading a vector at the inner loop index inside a nest that
-  // writes `x[i, j]` trips ED020 "expression shape mismatch". The slice form
-  // is equivalent and compiles under both toolchains.
+  // Whole rows expose the shared left scale and preserve the intended
+  // multiplication order without constructing dense diagonal matrices.
   for i in 1:TangentLength loop
     scaledRow := rescale[i] * covariance[i, :];
     limited[i, :] := scaledRow .* rescale;

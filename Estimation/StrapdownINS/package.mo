@@ -14,10 +14,13 @@ package StrapdownINS
   constant Integer CorrectionRejectedGate = 3;
   constant Integer CorrectionRejectedFactorization = 4;
   constant Integer CorrectionRejectedCovarianceUnusable = 5;
+  constant Integer CorrectionRejectedTimestamp = 6;
   constant Integer SourceNone = 0;
   constant Integer SourceMocap = 1;
   constant Integer SourceGps = 2;
   constant Integer SourceOpticalFlow = 3;
+  constant Integer SourceMagnetometer = 4;
+  constant Integer SourceBarometer = 5;
   constant Integer RecoveryNominal = 0;
   constant Integer RecoveryCovarianceInflated = 1;
   constant Integer RecoveryAidingDivergent = 2;
