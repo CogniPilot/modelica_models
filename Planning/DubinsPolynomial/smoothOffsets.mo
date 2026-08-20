@@ -13,11 +13,16 @@ function smoothOffsets
 protected
   Real nominalKappa[3];
   Real segmentLength[3];
-  Boolean active[3];
-  Integer previousActive[3];
-  Integer nextActive[3];
+  Real desiredStartCurvature;
+  Real desiredEndCurvature;
+  Real desiredStartCurvatureDerivative;
+  Real desiredEndCurvatureDerivative;
+  Real startDerivative[4];
+  Real endDerivative[4];
   Real coefficient[8];
   Boolean segmentAccepted;
+  Integer previousActiveSegment;
+  Integer nextActiveSegment;
 algorithm
   for segmentIndex in 1:3 loop
     nominalKappa[segmentIndex] :=
@@ -25,51 +30,46 @@ algorithm
         path.pathType, segmentIndex, path.turnRadius);
     segmentLength[segmentIndex] := path.turnRadius
       * path.normalizedSegmentLength[segmentIndex];
-    active[segmentIndex] := segmentLength[segmentIndex] > 1.0e-10;
   end for;
-
-  // Nearest active neighbour of each segment, written straight-line. The
-  // segment loop below must stay unrolled: it contains a multi-output call,
-  // and rumoca drops loop-carried updates in any function `for` loop that
-  // does (same defect class as commit 8f14de1).
-  previousActive := {
-    0,
-    if active[1] then 1 else 0,
-    if active[2] then 2 elseif active[1] then 1 else 0};
-  nextActive := {
-    if active[2] then 2 elseif active[3] then 3 else 0,
-    if active[3] then 3 else 0,
-    0};
 
   offsetCoefficient := zeros(3, 8);
   accepted := path.length > 1.0e-10;
-  coefficient := zeros(8);
-  segmentAccepted := false;
+  previousActiveSegment := 0;
+  for segmentIndex in 1:3 loop
+    if segmentLength[segmentIndex] > 1.0e-10 then
+      nextActiveSegment := 0;
+      for candidateIndex in segmentIndex + 1:3 loop
+        if nextActiveSegment == 0
+            and segmentLength[candidateIndex] > 1.0e-10 then
+          nextActiveSegment := candidateIndex;
+        end if;
+      end for;
 
-  if active[1] then
-    (coefficient, segmentAccepted) := Planning.DubinsPolynomial.segmentOffset(
-      1, previousActive[1], nextActive[1], nominalKappa, segmentLength,
-      startCurvature, goalCurvature,
-      startCurvatureDerivative, goalCurvatureDerivative);
-    offsetCoefficient[1, :] := coefficient;
-    accepted := accepted and segmentAccepted;
-  end if;
-
-  if active[2] then
-    (coefficient, segmentAccepted) := Planning.DubinsPolynomial.segmentOffset(
-      2, previousActive[2], nextActive[2], nominalKappa, segmentLength,
-      startCurvature, goalCurvature,
-      startCurvatureDerivative, goalCurvatureDerivative);
-    offsetCoefficient[2, :] := coefficient;
-    accepted := accepted and segmentAccepted;
-  end if;
-
-  if active[3] then
-    (coefficient, segmentAccepted) := Planning.DubinsPolynomial.segmentOffset(
-      3, previousActive[3], nextActive[3], nominalKappa, segmentLength,
-      startCurvature, goalCurvature,
-      startCurvatureDerivative, goalCurvatureDerivative);
-    offsetCoefficient[3, :] := coefficient;
-    accepted := accepted and segmentAccepted;
-  end if;
+      desiredStartCurvature := if previousActiveSegment == 0 then
+          startCurvature else 0.5 * (nominalKappa[previousActiveSegment]
+            + nominalKappa[segmentIndex]);
+      desiredEndCurvature := if nextActiveSegment == 0 then
+          goalCurvature else 0.5 * (nominalKappa[segmentIndex]
+            + nominalKappa[nextActiveSegment]);
+      desiredStartCurvatureDerivative := if previousActiveSegment == 0 then
+          startCurvatureDerivative else 0.0;
+      desiredEndCurvatureDerivative := if nextActiveSegment == 0 then
+          goalCurvatureDerivative else 0.0;
+      startDerivative := {
+        0.0,
+        0.0,
+        desiredStartCurvature - nominalKappa[segmentIndex],
+        desiredStartCurvatureDerivative};
+      endDerivative := {
+        0.0,
+        0.0,
+        desiredEndCurvature - nominalKappa[segmentIndex],
+        desiredEndCurvatureDerivative};
+      (coefficient, segmentAccepted) := Polynomials.hermiteCoefficients(
+        startDerivative, endDerivative, segmentLength[segmentIndex]);
+      offsetCoefficient[segmentIndex, :] := coefficient;
+      accepted := accepted and segmentAccepted;
+      previousActiveSegment := segmentIndex;
+    end if;
+  end for;
 end smoothOffsets;

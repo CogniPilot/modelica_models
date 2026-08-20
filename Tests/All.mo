@@ -6,7 +6,9 @@ model All "Complete Modelica assertion suite"
   Tests.EstimationTests estimation;
   Tests.StrapdownESKFTests strapdownESKF;
   Tests.StrapdownUKFTests strapdownUKF;
+  Tests.StrapdownPreintegrationTests strapdownPreintegration;
   Tests.OpticalFlowPlaneTests opticalFlowPlane;
+  Tests.SensorCorrectionTests sensorCorrections;
   Tests.EstimatorHealthTests estimatorHealth;
   Tests.EstimatorHardeningTests estimatorHardening;
   Tests.VerificationTests verification;

@@ -21,13 +21,6 @@ protected
   Real correctedAngularVelocityBody[3];
   Real correctedSpecificForceBody[3];
 algorithm
-  // Inputs are the canonical records the rest of the estimator already
-  // speaks. The outputs are the fields of Avionics.NavigationEstimate
-  // spelled out one per output: the only caller in the flight path is a
-  // block that assigns a sampled connector output, and a block algorithm
-  // can assign only individual coordinates, never a whole record. That
-  // boundary is the sole reason the outputs are flat; nothing upstream of
-  // it may take flat inputs.
   rotationWorldBody := LieGroups.SO3.Quat.to_DCM(
     state.quaternionWorldBody);
   eulerB321_rad := LieGroups.SO3.EulerB321.from_Quat(
@@ -40,10 +33,11 @@ algorithm
   timestamp_s := imu.timestamp_s;
   positionWorldEnu_m := state.positionWorldEnu_m;
   velocityWorldEnu_m_s := state.velocityWorldEnu_m_s;
-  accelerationWorldEnu_m_s2 :=
-    rotationWorldBody * correctedSpecificForceBody + gravityWorldEnu_m_s2;
+  accelerationWorldEnu_m_s2 := rotationWorldBody
+    * correctedSpecificForceBody + gravityWorldEnu_m_s2;
   quaternionWorldBody := state.quaternionWorldBody;
-  eulerRpy_rad := {eulerB321_rad[3], eulerB321_rad[2], eulerB321_rad[1]};
+  eulerRpy_rad := {
+    eulerB321_rad[3], eulerB321_rad[2], eulerB321_rad[1]};
   angularVelocityBodyFlu_rad_s := correctedAngularVelocityBody;
   angularVelocityWorldEnu_rad_s :=
     rotationWorldBody * correctedAngularVelocityBody;

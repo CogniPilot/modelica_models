@@ -9,8 +9,12 @@ record Tuning
   Estimation.StrapdownINS.ESKF.VarianceLimits varianceLimits;
   Real innovationGate
     "Per-degree-of-freedom NIS gate; non-positive disables";
-  Real opticalFlowGroundNormalWorldEnu[3];
-  Real opticalFlowGroundPlaneOffset_m;
+  Real localMagneticFieldWorldEnu_T[3];
+  Real barometerBias_m;
+  Real barometerBiasVariance_m2;
+  Real maximumAidingDelay_s;
+  Real minimumOpticalFlowQuality;
+  Real minimumOpticalFlowGroundDistance_m;
   Real covarianceInflateWindow_s
     "Wall-clock time the anchor source has been unable to move the state
      after which the position and velocity covariance begins ramping

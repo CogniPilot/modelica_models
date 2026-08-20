@@ -17,6 +17,8 @@ processNoiseMatrix
 discreteTransition
 discreteProcessCovariance
 predictNominal
+predictPreintegrated
+retrodict
 predict
 limitCovariance
 inflateCovariance
@@ -28,6 +30,8 @@ correctMocap
 correctGps
 correctGpsPosition
 correctGpsVelocity
+correctMagnetometer
+correctBarometer
 opticalFlowRangeJacobian
 correctOpticalFlow
 navigationEstimate

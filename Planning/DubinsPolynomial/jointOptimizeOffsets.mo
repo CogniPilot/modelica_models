@@ -13,8 +13,6 @@ protected
   Real segmentLength[3];
   Real nominalKappa[3];
   Real coefficientMap[8, 8];
-  Real coefficientMapAll[3, 8, 8];
-  Boolean mapAcceptedAll[3];
   Real costMatrix[8, 8];
   Real endpointCost[8, 8];
   Real globalHessian[16, 16];
@@ -30,7 +28,6 @@ protected
   Real repairedDerivative[3];
   Real normal[2];
   Real averagedNormalDerivative[3];
-  Real averagedNormalDerivativeAll[2, 3];
   Real segmentDistance;
   Planning.Dubins.Pose junctionPose;
   Planning.DubinsPolynomial.State leftState;
@@ -59,28 +56,12 @@ algorithm
     return;
   end if;
 
-  // Every multi-output call below is issued straight-line and its results are
-  // tabled, because rumoca drops loop-carried updates in any function `for`
-  // loop that also contains a multi-output call (same defect class as commit
-  // 8f14de1). The loops that remain contain no multi-output call.
-  (coefficientMap, mapAccepted) := Polynomials.hermiteCoefficientMap(
-    4, segmentLength[1]);
-  coefficientMapAll[1, :, :] := coefficientMap;
-  mapAcceptedAll[1] := mapAccepted;
-  (coefficientMap, mapAccepted) := Polynomials.hermiteCoefficientMap(
-    4, segmentLength[2]);
-  coefficientMapAll[2, :, :] := coefficientMap;
-  mapAcceptedAll[2] := mapAccepted;
-  (coefficientMap, mapAccepted) := Polynomials.hermiteCoefficientMap(
-    4, segmentLength[3]);
-  coefficientMapAll[3, :, :] := coefficientMap;
-  mapAcceptedAll[3] := mapAccepted;
-
   globalHessian := zeros(16, 16);
   globalGradient := zeros(16);
   for segmentIndex in 1:3 loop
-    coefficientMap := coefficientMapAll[segmentIndex, :, :];
-    accepted := accepted and mapAcceptedAll[segmentIndex];
+    (coefficientMap, mapAccepted) := Polynomials.hermiteCoefficientMap(
+      4, segmentLength[segmentIndex]);
+    accepted := accepted and mapAccepted;
     costMatrix := zeros(8, 8);
     for derivativeOrder in 0:3 loop
       costMatrix := costMatrix + derivativeWeight[derivativeOrder + 1]
@@ -139,9 +120,10 @@ algorithm
       globalDerivative[4 * segmentIndex + 1:4 * segmentIndex + 4]);
     boundary[3] := boundary[3] - nominalKappa[segmentIndex];
     boundary[7] := boundary[7] - nominalKappa[segmentIndex];
-    coefficientMap := coefficientMapAll[segmentIndex, :, :];
+    (coefficientMap, mapAccepted) := Polynomials.hermiteCoefficientMap(
+      4, segmentLength[segmentIndex]);
     offsetCoefficient[segmentIndex, :] := coefficientMap * boundary;
-    accepted := accepted and mapAcceptedAll[segmentIndex];
+    accepted := accepted and mapAccepted;
   end for;
 
   for segmentIndex in 1:3 loop
@@ -156,7 +138,6 @@ algorithm
     end for;
   end for;
 
-  // Junction repair, unrolled over the two interior junctions.
   for junctionIndex in 1:2 loop
     segmentDistance := segmentLength[junctionIndex];
     leftState := Planning.DubinsPolynomial.evaluateSegment(
@@ -179,47 +160,28 @@ algorithm
       * (leftState.offset + rightState.offset);
     startDerivative[junctionIndex + 1, 1] :=
       endDerivative[junctionIndex, 1];
-    averagedNormalDerivativeAll[junctionIndex, :] := averagedNormalDerivative;
+    (repairedDerivative, inverseAccepted) :=
+      Planning.DubinsPolynomial.invertNormalDerivatives(
+        endDerivative[junctionIndex, 1], nominalKappa[junctionIndex],
+        averagedNormalDerivative);
+    endDerivative[junctionIndex, 2:4] := repairedDerivative;
+    accepted := accepted and inverseAccepted;
+    (repairedDerivative, inverseAccepted) :=
+      Planning.DubinsPolynomial.invertNormalDerivatives(
+        startDerivative[junctionIndex + 1, 1],
+        nominalKappa[junctionIndex + 1], averagedNormalDerivative);
+    startDerivative[junctionIndex + 1, 2:4] := repairedDerivative;
+    accepted := accepted and inverseAccepted;
   end for;
 
-  (repairedDerivative, inverseAccepted) :=
-    Planning.DubinsPolynomial.invertNormalDerivatives(
-      endDerivative[1, 1], nominalKappa[1],
-      averagedNormalDerivativeAll[1, :]);
-  endDerivative[1, 2:4] := repairedDerivative;
-  accepted := accepted and inverseAccepted;
-  (repairedDerivative, inverseAccepted) :=
-    Planning.DubinsPolynomial.invertNormalDerivatives(
-      startDerivative[2, 1], nominalKappa[2],
-      averagedNormalDerivativeAll[1, :]);
-  startDerivative[2, 2:4] := repairedDerivative;
-  accepted := accepted and inverseAccepted;
-  (repairedDerivative, inverseAccepted) :=
-    Planning.DubinsPolynomial.invertNormalDerivatives(
-      endDerivative[2, 1], nominalKappa[2],
-      averagedNormalDerivativeAll[2, :]);
-  endDerivative[2, 2:4] := repairedDerivative;
-  accepted := accepted and inverseAccepted;
-  (repairedDerivative, inverseAccepted) :=
-    Planning.DubinsPolynomial.invertNormalDerivatives(
-      startDerivative[3, 1], nominalKappa[3],
-      averagedNormalDerivativeAll[2, :]);
-  startDerivative[3, 2:4] := repairedDerivative;
-  accepted := accepted and inverseAccepted;
-
   if accepted then
-    (offsetCoefficient[1, :], segmentAccepted) :=
-      Polynomials.hermiteCoefficients(
-        startDerivative[1, :], endDerivative[1, :], segmentLength[1]);
-    accepted := accepted and segmentAccepted;
-    (offsetCoefficient[2, :], segmentAccepted) :=
-      Polynomials.hermiteCoefficients(
-        startDerivative[2, :], endDerivative[2, :], segmentLength[2]);
-    accepted := accepted and segmentAccepted;
-    (offsetCoefficient[3, :], segmentAccepted) :=
-      Polynomials.hermiteCoefficients(
-        startDerivative[3, :], endDerivative[3, :], segmentLength[3]);
-    accepted := accepted and segmentAccepted;
+    for segmentIndex in 1:3 loop
+      (offsetCoefficient[segmentIndex, :], segmentAccepted) :=
+        Polynomials.hermiteCoefficients(
+          startDerivative[segmentIndex, :], endDerivative[segmentIndex, :],
+          segmentLength[segmentIndex]);
+      accepted := accepted and segmentAccepted;
+    end for;
   else
     (offsetCoefficient, accepted) := Planning.DubinsPolynomial.smoothOffsets(
       path, startCurvature, goalCurvature,

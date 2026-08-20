@@ -24,23 +24,21 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Check Modelica library structure
-        run: tools/check-modelica-library.sh
+        run: python -m tools.modelica_models_cli check-structure
       - name: Set up Nix
         uses: DeterminateSystems/nix-installer-action@v22
       - id: rumoca-runtime
         name: Identify pinned Rumoca runtime
-        run: |
-          store_path="$(nix eval --raw .#rumoca-runtime.outPath)"
-          printf 'key=%s\n' "${store_path##*/}" >> "$GITHUB_OUTPUT"
+        run: python -m tools.modelica_models_cli.nix_cache key --github-output
       - name: Restore pinned Rumoca runtime
         uses: actions/cache@v6
         with:
           path: .ci-cache/rumoca-runtime
           key: rumoca-runtime-${{ runner.os }}-${{ runner.arch }}-${{ steps.rumoca-runtime.outputs.key }}
       - name: Import or build pinned Rumoca runtime
-        run: tools/cache-rumoca-runtime.sh .ci-cache/rumoca-runtime
+        run: python -m tools.modelica_models_cli.nix_cache ensure .ci-cache/rumoca-runtime
       - name: Run tests
-        run: nix run .#ci
+        run: nix run . -- test
       - name: Upload planning trajectories
         uses: actions/upload-artifact@v7
         with:
@@ -72,19 +70,17 @@ jobs:
         uses: DeterminateSystems/nix-installer-action@v22
       - id: rumoca-runtime
         name: Identify pinned Rumoca runtime
-        run: |
-          store_path="$(nix eval --raw .#rumoca-runtime.outPath)"
-          printf 'key=%s\n' "${store_path##*/}" >> "$GITHUB_OUTPUT"
+        run: python -m tools.modelica_models_cli.nix_cache key --github-output
       - name: Restore pinned Rumoca runtime
         uses: actions/cache@v6
         with:
           path: .ci-cache/rumoca-runtime
           key: rumoca-runtime-${{ runner.os }}-${{ runner.arch }}-${{ steps.rumoca-runtime.outputs.key }}
       - name: Import or build pinned Rumoca runtime
-        run: tools/cache-rumoca-runtime.sh .ci-cache/rumoca-runtime
+        run: python -m tools.modelica_models_cli.nix_cache ensure .ci-cache/rumoca-runtime
       - id: qualify
         name: Run ${{ matrix.label }} qualification
-        run: nix run .#${{ matrix.vehicle }}-qualification
+        run: nix run . -- qualify ${{ matrix.vehicle }}
       - id: verify-report
         name: Verify ${{ matrix.label }} qualification plots and report
         if: always()
@@ -92,9 +88,9 @@ jobs:
           FIGURE_NAME: ${{ matrix.figure }}
           REPORT_NAME: ${{ matrix.report }}
           VEHICLE: ${{ matrix.vehicle }}
-        run: |
-          test -s "artifacts/vehicles/$VEHICLE/$FIGURE_NAME"
-          test -s "artifacts/vehicles/$VEHICLE/$REPORT_NAME"
+        run: >-
+          python -m tools.modelica_models_cli.github_actions verify
+          --vehicle "$VEHICLE" --figure "$FIGURE_NAME" --report "$REPORT_NAME"
       - id: qualification-artifact
         name: Upload ${{ matrix.label }} qualification plots and report
         if: always()
@@ -112,28 +108,9 @@ jobs:
           REPORT_NAME: ${{ matrix.report }}
           VEHICLE_LABEL: ${{ matrix.label }}
           VEHICLE: ${{ matrix.vehicle }}
-        run: |
-          {
-            printf '## %s mission qualification\n\n' "$VEHICLE_LABEL"
-            printf 'Qualification: **%s**  \n' "$QUALIFICATION_OUTCOME"
-            printf 'Plot and report: **%s**\n\n' "$REPORT_OUTCOME"
-            if [ -n "$ARTIFACT_URL" ]; then
-              printf '[Download the plots and self-contained HTML report](%s)\n\n' "$ARTIFACT_URL"
-            fi
-            printf 'Open **%s** from the artifact to view the qualification plots and checks.\n' "$REPORT_NAME"
-            if [ "$VEHICLE" = rdd2 ]; then
-              printf '\nThe RDD2 artifact contains directly viewable PNGs:\n\n'
-              # shellcheck disable=SC2016 # Markdown backticks are intentional.
-              printf '%s\n' \
-                '- `rdd2-waypoint-summary.png` (top-down trajectory)' \
-                '- `rdd2-position-history.png` (east/north/altitude versus time)' \
-                '- `rdd2-velocity-history.png` (ENU velocity versus time)' \
-                '- `rdd2-nees-nis-consistency.png` (ESKF covariance consistency)' \
-                '- `rdd2-estimator-consistency.png` (ESKF/UKF NEES and NIS)' \
-                '- `rdd2-estimator-comparison.png` (accuracy and runtime comparison)'
-              if [ -s artifacts/vehicles/rdd2/waypoint-summary.md ]; then
-                printf '\n'
-                cat artifacts/vehicles/rdd2/waypoint-summary.md
-              fi
-            fi
-          } >> "$GITHUB_STEP_SUMMARY"
+        run: >-
+          python -m tools.modelica_models_cli.github_actions summary
+          --vehicle "$VEHICLE" --label "$VEHICLE_LABEL" --report "$REPORT_NAME"
+          --artifact-url "$ARTIFACT_URL"
+          --qualification-outcome "$QUALIFICATION_OUTCOME"
+          --report-outcome "$REPORT_OUTCOME"

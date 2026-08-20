@@ -13,12 +13,16 @@ stateVector
 injectVector
 localErrorVector
 predictNominalVector
+predictPreintegratedNominalVector
 localError
 outerProduct
 initialize
 predict
+predictPreintegrated
 correctUnscented
 correctGps
+correctMagnetometer
+correctBarometer
 correctOpticalFlow
 correctMocap
 step

@@ -6,11 +6,9 @@ model OpticalFlowPlaneTests
     output Boolean passed;
   protected
     constant Real tolerance = 2.0e-5;
-    Real flatVelocity[2];
     Real flatLos[2];
     Real flatRange;
     Real flatVisible;
-    Real inclinedVelocity[2];
     Real inclinedLos[2];
     Real inclinedRange;
     Real inclinedVisible;
@@ -25,24 +23,22 @@ model OpticalFlowPlaneTests
     Real delta[15];
   algorithm
     inclinedNormal := {0.2, -0.1, sqrt(0.95)};
-    (flatVelocity, flatLos, flatRange, flatVisible) :=
+    (flatLos, flatRange, flatVisible) :=
       Vehicles.Rdd2.simulateOpticalFlowPlane(
         {0.0, 0.0, 2.0}, {1.0, -0.5, 0.2}, identity(3),
         {0.1, -0.2, 0.3}, {0.0, 0.0, 1.0}, 0.0, 0.01, 0.35);
-    (inclinedVelocity, inclinedLos, inclinedRange, inclinedVisible) :=
+    (inclinedLos, inclinedRange, inclinedVisible) :=
       Vehicles.Rdd2.simulateOpticalFlowPlane(
         {0.0, 0.0, 2.0}, {1.0, -0.5, 0.2}, identity(3),
         {0.1, -0.2, 0.3}, inclinedNormal, 0.0, 0.01, 0.35);
     assert(flatVisible > 0.5 and inclinedVisible > 0.5,
       "The configured ground plane was not visible to the feature grid");
-    assert(Tests.Assertions.maxAbsVector(flatVelocity - {1.0, -0.5})
-        < tolerance and abs(flatRange - 2.0) < tolerance,
-      "Flat-plane flow compensation did not recover body planar velocity/range");
+    assert(abs(flatRange - 2.0) < tolerance
+        and Tests.Assertions.maxAbsVector(flatLos - {0.0015, 0.007})
+          < tolerance,
+      "Flat-plane flow is not calibrated to translation/range plus body rotation");
     assert(Tests.Assertions.maxAbsVector(inclinedLos - flatLos) > 1.0e-6,
       "Inclining the observed plane had no effect on the simulated raw image flow");
-    assert(Tests.Assertions.maxAbsVector(inclinedVelocity - {1.0, -0.5})
-        < tolerance,
-      "Plane-aware flow compensation did not recover body planar velocity");
 
     variances := Estimation.StrapdownINS.InitialVariances(
       position_m2=fill(1.0, 3), velocity_m2_s2=fill(1.0, 3),

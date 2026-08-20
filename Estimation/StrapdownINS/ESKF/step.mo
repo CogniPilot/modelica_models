@@ -8,6 +8,8 @@ function step
   input Avionics.ImuSample imu;
   input Avionics.MocapSample mocap;
   input Avionics.GpsSample gps;
+  input Avionics.MagnetometerSample magnetometer;
+  input Avionics.BarometerSample barometer;
   input Avionics.OpticalFlowSample opticalFlow;
   input Real gravityWorldEnu_m_s2[3];
   input Real dt;
@@ -26,6 +28,11 @@ function step
   input Real imuAngularVelocityHeldPrevious_rad_s[3];
   input Real imuSpecificForceHeldPrevious_m_s2[3];
   input Real imuTimestampHeldPrevious_s;
+  input Real mocapTimestampConsumedPrevious_s;
+  input Real gpsTimestampConsumedPrevious_s;
+  input Real magnetometerTimestampConsumedPrevious_s;
+  input Real barometerTimestampConsumedPrevious_s;
+  input Real opticalFlowTimestampConsumedPrevious_s;
   output Real positionNext[3];
   output Real velocityNext[3];
   output Real quaternionNext[4];
@@ -37,6 +44,8 @@ function step
   output Boolean mocapCorrectionAccepted;
   output Boolean gpsPositionCorrectionAccepted;
   output Boolean gpsVelocityCorrectionAccepted;
+  output Boolean magnetometerCorrectionAccepted;
+  output Boolean barometerCorrectionAccepted;
   output Boolean opticalFlowCorrectionAccepted;
   output Integer consecutiveRejectionsNext;
   output Real rejectionElapsedNext_s
@@ -78,6 +87,11 @@ function step
   output Boolean imuPayloadHeld
     "True on a tick whose published IMU-derived outputs are held from an
      earlier sample because the current one was not finite";
+  output Real mocapTimestampConsumedNext_s;
+  output Real gpsTimestampConsumedNext_s;
+  output Real magnetometerTimestampConsumedNext_s;
+  output Real barometerTimestampConsumedNext_s;
+  output Real opticalFlowTimestampConsumedNext_s;
 protected
   Estimation.StrapdownINS.ESKF.State prior;
   Estimation.StrapdownINS.ESKF.State working;
@@ -95,12 +109,21 @@ protected
   Integer anchorPresent;
   Boolean mocapSeedUsable;
   Boolean gpsSeedUsable;
+  Boolean magnetometerSeedUsable;
+  Boolean alignmentAccepted;
+  Boolean mocapNew;
+  Boolean gpsNew;
+  Boolean magnetometerNew;
+  Boolean barometerNew;
+  Boolean opticalFlowNew;
   Real mocapSeedQuaternionNorm;
 algorithm
   predictionAccepted := false;
   mocapCorrectionAccepted := false;
   gpsPositionCorrectionAccepted := false;
   gpsVelocityCorrectionAccepted := false;
+  magnetometerCorrectionAccepted := false;
+  barometerCorrectionAccepted := false;
   opticalFlowCorrectionAccepted := false;
   correctionAttempted := false;
   correctionAccepted := false;
@@ -114,6 +137,13 @@ algorithm
   mocapRejectionsNext := 0;
   gpsRejectionsNext := 0;
   opticalFlowRejectionsNext := 0;
+  mocapTimestampConsumedNext_s := mocapTimestampConsumedPrevious_s;
+  gpsTimestampConsumedNext_s := gpsTimestampConsumedPrevious_s;
+  magnetometerTimestampConsumedNext_s :=
+    magnetometerTimestampConsumedPrevious_s;
+  barometerTimestampConsumedNext_s := barometerTimestampConsumedPrevious_s;
+  opticalFlowTimestampConsumedNext_s :=
+    opticalFlowTimestampConsumedPrevious_s;
 
   // AFFIRMATIVE ADMISSION ON THE PREDICTION SIDE. The aiding path has an
   // innovation gate in front of it; the IMU path has nothing, so a single
@@ -130,12 +160,6 @@ algorithm
   // dropout and is the right response, because an unusable sample and an
   // absent sample carry the same information.
   //
-  // Computed HERE, before the initialization branch, rather than beside
-  // its own `if`: placed immediately before that branch, the loop makes
-  // rumoca 0.9.20 emit duplicate declarations for the shared temporaries
-  // of the State records both arms build, and the compile fails with
-  // EG012. Position is the only thing that differs -- the predicate is
-  // identical.
   // Publication usability is valid AND finite, not finite alone. A sample
   // flagged invalid still carries numbers, and those numbers can be finite
   // garbage; publishing them because they happen not to be NaN would pass
@@ -145,18 +169,62 @@ algorithm
   // publishing it are the same value, and demanding freshness would
   // substitute held values on every non-fresh tick for no gain.
   imuPayloadFinite := imu.valid
-    and abs(imu.timestamp_s) < FiniteMagnitudeLimit;
+    and abs(imu.timestamp_s) < FiniteMagnitudeLimit
+    and imu.integrationTime_s > 0.0
+    and imu.integrationTime_s < FiniteMagnitudeLimit;
   for i in 1:3 loop
     imuPayloadFinite := imuPayloadFinite
       and abs(imu.angularVelocityBodyFlu_rad_s[i]) < FiniteMagnitudeLimit
-      and abs(imu.specificForceBodyFlu_m_s2[i]) < FiniteMagnitudeLimit;
+      and abs(imu.specificForceBodyFlu_m_s2[i]) < FiniteMagnitudeLimit
+      and abs(imu.deltaAngleBodyFlu_rad[i]) < FiniteMagnitudeLimit
+      and abs(imu.deltaVelocityBodyFlu_m_s[i]) < FiniteMagnitudeLimit
+      and abs(imu.deltaPositionBodyFlu_m[i]) < FiniteMagnitudeLimit
+      and abs(imu.gyroscopeBiasLinearizationBodyFlu_rad_s[i])
+        < FiniteMagnitudeLimit
+      and abs(imu.accelerometerBiasLinearizationBodyFlu_m_s2[i])
+        < FiniteMagnitudeLimit;
+    for j in 1:3 loop
+      imuPayloadFinite := imuPayloadFinite
+        and abs(imu.deltaRotationGyroscopeBiasJacobian_s[i, j])
+          < FiniteMagnitudeLimit
+        and abs(imu.deltaVelocityGyroscopeBiasJacobian_m[i, j])
+          < FiniteMagnitudeLimit
+        and abs(imu.deltaVelocityAccelerometerBiasJacobian_s[i, j])
+          < FiniteMagnitudeLimit
+        and abs(imu.deltaPositionGyroscopeBiasJacobian_m_s[i, j])
+          < FiniteMagnitudeLimit
+        and abs(imu.deltaPositionAccelerometerBiasJacobian_s2[i, j])
+          < FiniteMagnitudeLimit;
+    end for;
   end for;
-  imuUsable := imuPayloadFinite;
+  for i in 1:4 loop
+    imuPayloadFinite := imuPayloadFinite
+      and abs(imu.deltaQuaternionBodyFlu[i]) < FiniteMagnitudeLimit;
+  end for;
+  // Cross-clock delivery is level-triggered: the producer holds the most
+  // recent packet, and timestamp novelty makes consumption exactly once.
+  imuUsable := imuPayloadFinite
+    and imu.timestamp_s > imuTimestampHeldPrevious_s + 1.0e-9;
+  mocapNew := mocap.valid
+    and abs(mocap.timestamp_s) < FiniteMagnitudeLimit
+    and mocap.timestamp_s > mocapTimestampConsumedPrevious_s + 1.0e-9;
+  gpsNew := gps.valid
+    and abs(gps.timestamp_s) < FiniteMagnitudeLimit
+    and gps.timestamp_s > gpsTimestampConsumedPrevious_s + 1.0e-9;
+  magnetometerNew := magnetometer.valid
+    and abs(magnetometer.timestamp_s) < FiniteMagnitudeLimit
+    and magnetometer.timestamp_s
+      > magnetometerTimestampConsumedPrevious_s + 1.0e-9;
+  barometerNew := barometer.valid
+    and abs(barometer.timestamp_s) < FiniteMagnitudeLimit
+    and barometer.timestamp_s > barometerTimestampConsumedPrevious_s + 1.0e-9;
+  opticalFlowNew := opticalFlow.valid
+    and abs(opticalFlow.timestamp_s) < FiniteMagnitudeLimit
+    and opticalFlow.timestamp_s
+      > opticalFlowTimestampConsumedPrevious_s + 1.0e-9;
 
-  // Seed usability, hoisted here for the same rumoca EG012 reason as the
-  // IMU predicate above: these loops sitting immediately before the
-  // initialization branch make the compiler emit duplicate declarations for
-  // the shared temporaries of the State records both arms build.
+  // Initialization payloads must satisfy the same finite-data contract as
+  // correction payloads before they can seed persistent state.
   mocapSeedUsable := mocap.valid;
   for i in 1:3 loop
     mocapSeedUsable := mocapSeedUsable
@@ -178,6 +246,13 @@ algorithm
   for i in 1:3 loop
     gpsSeedUsable := gpsSeedUsable
       and abs(gps.positionWorldEnu_m[i]) < FiniteMagnitudeLimit;
+  end for;
+  magnetometerSeedUsable := magnetometer.valid;
+  for i in 1:3 loop
+    magnetometerSeedUsable := magnetometerSeedUsable
+      and abs(magnetometer.magneticFieldBodyFlu_T[i]) < FiniteMagnitudeLimit
+      and abs(tuning.localMagneticFieldWorldEnu_T[i]) < FiniteMagnitudeLimit
+      and magnetometer.covarianceBody_T2[i, i] > 0.0;
   end for;
 
   // PUBLICATION HOLD FOR THE IMU PASSTHROUGH OUTPUTS.
@@ -236,12 +311,12 @@ algorithm
   // valid and fresh independently. Such a source would otherwise hold the
   // anchor forever without ever being attempted, and nothing could clear
   // the clock.
-  mocapStaleNext_s := if mocap.valid and mocap.fresh then 0.0
+  mocapStaleNext_s := if mocapNew then 0.0
     else mocapStalePrevious_s + dt;
-  gpsStaleNext_s := if gps.valid and gps.fresh
+  gpsStaleNext_s := if gpsNew
       and (gps.positionValid or gps.velocityValid) then 0.0
     else gpsStalePrevious_s + dt;
-  opticalFlowStaleNext_s := if opticalFlow.valid and opticalFlow.fresh
+  opticalFlowStaleNext_s := if opticalFlowNew
     then 0.0 else opticalFlowStalePrevious_s + dt;
 
   // THE ANCHOR SOURCE: the most authoritative source still delivering.
@@ -319,12 +394,9 @@ algorithm
   // stream it is rejecting. Re-seeding position, attitude and velocity
   // stays available through the commanded `reset` input, where it is a
   // deliberate act rather than a filter's guess.
-  // AFFIRMATIVE CONFIGURATION ADMISSION. The block's equation-section
-  // assertions state the same conditions, but rumoca does not emit block
-  // asserts into GALEC, so in flight code they do not exist: the tunables
-  // reach the ladder unchecked. The check therefore lives here, in code
-  // that ships, and the ladder must PROVE its configuration is usable
-  // before it is allowed to act on it.
+  // AFFIRMATIVE CONFIGURATION ADMISSION. The recovery ladder must prove its
+  // configuration is usable before it is allowed to act on it; this keeps
+  // the safety property local to the algorithm in every execution target.
   //
   // Both failure modes this replaces are silent. A NaN window makes every
   // comparison against it false, so the ladder simply never fires and
@@ -389,10 +461,23 @@ algorithm
         gps.positionWorldEnu_m
       else
         tuning.initialState.positionWorldEnu_m;
-    initializationQuaternion := if mocapSeedUsable then
-        mocap.quaternionWorldBody
-      else
-        tuning.initialState.quaternionWorldBody;
+    if mocapSeedUsable then
+      initializationQuaternion := mocap.quaternionWorldBody;
+      alignmentAccepted := true;
+    elseif imuUsable and magnetometerSeedUsable then
+      (initializationQuaternion, alignmentAccepted) :=
+        Estimation.StrapdownINS.initialAlignmentQuaternion(
+          imu.specificForceBodyFlu_m_s2,
+          magnetometer.magneticFieldBodyFlu_T,
+          tuning.localMagneticFieldWorldEnu_T,
+          tuning.initialState.quaternionWorldBody);
+    else
+      initializationQuaternion := tuning.initialState.quaternionWorldBody;
+      alignmentAccepted := false;
+    end if;
+    magnetometerCorrectionAccepted := magnetometerSeedUsable
+      and alignmentAccepted
+      and not mocapSeedUsable;
     working := initialize(
       initializationPosition,
       initializationQuaternion,
@@ -431,15 +516,10 @@ algorithm
     // a dropout and is the right response, because an unusable sample and
     // an absent sample carry the same information.
     if imuUsable then
-      working := predict(
-        prior,
-        imu.angularVelocityBodyFlu_rad_s,
-        imu.specificForceBodyFlu_m_s2,
-        gravityWorldEnu_m_s2,
-        dt,
-        tuning.processNoise);
+      working := predictPreintegrated(
+        prior, imu, gravityWorldEnu_m_s2, tuning.processNoise);
       predictionAccepted := true;
-    else
+    elseif not imuPayloadFinite then
       // No IMU this tick: the nominal state is held, but the covariance
       // must still GROW by the process noise for the elapsed interval.
       // Holding the covariance unchanged (the previous behaviour) made
@@ -458,6 +538,19 @@ algorithm
           prior.accelerometerBiasBodyFlu_m_s2,
         covariance=holdCovariance(
           prior.covariance, dt, tuning.processNoise));
+    else
+      // A valid held packet means the high-rate preintegrator is still
+      // accumulating the next delta-angle/delta-velocity observation. It is
+      // neither a new prediction nor an IMU dropout, so do not propagate the
+      // nominal state or add process noise a second time.
+      working := Estimation.StrapdownINS.ESKF.State(
+        positionWorldEnu_m=prior.positionWorldEnu_m,
+        velocityWorldEnu_m_s=prior.velocityWorldEnu_m_s,
+        quaternionWorldBody=prior.quaternionWorldBody,
+        gyroscopeBiasBodyFlu_rad_s=prior.gyroscopeBiasBodyFlu_rad_s,
+        accelerometerBiasBodyFlu_m_s2=
+          prior.accelerometerBiasBodyFlu_m_s2,
+        covariance=prior.covariance);
     end if;
     working := Estimation.StrapdownINS.ESKF.State(
       positionWorldEnu_m=working.positionWorldEnu_m,
@@ -488,7 +581,7 @@ algorithm
     // velocity estimate to -0.21 m/s against a 4 m/s truth. Isolation of a
     // broken high-authority source is the rejection CLOCK being anchored
     // to it; that works without any veto over the other sources.
-    if mocap.valid and mocap.fresh
+    if mocapNew
         and (not anchorExclusive or anchorPresent == SourceMocap) then
       (working, mocapCorrectionAccepted, correctionOutcome,
        normalizedInnovationSquared) :=
@@ -496,42 +589,90 @@ algorithm
       correctionAttempted := true;
       correctionAccepted := mocapCorrectionAccepted;
       correctionSource := SourceMocap;
-    elseif gps.valid and gps.fresh and gps.positionValid
+      mocapTimestampConsumedNext_s := mocap.timestamp_s;
+    elseif gpsNew and gps.positionValid
         and gps.velocityValid
         and (not anchorExclusive or anchorPresent == SourceGps) then
       (working, gpsPositionCorrectionAccepted, correctionOutcome,
        normalizedInnovationSquared) :=
-        correctGps(working, gps, tuning.innovationGate);
+        correctGps(working, gps, tuning.innovationGate,
+          imuTimestampHeldNext_s - gps.timestamp_s,
+          imuAngularVelocityHeldNext_rad_s,
+          imuSpecificForceHeldNext_m_s2, gravityWorldEnu_m_s2,
+          tuning.maximumAidingDelay_s);
       gpsVelocityCorrectionAccepted := gpsPositionCorrectionAccepted;
       correctionAttempted := true;
       correctionAccepted := gpsPositionCorrectionAccepted;
       correctionSource := SourceGps;
-    elseif gps.valid and gps.fresh and gps.positionValid
+      gpsTimestampConsumedNext_s := gps.timestamp_s;
+    elseif gpsNew and gps.positionValid
         and (not anchorExclusive or anchorPresent == SourceGps) then
       (working, gpsPositionCorrectionAccepted, correctionOutcome,
        normalizedInnovationSquared) :=
-        correctGpsPosition(working, gps, tuning.innovationGate);
+        correctGpsPosition(working, gps, tuning.innovationGate,
+          imuTimestampHeldNext_s - gps.timestamp_s,
+          imuAngularVelocityHeldNext_rad_s,
+          imuSpecificForceHeldNext_m_s2, gravityWorldEnu_m_s2,
+          tuning.maximumAidingDelay_s);
       correctionAttempted := true;
       correctionAccepted := gpsPositionCorrectionAccepted;
       correctionSource := SourceGps;
-    elseif gps.valid and gps.fresh and gps.velocityValid
+      gpsTimestampConsumedNext_s := gps.timestamp_s;
+    elseif gpsNew and gps.velocityValid
         and (not anchorExclusive or anchorPresent == SourceGps) then
       (working, gpsVelocityCorrectionAccepted, correctionOutcome,
        normalizedInnovationSquared) :=
-        correctGpsVelocity(working, gps, tuning.innovationGate);
+        correctGpsVelocity(working, gps, tuning.innovationGate,
+          imuTimestampHeldNext_s - gps.timestamp_s,
+          imuAngularVelocityHeldNext_rad_s,
+          imuSpecificForceHeldNext_m_s2, gravityWorldEnu_m_s2,
+          tuning.maximumAidingDelay_s);
       correctionAttempted := true;
       correctionAccepted := gpsVelocityCorrectionAccepted;
       correctionSource := SourceGps;
-    elseif opticalFlow.valid and opticalFlow.fresh
+      gpsTimestampConsumedNext_s := gps.timestamp_s;
+    elseif barometerNew then
+      (working, barometerCorrectionAccepted, correctionOutcome,
+       normalizedInnovationSquared) :=
+        correctBarometer(working, barometer,
+          tuning.barometerBias_m, tuning.barometerBiasVariance_m2,
+          tuning.innovationGate,
+          imuTimestampHeldNext_s - barometer.timestamp_s,
+          imuAngularVelocityHeldNext_rad_s,
+          imuSpecificForceHeldNext_m_s2, gravityWorldEnu_m_s2,
+          tuning.maximumAidingDelay_s);
+      correctionAttempted := true;
+      correctionAccepted := barometerCorrectionAccepted;
+      correctionSource := SourceBarometer;
+      barometerTimestampConsumedNext_s := barometer.timestamp_s;
+    elseif opticalFlowNew
         and (not anchorExclusive or anchorPresent == SourceOpticalFlow) then
       (working, opticalFlowCorrectionAccepted, correctionOutcome,
        normalizedInnovationSquared) :=
         correctOpticalFlow(working, opticalFlow, tuning.innovationGate,
-          tuning.opticalFlowGroundNormalWorldEnu,
-          tuning.opticalFlowGroundPlaneOffset_m);
+          imuTimestampHeldNext_s - opticalFlow.timestamp_s,
+          imuAngularVelocityHeldNext_rad_s,
+          imuSpecificForceHeldNext_m_s2, gravityWorldEnu_m_s2,
+          tuning.maximumAidingDelay_s,
+          tuning.minimumOpticalFlowQuality,
+          tuning.minimumOpticalFlowGroundDistance_m);
       correctionAttempted := true;
       correctionAccepted := opticalFlowCorrectionAccepted;
       correctionSource := SourceOpticalFlow;
+      opticalFlowTimestampConsumedNext_s := opticalFlow.timestamp_s;
+    elseif magnetometerNew then
+      (working, magnetometerCorrectionAccepted, correctionOutcome,
+       normalizedInnovationSquared) :=
+        correctMagnetometer(working, magnetometer,
+          tuning.localMagneticFieldWorldEnu_T, tuning.innovationGate,
+          imuTimestampHeldNext_s - magnetometer.timestamp_s,
+          imuAngularVelocityHeldNext_rad_s,
+          imuSpecificForceHeldNext_m_s2, gravityWorldEnu_m_s2,
+          tuning.maximumAidingDelay_s);
+      correctionAttempted := true;
+      correctionAccepted := magnetometerCorrectionAccepted;
+      correctionSource := SourceMagnetometer;
+      magnetometerTimestampConsumedNext_s := magnetometer.timestamp_s;
     end if;
 
     // RECOVERY TIMER, measured on the ANCHOR SOURCE ONLY.

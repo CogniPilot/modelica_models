@@ -25,8 +25,7 @@ algorithm
   // irrational quadratic phase it maps the indexed phase uniformly onto
   // [-pi/2, pi/2] without mod(), floor(), or another runtime quotient
   // discontinuity. The changing quadratic phase step avoids the strong
-  // lag-one correlation of a linear triangle-wave sequence while keeping
-  // the fixture accepted by the flight compiler.
+  // lag-one correlation of a linear triangle-wave sequence.
   uniform1 := min(max(
     0.5 + asin(sin(phase1)) / pi, 1.0e-12), 1.0 - 1.0e-12);
   uniform2 := min(max(

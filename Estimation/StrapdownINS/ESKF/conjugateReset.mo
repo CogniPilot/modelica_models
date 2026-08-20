@@ -52,34 +52,9 @@ algorithm
   // a health monitor that relied on covariance NaN poisoning to notice a bad
   // entry in a structurally-zero position would no longer see it.
   //
-  // THREE THINGS ABOUT THE WAY THIS IS WRITTEN ARE LOAD-BEARING; do not
-  // "simplify" them without re-measuring and re-checking bit-identity.
-  //
-  // 1. It is a separate function rather than inline code in correctLinear.
-  //    The conjugation there sits inside `if accepted then`, and rumoca
-  //    rejects an element-writing `for` loop inside a conditional branch of a
-  //    function with ED019 "unsupported Flat semantic owner `function
-  //    conditional`". The same loop in a function called from the branch is
-  //    accepted.
-  //
-  // 2. The four blocks are assigned as whole rows built with cat, not as the
-  //    four block slices `conjugated[1:9, 1:9] := ...` etc. Slice assignments
-  //    that partition the index space are fused by rumoca into a single
-  //    guarded 15x15 element nest that re-inlines the producers -- including
-  //    josephUpdate -- once per element. Measured: the block-slice form is
-  //    49x slower than the dense form it replaces, and a row-band variant of
-  //    it 96x slower.
-  //
-  // 3. transpose(J) is materialised into rotationJacobianTransposed and the
-  //    row products are written against the whole matrix. The natural
-  //    `for j ... conjugated[i, j] := rotated[i, 1:9] * rotationJacobian[j, :]`
-  //    is SILENTLY MISCOMPILED by rumoca: it compacts the inner element loop
-  //    to `conjugated[i, 1:9] := rotated[i, 1:9] * rotationJacobian[1:9, :]`,
-  //    which raises the operand from a row vector to the whole matrix and so
-  //    turns the vector-vector scalar product of MLS 10.6.4 into a
-  //    vector-matrix product -- J transposed, with no diagnostic. Keeping the
-  //    contraction as one row-vector-times-matrix expression leaves nothing
-  //    for that rewrite to do.
+  // Materializing transpose(J) and the shared left product makes the four
+  // mathematical blocks explicit, avoids repeated contractions, and keeps
+  // the operation count proportional to the nonzero reset structure.
   rotationJacobianTransposed := transpose(rotationJacobian);
   rotated := rotationJacobian * covariance[1:9, :];
   for i in 1:9 loop

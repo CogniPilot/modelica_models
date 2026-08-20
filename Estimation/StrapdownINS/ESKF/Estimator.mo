@@ -27,16 +27,10 @@ block Estimator
      probability at or below ~0.25% for the m = 2, 3, 6 corrections
      used here (chi-square tails: 12 @ m=2 -> 0.25%, 18 @ m=3 ->
      0.044%, 36 @ m=6 -> 2.8e-6).";
-  // The four ladder tunables below carry `min` bounds that are strictly
-  // positive, not merely non-negative, and are additionally checked by
-  // assertions in the equation section. Both are needed. A `min` of 0.0
-  // does not reject a misconfigured negative value: rumoca CLAMPS it, and
-  // clamping a negative window to 0.0 lands on the one value that makes
-  // the ladder fire on the very first tick and never stop -- measured,
-  // with `both = -1` written as the conventional "disabled" idiom, as a
-  // permanently degraded filter from t = 0. A strictly positive `min`
-  // makes the clamp land somewhere harmless; the assertions make the
-  // misconfiguration visible instead of silently reinterpreted.
+  // The recovery-window parameters are validated both at the public block
+  // boundary and inside the pure step function. The duplicated contract is
+  // intentional: invalid configuration must disable recovery rather than
+  // silently selecting an unsafe recovery mode.
   parameter Real covarianceInflateWindow_s(unit = "s") = 1.0
     "Unbroken wall-clock time during which the anchor source has been
      unable to move the state, after which the position and velocity
@@ -114,7 +108,25 @@ protected
   discrete Boolean mocapCorrectionAccepted(start = false, fixed = true);
   discrete Boolean gpsPositionCorrectionAccepted(start = false, fixed = true);
   discrete Boolean gpsVelocityCorrectionAccepted(start = false, fixed = true);
+  discrete Boolean magnetometerCorrectionAccepted(start = false, fixed = true);
+  discrete Boolean barometerCorrectionAccepted(start = false, fixed = true);
   discrete Boolean opticalFlowCorrectionAccepted(start = false, fixed = true);
+  discrete Boolean barometerBiasInitialized(start = false, fixed = true);
+  discrete Boolean barometerBiasUpdateAccepted(start = false, fixed = true);
+  discrete Integer barometerBiasCalibrationCount(start = 0, fixed = true);
+  discrete Real stateBarometerBias_m(start = 0.0, fixed = true);
+  discrete Real stateBarometerBiasVariance_m2(start = 4.0, fixed = true);
+  discrete Boolean terrainInitialized(start = false, fixed = true);
+  discrete Real stateTerrainAltitude_m(start = 0.0, fixed = true);
+  discrete Real stateTerrainVariance_m2(start = 4.0, fixed = true);
+  discrete Boolean terrainCorrectionAccepted(start = false, fixed = true);
+  discrete Real auxiliaryRotationWorldBody[3, 3](each start=0.0, each fixed=true);
+  discrete Real auxiliaryPredictedVariance_m2(start=1.0, fixed=true);
+  discrete Real auxiliaryObservationVariance_m2(start=1.0, fixed=true);
+  discrete Real auxiliaryInnovationVariance_m2(start=1.0, fixed=true);
+  discrete Real auxiliaryGain(start=0.0, fixed=true);
+  discrete Real auxiliaryObservation_m(start=0.0, fixed=true);
+  discrete Real auxiliaryCosTilt(start=1.0, fixed=true);
   discrete Integer consecutiveRejectedCorrections(start = 0, fixed = true);
   discrete Real rejectionElapsed_s(start = 0.0, fixed = true);
   discrete Integer mocapRejections(start = 0, fixed = true);
@@ -133,9 +145,130 @@ protected
   discrete Real imuSpecificForceHeld_m_s2[3](each start = 0.0, each fixed = true);
   discrete Real imuTimestampHeld_s(start = 0.0, fixed = true);
   discrete Boolean imuPayloadHeld(start = false, fixed = true);
+  discrete Real mocapTimestampConsumed_s(start = -1.0e30, fixed = true);
+  discrete Real gpsTimestampConsumed_s(start = -1.0e30, fixed = true);
+  discrete Real magnetometerTimestampConsumed_s(start = -1.0e30, fixed = true);
+  discrete Real barometerTimestampConsumed_s(start = -1.0e30, fixed = true);
+  discrete Real opticalFlowTimestampConsumed_s(start = -1.0e30, fixed = true);
+  discrete Real barometerBiasTimestampConsumed_s(
+    start = -1.0e30, fixed = true);
+  discrete Real terrainTimestampConsumed_s(start = -1.0e30, fixed = true);
 
 algorithm
   when sample(0.0, samplePeriod) then
+    barometerBiasTimestampConsumed_s := if not reset
+        and barometer.valid
+        and abs(barometer.timestamp_s)
+          < Estimation.StrapdownINS.ESKF.FiniteMagnitudeLimit
+        and barometer.timestamp_s
+          > pre(barometerBiasTimestampConsumed_s) + 1.0e-9
+      then barometer.timestamp_s
+      elseif reset then -1.0e30
+      else pre(barometerBiasTimestampConsumed_s);
+    terrainTimestampConsumed_s := if not reset
+        and opticalFlow.valid
+        and abs(opticalFlow.timestamp_s)
+          < Estimation.StrapdownINS.ESKF.FiniteMagnitudeLimit
+        and opticalFlow.timestamp_s
+          > pre(terrainTimestampConsumed_s) + 1.0e-9
+      then opticalFlow.timestamp_s
+      elseif reset then -1.0e30
+      else pre(terrainTimestampConsumed_s);
+    auxiliaryRotationWorldBody := LieGroups.SO3.Quat.to_DCM(
+      pre(stateQuaternion));
+    auxiliaryPredictedVariance_m2 := max(
+      if not reset and pre(barometerBiasCalibrationCount) > 0 then
+        pre(stateBarometerBiasVariance_m2)
+      else initialBarometerBiasVariance_m2, 1.0e-12)
+      + max(barometerBiasProcessNoise_m2_s, 0.0) * samplePeriod;
+    auxiliaryObservationVariance_m2 := barometer.variance_m2;
+    auxiliaryInnovationVariance_m2 := auxiliaryPredictedVariance_m2
+      + auxiliaryObservationVariance_m2;
+    auxiliaryObservation_m := barometer.altitudeWorldEnu_m
+      - initialPositionWorldEnu_m[3];
+    // Average a finite stationary startup window against the declared local
+    // origin. During this window the sample is withheld from the navigation
+    // correction, avoiding the positive feedback caused by using the same
+    // pressure observation to update both altitude and its datum.
+    if not reset and not pre(barometerBiasInitialized) and barometer.valid
+        and abs(barometer.timestamp_s)
+          < Estimation.StrapdownINS.ESKF.FiniteMagnitudeLimit
+        and barometer.timestamp_s
+          > pre(barometerBiasTimestampConsumed_s) + 1.0e-9
+        and barometer.variance_m2 > 0.0
+        and auxiliaryInnovationVariance_m2 > 1.0e-12 then
+      auxiliaryGain := auxiliaryPredictedVariance_m2
+        / auxiliaryInnovationVariance_m2;
+      stateBarometerBias_m := (if not reset
+          and pre(barometerBiasCalibrationCount) > 0
+          then pre(stateBarometerBias_m)
+        else initialBarometerBias_m) + auxiliaryGain
+          * (auxiliaryObservation_m - (if not reset
+              and pre(barometerBiasCalibrationCount) > 0
+              then pre(stateBarometerBias_m)
+            else initialBarometerBias_m));
+      stateBarometerBiasVariance_m2 := max((1.0 - auxiliaryGain)
+        * auxiliaryPredictedVariance_m2, 1.0e-12);
+      barometerBiasCalibrationCount :=
+        pre(barometerBiasCalibrationCount) + 1;
+      barometerBiasInitialized := pre(barometerBiasCalibrationCount) + 1
+        >= barometerBiasCalibrationSamples;
+      barometerBiasUpdateAccepted := true;
+    else
+      stateBarometerBias_m := if not reset
+          and pre(barometerBiasCalibrationCount) > 0
+        then pre(stateBarometerBias_m) else initialBarometerBias_m;
+      stateBarometerBiasVariance_m2 := auxiliaryPredictedVariance_m2;
+      barometerBiasInitialized := not reset and pre(barometerBiasInitialized);
+      barometerBiasCalibrationCount := if reset then 0
+        else pre(barometerBiasCalibrationCount);
+      barometerBiasUpdateAccepted := false;
+    end if;
+
+    auxiliaryCosTilt := auxiliaryRotationWorldBody[3, 3];
+    auxiliaryPredictedVariance_m2 := max(
+      if not reset and pre(terrainInitialized) then
+        pre(stateTerrainVariance_m2) else initialTerrainVariance_m2,
+      1.0e-12) + max(terrainProcessNoise_m2_s, 0.0) * samplePeriod;
+    auxiliaryObservation_m := pre(statePosition[3])
+      - opticalFlow.groundDistance_m * auxiliaryCosTilt;
+    auxiliaryObservationVariance_m2 := auxiliaryCosTilt * auxiliaryCosTilt
+        * opticalFlow.groundDistanceVariance_m2
+      + pre(stateCovariance[1, 1]) + pre(stateCovariance[2, 2])
+      + pre(stateCovariance[3, 3])
+      + opticalFlow.groundDistance_m * opticalFlow.groundDistance_m
+        * (pre(stateCovariance[7, 7]) + pre(stateCovariance[8, 8]));
+    auxiliaryInnovationVariance_m2 := auxiliaryPredictedVariance_m2
+      + auxiliaryObservationVariance_m2;
+    if not reset and opticalFlow.valid
+        and abs(opticalFlow.timestamp_s)
+          < Estimation.StrapdownINS.ESKF.FiniteMagnitudeLimit
+        and opticalFlow.timestamp_s
+          > pre(terrainTimestampConsumed_s) + 1.0e-9
+        and opticalFlow.quality >= minimumOpticalFlowQuality
+        and opticalFlow.groundDistance_m > 0.05
+        and opticalFlow.groundDistanceVariance_m2 > 0.0
+        and auxiliaryCosTilt >= minimumRangeCosTilt
+        and auxiliaryInnovationVariance_m2 > 1.0e-12 then
+      auxiliaryGain := auxiliaryPredictedVariance_m2
+        / auxiliaryInnovationVariance_m2;
+      stateTerrainAltitude_m := (if not reset and pre(terrainInitialized)
+          then pre(stateTerrainAltitude_m)
+        else initialTerrainAltitudeWorldEnu_m) + auxiliaryGain
+          * (auxiliaryObservation_m - (if not reset and pre(terrainInitialized)
+              then pre(stateTerrainAltitude_m)
+            else initialTerrainAltitudeWorldEnu_m));
+      stateTerrainVariance_m2 := max((1.0 - auxiliaryGain)
+        * auxiliaryPredictedVariance_m2, 1.0e-12);
+      terrainInitialized := true;
+      terrainCorrectionAccepted := true;
+    else
+      stateTerrainAltitude_m := if not reset and pre(terrainInitialized)
+        then pre(stateTerrainAltitude_m) else initialTerrainAltitudeWorldEnu_m;
+      stateTerrainVariance_m2 := auxiliaryPredictedVariance_m2;
+      terrainInitialized := not reset and pre(terrainInitialized);
+      terrainCorrectionAccepted := false;
+    end if;
     (statePosition,
      stateVelocity,
      stateQuaternion,
@@ -147,6 +280,8 @@ algorithm
      mocapCorrectionAccepted,
      gpsPositionCorrectionAccepted,
      gpsVelocityCorrectionAccepted,
+     magnetometerCorrectionAccepted,
+     barometerCorrectionAccepted,
      opticalFlowCorrectionAccepted,
      consecutiveRejectedCorrections,
      rejectionElapsed_s,
@@ -165,7 +300,12 @@ algorithm
      imuAngularVelocityHeld_rad_s,
      imuSpecificForceHeld_m_s2,
      imuTimestampHeld_s,
-     imuPayloadHeld) :=
+     imuPayloadHeld,
+     mocapTimestampConsumed_s,
+     gpsTimestampConsumed_s,
+     magnetometerTimestampConsumed_s,
+     barometerTimestampConsumed_s,
+     opticalFlowTimestampConsumed_s) :=
       Estimation.StrapdownINS.ESKF.step(
         pre(initialized),
         Estimation.StrapdownINS.ESKF.State(
@@ -179,6 +319,15 @@ algorithm
         imu,
         mocap,
         gps,
+        magnetometer,
+        Avionics.BarometerSample(
+          valid=barometer.valid and pre(barometerBiasInitialized)
+            and barometer.timestamp_s
+              > pre(barometerBiasTimestampConsumed_s) + 1.0e-9,
+          fresh=barometer.fresh,
+          timestamp_s=barometer.timestamp_s,
+          altitudeWorldEnu_m=barometer.altitudeWorldEnu_m,
+          variance_m2=barometer.variance_m2),
         opticalFlow,
         gravityWorldEnu_m_s2,
         samplePeriod,
@@ -194,9 +343,13 @@ algorithm
           processNoise=processNoise,
           varianceLimits=varianceLimits,
           innovationGate=innovationGate,
-          opticalFlowGroundNormalWorldEnu=
-            opticalFlowGroundNormalWorldEnu,
-          opticalFlowGroundPlaneOffset_m=opticalFlowGroundPlaneOffset_m,
+          localMagneticFieldWorldEnu_T=localMagneticFieldWorldEnu_T,
+          barometerBias_m=stateBarometerBias_m,
+          barometerBiasVariance_m2=stateBarometerBiasVariance_m2,
+          maximumAidingDelay_s=maximumAidingDelay_s,
+          minimumOpticalFlowQuality=minimumOpticalFlowQuality,
+          minimumOpticalFlowGroundDistance_m=
+            minimumOpticalFlowGroundDistance_m,
           covarianceInflateWindow_s=covarianceInflateWindow_s,
           covarianceInflateTimeConstant_s=covarianceInflateTimeConstant_s,
           aidingDivergentWindow_s=aidingDivergentWindow_s,
@@ -212,7 +365,12 @@ algorithm
         pre(opticalFlowStale_s),
         pre(imuAngularVelocityHeld_rad_s),
         pre(imuSpecificForceHeld_m_s2),
-        pre(imuTimestampHeld_s));
+        pre(imuTimestampHeld_s),
+        pre(mocapTimestampConsumed_s),
+        pre(gpsTimestampConsumed_s),
+        pre(magnetometerTimestampConsumed_s),
+        pre(barometerTimestampConsumed_s),
+        pre(opticalFlowTimestampConsumed_s));
     (estimate.valid,
      estimate.timestamp_s,
      estimate.positionWorldEnu_m,
@@ -240,7 +398,26 @@ algorithm
           fresh=imu.fresh,
           timestamp_s=imuTimestampHeld_s,
           angularVelocityBodyFlu_rad_s=imuAngularVelocityHeld_rad_s,
-          specificForceBodyFlu_m_s2=imuSpecificForceHeld_m_s2),
+          specificForceBodyFlu_m_s2=imuSpecificForceHeld_m_s2,
+          deltaAngleBodyFlu_rad=imu.deltaAngleBodyFlu_rad,
+          deltaVelocityBodyFlu_m_s=imu.deltaVelocityBodyFlu_m_s,
+          deltaPositionBodyFlu_m=imu.deltaPositionBodyFlu_m,
+          deltaQuaternionBodyFlu=imu.deltaQuaternionBodyFlu,
+          gyroscopeBiasLinearizationBodyFlu_rad_s=
+            imu.gyroscopeBiasLinearizationBodyFlu_rad_s,
+          accelerometerBiasLinearizationBodyFlu_m_s2=
+            imu.accelerometerBiasLinearizationBodyFlu_m_s2,
+          deltaRotationGyroscopeBiasJacobian_s=
+            imu.deltaRotationGyroscopeBiasJacobian_s,
+          deltaVelocityGyroscopeBiasJacobian_m=
+            imu.deltaVelocityGyroscopeBiasJacobian_m,
+          deltaVelocityAccelerometerBiasJacobian_s=
+            imu.deltaVelocityAccelerometerBiasJacobian_s,
+          deltaPositionGyroscopeBiasJacobian_m_s=
+            imu.deltaPositionGyroscopeBiasJacobian_m_s,
+          deltaPositionAccelerometerBiasJacobian_s2=
+            imu.deltaPositionAccelerometerBiasJacobian_s2,
+          integrationTime_s=imu.integrationTime_s),
         gravityWorldEnu_m_s2,
         estimateValid);
     status.initialized := initialized;
@@ -248,6 +425,9 @@ algorithm
     status.mocapCorrectionAccepted := mocapCorrectionAccepted;
     status.gpsPositionCorrectionAccepted := gpsPositionCorrectionAccepted;
     status.gpsVelocityCorrectionAccepted := gpsVelocityCorrectionAccepted;
+    status.magnetometerCorrectionAccepted := magnetometerCorrectionAccepted;
+    status.barometerCorrectionAccepted := barometerCorrectionAccepted;
+    status.terrainCorrectionAccepted := terrainCorrectionAccepted;
     status.opticalFlowCorrectionAccepted := opticalFlowCorrectionAccepted;
     status.consecutiveRejectedCorrections := consecutiveRejectedCorrections;
     status.rejectionElapsed_s := rejectionElapsed_s;
@@ -266,6 +446,11 @@ equation
   navigationCovarianceLocal = stateCovariance[1:6, 1:6];
   gyroscopeBiasBodyFlu_rad_s = stateGyroscopeBias;
   accelerometerBiasBodyFlu_m_s2 = stateAccelerometerBias;
+  barometerBias_m = stateBarometerBias_m;
+  barometerBiasVariance_m2 = stateBarometerBiasVariance_m2;
+  terrainAltitudeWorldEnu_m = stateTerrainAltitude_m;
+  terrainAltitudeVariance_m2 = stateTerrainVariance_m2;
+  heightAboveTerrain_m = statePosition[3] - stateTerrainAltitude_m;
 
   // Misconfiguration must be loud, not silently reinterpreted. The `min`
   // attributes above stop a negative value landing on 0.0, which is the

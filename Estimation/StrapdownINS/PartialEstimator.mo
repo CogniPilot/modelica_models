@@ -27,10 +27,34 @@ partial block PartialEstimator
     "Unit normal of the locally planar surface observed by the nadir camera";
   parameter Real opticalFlowGroundPlaneOffset_m = 0.0
     "Plane offset d in normal' * position = d";
+  parameter Real localMagneticFieldWorldEnu_T[3] =
+    {18.0e-6, 4.0e-6, -47.0e-6}
+    "Local geomagnetic field reference used only for yaw";
+  parameter Real maximumAidingDelay_s(unit = "s") = 0.25
+    "Reject aiding whose timestamp is older than this fixed-lag horizon";
+  parameter Real minimumOpticalFlowQuality = 0.2;
+  parameter Real minimumOpticalFlowGroundDistance_m = 0.2
+    "Reject flow/range velocity observations inside the range sensor near field";
+  parameter Real initialBarometerBias_m = 0.0;
+  parameter Real initialBarometerBiasVariance_m2 = 4.0;
+  parameter Real barometerBiasProcessNoise_m2_s = 1.0e-4;
+  parameter Integer barometerBiasCalibrationSamples(min = 1) = 25
+    "Stationary pressure samples used to establish the local altitude datum";
+  parameter Real initialTerrainAltitudeWorldEnu_m =
+    opticalFlowGroundPlaneOffset_m;
+  parameter Real initialTerrainVariance_m2 = 4.0;
+  parameter Real terrainProcessNoise_m2_s = 1.0e-3;
+  parameter Real minimumRangeCosTilt = 0.5
+    "Reject downward range when the boresight is more than 60 degrees from vertical";
   output Real navigationCovarianceLocal[6, 6]
     "Position/velocity covariance in body-local tangent axes";
   output Real gyroscopeBiasBodyFlu_rad_s[3];
   output Real accelerometerBiasBodyFlu_m_s2[3];
+  output Real barometerBias_m;
+  output Real barometerBiasVariance_m2;
+  output Real terrainAltitudeWorldEnu_m;
+  output Real terrainAltitudeVariance_m2;
+  output Real heightAboveTerrain_m;
 
   annotation(Documentation(info = "<html>
     <p>Every algorithm under <code>Estimation.StrapdownINS</code> implements this

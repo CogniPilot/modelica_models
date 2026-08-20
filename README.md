@@ -44,6 +44,15 @@ artifacts; they do not own alternate copies of these models.
   flight-control models, avionics plant interfaces, and qualification missions.
   RDD2 includes both its cascaded sampled controller and a thin vehicle
   parameterization of the reusable log-linear controller.
+- `tools/`: non-library Python orchestration for validation, qualification,
+  export, CI caching, and reports. Nothing under this directory is part of the
+  Modelica package API.
+
+The repository keeps automation outside its Modelica package trees, following
+the same separation used by the
+[Modelica Standard Library](https://github.com/modelica/ModelicaStandardLibrary).
+The structure check validates `within` declarations, `package.order` coverage,
+and package metadata without requiring Nix.
 
 ## Navigation estimator boundary
 
@@ -141,35 +150,44 @@ that contain event/action partitions; it must continue to fail closed until
 the FMI execution kernel preserves those partitions and its conformance tests
 cover them.
 
-The pinned Nix applications are:
+Install the cross-platform repository command from the checkout:
 
 ```bash
-nix run .#cubs2-qualification
-nix run .#rdd2-qualification
-nix run .#vehicle-qualification
-
-nix run .#cubs2-export-controller
-nix run .#cubs2-export-plant
-nix run .#rdd2-export-controller
-nix run .#rdd2-export-estimator
-nix run .#rdd2-export-plant
+python -m pip install -e .
+modelica-models doctor
 ```
 
-For repeated qualification work, enter the development shell once:
+Python owns the task definitions and process orchestration. Run qualifications
+and exports with the same command on Linux, macOS, or Windows:
+
+```bash
+modelica-models qualify cubs2
+modelica-models qualify rdd2
+modelica-models qualify all
+
+modelica-models export cubs2-controller
+modelica-models export cubs2-plant
+modelica-models export rdd2-controller
+modelica-models export rdd2-estimator
+modelica-models export rdd2-plant
+```
+
+Rumoca's CLI and matching Python bindings are required for qualification;
+OpenModelica or a working Docker installation is required for the full test
+suite. Tool locations can be overridden with `MODELICA_MODELS_RUMOCA`,
+`MODELICA_MODELS_OMC`, and `MODELICA_MODELS_DOCKER`. Set
+`MODELICA_MODELS_ROOT` when running outside the checkout.
+
+Nix is optional. It only provides pinned compilers, Python dependencies, and
+environment variables; it does not define tasks or task-specific wrappers:
 
 ```bash
 nix develop
-vehicle-qualification
-cubs2-qualification
-rdd2-qualification
-rdd2-optical-mission-plot --help
-rdd2-gps-mission-plot --help
-trajectory-compare --help
-```
+modelica-models qualify rdd2
 
-These commands are added to `PATH` by the development shell. The shell also
-sets `MODELICA_MODELS_ROOT` to the checkout root, so qualification commands
-continue to work after changing into a subdirectory.
+# One command without entering the shell:
+nix run . -- test
+```
 
 CI runs the CUBS2 and RDD2 qualifications as independent jobs. RDD2 flies the
 truth-feedback baseline plus optical-flow- and GPS-aided ESKF and UKF missions. Each
@@ -185,9 +203,8 @@ Modelica Standard Library/OpenModelica Xorshift sequence. Qualification checks
 the empirical variance and cross-correlation against the declared assumptions;
 `enableSensorNoise=false` provides a noiseless diagnostic run.
 
-Set `MODELICA_MODELS_ROOT` when invoking an application from outside this
-checkout. Extra command-line arguments are forwarded to the selected
-qualification or Rumoca export command.
+Arguments after `--` are forwarded to the selected qualification, exporter,
+or report implementation.
 
 ### RDD2 optical-flow and GPS mission trace reports
 
@@ -197,22 +214,19 @@ CSV under `artifacts/vehicles/rdd2/mission-plots/<mode>/`. They report model
 traces; they do not qualify a physical aircraft or issue a flight-acceptance
 verdict.
 
-Live simulation is selected when no CSV is passed:
+Invoke the reporter through the Python orchestration command:
 
 ```bash
-nix develop path:. --command rdd2-optical-mission-plot --engine omc
-nix develop path:. --command rdd2-gps-mission-plot --engine omc
+modelica-models mission-report optical -- --engine omc
+modelica-models mission-report gps -- --engine omc
 ```
 
-The wrapper fixes the OpenModelica executable to the pinned Nix store path; it
-has no command-line executable override. It also removes inherited Python and
-Modelica search paths, disables the user Python site and unsafe current-working-
-directory imports, and executes the reporter with the pinned Nix Python. Live
-simulation refuses tracked modifications or untracked files among Modelica
-sources, scenario TOML, `Resources/`, and `package.order`, and checks again
-after simulation so a report cannot label dirty inputs with the clean revision.
-Live provenance records the resolved Nix compiler executable or module and its
-SHA-256 digest in addition to the pinned source revision and reporter Python.
+Live simulation refuses tracked modifications or untracked files among
+Modelica sources, scenario TOML, `Resources/`, and `package.order`, and checks
+again after simulation so a report cannot label dirty inputs with the clean
+revision. Provenance records resolved compiler and Python paths and their
+SHA-256 digests. Exact receipted compiler and model revisions are mandatory
+whether the tools came from Nix or a native installation.
 
 The optical command always selects `Vehicles.Rdd2.Test.WaypointMission`; the
 GPS command always selects `Vehicles.Rdd2.Test.GlobalWaypointMission`. Defaults
@@ -222,16 +236,16 @@ diagnostic. The optical report shows absolute-position drift without applying
 a threshold because velocity-only optical aiding does not observe absolute
 position.
 
-The frozen Rumoca flight compiler revision `9860c307` is not yet remotely
-resolvable by this flake, so live Rumoca reporting fails closed instead of
-silently using the older pin. A receipted Rumoca CSV remains convenient to
-replay through Nix:
+The frozen Rumoca flight compiler revision `9860c307` is not available from the
+current optional environment, so live Rumoca reporting fails closed instead of
+silently using a different compiler. A receipted Rumoca CSV can still be
+replayed:
 
 ```bash
-nix develop path:. --command rdd2-optical-mission-plot \
+modelica-models mission-report optical -- \
   --engine rumoca --rumoca-csv /path/to/trace.csv \
   --rumoca-receipt /path/to/trace.receipt.json
-nix develop path:. --command rdd2-gps-mission-plot \
+modelica-models mission-report gps -- \
   --engine rumoca --rumoca-csv /path/to/trace.csv \
   --rumoca-receipt /path/to/trace.receipt.json
 ```
@@ -273,14 +287,14 @@ Named vehicle missions write a canonical, execution-neutral trajectory log:
 time_s,x_m,y_m,z_m,roll_rad,pitch_rad,yaw_rad
 ```
 
-`tools/trajectory_compare.py` treats one such log as the gold standard,
+The trajectory comparison tool treats one such log as the gold standard,
 interpolates any number of named candidate logs at its timestamps, renders
 full trajectory/component/error plots, and enforces duration, position,
 altitude, and attitude limits. It intentionally knows nothing about the system
-that produced a log. Run the pinned interface with:
+that produced a log:
 
 ```sh
-nix run .#trajectory-compare -- --help
+modelica-models trajectory-compare -- --help
 ```
 
 Qualification artifacts remain ignored build outputs under
@@ -296,30 +310,28 @@ linear-algebra systems, geometric error-state filters, Dubins paths, and analyti
 trajectories.
 No Python source generation or numerical oracle is involved.
 
-Run the complete suite in the pinned development environment:
+Run the complete suite with the installed Python command:
 
 ```bash
-nix run .#ci
+modelica-models test
 ```
 
-The cross-platform Python task runner uses the standard library for process and
-filesystem orchestration and Matplotlib only for rendering the PNG figures.
-With Python, Matplotlib, and the required compiler tools available, the
-equivalent local commands are:
+Individual checks are available through the same interface:
 
-```text
-python -m tools.ci test
-python -m tools.ci omc
-python -m tools.ci rumoca
-python -m tools.ci plots
+```bash
+modelica-models check-structure
+modelica-models test omc
+modelica-models test rumoca
+modelica-models test plots
 ```
 
-The runner uses the pinned OpenModelica container when Docker is operational,
-then falls back to a local `omc`. It handles paths, temporary directories,
-process failures, and artifact validation without platform-specific scripts.
-Python does not compute test oracles: mathematical pass/fail checks remain
-Modelica assertions executed by OpenModelica and, where currently supported,
-Rumoca.
+From an uninstalled source checkout, replace `modelica-models` with
+`python -m tools.modelica_models_cli`. The runner uses the declared
+OpenModelica container when Docker is operational, then falls back to a local
+`omc`. It handles paths, temporary directories, process failures, and artifact
+validation without platform-specific scripts. Python does not compute test
+oracles: mathematical pass/fail checks remain Modelica assertions executed by
+OpenModelica and, where currently supported, Rumoca.
 
 The CI command also simulates reproducible planning examples and writes CSV
 data plus PNG plots under `artifacts/planning/`. The primary aircraft figure is
@@ -347,10 +359,11 @@ pass assertions; it is not inferred from geometric smoothness alone.
 To regenerate only the planning artifacts:
 
 ```bash
-nix run .#ci -- plots
+modelica-models test plots
 ```
 
-CI uses Nix to pin both compiler checks. OpenModelica runs the complete
+CI uses the same Python commands. Its optional Nix layer pins compiler binaries
+and caches only the Rumoca runtime when that pin changes. OpenModelica runs the complete
 assertion simulation using the pinned container image, with a local `omc` as
 the fallback when Docker is unavailable. Rumoca independently parses, resolves, flattens, and lowers
 the same `Tests.All` model to DAE form, then executes SO(2) and SE(2) assertion

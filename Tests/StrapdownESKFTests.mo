@@ -23,16 +23,7 @@ model StrapdownESKFTests
     Avionics.MocapSample mocap;
     Avionics.OpticalFlowSample opticalFlow;
     Avionics.ImuSample imu;
-    Boolean navigationValid;
-    Real navigationTimestamp_s;
-    Real navigationPositionWorldEnu_m[3];
-    Real navigationVelocityWorldEnu_m_s[3];
-    Real navigationAccelerationWorldEnu_m_s2[3];
-    Real navigationQuaternionWorldBody[4];
-    Real navigationRotationWorldBody[3, 3];
-    Real navigationEulerRpy_rad[3];
-    Real navigationAngularVelocityBodyFlu_rad_s[3];
-    Real navigationAngularVelocityWorldEnu_rad_s[3];
+    Avionics.NavigationEstimate navigation;
     Real A[15, 15];
     Real transition[15, 15];
     Real hoverTransition[15, 15];
@@ -296,9 +287,10 @@ model StrapdownESKFTests
       valid=true,
       fresh=true,
       timestamp_s=0.01,
-      velocityBodyFlu_m_s={0.5, 0.0},
-      velocityCovarianceBody_m2_s2=identity(2) * 0.01,
-      integratedLineOfSight_rad=zeros(2),
+      integratedLineOfSight_rad={0.0, 0.005},
+      integratedLineOfSightCovariance_rad2=identity(2) * 1.0e-6,
+      integratedGyroscopeBodyFlu_rad=zeros(3),
+      integratedGyroscopeCovariance_rad2=identity(3) * 1.0e-10,
       integrationTime_s=0.01,
       groundDistance_m=1.0,
       groundDistanceVariance_m2=0.01,
@@ -312,17 +304,29 @@ model StrapdownESKFTests
       fresh=true,
       timestamp_s=0.01,
       angularVelocityBodyFlu_rad_s=zeros(3),
-      specificForceBodyFlu_m_s2={0.0, 0.0, 9.81});
-    (navigationValid,
-     navigationTimestamp_s,
-     navigationPositionWorldEnu_m,
-     navigationVelocityWorldEnu_m_s,
-     navigationAccelerationWorldEnu_m_s2,
-     navigationQuaternionWorldBody,
-     navigationRotationWorldBody,
-     navigationEulerRpy_rad,
-     navigationAngularVelocityBodyFlu_rad_s,
-     navigationAngularVelocityWorldEnu_rad_s) :=
+      specificForceBodyFlu_m_s2={0.0, 0.0, 9.81},
+      deltaAngleBodyFlu_rad=zeros(3),
+      deltaVelocityBodyFlu_m_s={0.0, 0.0, 0.0981},
+      deltaPositionBodyFlu_m={0.0, 0.0, 0.0004905},
+      deltaQuaternionBodyFlu={1.0, 0.0, 0.0, 0.0},
+      gyroscopeBiasLinearizationBodyFlu_rad_s=zeros(3),
+      accelerometerBiasLinearizationBodyFlu_m_s2=zeros(3),
+      deltaRotationGyroscopeBiasJacobian_s=-identity(3) * 0.01,
+      deltaVelocityGyroscopeBiasJacobian_m=zeros(3, 3),
+      deltaVelocityAccelerometerBiasJacobian_s=-identity(3) * 0.01,
+      deltaPositionGyroscopeBiasJacobian_m_s=zeros(3, 3),
+      deltaPositionAccelerometerBiasJacobian_s2=-0.5 * identity(3) * 0.0001,
+      integrationTime_s=0.01);
+    (navigation.valid,
+     navigation.timestamp_s,
+     navigation.positionWorldEnu_m,
+     navigation.velocityWorldEnu_m_s,
+     navigation.accelerationWorldEnu_m_s2,
+     navigation.quaternionWorldBody,
+     navigation.rotationWorldBody,
+     navigation.eulerRpy_rad,
+     navigation.angularVelocityBodyFlu_rad_s,
+     navigation.angularVelocityWorldEnu_rad_s) :=
       Estimation.StrapdownINS.ESKF.navigationEstimate(
         mocapCorrection, imu, {0.0, 0.0, -9.81}, true);
 
@@ -380,36 +384,35 @@ model StrapdownESKFTests
       flowCorrection.velocityWorldEnu_m_s[1] > 0.5,
       "Optical-flow correction did not reduce planar velocity error");
     assert(Tests.Assertions.maxAbsMatrix(
-        navigationRotationWorldBody
+        navigation.rotationWorldBody
           - LieGroups.SO3.Quat.to_DCM(
-              navigationQuaternionWorldBody)) < tolerance and
-      abs(navigationEulerRpy_rad[3] - 0.1) < 1.0e-2,
+              navigation.quaternionWorldBody)) < tolerance and
+      abs(navigation.eulerRpy_rad[3] - 0.1) < 1.0e-2,
       "Canonical navigation attitude representations are inconsistent");
-    // The published estimate is now a positional output list, so a
-    // transposed pair of outputs would be well-typed and silently wrong.
-    // Every output is checked against the input it must carry.
-    assert(navigationValid and
-      abs(navigationTimestamp_s - 0.01) < tolerance and
+    // Every field of the published record is checked against the source it
+    // must carry; the named boundary prevents positional output mixups.
+    assert(navigation.valid and
+      abs(navigation.timestamp_s - 0.01) < tolerance and
       Tests.Assertions.maxAbsVector(
-        navigationPositionWorldEnu_m
+        navigation.positionWorldEnu_m
           - mocapCorrection.positionWorldEnu_m) < tolerance and
       Tests.Assertions.maxAbsVector(
-        navigationVelocityWorldEnu_m_s
+        navigation.velocityWorldEnu_m_s
           - mocapCorrection.velocityWorldEnu_m_s) < tolerance and
       Tests.Assertions.maxAbsVector(
-        navigationQuaternionWorldBody
+        navigation.quaternionWorldBody
           - mocapCorrection.quaternionWorldBody) < tolerance and
       Tests.Assertions.maxAbsVector(
-        navigationAngularVelocityBodyFlu_rad_s
+        navigation.angularVelocityBodyFlu_rad_s
           - (imu.angularVelocityBodyFlu_rad_s
             - mocapCorrection.gyroscopeBiasBodyFlu_rad_s)) < tolerance and
       Tests.Assertions.maxAbsVector(
-        navigationAngularVelocityWorldEnu_rad_s
-          - navigationRotationWorldBody
-            * navigationAngularVelocityBodyFlu_rad_s) < tolerance and
+        navigation.angularVelocityWorldEnu_rad_s
+          - navigation.rotationWorldBody
+            * navigation.angularVelocityBodyFlu_rad_s) < tolerance and
       Tests.Assertions.maxAbsVector(
-        navigationAccelerationWorldEnu_m_s2
-          - (navigationRotationWorldBody
+        navigation.accelerationWorldEnu_m_s2
+          - (navigation.rotationWorldBody
             * (imu.specificForceBodyFlu_m_s2
               - mocapCorrection.accelerometerBiasBodyFlu_m_s2)
             + {0.0, 0.0, -9.81})) < tolerance,
