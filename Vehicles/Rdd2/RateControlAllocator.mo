@@ -18,7 +18,10 @@ block RateControlAllocator
     "Rotor thrust coefficient [N/(rad/s)^2]";
   parameter Real maxMotorSpeed(unit = "rad/s") = 1100.0;
   parameter Vehicles.Rdd2.RotorGeometry rotorGeometry =
-    Vehicles.Rdd2.RotorGeometry();
+    Vehicles.Rdd2.RotorGeometry()
+    "Airframe geometry, fixed at code generation; geometry changes recompile
+     through calibration rather than tuning the allocation at runtime"
+    annotation(Evaluate = true);
   parameter Real wrenchToRotorThrust[4, 4] =
     Control.Multirotor.Allocation.quadrotorWrenchToThrust(
       rotorGeometry.positionBodyFlu_m,
