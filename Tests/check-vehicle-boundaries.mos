@@ -89,6 +89,18 @@ end if;
 print(reducedControllerMissionCheck);
 print(reducedControllerMissionMessages);
 
+clearMessages();
+opticalFlowGpsDeniedMissionCheck :=
+  checkModel(Vehicles.Rdd2.Test.OpticalFlowGpsDeniedMission);
+opticalFlowGpsDeniedMissionMessages := getErrorString();
+(_, opticalFlowGpsDeniedMissionErrors, _) := countMessages();
+if opticalFlowGpsDeniedMissionErrors > 0 then
+  print(opticalFlowGpsDeniedMissionMessages);
+  exit(1);
+end if;
+print(opticalFlowGpsDeniedMissionCheck);
+print(opticalFlowGpsDeniedMissionMessages);
+
 cubs2ControlTranslation := translateModel(Vehicles.Cubs2.AvionicsSystem);
 cubs2ControlMessages := getErrorString();
 if not cubs2ControlTranslation then

@@ -1,0 +1,17 @@
+source_roots = [
+  "../../..",
+]
+
+[model]
+file = "OpticalFlowGpsDeniedMission.mo"
+name = "Vehicles.Rdd2.Test.OpticalFlowGpsDeniedMission"
+
+[rumoca]
+task = "simulate"
+version = "1"
+
+[sim]
+dt = 0.005
+t_end = 45.0
+solver = "rk-like"
+output = "artifacts/vehicles/rdd2/optical-flow-gps-denied.csv"
