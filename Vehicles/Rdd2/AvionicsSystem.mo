@@ -4,29 +4,8 @@ within Vehicles.Rdd2;
 
 block AvionicsSystem
   "Ideal RTOS composition of planning and the shared flight controller"
+  extends Vehicles.Rdd2.PartialController;
   import Interfaces = Vehicles.Rdd2.ControllerInterfaces;
-
-  // Satisfies Vehicles.Rdd2.PartialController by structural subtyping rather
-  // than nominal `extends`: the vehicle selects it through
-  // `replaceable block ControllerModel = AvionicsSystem constrainedby
-  // PartialController`. These members are declared inline, matching the
-  // partial's boundary field for field, so the flattened variable order is the
-  // one this controller has always emitted; an `extends` of the partial would
-  // reorder the flat list and perturb the solver's floating-point path.
-  parameter Integer maxWaypoints(min = 2) = 16;
-  parameter Real planningPeriod(unit = "s") = 0.02;
-  parameter Real guidancePeriod(unit = "s") = 0.005;
-  parameter Real ratePeriod(unit = "s") = 0.000625;
-
-  Planning.Interfaces.WaypointPlanInput plan(capacity = maxWaypoints);
-  Avionics.NavigationEstimateInput navigation;
-  Interfaces.PilotInput pilot;
-  input Integer mode(min = 0, max = 2);
-  input Boolean armed;
-
-  Planning.Interfaces.TrajectoryReferenceOutput reference;
-  Interfaces.MotorCommands motorCommands;
-  output Real thrust_N;
 
 protected
   Planning.Bezier.WaypointTrajectoryPlanner planningTask(
