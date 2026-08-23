@@ -1,7 +1,10 @@
 Assertions
+RuleChecks
 LinearAlgebraTests
 LieGroupsTests
 LieGroupTests
+JacobianRuleTests
+RetrodictJacobianTests
 EstimationTests
 StrapdownESKFTests
 StrapdownUKFTests
