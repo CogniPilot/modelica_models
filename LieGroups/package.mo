@@ -40,12 +40,34 @@ package LieGroups "Lie group library for rigid body mechanics"
       <li><b>Rules differentiate the implementation.</b> A rule is the derivative
       of the function as this library computes it, including its retained
       small-angle series, so a rule and a central finite difference of its
-      primitive agree to the finite-difference floor. The one exception is the
-      branch radius itself: <code>exp_mixed</code> and the SO(3) Jacobians switch
-      between a retained series and the closed form at
-      <code>theta^2 = 1e-2</code>, and the two sides differ there by about
-      1.4e-7 in the leading coefficient, so a finite difference whose step
-      straddles that radius is not a valid oracle for any rule.</li>
+      primitive agree to the finite-difference floor. A rule therefore has to
+      branch where its primitive branches, not where some other function does.
+      <code>exp_map</code> is closed form above <code>theta = 1e-4</code>, while
+      <code>right_jacobian</code> and its relatives switch to a two-term series
+      at <code>theta = 0.1</code> because they are blocks of the SE(3) and
+      SE_2(3) exponentials that flight code evaluates in single precision. The
+      rules therefore use a separate rule-local family,
+      <code>right_jacobian_exact</code> and its three siblings, identical in
+      value and branching at <code>theta = 1e-4</code> like
+      <code>exp_map</code>. A rule built on the 0.1 rad radius instead carries
+      its own truncation, of order <code>|v|^5/720</code>, into everything that
+      multiplies it: 1.3e-8 at 0.0999 rad for
+      <code>exp_map_jacobian</code>, and 2.6e-6 once
+      <code>exp_mixed_right_increment_jacobian</code> multiplies it by a 200 m
+      position lever arm.</li>
+
+      <li><b>Where a finite difference is not an oracle.</b> A difference is
+      invalid only where its step straddles a branch <i>inside the primitive it
+      differences</i>. That happens for <code>exp_mixed</code>, whose own
+      coefficients switch at <code>theta = 0.1</code> with the two sides
+      differing by about 1.4e-7 in the leading coefficient: a 1e-6 step
+      straddling that radius divides the jump by 2e-6 and reports 7e-2 no matter
+      how exact the rule is, so the exp_mixed sweeps skip |omega| = 0.1 and only
+      that magnitude. It does not happen for the SO(3) rules: their differences
+      call <code>exp_map</code>, <code>log_map</code>, <code>product</code>,
+      <code>inverse</code> and <code>rotate</code>, none of which branches at
+      0.1 rad, and the 1e-4 rad branch they do cross has two sides differing by
+      about 1e-33.</li>
     </ul>
     <p>The <code>exp_mixed</code> rules are the first variation of the
     closed-form mixed exponential of Lin, Pant, Perseghetti, and Goppert,

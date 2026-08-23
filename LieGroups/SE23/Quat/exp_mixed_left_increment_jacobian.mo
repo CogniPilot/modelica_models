@@ -17,7 +17,7 @@ algorithm
   J := zeros(9, 9);
   J[1:3, :] := RlTransposed * DN[4:6, :];
   J[4:6, :] := RlTransposed * DN[1:3, :];
-  J[7:9, 7:9] := LieGroups.SO3.Quat.right_jacobian(l[7:9]);
+  J[7:9, 7:9] := LieGroups.SO3.Quat.right_jacobian_exact(l[7:9]);
   annotation(Documentation(info="<html>
     <p>Rule for <code>exp_mixed</code>, left-increment slot. The increment is a
     plain algebra vector and is perturbed additively; the result is read back on
@@ -33,5 +33,13 @@ e_omega     = J_r(omega_l) d(omega_l)</pre>
     Jacobian. This is the rule that carries inertial-bias sensitivity into a
     retrodicted or preintegrated pose, because the bias enters the propagation
     exactly by shifting this increment.</p>
+    <p>J_r here is <code>right_jacobian_exact</code>. The increment reaches the
+    result through <code>exp_map</code>, which is closed form above 1e-4 rad, so
+    the rotation block of this rule is closed form there too;
+    <code>right_jacobian</code>, whose series radius is 0.1 rad, would put its
+    own truncation of order |omega|^5/720 into this block, 1.3e-8 at 0.0999 rad.
+    The increment block N_l keeps <code>mixed_increment_coefficients</code>,
+    whose 0.1 rad radius is <code>exp_mixed</code>'s own: there the rule and the
+    primitive branch together, and their series cancel exactly.</p>
   </html>"));
 end exp_mixed_left_increment_jacobian;

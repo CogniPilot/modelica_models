@@ -11,6 +11,9 @@ retrodictTangentError
 fdRetrodictJacobian
 retrodictChain
 so3RuleResiduals
+so3RuleResidualsSweep
+so3JacobianFamilyResiduals
 se23GroupRuleResiduals
 expMixedRuleResiduals
+expMixedRuleResidualsSweep
 retrodictChainResiduals
