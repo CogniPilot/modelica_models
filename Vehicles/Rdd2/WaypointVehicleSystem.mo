@@ -254,6 +254,13 @@ protected
     each start = 0.0, each fixed = true);
   discrete Real imuPacketIntegrationTime_s(start = 0.0, fixed = true);
   discrete Real imuPacketTimestamp_s(start = 0.0, fixed = true);
+  // Estimator bias estimate, mirrored on the estimator clock so the IMU
+  // packet clause can linearize around the PREVIOUS estimator step's value
+  // through pre() (see the packet-boundary branch below).
+  discrete Real estimatorGyroscopeBiasMirror_rad_s[3](
+    each start = 0.0, each fixed = true);
+  discrete Real estimatorAccelerometerBiasMirror_m_s2[3](
+    each start = 0.0, each fixed = true);
 
 equation
   opticalFlowGyroscopeIntegratedNoise_rad =
@@ -462,23 +469,27 @@ equation
     avionics.navigation.angularVelocityWorldEnu_rad_s =
       plant.truth.angularVelocityWorldEnu_rad_s;
   else
-    avionics.navigation.valid = estimator.estimate.valid;
-    avionics.navigation.timestamp_s = estimator.estimate.timestamp_s;
+    // The avionics tasks tick together with the estimator and act on the
+    // estimate its PREVIOUS step published: pre() states that causal order
+    // explicitly. Without it the tasks' same-instant read closes a discrete
+    // loop through the estimator and the sensor packet clauses.
+    avionics.navigation.valid = pre(estimator.estimate.valid);
+    avionics.navigation.timestamp_s = pre(estimator.estimate.timestamp_s);
     avionics.navigation.positionWorldEnu_m =
-      estimator.estimate.positionWorldEnu_m;
+      pre(estimator.estimate.positionWorldEnu_m);
     avionics.navigation.velocityWorldEnu_m_s =
-      estimator.estimate.velocityWorldEnu_m_s;
+      pre(estimator.estimate.velocityWorldEnu_m_s);
     avionics.navigation.accelerationWorldEnu_m_s2 =
-      estimator.estimate.accelerationWorldEnu_m_s2;
+      pre(estimator.estimate.accelerationWorldEnu_m_s2);
     avionics.navigation.quaternionWorldBody =
-      estimator.estimate.quaternionWorldBody;
+      pre(estimator.estimate.quaternionWorldBody);
     avionics.navigation.rotationWorldBody =
-      estimator.estimate.rotationWorldBody;
-    avionics.navigation.eulerRpy_rad = estimator.estimate.eulerRpy_rad;
+      pre(estimator.estimate.rotationWorldBody);
+    avionics.navigation.eulerRpy_rad = pre(estimator.estimate.eulerRpy_rad);
     avionics.navigation.angularVelocityBodyFlu_rad_s =
-      estimator.estimate.angularVelocityBodyFlu_rad_s;
+      pre(estimator.estimate.angularVelocityBodyFlu_rad_s);
     avionics.navigation.angularVelocityWorldEnu_rad_s =
-      estimator.estimate.angularVelocityWorldEnu_rad_s;
+      pre(estimator.estimate.angularVelocityWorldEnu_rad_s);
   end if;
 
   time_s = time;
@@ -742,10 +753,16 @@ algorithm
         imuAccumulatedDeltaVelocity_m_s := zeros(3);
         imuAccumulatedDeltaPosition_m := zeros(3);
         imuAccumulatedTime_s := 0.0;
+        // Linearize the next preintegration window around the bias the
+        // estimator published on its PREVIOUS step: the packet clause and
+        // the estimator tick together at every packet boundary, and pre()
+        // of the mirror states that causal order explicitly instead of
+        // leaving a simultaneous discrete loop for the scheduler to
+        // serialize.
         imuAccumulatedGyroscopeBiasLinearization_rad_s :=
-          estimator.gyroscopeBiasBodyFlu_rad_s;
+          pre(estimatorGyroscopeBiasMirror_rad_s);
         imuAccumulatedAccelerometerBiasLinearization_m_s2 :=
-          estimator.accelerometerBiasBodyFlu_m_s2;
+          pre(estimatorAccelerometerBiasMirror_m_s2);
         imuAccumulatedRotationGyroscopeBiasJacobian_s := zeros(3, 3);
         imuAccumulatedVelocityGyroscopeBiasJacobian_m := zeros(3, 3);
         imuAccumulatedVelocityAccelerometerBiasJacobian_s := zeros(3, 3);
@@ -802,6 +819,16 @@ algorithm
           + sqrt(estimator.processNoise.accelerometerBias_m2_s5[i, i]
             * imuSamplePeriod) * imuAccelerometerBiasDrivingNoise[i] else 0.0;
     end for;
+  end when;
+
+algorithm
+  // Ticks with the estimator and holds its freshly published bias estimate;
+  // consumers read the previous step's value through pre() of this mirror.
+  when sample(0.0, estimatorSamplePeriod) then
+    estimatorGyroscopeBiasMirror_rad_s :=
+      estimator.gyroscopeBiasBodyFlu_rad_s;
+    estimatorAccelerometerBiasMirror_m_s2 :=
+      estimator.accelerometerBiasBodyFlu_m_s2;
   end when;
 
   annotation(Documentation(info = "<html>
