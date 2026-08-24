@@ -32,6 +32,10 @@ model WaypointVehicleSystem
     "200 Hz estimator service interval for prediction and aiding";
   parameter Real imuPreintegrationPeriod(unit = "s") = 0.01
     "100 Hz coning/sculling-corrected IMU packet interval";
+  parameter Boolean useFirstOrderHoldImu = false
+    "True composes each raw IMU interval under a first-order hold with the
+     coning, sculling, and scrolling cross terms; false keeps the
+     zero-order hold of the current sample";
   parameter Real gpsSamplePeriod(unit = "s") = 0.1
     "10 Hz GPS update interval";
   parameter Real gpsLatency_s(unit = "s") = 0.1
@@ -200,6 +204,18 @@ protected
   discrete Real imuAccumulatedDeltaPosition_m[3](
     each start = 0.0, each fixed = true);
   discrete Real imuAccumulatedTime_s(start = 0.0, fixed = true);
+  discrete Real imuMeasuredAngularVelocity_rad_s[3](
+    each start = 0.0, each fixed = true)
+    "Bias- and noise-corrupted gyroscope sample closing this interval";
+  discrete Real imuMeasuredSpecificForce_m_s2[3](
+    each start = 0.0, each fixed = true)
+    "Bias- and noise-corrupted accelerometer sample closing this interval";
+  discrete Real imuPreviousMeasuredAngularVelocity_rad_s[3](
+    each start = 0.0, each fixed = true)
+    "Measured gyroscope sample that opened this interval (first-order hold)";
+  discrete Real imuPreviousMeasuredSpecificForce_m_s2[3](
+    each start = 0.0, each fixed = true)
+    "Measured accelerometer sample that opened this interval (first-order hold)";
   discrete Real imuUpdatedQuaternion[4](
     start = {1.0, 0.0, 0.0, 0.0}, each fixed = true);
   discrete Real imuUpdatedDeltaVelocity_m_s[3](
@@ -663,6 +679,11 @@ algorithm
   end when;
 
   when sample(0.0, imuSamplePeriod) then
+    imuMeasuredAngularVelocity_rad_s :=
+      plant.imu.angularVelocityBodyFlu_rad_s
+        + pre(imuGyroscopeBias_rad_s) + imuAngularVelocityNoise_rad_s;
+    imuMeasuredSpecificForce_m_s2 := plant.imu.specificForceBodyFlu_m_s2
+      + pre(imuAccelerometerBias_m_s2) + imuSpecificForceNoise_m_s2;
     if time < 0.5 * imuSamplePeriod then
       imuUpdatedQuaternion := {1.0, 0.0, 0.0, 0.0};
       imuUpdatedDeltaVelocity_m_s := zeros(3);
@@ -718,13 +739,14 @@ algorithm
           pre(imuAccumulatedVelocityAccelerometerBiasJacobian_s),
           pre(imuAccumulatedPositionGyroscopeBiasJacobian_m_s),
           pre(imuAccumulatedPositionAccelerometerBiasJacobian_s2),
-          plant.imu.angularVelocityBodyFlu_rad_s
-            + pre(imuGyroscopeBias_rad_s) + imuAngularVelocityNoise_rad_s,
-          plant.imu.specificForceBodyFlu_m_s2
-            + pre(imuAccelerometerBias_m_s2) + imuSpecificForceNoise_m_s2,
+          imuMeasuredAngularVelocity_rad_s,
+          imuMeasuredSpecificForce_m_s2,
           pre(imuAccumulatedGyroscopeBiasLinearization_rad_s),
           pre(imuAccumulatedAccelerometerBiasLinearization_m_s2),
-          imuSamplePeriod);
+          imuSamplePeriod,
+          useFirstOrderHoldImu,
+          pre(imuPreviousMeasuredAngularVelocity_rad_s),
+          pre(imuPreviousMeasuredSpecificForce_m_s2));
       if abs(time / imuPreintegrationPeriod
           - floor(time / imuPreintegrationPeriod + 0.5)) < 1.0e-7 then
         imuPacketDeltaAngle_rad := LieGroups.SO3.Quat.log_map(
@@ -809,6 +831,11 @@ algorithm
           imuUpdatedPositionAccelerometerBiasJacobian_s2;
       end if;
     end if;
+    // The sample closing this interval opens the next one; the first tick
+    // seeds the history so the first-order hold starts from a zero slope.
+    imuPreviousMeasuredAngularVelocity_rad_s :=
+      imuMeasuredAngularVelocity_rad_s;
+    imuPreviousMeasuredSpecificForce_m_s2 := imuMeasuredSpecificForce_m_s2;
     for i in 1:3 loop
       imuGyroscopeBias_rad_s[i] := if enableSensorNoise then
         pre(imuGyroscopeBias_rad_s[i])
