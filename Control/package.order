@@ -7,3 +7,4 @@ PidController
 tiltRateSetpoint
 Allocation
 Multirotor
+Mpc
