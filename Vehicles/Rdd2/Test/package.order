@@ -3,6 +3,9 @@ ReducedControllerWaypointMission
 OpticalFlowGpsDeniedMission
 TruthWaypointMission
 GlobalWaypointMission
+VibrationGlobalWaypointMission
+UnfilteredVibrationGlobalWaypointMission
+SevereVibrationGlobalWaypointMission
 FohGlobalWaypointMission
 UkfWaypointMission
 UkfGlobalWaypointMission

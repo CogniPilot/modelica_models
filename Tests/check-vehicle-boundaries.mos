@@ -101,6 +101,18 @@ end if;
 print(opticalFlowGpsDeniedMissionCheck);
 print(opticalFlowGpsDeniedMissionMessages);
 
+clearMessages();
+vibrationMissionCheck :=
+  checkModel(Vehicles.Rdd2.Test.VibrationGlobalWaypointMission);
+vibrationMissionMessages := getErrorString();
+(_, vibrationMissionErrors, _) := countMessages();
+if vibrationMissionErrors > 0 then
+  print(vibrationMissionMessages);
+  exit(1);
+end if;
+print(vibrationMissionCheck);
+print(vibrationMissionMessages);
+
 cubs2ControlTranslation := translateModel(Vehicles.Cubs2.AvionicsSystem);
 cubs2ControlMessages := getErrorString();
 if not cubs2ControlTranslation then
