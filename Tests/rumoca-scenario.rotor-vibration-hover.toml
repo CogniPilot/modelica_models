@@ -1,0 +1,17 @@
+source_roots = [
+  "..",
+]
+
+[model]
+file = "package.mo"
+name = "Tests.RotorVibrationHoverStudy"
+
+[rumoca]
+task = "simulate"
+version = "1"
+
+[sim]
+dt = 0.005
+t_end = 8.0
+solver = "rk-like"
+output = "artifacts/rotor-vibration-hover.csv"

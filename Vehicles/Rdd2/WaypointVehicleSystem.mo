@@ -36,12 +36,14 @@ model WaypointVehicleSystem
   parameter Real armTime_s = 1.0;
   parameter Real disarmDelay_s = 3.0;
   parameter Real planningPeriod(unit = "s") = 0.02;
-  parameter Real guidancePeriod(unit = "s") = 0.005;
-  parameter Real ratePeriod(unit = "s") = 0.001;
-  parameter Real imuSamplePeriod(unit = "s") = 0.001
-    "1 kHz raw IMU sampling interval";
-  parameter Real estimatorSamplePeriod(unit = "s") = 0.005
-    "200 Hz estimator service interval for prediction and aiding";
+  parameter Real guidancePeriod(unit = "s") = 0.01
+    "100 Hz guidance service interval, one release per estimate";
+  parameter Real ratePeriod(unit = "s") = 0.00125
+    "800 Hz rate loop, paced by the IMU data-ready interrupt";
+  parameter Real imuSamplePeriod(unit = "s") = 0.00125
+    "800 Hz raw IMU sampling interval";
+  parameter Real estimatorSamplePeriod(unit = "s") = 0.01
+    "100 Hz estimator service interval, one release per IMU packet";
   parameter Real imuPreintegrationPeriod(unit = "s") = 0.01
     "100 Hz coning/sculling-corrected IMU packet interval";
   parameter Boolean useFirstOrderHoldImu = false
