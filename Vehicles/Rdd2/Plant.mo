@@ -21,7 +21,11 @@ model Plant "RDD2 quadrotor with native avionics-facing connectors"
     "Add rotor unbalance and blade-pass vibration to the sensed IMU signals;
      false reproduces the vibration-free plant exactly"
     annotation(Evaluate = true);
-  parameter Integer bladeCount(min = 1) = 2 "Blades per rotor"
+  parameter Real bladeCount(min = 1.0) = 2.0
+    "Blades per rotor. Real, not Integer: this model is exported through
+     FMI 3 for the board-in-the-loop plant and that backend has no Integer
+     scalar type. The value only ever scales a frequency or a phase, and it
+     is a whole number by construction."
     annotation(Evaluate = true);
   parameter Real rotorVibrationAngular_rad_s(unit = "rad/s") = 0.05
     "Per-rotor angular-rate vibration amplitude at hover trim";
@@ -136,9 +140,9 @@ equation
   else
     filteredAngularVelocityBodyFlu_rad_s =
       sensedAngularVelocityBodyFlu_rad_s;
-    filteredAngularVelocityRate_rad_s2 = zeros(3);
+    filteredAngularVelocityRate_rad_s2 = {0.0, 0.0, 0.0};
     filteredSpecificForceBodyFlu_m_s2 = sensedSpecificForceBodyFlu_m_s2;
-    filteredSpecificForceRate_m_s3 = zeros(3);
+    filteredSpecificForceRate_m_s3 = {0.0, 0.0, 0.0};
   end if;
 
   imu.valid = true;
@@ -146,18 +150,27 @@ equation
   imu.timestamp_s = time;
   imu.angularVelocityBodyFlu_rad_s = filteredAngularVelocityBodyFlu_rad_s;
   imu.specificForceBodyFlu_m_s2 = filteredSpecificForceBodyFlu_m_s2;
-  imu.deltaAngleBodyFlu_rad = zeros(3);
-  imu.deltaVelocityBodyFlu_m_s = zeros(3);
-  imu.deltaPositionBodyFlu_m = zeros(3);
+  // Literal arrays rather than zeros(): the board-in-the-loop plant is
+  // exported through FMI 3, whose backend renders a tensor equation one
+  // scalar at a time and has no scalar form for a fill node. The plant does
+  // not preintegrate, so its raw sample carries the identity preintegral.
+  imu.deltaAngleBodyFlu_rad = {0.0, 0.0, 0.0};
+  imu.deltaVelocityBodyFlu_m_s = {0.0, 0.0, 0.0};
+  imu.deltaPositionBodyFlu_m = {0.0, 0.0, 0.0};
   imu.deltaQuaternionBodyFlu = {1.0, 0.0, 0.0, 0.0};
   imu.integrationTime_s = 0.0;
-  imu.gyroscopeBiasLinearizationBodyFlu_rad_s = zeros(3);
-  imu.accelerometerBiasLinearizationBodyFlu_m_s2 = zeros(3);
-  imu.deltaRotationGyroscopeBiasJacobian_s = zeros(3, 3);
-  imu.deltaVelocityGyroscopeBiasJacobian_m = zeros(3, 3);
-  imu.deltaVelocityAccelerometerBiasJacobian_s = zeros(3, 3);
-  imu.deltaPositionGyroscopeBiasJacobian_m_s = zeros(3, 3);
-  imu.deltaPositionAccelerometerBiasJacobian_s2 = zeros(3, 3);
+  imu.gyroscopeBiasLinearizationBodyFlu_rad_s = {0.0, 0.0, 0.0};
+  imu.accelerometerBiasLinearizationBodyFlu_m_s2 = {0.0, 0.0, 0.0};
+  imu.deltaRotationGyroscopeBiasJacobian_s =
+    {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
+  imu.deltaVelocityGyroscopeBiasJacobian_m =
+    {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
+  imu.deltaVelocityAccelerometerBiasJacobian_s =
+    {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
+  imu.deltaPositionGyroscopeBiasJacobian_m_s =
+    {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
+  imu.deltaPositionAccelerometerBiasJacobian_s2 =
+    {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
 
   eulerB321_rad = LieGroups.SO3.EulerB321.from_Quat(dynamics.quat);
   truth.valid = true;

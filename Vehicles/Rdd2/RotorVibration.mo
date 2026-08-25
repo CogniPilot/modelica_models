@@ -8,8 +8,10 @@ model RotorVibration
     "Enable the rotor vibration disturbance; false reproduces the
      vibration-free plant exactly and leaves no continuous state behind"
     annotation(Evaluate = true);
-  parameter Integer bladeCount(min = 1) = 2
-    "Blades per rotor, setting the blade-pass harmonic order"
+  parameter Real bladeCount(min = 1.0) = 2.0
+    "Blades per rotor, setting the blade-pass harmonic order. Real, not
+     Integer: the plant that instantiates this model is exported through
+     FMI 3 and that backend has no Integer scalar type."
     annotation(Evaluate = true);
   parameter Vehicles.Rdd2.RotorGeometry rotorGeometry =
     Vehicles.Rdd2.RotorGeometry()
@@ -87,7 +89,7 @@ equation
   if enable then
     der(rotorPhase_rad) = rotorSpeed_rad_s;
   else
-    rotorPhase_rad = zeros(4);
+    rotorPhase_rad = {0.0, 0.0, 0.0, 0.0};
   end if;
 
   for rotorIndex in 1:4 loop
@@ -127,8 +129,8 @@ equation
       * (transpose(momentAxisBodyFlu) * lateralSpecificForce
        + {0.0, 0.0, sum(axialSpecificForce)});
   else
-    angularVelocityBodyFlu_rad_s = zeros(3);
-    specificForceBodyFlu_m_s2 = zeros(3);
+    angularVelocityBodyFlu_rad_s = {0.0, 0.0, 0.0};
+    specificForceBodyFlu_m_s2 = {0.0, 0.0, 0.0};
   end if;
 
   annotation(Documentation(info = "<html>
