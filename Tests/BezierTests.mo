@@ -25,6 +25,17 @@ model BezierTests "Bezier endpoint and multirotor flatness tests"
     Planning.Bezier.MultirotorTrajectory waypointKnot;
     Planning.Bezier.MultirotorTrajectory waypointEnd;
     Planning.Bezier.MultirotorTrajectory waypointHold;
+    Real ladderPosition[3, 8];
+    Real ladderVelocity[3, 7];
+    Real ladderAcceleration[3, 6];
+    Real ladderJerk[3, 5];
+    Real ladderSnap[3, 4];
+    Real ladderYaw[1, 4];
+    Real ladderYawRate[1, 3];
+    Real ladderYawAcceleration[1, 2];
+    Planning.Bezier.MultirotorTrajectory ladderTrajectory;
+    Planning.Bezier.MultirotorTrajectory perCallTrajectory;
+    Real ladderError;
   algorithm
     startDerivative := [1.0, -0.5, 0.25, -0.125];
     endDerivative := [2.0, 0.75, -0.1, 0.2];
@@ -57,6 +68,45 @@ model BezierTests "Bezier endpoint and multirotor flatness tests"
       [0.0, 0.0], [0.0, 0.0], 7.0);
     trajectory := Planning.Bezier.evaluateMultirotor(
       positionControlPoint, yawControlPoint, 7.0, 3.5);
+    // THE LADDER MUST AGREE WITH THE PER-CALL DERIVATIVES IT REPLACES.
+    // expandMultirotorSegment forms each derivative control polygon by one
+    // hodograph pass over the rung above it; the path it replaced asked
+    // derivativeControlPoints for orders one through four independently,
+    // repeating every lower pass inside each higher one. The two are the
+    // same relation applied the same number of times, so they must agree to
+    // rounding, and this fails if a rung is ever built from the wrong
+    // parent or scaled by the wrong degree.
+    (ladderPosition, ladderVelocity, ladderAcceleration, ladderJerk,
+     ladderSnap, ladderYaw, ladderYawRate, ladderYawAcceleration) :=
+      Planning.Bezier.expandMultirotorSegment(
+        positionControlPoint, yawControlPoint, 7.0);
+    ladderError := 0.0;
+    for sampleIndex in 0:14 loop
+      ladderTrajectory := Planning.Bezier.evaluateMultirotorSegment(
+        ladderPosition, ladderVelocity, ladderAcceleration, ladderJerk,
+        ladderSnap, ladderYaw, ladderYawRate, ladderYawAcceleration,
+        7.0, 0.5 * sampleIndex);
+      perCallTrajectory := Planning.Bezier.evaluateMultirotor(
+        positionControlPoint, yawControlPoint, 7.0, 0.5 * sampleIndex);
+      ladderError := max(ladderError, max({
+        Tests.Assertions.maxAbsVector(
+          ladderTrajectory.position - perCallTrajectory.position),
+        Tests.Assertions.maxAbsVector(
+          ladderTrajectory.velocity - perCallTrajectory.velocity),
+        Tests.Assertions.maxAbsVector(
+          ladderTrajectory.acceleration - perCallTrajectory.acceleration),
+        Tests.Assertions.maxAbsVector(
+          ladderTrajectory.jerk - perCallTrajectory.jerk),
+        Tests.Assertions.maxAbsVector(
+          ladderTrajectory.snap - perCallTrajectory.snap),
+        abs(ladderTrajectory.yaw - perCallTrajectory.yaw),
+        abs(ladderTrajectory.yawRate - perCallTrajectory.yawRate),
+        abs(ladderTrajectory.yawAcceleration
+          - perCallTrajectory.yawAcceleration)}));
+    end for;
+    assert(ladderError < tolerance,
+      "Expanded segment ladder disagreed with per-call derivative evaluation");
+
     reference := Planning.Bezier.flatReference(
       trajectory,
       2.0,
