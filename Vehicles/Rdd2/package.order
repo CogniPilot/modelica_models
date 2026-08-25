@@ -11,6 +11,8 @@ LogLinearController
 NavigationEstimator
 standardNormalNoise
 simulateOpticalFlowPlane
+PartialController
 AvionicsSystem
+ReducedRateController
 WaypointVehicleSystem
 Test

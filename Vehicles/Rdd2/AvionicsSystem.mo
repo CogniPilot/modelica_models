@@ -4,22 +4,8 @@ within Vehicles.Rdd2;
 
 block AvionicsSystem
   "Ideal RTOS composition of planning and the shared flight controller"
+  extends Vehicles.Rdd2.PartialController;
   import Interfaces = Vehicles.Rdd2.ControllerInterfaces;
-
-  parameter Integer maxWaypoints(min = 2) = 16;
-  parameter Real planningPeriod(unit = "s") = 0.02;
-  parameter Real guidancePeriod(unit = "s") = 0.005;
-  parameter Real ratePeriod(unit = "s") = 0.000625;
-
-  Planning.Interfaces.WaypointPlanInput plan(capacity = maxWaypoints);
-  Avionics.NavigationEstimateInput navigation;
-  Interfaces.PilotInput pilot;
-  input Integer mode(min = 0, max = 2);
-  input Boolean armed;
-
-  Planning.Interfaces.TrajectoryReferenceOutput reference;
-  Interfaces.MotorCommands motorCommands;
-  output Real thrust_N;
 
 protected
   Planning.Bezier.WaypointTrajectoryPlanner planningTask(
@@ -76,5 +62,8 @@ equation
     <p>The model assumes zero transport delay and deterministic task release at
     phase zero. Concrete RTOS and message transports can be compared against
     this ideal composition without changing the task models themselves.</p>
+    <p>It implements the swappable <code>Vehicles.Rdd2.PartialController</code>
+    boundary and is the default flight controller selected by
+    <code>Vehicles.Rdd2.WaypointVehicleSystem</code>.</p>
   </html>"));
 end AvionicsSystem;

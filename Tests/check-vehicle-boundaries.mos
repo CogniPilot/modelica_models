@@ -24,6 +24,15 @@ if not estimatorTranslation then
 end if;
 print(estimatorMessages);
 
+reducedControllerTranslation :=
+  translateModel(Vehicles.Rdd2.ReducedRateController);
+reducedControllerMessages := getErrorString();
+if not reducedControllerTranslation then
+  print(reducedControllerMessages);
+  exit(1);
+end if;
+print(reducedControllerMessages);
+
 plantTranslation := translateModel(Vehicles.Rdd2.Plant);
 plantMessages := getErrorString();
 if not plantTranslation then
@@ -67,6 +76,30 @@ if globalWaypointMissionErrors > 0 then
 end if;
 print(globalWaypointMissionCheck);
 print(globalWaypointMissionMessages);
+
+clearMessages();
+reducedControllerMissionCheck :=
+  checkModel(Vehicles.Rdd2.Test.ReducedControllerWaypointMission);
+reducedControllerMissionMessages := getErrorString();
+(_, reducedControllerMissionErrors, _) := countMessages();
+if reducedControllerMissionErrors > 0 then
+  print(reducedControllerMissionMessages);
+  exit(1);
+end if;
+print(reducedControllerMissionCheck);
+print(reducedControllerMissionMessages);
+
+clearMessages();
+opticalFlowGpsDeniedMissionCheck :=
+  checkModel(Vehicles.Rdd2.Test.OpticalFlowGpsDeniedMission);
+opticalFlowGpsDeniedMissionMessages := getErrorString();
+(_, opticalFlowGpsDeniedMissionErrors, _) := countMessages();
+if opticalFlowGpsDeniedMissionErrors > 0 then
+  print(opticalFlowGpsDeniedMissionMessages);
+  exit(1);
+end if;
+print(opticalFlowGpsDeniedMissionCheck);
+print(opticalFlowGpsDeniedMissionMessages);
 
 cubs2ControlTranslation := translateModel(Vehicles.Cubs2.AvionicsSystem);
 cubs2ControlMessages := getErrorString();
