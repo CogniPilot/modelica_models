@@ -12,11 +12,16 @@ block RateControlAllocator
     0.02166666666666667,
     0.04000000000000001};
   parameter Real rateGain[3] = {20.0, 20.0, 10.0};
+  parameter Real maximumBodyMoment_Nm[3] = {2.6, 2.6, 0.30}
+    "Conservative requested-moment bounds before allocation";
   parameter Real thrustCoefficient = 8.54858e-6
     "Rotor thrust coefficient [N/(rad/s)^2]";
   parameter Real maxMotorSpeed(unit = "rad/s") = 1100.0;
   parameter Vehicles.Rdd2.RotorGeometry rotorGeometry =
-    Vehicles.Rdd2.RotorGeometry();
+    Vehicles.Rdd2.RotorGeometry()
+    "Airframe geometry, fixed at code generation; geometry changes recompile
+     through calibration rather than tuning the allocation at runtime"
+    annotation(Evaluate = true);
   parameter Real wrenchToRotorThrust[4, 4] =
     Control.Multirotor.Allocation.quadrotorWrenchToThrust(
       rotorGeometry.positionBodyFlu_m,
@@ -26,6 +31,7 @@ block RateControlAllocator
   Interfaces.MotorCommands commands;
 
 protected
+  discrete Real unboundedMomentBodyFlu_Nm[3](each start = 0.0);
   discrete Real momentBodyFlu_Nm[3](each start = 0.0);
   discrete Real allocatedMotorCommand[4](each start = 0.0, each fixed = true);
 
@@ -35,13 +41,30 @@ equation
     else
       zeros(4);
 
+initial algorithm
+  assert(inertia[1] > 0.0 and inertia[2] > 0.0 and inertia[3] > 0.0,
+    "Every body inertia must be positive");
+  assert(rateGain[1] >= 0.0 and rateGain[2] >= 0.0 and rateGain[3] >= 0.0,
+    "Every body-rate gain must be nonnegative");
+  assert(thrustCoefficient > 0.0,
+    "Every rotor thrust coefficient must be positive");
+  assert(maxMotorSpeed > 0.0,
+    "Every maximum rotor speed must be positive");
+
 algorithm
   when sample(0.0, samplePeriod) then
-    momentBodyFlu_Nm := Control.Multirotor.RateLoop.bodyMoment(
+    unboundedMomentBodyFlu_Nm := Control.Multirotor.RateLoop.bodyMoment(
       inputSignal.angularVelocityCommandFlu_rad_s,
       inputSignal.angularVelocityMeasuredFlu_rad_s,
       inertia,
       rateGain);
+    momentBodyFlu_Nm := {
+      MathUtilities.clip(unboundedMomentBodyFlu_Nm[1],
+        -maximumBodyMoment_Nm[1], maximumBodyMoment_Nm[1]),
+      MathUtilities.clip(unboundedMomentBodyFlu_Nm[2],
+        -maximumBodyMoment_Nm[2], maximumBodyMoment_Nm[2]),
+      MathUtilities.clip(unboundedMomentBodyFlu_Nm[3],
+        -maximumBodyMoment_Nm[3], maximumBodyMoment_Nm[3])};
     allocatedMotorCommand := Control.Multirotor.Allocation.rotorCommands(
       4,
       inputSignal.thrust_N,

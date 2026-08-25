@@ -1,0 +1,19 @@
+source_roots = [
+  "..",
+]
+
+[model]
+file = "package.mo"
+name = "Tests.PreintegrationHoldStudy"
+
+[rumoca]
+task = "simulate"
+version = "1"
+
+[sim]
+dt = 5.0e-5
+t_end = 10.0
+atol = 1.0e-12
+rtol = 1.0e-10
+solver = "rk-like"
+output = "artifacts/preintegration-hold.csv"

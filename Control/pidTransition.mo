@@ -18,17 +18,6 @@ protected
   Real saturationCorrection;
 
 algorithm
-  assert(params.samplePeriod > 0.0, "PID sample period must be positive");
-  assert(params.integralLimit >= 0.0, "PID integral limit must be nonnegative");
-  assert(params.commandMax >= params.commandMin,
-    "PID maximum command must not be below its minimum command");
-  assert(coefficients.derivativeWeight >= 0.0
-      and coefficients.derivativeWeight <= 1.0,
-    "PID derivative weight must lie in [0, 1]");
-  assert(coefficients.trackingCoefficient >= 0.0
-      and coefficients.trackingCoefficient <= 1.0,
-    "PID tracking coefficient must lie in [0, 1]");
-
   next.error := setpoint - measurement;
   rawDerivative := (next.error - previous.error) / params.samplePeriod;
   next.derivative := previous.derivative

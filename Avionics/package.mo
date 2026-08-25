@@ -4,13 +4,38 @@ package Avionics
   "Pure-Modelica sensor and navigation contracts"
 
   record ImuSample
-    "Calibrated inertial sample in body Forward-Left-Up axes"
+    "Calibrated inertial packet in body Forward-Left-Up axes"
     Boolean valid "True when the sample can be used";
     Boolean fresh "True for one estimator tick per new sample";
-    Real timestamp_s(unit = "s");
+    Real timestamp_s(unit = "s")
+      "End timestamp of the integration interval";
     Real angularVelocityBodyFlu_rad_s[3](each unit = "rad/s");
     Real specificForceBodyFlu_m_s2[3](each unit = "m/s2")
       "Accelerometer specific force; stationary level value is +g on body z";
+    Real deltaAngleBodyFlu_rad[3](each unit = "rad")
+      "Coning-corrected angle increment over integrationTime_s";
+    Real deltaVelocityBodyFlu_m_s[3](each unit = "m/s")
+      "Sculling-corrected specific-force increment, expressed in the body frame at the start of integration";
+    Real deltaPositionBodyFlu_m[3](each unit = "m")
+      "Closed-form position increment expressed in the body frame at the start of integration";
+    Real deltaQuaternionBodyFlu[4](each unit = "1")
+      "Scalar-first relative rotation from the start body frame to the end body frame";
+    Real integrationTime_s(unit = "s")
+      "Accumulation interval for delta angle and delta velocity";
+    Real gyroscopeBiasLinearizationBodyFlu_rad_s[3](each unit = "rad/s")
+      "Gyroscope-bias anchor used to form this preintegral";
+    Real accelerometerBiasLinearizationBodyFlu_m_s2[3](each unit = "m/s2")
+      "Accelerometer-bias anchor used to form this preintegral";
+    Real deltaRotationGyroscopeBiasJacobian_s[3, 3](each unit = "s")
+      "Right-local rotation-increment sensitivity to gyroscope bias";
+    Real deltaVelocityGyroscopeBiasJacobian_m[3, 3](each unit = "m")
+      "Velocity-increment sensitivity to gyroscope bias";
+    Real deltaVelocityAccelerometerBiasJacobian_s[3, 3](each unit = "s")
+      "Velocity-increment sensitivity to accelerometer bias";
+    Real deltaPositionGyroscopeBiasJacobian_m_s[3, 3](each unit = "m.s")
+      "Position-increment sensitivity to gyroscope bias";
+    Real deltaPositionAccelerometerBiasJacobian_s2[3, 3](each unit = "s2")
+      "Position-increment sensitivity to accelerometer bias";
   end ImuSample;
 
   record MocapSample
@@ -41,18 +66,40 @@ package Avionics
     Real velocityCovarianceWorld_m2_s2[3, 3](each unit = "m2/s2");
   end GpsSample;
 
-  record OpticalFlowSample
-    "Optical-flow odometry mapped to planar body-frame velocity"
+  record MagnetometerSample
+    "Calibrated three-axis magnetic field in body FLU axes"
     Boolean valid;
     Boolean fresh;
     Real timestamp_s(unit = "s");
-    Real velocityBodyFlu_m_s[2](each unit = "m/s")
-      "Planar {forward,left} velocity after camera/range compensation";
-    Real velocityCovarianceBody_m2_s2[2, 2](each unit = "m2/s2");
+    Real magneticFieldBodyFlu_T[3](each unit = "T");
+    Real covarianceBody_T2[3, 3](each unit = "T2");
+  end MagnetometerSample;
+
+  record BarometerSample
+    "Pressure-derived altitude measurement in the local ENU frame"
+    Boolean valid;
+    Boolean fresh;
+    Real timestamp_s(unit = "s");
+    Real altitudeWorldEnu_m(unit = "m")
+      "Calibrated pressure altitude relative to the local-frame origin";
+    Real variance_m2(unit = "m2");
+  end BarometerSample;
+
+  record OpticalFlowSample
+    "Raw integrated optical flow with co-timed gyro and downward range"
+    Boolean valid;
+    Boolean fresh;
+    Real timestamp_s(unit = "s");
     Real integratedLineOfSight_rad[2](each unit = "rad")
-      "Optional raw flow integral retained for transport adapters";
+      "Right-handed scene rotations about camera/body FLU x and y over integrationTime_s. For a nadir camera, forward motion produces +y and left motion produces -x after rotation compensation";
+    Real integratedLineOfSightCovariance_rad2[2, 2](each unit = "rad2");
+    Real integratedGyroscopeBodyFlu_rad[3](each unit = "rad")
+      "Actual FLU body-angle integral over the same exposure interval; add x/y to line-of-sight flow to remove camera rotation";
+    Real integratedGyroscopeCovariance_rad2[3, 3](each unit = "rad2");
     Real integrationTime_s(unit = "s");
     Real groundDistance_m(unit = "m");
+    Real groundDistanceVariance_m2(unit = "m2")
+      "Variance of the range along the camera boresight";
     Real quality(min = 0.0, max = 1.0)
       "Normalized driver quality indicator";
   end OpticalFlowSample;
@@ -81,6 +128,10 @@ package Avionics
     Boolean mocapCorrectionAccepted;
     Boolean gpsPositionCorrectionAccepted;
     Boolean gpsVelocityCorrectionAccepted;
+    Boolean magnetometerCorrectionAccepted;
+    Boolean barometerCorrectionAccepted;
+    Boolean terrainCorrectionAccepted
+      "A fresh downward-range sample updated the terrain-altitude filter";
     Boolean opticalFlowCorrectionAccepted;
     Integer consecutiveRejectedCorrections
       "Consecutive attempted aiding corrections rejected by conditioning
@@ -112,7 +163,9 @@ package Avionics
        other flags";
     Integer correctionSource
       "Aiding source the outcome above refers to: 0 none, 1 mocap, 2 GPS,
-       3 optical flow";
+       3 optical flow, 4 magnetometer, 5 barometer";
+    Real normalizedInnovationSquared
+      "NIS of this tick's attempted aiding correction; zero if none was attempted";
     Integer recoveryStage
       "Automatic recovery ladder: 0 nominal, 1 covariance ramping toward
        the mission envelope with the state untouched, 2 anchor still
@@ -158,6 +211,10 @@ package Avionics
   connector MocapSampleOutput = output Avionics.MocapSample;
   connector GpsSampleInput = input Avionics.GpsSample;
   connector GpsSampleOutput = output Avionics.GpsSample;
+  connector MagnetometerSampleInput = input Avionics.MagnetometerSample;
+  connector MagnetometerSampleOutput = output Avionics.MagnetometerSample;
+  connector BarometerSampleInput = input Avionics.BarometerSample;
+  connector BarometerSampleOutput = output Avionics.BarometerSample;
   connector OpticalFlowSampleInput = input Avionics.OpticalFlowSample;
   connector OpticalFlowSampleOutput = output Avionics.OpticalFlowSample;
   connector NavigationEstimateInput = input Avionics.NavigationEstimate;
@@ -171,6 +228,8 @@ package Avionics
     Avionics.ImuSampleInput imu;
     Avionics.MocapSampleInput mocap;
     Avionics.GpsSampleInput gps;
+    Avionics.MagnetometerSampleInput magnetometer;
+    Avionics.BarometerSampleInput barometer;
     Avionics.OpticalFlowSampleInput opticalFlow;
     discrete Avionics.NavigationEstimateOutput estimate(
       valid(start = false, fixed = true),
@@ -193,6 +252,9 @@ package Avionics
       mocapCorrectionAccepted(start = false, fixed = true),
       gpsPositionCorrectionAccepted(start = false, fixed = true),
       gpsVelocityCorrectionAccepted(start = false, fixed = true),
+      magnetometerCorrectionAccepted(start = false, fixed = true),
+      barometerCorrectionAccepted(start = false, fixed = true),
+      terrainCorrectionAccepted(start = false, fixed = true),
       opticalFlowCorrectionAccepted(start = false, fixed = true),
       consecutiveRejectedCorrections(start = 0, fixed = true),
       rejectionElapsed_s(start = 0.0, fixed = true),

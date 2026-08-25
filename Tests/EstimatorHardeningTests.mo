@@ -5,24 +5,24 @@ model EstimatorHardeningTests
 
   function nanState
     "A well-formed prior state to offer bad measurements against"
-    output Estimation.MultiSensorInvariant.State prior;
+    output Estimation.StrapdownINS.ESKF.State prior;
   protected
-    Estimation.MultiSensorInvariant.InitialVariances variances;
+    Estimation.StrapdownINS.InitialVariances variances;
   algorithm
-    variances := Estimation.MultiSensorInvariant.InitialVariances(
+    variances := Estimation.StrapdownINS.InitialVariances(
       position_m2=fill(1.0, 3),
       velocity_m2_s2=fill(1.0, 3),
       attitude_rad2=fill(0.25, 3),
       gyroscopeBias_rad2_s2=fill(1.0e-4, 3),
       accelerometerBias_m2_s4=fill(1.0e-2, 3));
-    prior := Estimation.MultiSensorInvariant.initialize(
+    prior := Estimation.StrapdownINS.ESKF.initialize(
       zeros(3), {1.0, 0.0, 0.0, 0.0}, variances);
   end nanState;
 
   function processNoiseFixture
-    output Estimation.MultiSensorInvariant.ProcessNoise noise;
+    output Estimation.StrapdownINS.ProcessNoise noise;
   algorithm
-    noise := Estimation.MultiSensorInvariant.ProcessNoise(
+    noise := Estimation.StrapdownINS.ProcessNoise(
       gyroscope_rad2_s=identity(3) * 1.0e-5,
       accelerometer_m2_s3=identity(3) * 1.0e-3,
       gyroscopeBias_rad2_s3=identity(3) * 1.0e-8,
@@ -37,7 +37,7 @@ model EstimatorHardeningTests
     // NON-FINITE STAND-INS.
     //
     // These tests drive the affirmative guards with magnitudes past
-    // Estimation.MultiSensorInvariant.FiniteMagnitudeLimit rather than
+    // Estimation.StrapdownINS.ESKF.FiniteMagnitudeLimit rather than
     // with a true NaN, because a genuine NaN here would have to be built
     // as 0.0/0.0 and this suite is evaluated as a folded parameter
     // binding, which rumoca rejects outright (ED019, "cannot be
@@ -54,17 +54,17 @@ model EstimatorHardeningTests
     // Negative definite, so the Cholesky pivot guard rejects it the same
     // way a NaN pivot now does.
     constant Real badVariance = -1.0e3;
-    Estimation.MultiSensorInvariant.State prior;
-    Estimation.MultiSensorInvariant.State corrected;
+    Estimation.StrapdownINS.ESKF.State prior;
+    Estimation.StrapdownINS.ESKF.State corrected;
     Avionics.GpsSample gpsSample;
     Avionics.MocapSample mocapSample;
     Avionics.OpticalFlowSample flowSample;
     Boolean accepted;
     Integer reason;
-    Estimation.MultiSensorInvariant.VarianceLimits limits;
-    Estimation.MultiSensorInvariant.Covariance inflated;
+    Estimation.StrapdownINS.ESKF.VarianceLimits limits;
+    Estimation.StrapdownINS.ESKF.Covariance inflated;
     Real nis;
-    Estimation.MultiSensorInvariant.Covariance held;
+    Estimation.StrapdownINS.ESKF.Covariance held;
     Real degenerate[2, 2];
     Real solution[2, 1];
     Boolean factorized;
@@ -97,12 +97,12 @@ model EstimatorHardeningTests
       velocityWorldEnu_m_s=zeros(3),
       positionCovarianceWorld_m2=identity(3) * 0.25,
       velocityCovarianceWorld_m2_s2=identity(3) * 0.01);
-    (corrected, accepted, reason) :=
-      Estimation.MultiSensorInvariant.correctGpsPosition(
+    (corrected, accepted, reason, nis) :=
+      Estimation.StrapdownINS.ESKF.correctGpsPosition(
         prior, gpsSample, gate);
     gpsPositionOk := not accepted
       and reason
-        == Estimation.MultiSensorInvariant.CorrectionRejectedNotFinite
+        == Estimation.StrapdownINS.CorrectionRejectedNotFinite
       and Tests.Assertions.isFiniteVector(corrected.positionWorldEnu_m)
       and Tests.Assertions.maxAbsVector(
         corrected.positionWorldEnu_m - prior.positionWorldEnu_m) < tolerance;
@@ -115,12 +115,12 @@ model EstimatorHardeningTests
       velocityWorldEnu_m_s={notFinite, 0.0, 0.0},
       positionCovarianceWorld_m2=identity(3) * 0.25,
       velocityCovarianceWorld_m2_s2=identity(3) * 0.01);
-    (corrected, accepted, reason) :=
-      Estimation.MultiSensorInvariant.correctGpsVelocity(
+    (corrected, accepted, reason, nis) :=
+      Estimation.StrapdownINS.ESKF.correctGpsVelocity(
         prior, gpsSample, gate);
     gpsVelocityOk := not accepted
       and reason
-        == Estimation.MultiSensorInvariant.CorrectionRejectedNotFinite
+        == Estimation.StrapdownINS.CorrectionRejectedNotFinite
       and Tests.Assertions.isFiniteVector(corrected.velocityWorldEnu_m_s);
 
     // GPS covariance channel: the bad value reaches the Cholesky rather
@@ -134,15 +134,15 @@ model EstimatorHardeningTests
       velocityWorldEnu_m_s=zeros(3),
       positionCovarianceWorld_m2=identity(3) * badVariance,
       velocityCovarianceWorld_m2_s2=identity(3) * 0.01);
-    (corrected, accepted, reason) :=
-      Estimation.MultiSensorInvariant.correctGpsPosition(
+    (corrected, accepted, reason, nis) :=
+      Estimation.StrapdownINS.ESKF.correctGpsPosition(
         prior, gpsSample, gate);
     // Caught by the affirmative check on the sensor-reported R, which runs
     // before the Cholesky, so the named cause is CovarianceUnusable rather
     // than a factorization failure.
     gpsCovarianceOk := not accepted
       and reason
-        == Estimation.MultiSensorInvariant.CorrectionRejectedCovarianceUnusable
+        == Estimation.StrapdownINS.CorrectionRejectedCovarianceUnusable
       and Tests.Assertions.isFiniteMatrix(corrected.covariance);
 
     // Mocap channel.
@@ -152,40 +152,44 @@ model EstimatorHardeningTests
       quaternionWorldBody={1.0, 0.0, 0.0, 0.0},
       positionCovarianceWorld_m2=identity(3) * 1.0e-4,
       attitudeCovarianceBody_rad2=identity(3) * 1.0e-4);
-    (corrected, accepted, reason) :=
-      Estimation.MultiSensorInvariant.correctMocap(prior, mocapSample, gate);
+    (corrected, accepted, reason, nis) :=
+      Estimation.StrapdownINS.ESKF.correctMocap(prior, mocapSample, gate);
     mocapOk := not accepted
       and reason
-        == Estimation.MultiSensorInvariant.CorrectionRejectedNotFinite
+        == Estimation.StrapdownINS.CorrectionRejectedNotFinite
       and Tests.Assertions.isFiniteVector(corrected.quaternionWorldBody);
 
     // Optical-flow channel, measurement and covariance.
     flowSample := Avionics.OpticalFlowSample(
       valid=true, fresh=true, timestamp_s=0.0,
-      velocityBodyFlu_m_s={notFinite, 0.0},
-      velocityCovarianceBody_m2_s2=identity(2) * 0.01,
-      integratedLineOfSight_rad=zeros(2), integrationTime_s=0.0,
-      groundDistance_m=1.0, quality=1.0);
-    (corrected, accepted, reason) :=
-      Estimation.MultiSensorInvariant.correctOpticalFlow(
+      integratedLineOfSight_rad={notFinite, 0.0},
+      integratedLineOfSightCovariance_rad2=identity(2) * 0.01,
+      integratedGyroscopeBodyFlu_rad=zeros(3),
+      integratedGyroscopeCovariance_rad2=identity(3) * 1.0e-8,
+      integrationTime_s=0.01,
+      groundDistance_m=1.0, groundDistanceVariance_m2=0.01, quality=1.0);
+    (corrected, accepted, reason, nis) :=
+      Estimation.StrapdownINS.ESKF.correctOpticalFlow(
         prior, flowSample, gate);
     flowOk := not accepted
       and reason
-        == Estimation.MultiSensorInvariant.CorrectionRejectedNotFinite
+        == Estimation.StrapdownINS.CorrectionRejectedNotFinite
       and Tests.Assertions.isFiniteVector(corrected.velocityWorldEnu_m_s);
 
     flowSample := Avionics.OpticalFlowSample(
       valid=true, fresh=true, timestamp_s=0.0,
-      velocityBodyFlu_m_s={1.0, 0.0},
-      velocityCovarianceBody_m2_s2=identity(2) * badVariance,
-      integratedLineOfSight_rad=zeros(2), integrationTime_s=0.0,
-      groundDistance_m=1.0, quality=1.0);
-    (corrected, accepted, reason) :=
-      Estimation.MultiSensorInvariant.correctOpticalFlow(
+      integratedLineOfSight_rad={0.0, 0.01},
+      integratedLineOfSightCovariance_rad2=identity(2) * badVariance,
+      integratedGyroscopeBodyFlu_rad=zeros(3),
+      integratedGyroscopeCovariance_rad2=identity(3) * 1.0e-8,
+      integrationTime_s=0.01,
+      groundDistance_m=1.0, groundDistanceVariance_m2=0.01, quality=1.0);
+    (corrected, accepted, reason, nis) :=
+      Estimation.StrapdownINS.ESKF.correctOpticalFlow(
         prior, flowSample, gate);
     flowCovarianceOk := not accepted
       and reason
-        == Estimation.MultiSensorInvariant.CorrectionRejectedCovarianceUnusable
+        == Estimation.StrapdownINS.CorrectionRejectedCovarianceUnusable
       and Tests.Assertions.isFiniteMatrix(corrected.covariance);
 
     // Disabling the gate must not re-open a NaN entry path. This is the
@@ -199,8 +203,8 @@ model EstimatorHardeningTests
       velocityWorldEnu_m_s=zeros(3),
       positionCovarianceWorld_m2=identity(3) * 0.25,
       velocityCovarianceWorld_m2_s2=identity(3) * 0.01);
-    (corrected, accepted, reason) :=
-      Estimation.MultiSensorInvariant.correctGpsPosition(
+    (corrected, accepted, reason, nis) :=
+      Estimation.StrapdownINS.ESKF.correctGpsPosition(
         prior, gpsSample, 0.0);
     ungatedOk := not accepted
       and Tests.Assertions.isFiniteVector(corrected.positionWorldEnu_m);
@@ -212,7 +216,7 @@ model EstimatorHardeningTests
     solveOk := not factorized;
 
     // ---- Envelope inflation moves no state and spares attitude ----
-    limits := Estimation.MultiSensorInvariant.VarianceLimits(
+    limits := Estimation.StrapdownINS.ESKF.VarianceLimits(
       position_m2=fill(1.0e4, 3),
       velocity_m2_s2=fill(4.0e2, 3),
       attitude_rad2=fill(10.0, 3),
@@ -223,7 +227,7 @@ model EstimatorHardeningTests
     // This pins the RAMP: the jump-to-envelope form this replaced would put
     // 1e4 here, and that is exactly the behaviour that made stage 1 worse
     // than taking no action at all.
-    inflated := Estimation.MultiSensorInvariant.inflateCovariance(
+    inflated := Estimation.StrapdownINS.ESKF.inflateCovariance(
       prior.covariance, limits, 0.1, 0.1);
     inflateOk := abs(inflated[1, 1] - exp(2.0)) < 1.0e-4
       and abs(inflated[4, 4] - exp(2.0)) < 1.0e-4
@@ -246,11 +250,11 @@ model EstimatorHardeningTests
       velocityWorldEnu_m_s=zeros(3),
       positionCovarianceWorld_m2=identity(3) * 0.25,
       velocityCovarianceWorld_m2_s2=identity(3) * 0.01);
-    (corrected, accepted, reason) :=
-      Estimation.MultiSensorInvariant.correctGpsPosition(
+    (corrected, accepted, reason, nis) :=
+      Estimation.StrapdownINS.ESKF.correctGpsPosition(
         prior, gpsSample, gate);
-    nis := if reason == Estimation.MultiSensorInvariant.CorrectionRejectedGate
-      then 1.0 else 0.0;
+    nis := if reason == Estimation.StrapdownINS.CorrectionRejectedGate
+      and nis > gate * 3.0 then 1.0 else 0.0;
 
     // ---- holdCovariance grows the POSITION block over a blind tick ----
     // The version this replaced added only the process-noise integral, whose
@@ -259,7 +263,7 @@ model EstimatorHardeningTests
     // all in flight code, while the docstring said it did. The growth that
     // matters is P_vv * dt^2, carried by the dp/dv = I block of the
     // transition, which is kinematics and holds whatever the IMU is doing.
-    held := Estimation.MultiSensorInvariant.holdCovariance(
+    held := Estimation.StrapdownINS.ESKF.holdCovariance(
       prior.covariance, 0.01, processNoiseFixture());
     holdOk := held[1, 1] > prior.covariance[1, 1]
       and held[4, 4] > prior.covariance[4, 4]
@@ -274,13 +278,13 @@ model EstimatorHardeningTests
     // estimate.valid must be false for a non-finite published state and
     // true for a finite one. This is the only guard covering the prediction
     // side, where no innovation gate exists.
-    guardOk := Estimation.MultiSensorInvariant.nominalStateFinite(
+    guardOk := Estimation.StrapdownINS.ESKF.nominalStateFinite(
         zeros(3), zeros(3), {1.0, 0.0, 0.0, 0.0})
-      and not Estimation.MultiSensorInvariant.nominalStateFinite(
+      and not Estimation.StrapdownINS.ESKF.nominalStateFinite(
         {notFinite, 0.0, 0.0}, zeros(3), {1.0, 0.0, 0.0, 0.0})
-      and not Estimation.MultiSensorInvariant.nominalStateFinite(
+      and not Estimation.StrapdownINS.ESKF.nominalStateFinite(
         zeros(3), {0.0, notFinite, 0.0}, {1.0, 0.0, 0.0, 0.0})
-      and not Estimation.MultiSensorInvariant.nominalStateFinite(
+      and not Estimation.StrapdownINS.ESKF.nominalStateFinite(
         zeros(3), zeros(3), {1.0, 0.0, notFinite, 0.0});
 
     assert(gpsPositionOk,

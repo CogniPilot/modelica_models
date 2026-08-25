@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "modelica-models-tools"
+version = "0.1.0"
+description = "Cross-platform repository tooling for the CogniPilot Modelica library"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "matplotlib>=3.8",
+  "numpy>=1.26",
+]
+
+[project.scripts]
+modelica-models = "modelica_models_cli.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "tools"}
+packages = ["modelica_models_cli"]

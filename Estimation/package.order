@@ -1,5 +1,4 @@
 ComplementaryAttitude
-MultiSensorInvariant
-MixedInvariantNavigationEstimator
-MocapExternalOdometryIEKF
+StrapdownINS
+MocapExternalOdometryErrorState
 PositionEstimator

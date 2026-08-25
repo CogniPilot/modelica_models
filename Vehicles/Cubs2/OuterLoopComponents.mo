@@ -26,9 +26,9 @@ annotation(
 end horizontalDisplacement;
 
 record VehicleParameters
-  Real g(unit="m/s2") = 9.81 "standard gravity";
-  Real mass(unit="kg") = 0.063 "flight-tuned 2026-07-10; SportCubPlant sims at 0.065";
-  Real thrustMax(unit="N") = 0.30 "FixedWingPlant.thr_max";
+  Real g(unit="m/s2", min=1.0e-9) = 9.81 "standard gravity";
+  Real mass(unit="kg", min=1.0e-9) = 0.063 "flight-tuned 2026-07-10; SportCubPlant sims at 0.065";
+  Real thrustMax(unit="N", min=1.0e-9) = 0.30 "FixedWingPlant.thr_max";
   Real trimThrust(unit="N") = 0.12 "40% throttle cruise trim (2026-07-10)";
   Real envelopeDrag(unit="N") = 0.07 "cruise drag";
   Real weight(unit="N") = mass * g "aircraft weight";
@@ -140,11 +140,11 @@ record AttitudeParameters
 end AttitudeParameters;
 
 block StateEstimator
-  parameter Real dt(unit="s") = 0.02;
+  parameter Real dt(unit="s", min=1.0e-9) = 0.02;
   parameter Real filterCutoffHz(unit="Hz") = 10.0;
   parameter Real velocityFilterCutoffHz(unit="Hz") = 1.5;
   parameter Real accelFilterCutoffHz(unit="Hz") = 0.4;
-  parameter Real freshnessDistance(unit="m") = 1.0e-5
+  parameter Real freshnessDistance(unit="m", min=1.0e-12) = 1.0e-5
     "Pose-equivalent motion that gives a packet full correction weight";
   parameter Real attitudeFreshnessLength(unit="m") = 0.1
     "Length scale converting attitude motion into pose-equivalent motion";
@@ -192,9 +192,6 @@ protected
 
 algorithm
   when sample(0.0, dt) then
-    assert(dt > 0.0, "Estimator sample period must be positive");
-    assert(freshnessDistance > 0.0,
-      "Estimator freshness distance must be positive");
     filterSampleWeight := 1.0 - exp(-2.0 * pi * filterCutoffHz * dt);
     velocitySampleWeight := 1.0 - exp(-2.0 * pi * velocityFilterCutoffHz * dt);
     accelSampleWeight := 1.0 - exp(-2.0 * pi * accelFilterCutoffHz * dt);
@@ -276,7 +273,7 @@ algorithm
 end StateEstimator;
 
 partial block RouteGuidanceInterface
-  parameter Real dt(unit="s") = 0.02;
+  parameter Real dt(unit="s", min=1.0e-9) = 0.02;
   parameter RouteParameters route = RouteParameters();
 
   FlightStateInput estimate;
@@ -429,10 +426,6 @@ protected
   Control.PidResult pitchFeedback;
 
 algorithm
-  assert(dt > 0.0, "TECS sample period must be positive");
-  assert(vehicle.mass > 0.0 and vehicle.g > 0.0,
-    "TECS vehicle mass and gravity must be positive");
-  assert(vehicle.thrustMax > 0.0, "TECS maximum thrust must be positive");
   accelerationMin := -vehicle.drag / vehicle.mass;
   accelerationMax := (vehicle.thrustMax - vehicle.drag) / vehicle.mass;
   diagnostics.boundedAcceleration := MathUtilities.clip(
@@ -523,7 +516,7 @@ end tecsTransition;
 // TECS follows NASA CR-178285: thrust controls total energy rate while pitch
 // redistributes energy between flight-path and speed.
 block TECSController
-  parameter Real dt(unit="s") = 0.02;
+  parameter Real dt(unit="s", min=1.0e-9) = 0.02;
   parameter VehicleParameters vehicle = VehicleParameters();
   parameter TecsParameters tecs = TecsParameters();
   final parameter Control.PidParameters thrustPid = Control.PidParameters(
@@ -605,7 +598,7 @@ algorithm
 end TECSController;
 
 block AttitudeController
-  parameter Real dt(unit="s") = 0.02;
+  parameter Real dt(unit="s", min=1.0e-9) = 0.02;
   parameter VehicleParameters vehicle = VehicleParameters();
   parameter AttitudeParameters params = AttitudeParameters();
   parameter Control.PidParameters headingPid =
@@ -620,8 +613,18 @@ block AttitudeController
                           integralLimit=0.0,
                           commandMin=-1.0, commandMax=1.0);
 
-  Control.PidController headingController(params=headingPid);
-  Control.PidController pitchController(params=pitchPid);
+  final parameter Control.PidCoefficients headingCoefficients =
+    Control.PidCoefficients(
+      derivativeWeight=if headingPid.derivativeCutoffHz > 0.0 then
+        1.0 - exp(-2.0 * 3.141592653589793
+          * headingPid.derivativeCutoffHz * dt) else 1.0,
+      trackingCoefficient=dt / max(headingPid.trackingTime, 1.0e-9));
+  final parameter Control.PidCoefficients pitchCoefficients =
+    Control.PidCoefficients(
+      derivativeWeight=if pitchPid.derivativeCutoffHz > 0.0 then
+        1.0 - exp(-2.0 * 3.141592653589793
+          * pitchPid.derivativeCutoffHz * dt) else 1.0,
+      trackingCoefficient=dt / max(pitchPid.trackingTime, 1.0e-9));
 
   GuidanceSetpointsInput setpoints;
   FlightStateInput estimate;
@@ -636,42 +639,83 @@ block AttitudeController
 protected
   discrete Real rollCommandState(start=0.0);
   discrete Real unlimitedRollCommand;
+  discrete Real headingIntegral(start=0.0);
+  discrete Real headingError(start=0.0);
+  discrete Real headingDerivative(start=0.0);
+  discrete Real headingUnconstrained(start=0.0);
+  discrete Real headingCommand(start=0.0);
+  discrete Real headingPreview(start=0.0);
+  discrete Real pitchIntegral(start=0.0);
+  discrete Real pitchError(start=0.0);
+  discrete Real pitchDerivative(start=0.0);
+  discrete Real pitchUnconstrained(start=0.0);
+  discrete Real pitchCommand(start=0.0);
 
 equation
-  pitchController.setpoint = tecsCommands.pitch;
-  pitchController.measurement = estimate.euler_rad[2];
-
   courseError = -MathUtilities.wrapAngle(
     setpoints.heading
     - atan2(estimate.velocity_m_s[2], estimate.velocity_m_s[1]));
-  headingController.setpoint = courseError;
-  headingController.measurement = 0.0;
 
 algorithm
   when sample(0.0, dt) then
-    commands.normalized[4] :=
-      MathUtilities.clip(tecsCommands.thrust / vehicle.thrustMax, 0.0, 1.0);
+    // Keep both PID transitions inside this single guarded producer. Scalar
+    // updates avoid a nested multi-output function transaction, which is not
+    // representable by the checked eFMI/Solve-IR event contract.
+    headingError := courseError;
+    headingDerivative := pre(headingDerivative)
+      + headingCoefficients.derivativeWeight
+        * ((headingError - pre(headingError)) / dt
+          - pre(headingDerivative));
+    headingUnconstrained := headingPid.kp * headingError
+      + pre(headingIntegral) + headingPid.kd * headingDerivative;
+    headingCommand := MathUtilities.clip(
+      headingUnconstrained, headingPid.commandMin, headingPid.commandMax);
+    headingPreview := MathUtilities.clip(
+      headingPid.kp * headingError + headingPid.kd * headingDerivative,
+      headingPid.commandMin, headingPid.commandMax);
+    headingIntegral := MathUtilities.clip(
+      pre(headingIntegral) + headingPid.ki * headingError * dt
+        + headingCoefficients.trackingCoefficient
+          * (pre(headingCommand) - headingUnconstrained),
+      -headingPid.integralLimit, headingPid.integralLimit);
 
-    commands.normalized[2] := MathUtilities.clip(
-      params.trimElevator
-        + params.pitchCommandToElevatorGain * tecsCommands.pitch
-        + pitchController.command,
-      -1.0,
-      1.0);
+    pitchError := tecsCommands.pitch - estimate.euler_rad[2];
+    pitchDerivative := pre(pitchDerivative)
+      + pitchCoefficients.derivativeWeight
+        * ((pitchError - pre(pitchError)) / dt - pre(pitchDerivative));
+    pitchUnconstrained := pitchPid.kp * pitchError
+      + pre(pitchIntegral) + pitchPid.kd * pitchDerivative;
+    pitchCommand := MathUtilities.clip(
+      pitchUnconstrained, pitchPid.commandMin, pitchPid.commandMax);
+    pitchIntegral := MathUtilities.clip(
+      pre(pitchIntegral) + pitchPid.ki * pitchError * dt
+        + pitchCoefficients.trackingCoefficient
+          * (pre(pitchCommand) - pitchUnconstrained),
+      -pitchPid.integralLimit, pitchPid.integralLimit);
 
-    unlimitedRollCommand := headingController.command;
+    unlimitedRollCommand := headingCommand;
     rollCommandState :=
-      MathUtilities.rateLimit(unlimitedRollCommand,
-                pre(rollCommandState),
-                params.rollRateLimit * dt);
-    rollCommandState :=
-      MathUtilities.clip(rollCommandState, -params.rollLimit, params.rollLimit);
+      MathUtilities.clip(
+        MathUtilities.rateLimit(unlimitedRollCommand,
+          pre(rollCommandState), params.rollRateLimit * dt),
+        -params.rollLimit, params.rollLimit);
     rollCommand := rollCommandState;
     rollCommandPreview :=
-      MathUtilities.clip(headingController.preview, -params.rollLimit, params.rollLimit);
-    commands.normalized[1] :=
-      MathUtilities.clip(params.rollCommandToAileronGain * rollCommand, -1.0, 1.0);
-    commands.normalized[3] := 0.0;
+      MathUtilities.clip(headingPreview, -params.rollLimit, params.rollLimit);
+    // Assign the record array as one guarded producer. Besides expressing the
+    // command atomically, this gives event schedulers a complete transaction
+    // instead of four element writes to one array-valued variable.
+    commands.normalized := {
+      MathUtilities.clip(
+        params.rollCommandToAileronGain * rollCommand, -1.0, 1.0),
+      MathUtilities.clip(
+        params.trimElevator
+          + params.pitchCommandToElevatorGain * tecsCommands.pitch
+          + pitchCommand,
+        -1.0, 1.0),
+      0.0,
+      MathUtilities.clip(
+        tecsCommands.thrust / vehicle.thrustMax, 0.0, 1.0)};
   end when;
 end AttitudeController;
 

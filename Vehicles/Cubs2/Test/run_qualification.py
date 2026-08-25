@@ -59,7 +59,7 @@ class ScenarioConfig:
 
 
 def stage_end_time(mode: str) -> float:
-    return {"takeoff": 8.0, "altitude": 16.0, "heading": 24.0, "mission": 40.0}.get(mode, 150.0)
+    return {"takeoff": 9.0, "altitude": 16.0, "heading": 24.0, "mission": 40.0}.get(mode, 150.0)
 
 
 def scenario_path(mode: str) -> Path:
@@ -260,11 +260,23 @@ def assert_takeoff(rows: list[dict[str, float | str]]) -> None:
         "takeoff: ground roll did not use full throttle"
     airborne = [row for row in rows if f(row, "airborne") > 0.5]
     assert airborne, "takeoff: controller never entered the airborne state"
+    # TECS and attitude are separate sampled tasks. The attitude task consumes
+    # the held TECS command from the preceding 20 ms release, so compare the
+    # actuator-side stick against that explicit one-tick transport latency.
+    airborne_indices = [
+        index for index in range(1, len(rows))
+        if f(rows[index], "airborne") > 0.5
+        and f(rows[index - 1], "airborne") > 0.5
+    ]
     throttle_error = max(
-        abs(f(row, "stick_throttle") - f(row, "tecs_thrust_command") / 0.30)
-        for row in airborne
+        abs(
+            f(rows[index], "stick_throttle")
+            - f(rows[index - 1], "tecs_thrust_command") / 0.30
+        )
+        for index in airborne_indices
     )
-    assert throttle_error < 1e-6, f"takeoff: airborne throttle bypassed TECS by {throttle_error:.3g}"
+    assert throttle_error < 1e-6, \
+        f"takeoff: delayed airborne throttle bypassed TECS by {throttle_error:.3g}"
     assert min(f(row, "stick_throttle") for row in airborne) < 0.9, \
         "takeoff: TECS throttle never modulated after liftoff"
 

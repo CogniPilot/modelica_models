@@ -8,6 +8,7 @@ algorithm
     <p>For SO(3), the adjoint representation is simply the rotation matrix:
     Ad_R(v) = R*v. This rotates Lie algebra elements (angular velocities)
     from one frame to another.</p>
-    <p>Used in IEKF error propagation: A_k = Ad_{Exp(-xi*dt)}</p>
+    <p>Used to transport local Lie-group error coordinates:
+    A_k = Ad_{Exp(-xi*dt)}</p>
   </html>"));
 end adjoint;
