@@ -10,6 +10,7 @@ StrapdownESKFTests
 StrapdownUKFTests
 StrapdownPreintegrationTests
 PreintegrationHoldStudy
+MahonyFilterStudy
 OpticalFlowPlaneTests
 SensorCorrectionTests
 StrapdownEstimatorInterfaceTests
