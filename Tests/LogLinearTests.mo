@@ -40,10 +40,10 @@ model LogLinearTests "Multirotor log-linear controller tests"
       "SO(3) log-linear attitude feedback was incorrect");
 
     nextIntegral := Control.Multirotor.LogLinear.integratePositionError(
-      {100.0, -100.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+      {100.0, -100.0, 1.0},
       {0.0, 0.0, 0.0},
       1.0,
-      19.6);
+      9.8);
     assert(Tests.Assertions.maxAbsVector(
         nextIntegral - {49.0, -49.0, 1.0}) < tolerance,
       "Position-error integral limits were incorrect");

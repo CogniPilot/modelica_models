@@ -5,6 +5,6 @@ function isFiniteVector "True when every vector entry is finite"
 algorithm
   result := true;
   for i in 1:size(values, 1) loop
-    result := result and values[i] == values[i] and abs(values[i]) < Estimation.MultiSensorInvariant.FiniteMagnitudeLimit;
+    result := result and values[i] == values[i] and abs(values[i]) < Estimation.StrapdownINS.ESKF.FiniteMagnitudeLimit;
   end for;
 end isFiniteVector;

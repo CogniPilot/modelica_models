@@ -4,9 +4,14 @@ on:
   pull_request:
   push:
     branches:
-      - "**"
-    tags-ignore:
-      - "v*"
+      - main
+
+# A feature-branch commit is tested by its pull-request run; after merge, the
+# main-branch push gets its own run. Repeated events for the same commit replace
+# an older run instead of starting another set of Nix cache clients.
+concurrency:
+  group: ci-${{ github.event.pull_request.head.sha || github.sha }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -19,24 +24,32 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Check Modelica library structure
-        run: tools/check-modelica-library.sh
+        run: python -m tools.modelica_models_cli check-structure
       - name: Set up Nix
         uses: DeterminateSystems/nix-installer-action@v22
-      - name: Cache Nix builds
-        uses: DeterminateSystems/magic-nix-cache-action@v14
+      - id: rumoca-runtime
+        name: Identify pinned Rumoca runtime
+        run: python -m tools.modelica_models_cli.nix_cache key --github-output
+      - name: Restore pinned Rumoca runtime
+        uses: actions/cache@v6
         with:
-          use-flakehub: disabled
-          use-gha-cache: enabled
+          path: .ci-cache/rumoca-runtime
+          key: rumoca-runtime-${{ runner.os }}-${{ runner.arch }}-${{ steps.rumoca-runtime.outputs.key }}
+      - name: Import or build pinned Rumoca runtime
+        run: python -m tools.modelica_models_cli.nix_cache ensure .ci-cache/rumoca-runtime
       - name: Run tests
-        run: nix run .#ci
+        run: nix run . -- test
       - name: Upload planning trajectories
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: planning-trajectories
           path: artifacts/planning
 
   qualification:
     name: ${{ matrix.label }} Mission Qualification
+    # Let regression tests populate the GitHub-hosted Nix cache before the
+    # mission jobs start reading from it.
+    needs: test
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -48,21 +61,26 @@ jobs:
             report: qualification-report.html
           - vehicle: rdd2
             label: RDD2
-            figure: rdd2-qualification-summary.png
-            report: modelica-report.html
+            figure: rdd2-waypoint-summary.png
+            report: waypoint-report.html
 
     steps:
       - uses: actions/checkout@v7
       - name: Set up Nix
         uses: DeterminateSystems/nix-installer-action@v22
-      - name: Cache Nix builds
-        uses: DeterminateSystems/magic-nix-cache-action@v14
+      - id: rumoca-runtime
+        name: Identify pinned Rumoca runtime
+        run: python -m tools.modelica_models_cli.nix_cache key --github-output
+      - name: Restore pinned Rumoca runtime
+        uses: actions/cache@v6
         with:
-          use-flakehub: disabled
-          use-gha-cache: enabled
+          path: .ci-cache/rumoca-runtime
+          key: rumoca-runtime-${{ runner.os }}-${{ runner.arch }}-${{ steps.rumoca-runtime.outputs.key }}
+      - name: Import or build pinned Rumoca runtime
+        run: python -m tools.modelica_models_cli.nix_cache ensure .ci-cache/rumoca-runtime
       - id: qualify
         name: Run ${{ matrix.label }} qualification
-        run: nix develop --command ${{ matrix.vehicle }}-qualification
+        run: nix run . -- qualify ${{ matrix.vehicle }}
       - id: verify-report
         name: Verify ${{ matrix.label }} qualification plots and report
         if: always()
@@ -70,13 +88,13 @@ jobs:
           FIGURE_NAME: ${{ matrix.figure }}
           REPORT_NAME: ${{ matrix.report }}
           VEHICLE: ${{ matrix.vehicle }}
-        run: |
-          test -s "artifacts/vehicles/$VEHICLE/$FIGURE_NAME"
-          test -s "artifacts/vehicles/$VEHICLE/$REPORT_NAME"
+        run: >-
+          python -m tools.modelica_models_cli.github_actions verify
+          --vehicle "$VEHICLE" --figure "$FIGURE_NAME" --report "$REPORT_NAME"
       - id: qualification-artifact
         name: Upload ${{ matrix.label }} qualification plots and report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: vehicle-qualification-${{ matrix.vehicle }}
           path: artifacts/vehicles/${{ matrix.vehicle }}
@@ -89,13 +107,10 @@ jobs:
           REPORT_OUTCOME: ${{ steps.verify-report.outcome }}
           REPORT_NAME: ${{ matrix.report }}
           VEHICLE_LABEL: ${{ matrix.label }}
-        run: |
-          {
-            printf '## %s mission qualification\n\n' "$VEHICLE_LABEL"
-            printf 'Qualification: **%s**  \n' "$QUALIFICATION_OUTCOME"
-            printf 'Plot and report: **%s**\n\n' "$REPORT_OUTCOME"
-            if [ -n "$ARTIFACT_URL" ]; then
-              printf '[Download the plots and self-contained HTML report](%s)\n\n' "$ARTIFACT_URL"
-            fi
-            printf 'Open **%s** from the artifact to view the qualification plots and checks.\n' "$REPORT_NAME"
-          } >> "$GITHUB_STEP_SUMMARY"
+          VEHICLE: ${{ matrix.vehicle }}
+        run: >-
+          python -m tools.modelica_models_cli.github_actions summary
+          --vehicle "$VEHICLE" --label "$VEHICLE_LABEL" --report "$REPORT_NAME"
+          --artifact-url "$ARTIFACT_URL"
+          --qualification-outcome "$QUALIFICATION_OUTCOME"
+          --report-outcome "$REPORT_OUTCOME"

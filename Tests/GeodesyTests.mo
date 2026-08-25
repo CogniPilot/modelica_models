@@ -21,6 +21,8 @@ model GeodesyTests "Local-frame and geodetic conversion tests"
     Real localRoute[3, 3];
     Real globalRoute[3, 3];
     Real localBack[3, 3];
+    Real magneticFieldEnu_T[3];
+    Boolean magneticFieldValid;
   algorithm
     // East-North-Up round trip through the geodetic frame.
     enu := {300.0, -150.0, 25.0};
@@ -65,6 +67,17 @@ model GeodesyTests "Local-frame and geodetic conversion tests"
       Tests.Assertions.maxAbsMatrix(localBack - localRoute)
         < roundTripTolerance,
       "projectRouteToLocalEnu did not invert routeLocalEnuToGeodetic");
+
+    // Official NOAA WMM2025 test vector: X north, Y east, Z down at
+    // 43 deg N, 93 deg E, 65 km WGS84 ellipsoid altitude, epoch 2025.0.
+    magneticFieldEnu_T :=
+      Geodesy.WMM2025.magneticFieldEnu(43.0, 93.0, 65000.0, 2025.0);
+    magneticFieldValid :=
+      Geodesy.WMM2025.validInputs(43.0, 65000.0, 2025.0);
+    assert(magneticFieldValid and Tests.Assertions.maxAbsVector(
+        magneticFieldEnu_T * 1.0e9
+          - {210.517066, 24299.852822, -50037.923998}) < 0.01,
+      "Pure-Modelica WMM2025 field did not match the NOAA reference vector");
 
     passed := true;
   end run;

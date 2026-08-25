@@ -38,6 +38,18 @@ equation
   imu.timestamp_s = time;
   imu.angularVelocityBodyFlu_rad_s = dynamics.gyro;
   imu.specificForceBodyFlu_m_s2 = dynamics.accel;
+  imu.deltaAngleBodyFlu_rad = zeros(3);
+  imu.deltaVelocityBodyFlu_m_s = zeros(3);
+  imu.deltaPositionBodyFlu_m = zeros(3);
+  imu.deltaQuaternionBodyFlu = {1.0, 0.0, 0.0, 0.0};
+  imu.integrationTime_s = 0.0;
+  imu.gyroscopeBiasLinearizationBodyFlu_rad_s = zeros(3);
+  imu.accelerometerBiasLinearizationBodyFlu_m_s2 = zeros(3);
+  imu.deltaRotationGyroscopeBiasJacobian_s = zeros(3, 3);
+  imu.deltaVelocityGyroscopeBiasJacobian_m = zeros(3, 3);
+  imu.deltaVelocityAccelerometerBiasJacobian_s = zeros(3, 3);
+  imu.deltaPositionGyroscopeBiasJacobian_m_s = zeros(3, 3);
+  imu.deltaPositionAccelerometerBiasJacobian_s2 = zeros(3, 3);
 
   eulerB321_rad = LieGroups.SO3.EulerB321.from_Quat(dynamics.quat);
   truth.valid = true;

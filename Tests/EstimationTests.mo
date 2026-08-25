@@ -4,61 +4,61 @@ model EstimationTests "Initialization, prediction, correction, and failure invar
     output Boolean passed;
   protected
     constant Real tolerance = 1.0e-9;
-    Estimation.MocapExternalOdometryIEKF.InitialVariances initialVariances;
-    Estimation.MocapExternalOdometryIEKF.InitialVariances zeroVariances;
-    Estimation.MocapExternalOdometryIEKF.ProcessNoise noProcessNoise;
-    Estimation.MocapExternalOdometryIEKF.ProcessNoise processNoise;
-    Estimation.MocapExternalOdometryIEKF.PoseMeasurement exactMeasurement;
-    Estimation.MocapExternalOdometryIEKF.PoseMeasurement negativeQuaternionMeasurement;
-    Estimation.MocapExternalOdometryIEKF.PoseMeasurementNoise measurementNoise;
-    Estimation.MocapExternalOdometryIEKF.PoseMeasurementNoise zeroMeasurementNoise;
-    Estimation.MocapExternalOdometryIEKF.State initialized;
-    Estimation.MocapExternalOdometryIEKF.State moving;
-    Estimation.MocapExternalOdometryIEKF.State zeroDtPrediction;
-    Estimation.MocapExternalOdometryIEKF.State predicted;
-    Estimation.MocapExternalOdometryIEKF.State corrected;
-    Estimation.MocapExternalOdometryIEKF.State signCorrected;
-    Estimation.MocapExternalOdometryIEKF.State zeroState;
-    Estimation.MocapExternalOdometryIEKF.State rejectedState;
-    Estimation.MocapExternalOdometryIEKF.State skippedState;
-    Estimation.MocapExternalOdometryIEKF.NominalState injected;
-    Estimation.MocapExternalOdometryIEKF.Covariance transition;
-    Estimation.MocapExternalOdometryIEKF.Covariance discreteNoise;
-    Estimation.MocapExternalOdometryIEKF.MeasurementMatrix measurementMatrix;
+    Estimation.MocapExternalOdometryErrorState.InitialVariances initialVariances;
+    Estimation.MocapExternalOdometryErrorState.InitialVariances zeroVariances;
+    Estimation.MocapExternalOdometryErrorState.ProcessNoise noProcessNoise;
+    Estimation.MocapExternalOdometryErrorState.ProcessNoise processNoise;
+    Estimation.MocapExternalOdometryErrorState.PoseMeasurement exactMeasurement;
+    Estimation.MocapExternalOdometryErrorState.PoseMeasurement negativeQuaternionMeasurement;
+    Estimation.MocapExternalOdometryErrorState.PoseMeasurementNoise measurementNoise;
+    Estimation.MocapExternalOdometryErrorState.PoseMeasurementNoise zeroMeasurementNoise;
+    Estimation.MocapExternalOdometryErrorState.State initialized;
+    Estimation.MocapExternalOdometryErrorState.State moving;
+    Estimation.MocapExternalOdometryErrorState.State zeroDtPrediction;
+    Estimation.MocapExternalOdometryErrorState.State predicted;
+    Estimation.MocapExternalOdometryErrorState.State corrected;
+    Estimation.MocapExternalOdometryErrorState.State signCorrected;
+    Estimation.MocapExternalOdometryErrorState.State zeroState;
+    Estimation.MocapExternalOdometryErrorState.State rejectedState;
+    Estimation.MocapExternalOdometryErrorState.State skippedState;
+    Estimation.MocapExternalOdometryErrorState.NominalState injected;
+    Estimation.MocapExternalOdometryErrorState.Covariance transition;
+    Estimation.MocapExternalOdometryErrorState.Covariance discreteNoise;
+    Estimation.MocapExternalOdometryErrorState.MeasurementMatrix measurementMatrix;
     Real expectedAttitudeTransition[3, 3];
     Boolean accepted;
     Boolean signAccepted;
     Boolean rejected;
     Boolean skippedAccepted;
   algorithm
-  initialVariances := Estimation.MocapExternalOdometryIEKF.InitialVariances(
+  initialVariances := Estimation.MocapExternalOdometryErrorState.InitialVariances(
     attitude=0.04,
     velocity=0.09,
     position=0.16,
     angularVelocity=0.25);
-  zeroVariances := Estimation.MocapExternalOdometryIEKF.InitialVariances(
+  zeroVariances := Estimation.MocapExternalOdometryErrorState.InitialVariances(
     attitude=0.0,
     velocity=0.0,
     position=0.0,
     angularVelocity=0.0);
-  noProcessNoise := Estimation.MocapExternalOdometryIEKF.ProcessNoise(
+  noProcessNoise := Estimation.MocapExternalOdometryErrorState.ProcessNoise(
     attitude=0.0,
     velocity=0.0,
     position=0.0,
     angularVelocity=0.0);
-  processNoise := Estimation.MocapExternalOdometryIEKF.ProcessNoise(
+  processNoise := Estimation.MocapExternalOdometryErrorState.ProcessNoise(
     attitude=1.0e-5,
     velocity=2.0e-4,
     position=3.0e-6,
     angularVelocity=4.0e-5);
-  measurementNoise := Estimation.MocapExternalOdometryIEKF.PoseMeasurementNoise(
+  measurementNoise := Estimation.MocapExternalOdometryErrorState.PoseMeasurementNoise(
     attitude=1.0e-4,
     position=4.0e-4);
-  zeroMeasurementNoise := Estimation.MocapExternalOdometryIEKF.PoseMeasurementNoise(
+  zeroMeasurementNoise := Estimation.MocapExternalOdometryErrorState.PoseMeasurementNoise(
     attitude=0.0,
     position=0.0);
 
-  initialized := Estimation.MocapExternalOdometryIEKF.initialize(
+  initialized := Estimation.MocapExternalOdometryErrorState.initialize(
     {1.0, -2.0, 3.0},
     {2.0, 0.0, 0.0, 0.0},
     initialVariances);
@@ -67,56 +67,56 @@ model EstimationTests "Initialization, prediction, correction, and failure invar
   moving.position := initialized.position;
   moving.angularVelocity := {0.1, -0.2, 0.3};
   moving.covariance := initialized.covariance;
-  zeroDtPrediction := Estimation.MocapExternalOdometryIEKF.predict(
+  zeroDtPrediction := Estimation.MocapExternalOdometryErrorState.predict(
     moving,
     0.0,
     processNoise);
-  predicted := Estimation.MocapExternalOdometryIEKF.predict(
+  predicted := Estimation.MocapExternalOdometryErrorState.predict(
     moving,
     0.1,
     processNoise);
-  transition := Estimation.MocapExternalOdometryIEKF.tangentTransition(
+  transition := Estimation.MocapExternalOdometryErrorState.tangentTransition(
     0.1, moving.angularVelocity);
   expectedAttitudeTransition := transpose(LieGroups.SO3.Quat.to_DCM(
     LieGroups.SO3.Quat.exp_map(0.1 * moving.angularVelocity)));
-  discreteNoise := Estimation.MocapExternalOdometryIEKF.discreteProcessCovariance(
+  discreteNoise := Estimation.MocapExternalOdometryErrorState.discreteProcessCovariance(
     0.1, processNoise);
-  measurementMatrix := Estimation.MocapExternalOdometryIEKF.poseMeasurementMatrix();
+  measurementMatrix := Estimation.MocapExternalOdometryErrorState.poseMeasurementMatrix();
 
-  exactMeasurement := Estimation.MocapExternalOdometryIEKF.PoseMeasurement(
+  exactMeasurement := Estimation.MocapExternalOdometryErrorState.PoseMeasurement(
     position=predicted.position,
     attitude=predicted.attitude);
-  negativeQuaternionMeasurement := Estimation.MocapExternalOdometryIEKF.PoseMeasurement(
+  negativeQuaternionMeasurement := Estimation.MocapExternalOdometryErrorState.PoseMeasurement(
     position=predicted.position,
     attitude=-predicted.attitude);
-  (corrected, accepted) := Estimation.MocapExternalOdometryIEKF.correct(
+  (corrected, accepted) := Estimation.MocapExternalOdometryErrorState.correct(
     predicted,
     exactMeasurement,
     measurementNoise);
-  (signCorrected, signAccepted) := Estimation.MocapExternalOdometryIEKF.correct(
+  (signCorrected, signAccepted) := Estimation.MocapExternalOdometryErrorState.correct(
     predicted,
     negativeQuaternionMeasurement,
     measurementNoise);
 
-  zeroState := Estimation.MocapExternalOdometryIEKF.initialize(
+  zeroState := Estimation.MocapExternalOdometryErrorState.initialize(
     zeros(3),
     {1.0, 0.0, 0.0, 0.0},
     zeroVariances);
-  (rejectedState, rejected) := Estimation.MocapExternalOdometryIEKF.correct(
+  (rejectedState, rejected) := Estimation.MocapExternalOdometryErrorState.correct(
     zeroState,
-    Estimation.MocapExternalOdometryIEKF.PoseMeasurement(
+    Estimation.MocapExternalOdometryErrorState.PoseMeasurement(
       position=zeros(3),
       attitude={1.0, 0.0, 0.0, 0.0}),
     zeroMeasurementNoise);
-  (skippedState, skippedAccepted) := Estimation.MocapExternalOdometryIEKF.step(
+  (skippedState, skippedAccepted) := Estimation.MocapExternalOdometryErrorState.step(
     moving,
     0.1,
     false,
     exactMeasurement,
     processNoise,
     measurementNoise);
-  injected := Estimation.MocapExternalOdometryIEKF.inject(
-    Estimation.MocapExternalOdometryIEKF.NominalState(
+  injected := Estimation.MocapExternalOdometryErrorState.inject(
+    Estimation.MocapExternalOdometryErrorState.NominalState(
       attitude=moving.attitude,
       velocity=moving.velocity,
       position=moving.position,
@@ -124,22 +124,22 @@ model EstimationTests "Initialization, prediction, correction, and failure invar
     {0.0, 0.0, 0.1, 1.0, 2.0, 3.0, -1.0, -2.0, -3.0, 0.4, 0.5, 0.6});
 
   assert(Tests.Assertions.maxAbsVector(initialized.attitude - {1, 0, 0, 0}) < tolerance,
-    "IEKF initialization did not normalize attitude");
+    "geometric error-state EKF initialization did not normalize attitude");
   assert(Tests.Assertions.maxAbsVector(initialized.velocity) < tolerance,
-    "IEKF initialization velocity was not zero");
+    "geometric error-state EKF initialization velocity was not zero");
   assert(Tests.Assertions.maxAbsVector(initialized.position - {1, -2, 3}) < tolerance,
-    "IEKF initialization position was incorrect");
+    "geometric error-state EKF initialization position was incorrect");
   assert(abs(initialized.covariance[1, 1] - 0.04) < tolerance and
          abs(initialized.covariance[4, 4] - 0.09) < tolerance and
          abs(initialized.covariance[7, 7] - 0.16) < tolerance and
          abs(initialized.covariance[10, 10] - 0.25) < tolerance,
-    "IEKF initialization covariance ordering was incorrect");
+    "geometric error-state EKF initialization covariance ordering was incorrect");
   assert(Tests.Assertions.maxAbsVector(zeroDtPrediction.position - moving.position) < tolerance and
          Tests.Assertions.maxAbsMatrix(zeroDtPrediction.covariance - moving.covariance) < tolerance,
-    "IEKF zero-duration prediction was not an identity");
+    "geometric error-state EKF zero-duration prediction was not an identity");
   assert(Tests.Assertions.maxAbsVector(
       predicted.position - (moving.position + 0.1 * moving.velocity)) < tolerance,
-    "IEKF constant-velocity position prediction failed");
+    "geometric error-state EKF constant-velocity position prediction failed");
   assert(Tests.Assertions.maxAbsMatrix(
            transition[1:3, 1:3] - expectedAttitudeTransition) < tolerance and
          abs(transition[7, 4] - 0.1) < tolerance and
@@ -148,37 +148,37 @@ model EstimationTests "Initialization, prediction, correction, and failure invar
          abs(measurementMatrix[4, 7] - 1.0) < tolerance,
     "Separated estimator transition/noise/measurement maps were inconsistent");
   assert(abs(predicted.attitude * predicted.attitude - 1.0) < tolerance,
-    "IEKF prediction did not preserve quaternion norm");
+    "geometric error-state EKF prediction did not preserve quaternion norm");
   assert(Tests.Assertions.maxAbsMatrix(
       predicted.covariance - transpose(predicted.covariance)) < tolerance,
-    "IEKF prediction covariance was not symmetric");
+    "geometric error-state EKF prediction covariance was not symmetric");
   assert(accepted and signAccepted,
-    "IEKF rejected a positive-definite innovation covariance");
+    "geometric error-state EKF rejected a positive-definite innovation covariance");
   assert(Tests.Assertions.maxAbsVector(corrected.position - predicted.position) < tolerance and
          Tests.Assertions.maxAbsVector(signCorrected.position - predicted.position) < tolerance,
-    "A zero-residual IEKF correction changed the nominal position");
+    "A zero-residual geometric error-state EKF correction changed the nominal position");
   assert(abs(abs(corrected.attitude * predicted.attitude) - 1.0) < tolerance and
          abs(abs(signCorrected.attitude * predicted.attitude) - 1.0) < tolerance,
     "A zero-residual or sign-equivalent quaternion correction changed attitude");
   assert(corrected.covariance[1, 1] < predicted.covariance[1, 1] and
          corrected.covariance[7, 7] < predicted.covariance[7, 7],
-    "IEKF correction did not reduce observed covariance");
+    "geometric error-state EKF correction did not reduce observed covariance");
   assert(Tests.Assertions.maxAbsMatrix(
       corrected.covariance - transpose(corrected.covariance)) < tolerance,
-    "IEKF corrected covariance was not symmetric");
+    "geometric error-state EKF corrected covariance was not symmetric");
   assert(not rejected and Tests.Assertions.maxAbsMatrix(
          rejectedState.covariance - zeroState.covariance) < tolerance,
-    "IEKF singular innovation handling failed");
+    "geometric error-state EKF singular innovation handling failed");
   assert(not skippedAccepted and Tests.Assertions.maxAbsMatrix(
          skippedState.covariance - predicted.covariance) < tolerance,
-    "IEKF skipped correction did not return prediction");
+    "geometric error-state EKF skipped correction did not return prediction");
   assert(Tests.Assertions.maxAbsVector(injected.velocity - (moving.velocity + {1, 2, 3})) < tolerance and
          Tests.Assertions.maxAbsVector(injected.position - (moving.position - {1, 2, 3})) < tolerance and
          Tests.Assertions.maxAbsVector(injected.angularVelocity - (moving.angularVelocity + {0.4, 0.5, 0.6})) < tolerance,
-    "IEKF tangent injection ordering failed");
+    "geometric error-state EKF tangent injection ordering failed");
   for i in 1:12 loop
     assert(corrected.covariance[i, i] >= -tolerance,
-      "IEKF corrected covariance had a negative diagonal");
+      "geometric error-state EKF corrected covariance had a negative diagonal");
   end for;
   passed := true;
   end run;
