@@ -41,8 +41,8 @@ model WaypointVehicleSystem
     "1600 Hz rate-loop interval, paced 1:1 from IMU data-ready on the vehicle";
   parameter Real imuSamplePeriod(unit = "s") = 0.000625
     "1600 Hz raw IMU sampling interval, the deployed ICM-45686 output data rate";
-  parameter Real estimatorSamplePeriod(unit = "s") = 0.005
-    "200 Hz estimator service interval for prediction and aiding";
+  parameter Real estimatorSamplePeriod(unit = "s") = 0.01
+    "100 Hz estimator service interval for prediction and aiding";
   parameter Real imuPreintegrationPeriod(unit = "s") = 0.01
     "100 Hz coning/sculling-corrected IMU packet interval";
   parameter Boolean useFirstOrderHoldImu = false
