@@ -10,6 +10,18 @@ model WaypointVehicleSystem
   parameter Boolean useGlobalWaypoints = false;
   parameter Integer navigationSource(min = 0, max = 2) = 0
     "Guidance feedback: 0 truth baseline, 1 GPS-aided estimator, 2 optical-flow-aided estimator";
+  parameter Boolean fuseOpticalFlowWithGps = false
+    "Feed optical flow to the estimator alongside GPS so a GPS outage falls back
+     to flow-aided dead reckoning instead of pure inertial coasting"
+    annotation(Evaluate = true);
+  parameter Boolean gpsDeniedWindow = false
+    "Command a GPS outage window; inside it the GPS aiding stream is withheld and
+     the estimate is carried by whatever aiding remains"
+    annotation(Evaluate = true);
+  parameter Real gpsDeniedStart_s(unit = "s") = 0.0
+    "Start of the commanded GPS outage window";
+  parameter Real gpsDeniedEnd_s(unit = "s") = 0.0
+    "End of the commanded GPS outage window";
   parameter Geodesy.GeodeticOrigin origin = Geodesy.GeodeticOrigin(
     latitude_deg = 40.4237,
     longitude_deg = -86.9212,
@@ -100,7 +112,10 @@ model WaypointVehicleSystem
       magneticModelDecimalYear) else configuredLocalMagneticFieldWorldEnu_T;
 
   Vehicles.Rdd2.Plant plant;
-  Vehicles.Rdd2.AvionicsSystem avionics(
+  replaceable block ControllerModel = Vehicles.Rdd2.AvionicsSystem
+    constrainedby Vehicles.Rdd2.PartialController
+    "Flight controller stack selected for the vehicle";
+  ControllerModel avionics(
     maxWaypoints = maxWaypoints,
     planningPeriod = planningPeriod,
     guidancePeriod = guidancePeriod,
@@ -395,11 +410,23 @@ equation
   estimator.mocap.positionCovarianceWorld_m2 = identity(3);
   estimator.mocap.attitudeCovarianceBody_rad2 = identity(3);
 
-  estimator.gps.valid = navigationSource == 1;
-  estimator.gps.fresh = navigationSource == 1
+  // GPS aiding is withheld during a commanded outage window so a downstream
+  // aiding source (optical flow, when fused) can be shown carrying the estimate.
+  // With gpsDeniedWindow = false the guard folds away to the original
+  // navigationSource == 1 gate, leaving every non-outage mission unchanged.
+  estimator.gps.valid = if gpsDeniedWindow then
+      navigationSource == 1
+        and not (time >= gpsDeniedStart_s and time < gpsDeniedEnd_s)
+    else
+      navigationSource == 1;
+  estimator.gps.fresh = (if gpsDeniedWindow then
+      navigationSource == 1
+        and not (time >= gpsDeniedStart_s and time < gpsDeniedEnd_s)
+    else
+      navigationSource == 1)
     and sample(0.0, gpsSamplePeriod);
-  estimator.gps.positionValid = navigationSource == 1;
-  estimator.gps.velocityValid = navigationSource == 1;
+  estimator.gps.positionValid = estimator.gps.valid;
+  estimator.gps.velocityValid = estimator.gps.valid;
   estimator.gps.timestamp_s = gpsPacketTimestamp_s;
   estimator.gps.geodetic_deg_m = geodetic;
   estimator.gps.positionWorldEnu_m = gpsPacketPositionWorldEnu_m;
@@ -420,11 +447,17 @@ equation
      opticalFlowSamplePeriod,
      opticalFlowNormalizedImageRadius);
   opticalFlowSurfaceVisible = opticalFlowSurfaceVisibility > 0.5;
-  estimator.opticalFlow.valid = navigationSource == 2
+  // Optical flow is normally the exclusive aid (navigationSource == 2). When
+  // fuseOpticalFlowWithGps is set it is additionally enabled under GPS-aided
+  // flight so it can carry the horizontal estimate through a GPS outage. With
+  // the flag false the guard folds to the original navigationSource == 2 gate.
+  estimator.opticalFlow.valid = (if fuseOpticalFlowWithGps then
+      true else navigationSource == 2)
     and opticalFlowPacketSurfaceVisibility > 0.5
     and opticalFlowPacketGroundDistance_m
       >= opticalFlowMinimumGroundDistance_m;
-  estimator.opticalFlow.fresh = navigationSource == 2
+  estimator.opticalFlow.fresh = (if fuseOpticalFlowWithGps then
+      true else navigationSource == 2)
     and opticalFlowSurfaceVisible
     and sample(0.0, opticalFlowSamplePeriod);
   estimator.opticalFlow.timestamp_s = opticalFlowPacketTimestamp_s;

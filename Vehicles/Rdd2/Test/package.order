@@ -1,4 +1,6 @@
 WaypointMission
+ReducedControllerWaypointMission
+OpticalFlowGpsDeniedMission
 TruthWaypointMission
 GlobalWaypointMission
 FohGlobalWaypointMission
