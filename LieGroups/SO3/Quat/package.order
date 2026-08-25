@@ -15,3 +15,14 @@ left_jacobian
 left_jacobian_inv
 right_jacobian
 right_jacobian_inv
+left_jacobian_exact
+left_jacobian_inv_exact
+right_jacobian_exact
+right_jacobian_inv_exact
+exp_map_jacobian
+log_map_jacobian
+product_left_factor_jacobian
+product_right_factor_jacobian
+inverse_jacobian
+rotate_rotation_jacobian
+rotate_vector_jacobian
