@@ -19,8 +19,23 @@ protected
   discrete Real segmentDuration[maxWaypoints - 1](
     each unit = "s", each start = 1.0, each fixed = true);
   discrete Real totalDuration(unit = "s", start = 0.0, fixed = true);
+  discrete Integer trajectoryTick(start = 0, fixed = true);
   discrete Real trajectoryTime(unit = "s", start = 0.0, fixed = true);
+  discrete Real segmentStart[maxWaypoints - 1](
+    each unit = "s", each start = 0.0, each fixed = true);
+  discrete Real ladderPosition[3, 8](each start = 0.0, each fixed = true);
+  discrete Real ladderVelocity[3, 7](each start = 0.0, each fixed = true);
+  discrete Real ladderAcceleration[3, 6](each start = 0.0, each fixed = true);
+  discrete Real ladderJerk[3, 5](each start = 0.0, each fixed = true);
+  discrete Real ladderSnap[3, 4](each start = 0.0, each fixed = true);
+  discrete Real ladderYaw[1, 4](each start = 0.0, each fixed = true);
+  discrete Real ladderYawRate[1, 3](each start = 0.0, each fixed = true);
+  discrete Real ladderYawAcceleration[1, 2](each start = 0.0, each fixed = true);
+  discrete Real ladderDuration(unit = "s", start = 1.0, fixed = true);
   discrete Integer activeSegment(start = 1, fixed = true);
+  Planning.Bezier.MultirotorTrajectory trajectory;
+  Integer selectedSegment;
+  Real localTime(unit = "s");
   discrete Real referencePosition[3](each start = 0.0, each fixed = true);
   discrete Real referenceVelocity[3](each start = 0.0, each fixed = true);
   discrete Real referenceAcceleration[3](each start = 0.0, each fixed = true);
@@ -37,8 +52,10 @@ algorithm
         and plan.nominalSpeed > 0.0 and plan.minSegmentDuration > 0.0 then
       waypointCount := plan.waypointCount;
       sequence := plan.sequence;
+      trajectoryTick := 0;
       trajectoryTime := 0.0;
-      (localWaypoint, velocityEnu, yaw, segmentDuration, totalDuration) :=
+      (localWaypoint, velocityEnu, yaw, segmentDuration, segmentStart,
+       totalDuration) :=
         Planning.Bezier.prepareWaypointPlan(
           plan.waypoint,
           plan.velocityEnu,
@@ -48,10 +65,15 @@ algorithm
           plan.originGeodetic,
           plan.nominalSpeed,
           plan.minSegmentDuration);
+      // Force the ladder to be built for whichever segment comes first.
+      activeSegment := 0;
     elseif pre(waypointCount) >= 2 then
-      trajectoryTime := min(
-        pre(trajectoryTime) + samplePeriod,
-        pre(totalDuration));
+      // TIME FROM A TICK COUNT, not an accumulator: the trajectory clock
+      // must not depend on how often it is read, and a running sum in
+      // single precision drifts by more over a mission than the sampling
+      // error it would replace.
+      trajectoryTick := pre(trajectoryTick) + 1;
+      trajectoryTime := min(trajectoryTick * samplePeriod, pre(totalDuration));
     end if;
 
     reference.valid := waypointCount >= 2;
@@ -60,24 +82,47 @@ algorithm
     reference.totalDuration := totalDuration;
     reference.complete := reference.valid and trajectoryTime >= totalDuration;
     if waypointCount >= 2 then
-      activeSegment := Planning.Bezier.activeWaypointSegment(
-        segmentDuration,
-        waypointCount,
-        trajectoryTime);
-      (referencePosition,
-       referenceVelocity,
-       referenceAcceleration,
-       referenceJerk,
-       referenceSnap,
-       referenceYaw,
-       referenceYawRate,
-       referenceYawAcceleration) := Planning.Bezier.trackWaypointTrajectory(
-        localWaypoint,
-        velocityEnu,
-        yaw,
-        segmentDuration,
-        waypointCount,
-        trajectoryTime);
+      (selectedSegment, localTime) :=
+        Planning.Bezier.waypointSegmentPlacement(
+          segmentDuration,
+          segmentStart,
+          waypointCount,
+          trajectoryTime,
+          totalDuration);
+      // THE LADDER IS REBUILT ONLY WHEN THE SEGMENT CHANGES. Its control
+      // points are a function of the segment alone, so rebuilding them per
+      // sample would rediscover, every tick, a fact that changes a handful
+      // of times in a mission.
+      if selectedSegment <> pre(activeSegment) then
+        (ladderPosition, ladderVelocity, ladderAcceleration, ladderJerk,
+         ladderSnap, ladderYaw, ladderYawRate, ladderYawAcceleration,
+         ladderDuration) :=
+          Planning.Bezier.expandWaypointSegment(
+            localWaypoint, velocityEnu, yaw, segmentDuration, selectedSegment);
+      else
+        ladderPosition := pre(ladderPosition);
+        ladderVelocity := pre(ladderVelocity);
+        ladderAcceleration := pre(ladderAcceleration);
+        ladderJerk := pre(ladderJerk);
+        ladderSnap := pre(ladderSnap);
+        ladderYaw := pre(ladderYaw);
+        ladderYawRate := pre(ladderYawRate);
+        ladderYawAcceleration := pre(ladderYawAcceleration);
+        ladderDuration := pre(ladderDuration);
+      end if;
+      activeSegment := selectedSegment;
+      trajectory := Planning.Bezier.evaluateMultirotorSegment(
+        ladderPosition, ladderVelocity, ladderAcceleration, ladderJerk,
+        ladderSnap, ladderYaw, ladderYawRate, ladderYawAcceleration,
+        ladderDuration, localTime);
+      referencePosition := trajectory.position;
+      referenceVelocity := trajectory.velocity;
+      referenceAcceleration := trajectory.acceleration;
+      referenceJerk := trajectory.jerk;
+      referenceSnap := trajectory.snap;
+      referenceYaw := trajectory.yaw;
+      referenceYawRate := trajectory.yawRate;
+      referenceYawAcceleration := trajectory.yawAcceleration;
     else
       activeSegment := pre(activeSegment);
       referencePosition := pre(referencePosition);

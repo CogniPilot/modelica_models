@@ -202,6 +202,84 @@ package Bezier
     </html>"));
   end evaluateMultirotor;
 
+  function expandMultirotorSegment
+    "Build every derivative control polygon a segment will be evaluated at"
+    input Real positionControlPoint[3, 8]
+      "Septic control points for world-frame position";
+    input Real yawControlPoint[1, 4] "Cubic control points for yaw";
+    input Real duration(unit = "s") "Segment duration";
+    output Real position[3, 8] "Septic position control points";
+    output Real velocity[3, 7] "First position derivative control points";
+    output Real acceleration[3, 6] "Second";
+    output Real jerk[3, 5] "Third";
+    output Real snap[3, 4] "Fourth";
+    output Real yawPoint[1, 4] "Cubic yaw control points";
+    output Real yawRatePoint[1, 3] "First yaw derivative";
+    output Real yawAccelerationPoint[1, 2] "Second yaw derivative";
+  algorithm
+    assert(duration > 0.0, "Bezier duration must be positive");
+    position := positionControlPoint;
+    // Each rung is ONE hodograph pass over the rung above it. Asking
+    // derivativeControlPoints for orders one through four instead would
+    // repeat every lower pass inside each higher one: ten passes to produce
+    // what four produce here.
+    velocity := Planning.Bezier.derivativeControlPoints(position, duration, 1);
+    acceleration := Planning.Bezier.derivativeControlPoints(velocity, duration, 1);
+    jerk := Planning.Bezier.derivativeControlPoints(acceleration, duration, 1);
+    snap := Planning.Bezier.derivativeControlPoints(jerk, duration, 1);
+    yawPoint := yawControlPoint;
+    yawRatePoint := Planning.Bezier.derivativeControlPoints(yawPoint, duration, 1);
+    yawAccelerationPoint := Planning.Bezier.derivativeControlPoints(
+      yawRatePoint, duration, 1);
+    annotation(Documentation(info = "<html>
+      <p>Called once when a segment becomes active, not once per sample.</p>
+    </html>"));
+  end expandMultirotorSegment;
+
+  function evaluateMultirotorSegment
+    "Evaluate an expanded segment; builds no control points"
+    input Real position[3, 8] "Septic position control points";
+    input Real velocity[3, 7] "First position derivative control points";
+    input Real acceleration[3, 6] "Second";
+    input Real jerk[3, 5] "Third";
+    input Real snap[3, 4] "Fourth";
+    input Real yawPoint[1, 4] "Cubic yaw control points";
+    input Real yawRatePoint[1, 3] "First yaw derivative";
+    input Real yawAccelerationPoint[1, 2] "Second yaw derivative";
+    input Real duration(unit = "s") "Segment duration";
+    input Real t(unit = "s") "Time relative to the segment start";
+    output Planning.Bezier.MultirotorTrajectory trajectory;
+  protected
+    Real yawValue[1];
+    Real yawRateValue[1];
+    Real yawAccelerationValue[1];
+  algorithm
+    trajectory.position := Planning.Bezier.evaluate(
+      position, duration, t);
+    trajectory.velocity := Planning.Bezier.evaluate(
+      velocity, duration, t);
+    trajectory.acceleration := Planning.Bezier.evaluate(
+      acceleration, duration, t);
+    trajectory.jerk := Planning.Bezier.evaluate(
+      jerk, duration, t);
+    trajectory.snap := Planning.Bezier.evaluate(
+      snap, duration, t);
+    yawValue := Planning.Bezier.evaluate(
+      yawPoint, duration, t);
+    yawRateValue := Planning.Bezier.evaluate(
+      yawRatePoint, duration, t);
+    yawAccelerationValue := Planning.Bezier.evaluate(
+      yawAccelerationPoint, duration, t);
+    trajectory.yaw := yawValue[1];
+    trajectory.yawRate := yawRateValue[1];
+    trajectory.yawAcceleration := yawAccelerationValue[1];
+    annotation(Documentation(info = "<html>
+      <p>Eight De Casteljau evaluations and nothing else. This is the whole
+      per-sample cost of the reference, which is what makes evaluating it on a
+      fast clock, rather than resampling a slow one, the cheaper option.</p>
+    </html>"));
+  end evaluateMultirotorSegment;
+
   function flatReference
     "Recover multirotor attitude, rates, moment, and thrust from flat outputs"
     input Planning.Bezier.MultirotorTrajectory trajectory;

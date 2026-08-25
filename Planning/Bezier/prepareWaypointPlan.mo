@@ -18,6 +18,8 @@ function prepareWaypointPlan
     "Fixed-capacity local velocity rows [m/s]";
   output Real acceptedYaw[size(waypoint, 1)](each unit = "rad");
   output Real segmentDuration[size(waypoint, 1) - 1](each unit = "s");
+  output Real segmentStart[size(waypoint, 1) - 1](each unit = "s")
+    "Elapsed trajectory time at each segment's start";
   output Real totalDuration(unit = "s");
 algorithm
   assert(waypointCount >= 2 and waypointCount <= size(waypoint, 1),
@@ -56,6 +58,13 @@ algorithm
     else
       segmentDuration[segmentIndex] := 0.0;
     end if;
+  end for;
+  // Where each segment starts is a prefix sum of the durations: decided
+  // once, here, so no consumer rescans the timeline to place a sample.
+  segmentStart[1] := 0.0;
+  for segmentIndex in 2:size(segmentDuration, 1) loop
+    segmentStart[segmentIndex] :=
+      segmentStart[segmentIndex - 1] + segmentDuration[segmentIndex - 1];
   end for;
   totalDuration := sum(segmentDuration);
 end prepareWaypointPlan;

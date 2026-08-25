@@ -6,10 +6,13 @@ evaluateDerivative
 septicControlPoints
 cubicControlPoints
 evaluateMultirotor
+expandMultirotorSegment
+evaluateMultirotorSegment
 flatReference
 waypointDurations
 waypointTrajectory
 prepareWaypointPlan
 activeWaypointSegment
-trackWaypointTrajectory
+waypointSegmentPlacement
+expandWaypointSegment
 WaypointTrajectoryPlanner
