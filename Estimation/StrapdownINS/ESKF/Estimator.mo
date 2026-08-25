@@ -4,6 +4,20 @@ block Estimator
   "Sampled aided strapdown inertial-navigation ESKF"
   extends Estimation.StrapdownINS.PartialEstimator;
 
+  // Consistency instrumentation (NEES/NIS study): mirror the full
+  // error-state covariance and the bias estimates as public outputs so
+  // a mission-level consistency evaluation can be post-processed from
+  // exported channels without touching the filter internals.
+  output Real errorCovariance[15, 15](
+    each start = 0.0, each fixed = true)
+    "Full local-error tangent covariance, mirrored each estimator tick";
+  output Real estimatedGyroscopeBias_rad_s[3](
+    each start = 0.0, each fixed = true)
+    "Gyroscope bias estimate, mirrored each estimator tick";
+  output Real estimatedAccelerometerBias_m_s2[3](
+    each start = 0.0, each fixed = true)
+    "Accelerometer bias estimate, mirrored each estimator tick";
+
   parameter Estimation.StrapdownINS.ESKF.VarianceLimits varianceLimits =
     Estimation.StrapdownINS.ESKF.VarianceLimits(
       position_m2=fill(1.0e4, 3),
@@ -440,6 +454,9 @@ algorithm
     status.recoveryStage := recoveryStage;
     status.anchorSource := anchorSource;
     status.imuPayloadHeld := imuPayloadHeld;
+    errorCovariance := stateCovariance;
+    estimatedGyroscopeBias_rad_s := stateGyroscopeBias;
+    estimatedAccelerometerBias_m_s2 := stateAccelerometerBias;
   end when;
 
 equation
