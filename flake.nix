@@ -5,7 +5,7 @@
     flake-utils.url = "github:numtide/flake-utils";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     openmodelica.url = "git+https://github.com/jgoppert/OpenModelica?submodules=1&rev=a96aa1a682c463b0fd2d285b486c09a8b7fe496d";
-    rumoca.url = "github:CogniPilot/rumoca/179d76212a526f261ac564caa2a2ffb298907c5d";
+    rumoca.url = "github:CogniPilot/rumoca/d4d80fbb5d6c86a4859f96ed85bd814a4f4a9eff";
   };
 
   outputs =
