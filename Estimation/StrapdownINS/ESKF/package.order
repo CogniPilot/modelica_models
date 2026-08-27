@@ -25,6 +25,7 @@ inflateCovariance
 holdCovariance
 inject
 conjugateReset
+considerGainProjector
 correctLinear
 correctMocap
 correctGps
