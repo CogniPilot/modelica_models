@@ -15,6 +15,7 @@ import hashlib
 import html
 import json
 import math
+import multiprocessing
 import os
 from pathlib import Path
 import time as wall_time
@@ -177,15 +178,30 @@ def source_digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def simulate(scenario: Path) -> dict[str, list[float]]:
-    print(f"simulating {scenario.name}...", flush=True)
+def _simulate_isolated(scenario: Path) -> dict[str, list[float]]:
+    """Compile and simulate one scenario in a fresh Rumoca process."""
     _session, model, simulation = rum.Session.from_scenario(str(scenario))
     started = wall_time.perf_counter()
     result = model.simulate(t=(0.0, MISSION_DURATION_S), config=simulation)
     values = columns(result)
     elapsed = wall_time.perf_counter() - started
-    print(f"completed {scenario.name} in {elapsed:.3f} s", flush=True)
     values["_simulation_wall_time_s"] = [elapsed]
+    return values
+
+
+def simulate(scenario: Path) -> dict[str, list[float]]:
+    """Run one scenario without retaining JIT code from earlier missions."""
+    print(f"simulating {scenario.name}...", flush=True)
+    # Successive large models currently accumulate enough native JIT state to
+    # trigger a Cranelift compiled-blob conversion panic by the first UKF run.
+    # A spawned worker gives every independent scenario a fresh JIT lifetime
+    # and is portable to Windows and macOS. Only the qualification columns
+    # cross the process boundary; the full trace is released with the worker.
+    context = multiprocessing.get_context("spawn")
+    with context.Pool(processes=1, maxtasksperchild=1) as pool:
+        values = pool.apply(_simulate_isolated, (scenario,))
+    elapsed = values["_simulation_wall_time_s"][0]
+    print(f"completed {scenario.name} in {elapsed:.3f} s", flush=True)
     return values
 
 
