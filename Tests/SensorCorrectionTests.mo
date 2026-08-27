@@ -126,8 +126,8 @@ model SensorCorrectionTests
     magneticFieldWorldEnu_T := {-1.738e-6, 2.0024e-5, -4.7907e-5};
     headingQuaternion :=
       LieGroups.SO3.EulerB321.to_Quat({0.3, 0.15, -0.1});
+    perturbation := zeros(3);
     for axis in 1:3 loop
-      perturbation := zeros(3);
       perturbation[axis] := 1.0e-6;
       perturbedQuaternion := LieGroups.SO3.Quat.product(
         headingQuaternion, LieGroups.SO3.Quat.exp_map(perturbation));
@@ -150,6 +150,7 @@ model SensorCorrectionTests
           identity(3) * 1.0e-13, magneticFieldWorldEnu_T);
       numericSensitivity[axis] :=
         (headingPlus - headingMinus) / 2.0e-6;
+      perturbation[axis] := 0.0;
     end for;
     (headingNominal, headingVariance_rad2, headingUsable, yawSensitivity,
      tiltSensitivity) :=
