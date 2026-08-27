@@ -332,6 +332,30 @@ model EstimatorHealthTests
     assert(abs(limited[2, 2] - 0.5) < tolerance,
       "Variance limiting rescaled an in-envelope variance");
 
+    // A non-finite diagonal entry must be CONTAINED, not merely detected.
+    // The two-sided scaling cannot do it on its own: the rescale factor for
+    // such a row is 0.0, and 0.0 times an overflowed entry is not a zero the
+    // matrix can carry -- for a true infinity it is NaN, and NaN in one
+    // position of a covariance ends every later Cholesky and every later
+    // gain. The row and column are therefore overwritten rather than scaled,
+    // and the diagonal is rebuilt at its bound so the state reads maximally
+    // uncertain instead of perfectly known.
+    inflated := identity(15) * 0.5;
+    inflated[1, 1] := 1.0e300;
+    inflated[1, 4] := 1.0e150;
+    inflated[4, 1] := 1.0e150;
+    inflated[4, 4] := 1.0e2;
+    limited := Estimation.StrapdownINS.ESKF.limitCovariance(
+      inflated, limits);
+    assert(abs(limited[1, 1] - 1.0e4) < tolerance,
+      "A non-finite variance was not rebuilt at its envelope bound");
+    assert(limited[1, 4] == 0.0 and limited[4, 1] == 0.0,
+      "A rejected covariance row leaked through its off-diagonal entries");
+    assert(abs(limited[4, 4] - 1.0e2) < tolerance,
+      "Containing a rejected row disturbed an in-envelope variance");
+    assert(abs(limited[2, 2] - 0.5) < tolerance,
+      "Containing a rejected row disturbed an unrelated variance");
+
     // Fix 4: chi-square innovation gate. A 100 m residual against a
     // ~1 m2 innovation variance has NIS ~ 1e4, far beyond 6 per degree
     // of freedom, so the gated call must reject without touching the

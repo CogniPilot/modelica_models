@@ -19,6 +19,7 @@ RecoveryCovarianceInflated
 RecoveryAidingDivergent
 RecoveryMisconfigured
 PartialEstimator
+imuSampleFinite
 preintegrateImuStep
 correctPreintegratedImu
 initialAlignmentQuaternion

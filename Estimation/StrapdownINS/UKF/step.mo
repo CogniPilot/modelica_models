@@ -72,6 +72,11 @@ protected
   Boolean magnetometerNew;
   Boolean barometerNew;
   Boolean opticalFlowNew;
+  Boolean imuPayloadFinite;
+  Boolean mocapSeedUsable;
+  Boolean gpsSeedUsable;
+  Boolean magnetometerSeedUsable;
+  Real mocapSeedQuaternionNorm;
   Real initializationPosition[3];
   Real initializationQuaternion[4];
 algorithm
@@ -88,28 +93,70 @@ algorithm
   magnetometerTimestampConsumed_s := magnetometerTimestampConsumedPrevious_s;
   barometerTimestampConsumed_s := barometerTimestampConsumedPrevious_s;
   opticalFlowTimestampConsumed_s := opticalFlowTimestampConsumedPrevious_s;
+  // AFFIRMATIVE ADMISSION, matching the ESKF. `valid` is a claim by the
+  // driver; finiteness is a property of the numbers, and only the second one
+  // protects the prediction path, which has no innovation gate in front of it.
+  // A sample that fails here is treated exactly as a missing one.
+  imuPayloadFinite := Estimation.StrapdownINS.imuSampleFinite(imu);
   imuNew := imu.valid
+    and imuPayloadFinite
     and imu.timestamp_s > imuTimestampConsumedPrevious_s + 1.0e-9;
   mocapNew := mocap.valid
+    and abs(mocap.timestamp_s) < ESKF.FiniteMagnitudeLimit
     and mocap.timestamp_s > mocapTimestampConsumedPrevious_s + 1.0e-9;
   gpsNew := gps.valid
+    and abs(gps.timestamp_s) < ESKF.FiniteMagnitudeLimit
     and gps.timestamp_s > gpsTimestampConsumedPrevious_s + 1.0e-9;
   magnetometerNew := magnetometer.valid
+    and abs(magnetometer.timestamp_s) < ESKF.FiniteMagnitudeLimit
     and magnetometer.timestamp_s
       > magnetometerTimestampConsumedPrevious_s + 1.0e-9;
   barometerNew := barometer.valid
+    and abs(barometer.timestamp_s) < ESKF.FiniteMagnitudeLimit
     and barometer.timestamp_s > barometerTimestampConsumedPrevious_s + 1.0e-9;
   opticalFlowNew := opticalFlow.valid
+    and abs(opticalFlow.timestamp_s) < ESKF.FiniteMagnitudeLimit
     and opticalFlow.timestamp_s
       > opticalFlowTimestampConsumedPrevious_s + 1.0e-9;
 
+  // Seed admission. initialize() normalizes whatever attitude it is handed, so
+  // a seed that cannot prove it is normalizable would become a full-scale
+  // rotation the filter can never be argued out of.
+  mocapSeedUsable := mocap.valid;
+  mocapSeedQuaternionNorm := 0.0;
+  for i in 1:3 loop
+    mocapSeedUsable := mocapSeedUsable
+      and abs(mocap.positionWorldEnu_m[i]) < ESKF.FiniteMagnitudeLimit;
+  end for;
+  for i in 1:4 loop
+    mocapSeedUsable := mocapSeedUsable
+      and abs(mocap.quaternionWorldBody[i]) < ESKF.FiniteMagnitudeLimit;
+    mocapSeedQuaternionNorm := mocapSeedQuaternionNorm
+      + mocap.quaternionWorldBody[i] * mocap.quaternionWorldBody[i];
+  end for;
+  mocapSeedUsable := mocapSeedUsable
+    and sqrt(mocapSeedQuaternionNorm) >= ESKF.MinimumSeedQuaternionNorm;
+  gpsSeedUsable := gps.valid and gps.positionValid;
+  for i in 1:3 loop
+    gpsSeedUsable := gpsSeedUsable
+      and abs(gps.positionWorldEnu_m[i]) < ESKF.FiniteMagnitudeLimit;
+  end for;
+  magnetometerSeedUsable := magnetometer.valid;
+  for i in 1:3 loop
+    magnetometerSeedUsable := magnetometerSeedUsable
+      and abs(magnetometer.magneticFieldBodyFlu_T[i])
+        < ESKF.FiniteMagnitudeLimit
+      and abs(localMagneticFieldWorldEnu_T[i]) < ESKF.FiniteMagnitudeLimit
+      and magnetometer.covarianceBody_T2[i, i] > 0.0;
+  end for;
+
   if reset or not initializedPrevious then
-    initializationPosition := if gps.valid and gps.positionValid then
+    initializationPosition := if gpsSeedUsable then
       gps.positionWorldEnu_m else initialPositionWorldEnu_m;
-    if mocap.valid then
+    if mocapSeedUsable then
       initializationQuaternion := mocap.quaternionWorldBody;
       alignmentAccepted := true;
-    elseif imu.valid and magnetometer.valid then
+    elseif imu.valid and imuPayloadFinite and magnetometerSeedUsable then
       (initializationQuaternion, alignmentAccepted) :=
         Estimation.StrapdownINS.initialAlignmentQuaternion(
           imu.specificForceBodyFlu_m_s2,
@@ -128,9 +175,9 @@ algorithm
       initialAccelerometerBiasBodyFlu_m_s2,
       initialVariances);
     initialized := true;
-    magnetometerCorrectionAccepted := magnetometer.valid
+    magnetometerCorrectionAccepted := magnetometerSeedUsable
       and alignmentAccepted
-      and not mocap.valid;
+      and not mocapSeedUsable;
   elseif imuNew then
     (working, predictionAccepted) := predictPreintegrated(
       previous, imu, gravityWorldEnu_m_s2, processNoise);
