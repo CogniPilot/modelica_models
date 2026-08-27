@@ -16,8 +16,25 @@ algorithm
     limits.attitude_rad2,
     limits.gyroscopeBias_rad2_s2,
     limits.accelerometerBias_m2_s4);
+  // A non-finite diagonal entry has no finite rescale factor that lands on the
+  // bound: bound/covariance is zero for an infinity, and the row product then
+  // evaluates 0 * inf on the infinite entry itself, which is NaN rather than
+  // the bound this function exists to impose. One unusable entry became an
+  // unusable matrix. Reachability is not the argument for handling it; a
+  // covariance limiter that can itself manufacture NaN is not a limiter.
+  //
+  // Such a row gets a zero rescale here; it is then overwritten with zeros and
+  // its diagonal rebuilt at the bound below. That is the honest clamp: the variance is the largest this
+  // filter is allowed to hold, and every correlation with it is dropped,
+  // because a row that reached infinity carries no usable correlation. The
+  // result stays symmetric positive semi-definite, being the sum of a scaled
+  // congruence and a non-negative diagonal.
+  //
+  // The test is written as a positive finiteness proof so NaN, which fails
+  // every comparison, takes the same branch as an infinity.
   for i in 1:TangentLength loop
-    rescale[i] := if covariance[i, i] > bound[i]
+    rescale[i] := if not abs(covariance[i, i]) < FiniteMagnitudeLimit then 0.0
+      elseif covariance[i, i] > bound[i]
       then sqrt(bound[i] / covariance[i, i]) else 1.0;
   end for;
   // Two-sided scaling D*P*D with diagonal 0 < D <= I keeps the matrix
@@ -61,5 +78,30 @@ algorithm
   for i in 1:TangentLength loop
     scaledRow := rescale[i] * covariance[i, :];
     limited[i, :] := scaledRow .* rescale;
+  end for;
+  // Overwrite, do not scale, any row and column whose diagonal was rejected.
+  // Multiplying is not enough: rescale[i] is 0.0 there, and 0.0 * inf is NaN,
+  // so the products above leave NaN at exactly the off-diagonal positions of
+  // an infinite row -- and a row cannot reach infinity on the diagonal of a
+  // positive semi-definite matrix without its correlates being unusable too.
+  // Assigning the zeros explicitly is the only way to stop a non-finite entry
+  // from escaping sideways, which is the whole point of the branch above.
+  //
+  // The diagonal is then rebuilt at its bound, so a non-finite entry leaves
+  // the filter maximally uncertain about that state rather than falsely
+  // certain. A zero variance would claim the state is known exactly and would
+  // drive the next gain to reject every measurement of it, which is the
+  // opposite of what an unusable entry warrants. The result is symmetric and
+  // positive semi-definite: it is the surviving principal submatrix, itself a
+  // congruence of a covariance, bordered by zeros and a positive diagonal.
+  // Written as conditional EXPRESSIONS rather than a loop inside an `if`.
+  // The nested form is rejected by the galec production target (ED019), and
+  // the expression form is what the rescale selection above already uses.
+  for i in 1:TangentLength loop
+    limited[i, :] := if rescale[i] <= 0.0 then zeros(TangentLength)
+      else limited[i, :];
+    limited[:, i] := if rescale[i] <= 0.0 then zeros(TangentLength)
+      else limited[:, i];
+    limited[i, i] := if rescale[i] <= 0.0 then bound[i] else limited[i, i];
   end for;
 end limitCovariance;
