@@ -1,0 +1,35 @@
+// Tests.PositionLoopStabilityTests is simulated AS A TOP-LEVEL MODEL, not
+// through Tests.All. Its variables are all constant-foldable, and when the
+// model is instantiated as a component of Tests.All OpenModelica evaluates
+// the whole thing away at translation: the generated code for Tests.All
+// contains none of these assertion messages, and rewriting every Routh
+// condition to the impossible `> 1.0e9` still leaves Tests/run.mos green.
+// Simulated on its own the same mutations all fail, so this is the entry
+// point that actually gates the property.
+setCommandLineOptions("--std=3.6");
+
+if not loadModel(Tests) then
+  print(getErrorString());
+  exit(1);
+end if;
+
+print(checkModel(Tests.PositionLoopStabilityTests));
+print(getErrorString());
+
+testOutputDirectory := getTempDirectoryPath();
+cd(testOutputDirectory);
+res := simulate(
+  Tests.PositionLoopStabilityTests,
+  startTime=0.0,
+  stopTime=0.0,
+  numberOfIntervals=1,
+  tolerance=1.0e-10,
+  outputFormat="mat",
+  fileNamePrefix="modelica_models_Tests_PositionLoopStabilityTests");
+getErrorString();
+resultFile := res.resultFile;
+if resultFile <> "" then
+  exit(0);
+end if;
+print("Position-loop stability test simulation failed\n");
+exit(1);

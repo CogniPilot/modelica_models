@@ -67,6 +67,7 @@ def run_openmodelica_tests(repository: Path) -> None:
     print("==> OpenModelica assertion suite", flush=True)
     run_omc_script(repository, "Tests/run.mos")
     run_omc_script(repository, "Tests/run-loglinear.mos")
+    run_omc_script(repository, "Tests/run-position-loop.mos")
     run_omc_script(repository, "Tests/check-vehicle-boundaries.mos")
 
 

@@ -20,6 +20,7 @@ VerificationTests
 PlanningTests
 BezierTests
 LogLinearTests
+PositionLoopStabilityTests
 GeodesyTests
 MultirotorInnerLoopTests
 Cubs2EstimatorTests
