@@ -9,6 +9,18 @@ function correctLinear
   input Real innovationGate = 0.0
     "Reject when NIS exceeds innovationGate * size(residual, 1);
      non-positive disables the gate";
+  input Real attitudeGainAxis[3] = zeros(3)
+    "Zero, the default, leaves the optimal gain alone. A UNIT body axis
+     instead projects the three rotation rows of the gain onto that axis,
+     so this measurement may rotate the state about it and about nothing
+     else, while the rotation directions it is excluded from still carry
+     their full sensitivity into the innovation covariance and into the
+     Joseph update. That is a Schmidt, or consider, treatment: the excluded
+     directions keep their uncertainty, the included one inherits the
+     correlation the measurement really has with them, and the posterior
+     stays consistent because the Joseph form below is valid for an
+     ARBITRARY gain. It exists for a measurement whose Jacobian is honestly
+     non-zero on a state the sensor must not be trusted to correct.";
   output Estimation.StrapdownINS.ESKF.State corrected;
   output Boolean accepted;
   output Integer rejectionReason
@@ -23,6 +35,7 @@ protected
   Boolean gatePassed;
   Real attitudeCorrection_rad;
   Real trustScale;
+  Real attitudeGainProjector[3, 3];
   Real crossCovariance[TangentLength, size(residual, 1)];
   Real innovationCovariance[size(residual, 1), size(residual, 1)];
   Real augmentedRhs[size(residual, 1), TangentLength + 1];
@@ -136,6 +149,28 @@ algorithm
   if accepted then
     gainTranspose := augmentedSolution[:, 1:TangentLength];
     gain := transpose(gainTranspose);
+    // CONSIDER PROJECTION ON THE ROTATION ROWS, when the caller asked for
+    // one. Applied to the GAIN, before the correction and before the
+    // Joseph form, so the correction, the gain and the posterior all
+    // describe ONE update. The projector is built by conditional
+    // EXPRESSION over the WHOLE matrix rather than element by element, so
+    // the checked DAE lowering sees one total definition: n*n' for a unit
+    // axis, the identity for the zero default, which leaves the optimal
+    // gain alone up to the multiply by one.
+    attitudeGainProjector := if attitudeGainAxis * attitudeGainAxis > 0.5
+      then {{attitudeGainAxis[1] * attitudeGainAxis[1],
+             attitudeGainAxis[1] * attitudeGainAxis[2],
+             attitudeGainAxis[1] * attitudeGainAxis[3]},
+            {attitudeGainAxis[2] * attitudeGainAxis[1],
+             attitudeGainAxis[2] * attitudeGainAxis[2],
+             attitudeGainAxis[2] * attitudeGainAxis[3]},
+            {attitudeGainAxis[3] * attitudeGainAxis[1],
+             attitudeGainAxis[3] * attitudeGainAxis[2],
+             attitudeGainAxis[3] * attitudeGainAxis[3]}}
+      else identity(3);
+    gain := cat(1, gain[1:6, :],
+      attitudeGainProjector * gain[7:9, :],
+      gain[10:TangentLength, :]);
     correction := gain * residual;
 
     // TRUST REGION ON THE ROTATION ROWS OF THE GAIN ONLY.
