@@ -2,7 +2,7 @@ within Vehicles.Rdd2;
 
 block NavigationEstimator
   "RDD2 eFMU implementation of the stable navigation estimator boundary"
-  extends Estimation.StrapdownINS.ESKF.Estimator;
+  extends Estimation.StrapdownINS.ESKF.Estimator(samplePeriod = 0.01);
 
   annotation(Documentation(info = "<html>
     <p>Export this block as the default RDD2 estimator eFMU. Alternate filter
