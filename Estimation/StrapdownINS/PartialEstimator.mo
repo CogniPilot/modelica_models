@@ -28,8 +28,26 @@ partial block PartialEstimator
   parameter Real opticalFlowGroundPlaneOffset_m = 0.0
     "Plane offset d in normal' * position = d";
   parameter Real localMagneticFieldWorldEnu_T[3] =
-    {18.0e-6, 4.0e-6, -47.0e-6}
+    {-1.59e-6, 20.04e-6, -47.91e-6}
     "Local geomagnetic field reference used only for yaw";
+  // ENU, so the components are {east, north, up} and the horizontal pair is
+  // what sets declination. The previous default {18.0e-6, 4.0e-6, -47.0e-6}
+  // had east and north transposed: it declares a field pointing 77.5 degrees
+  // east of north, which occurs nowhere outside the polar regions, and yaw is
+  // taken directly from this reference, so every heading was biased by the
+  // difference. Only the horizontal pair was wrong, and inclination looked
+  // right either way, which is what let it stand.
+  //
+  // These are WMM2025 evaluated at the RDD2 reference origin (40.4237 N,
+  // 86.9212 W, 2026.6): declination -4.5 degrees, inclination 67.2 degrees,
+  // magnitude 52.0 uT. A deployment away from that site must supply its own
+  // reference, ideally by evaluating Geodesy.WMM2025.magneticFieldEnu at the
+  // mission origin as Vehicles.Rdd2.WaypointVehicleSystem does, because no
+  // fixed default is right everywhere.
+  //
+  // NOTE FOR TEST DESIGN: a simulated magnetometer synthesized from this same
+  // vector cancels any error in it exactly, so no mission that generates its
+  // measurement from the estimator's own reference can detect a wrong one.
   parameter Real maximumAidingDelay_s(unit = "s") = 0.25
     "Reject aiding whose timestamp is older than this fixed-lag horizon";
   parameter Real minimumOpticalFlowQuality = 0.2;
