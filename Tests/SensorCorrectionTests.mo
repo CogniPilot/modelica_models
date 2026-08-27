@@ -1,7 +1,7 @@
 within Tests;
 
 model SensorCorrectionTests
-  "Barometer, terrain, and optical-flow measurement-structure checks"
+  "Barometer, terrain, magnetometer, and optical-flow structure checks"
   function run
     output Boolean passed;
   protected
@@ -24,6 +24,23 @@ model SensorCorrectionTests
     Real nisFar;
     Avionics.OpticalFlowSample flowNear;
     Avionics.OpticalFlowSample flowFar;
+    Real magneticFieldWorldEnu_T[3];
+    Real headingQuaternion[4];
+    Real perturbedQuaternion[4];
+    Real perturbation[3];
+    Real headingPlus;
+    Real headingMinus;
+    Real headingNominal;
+    Real headingVariance_rad2;
+    Boolean headingUsable;
+    Real yawSensitivity[3];
+    Real tiltSensitivity[3];
+    Real scratchYaw[3];
+    Real scratchTilt[3];
+    Real scratchVariance;
+    Boolean scratchUsable;
+    Real numericSensitivity[3];
+    Real tiltTransferMagnitude;
   algorithm
     covariance := identity(15) * 0.01;
     (initialized, bias_m, biasVariance_m2, biasAccepted) :=
@@ -97,6 +114,61 @@ model SensorCorrectionTests
         and reasonFar == Estimation.StrapdownINS.CorrectionRejectedGate
         and nisFar > nisNear,
       "Optical-flow correction did not use co-timed range to form body velocity");
+    // THE MAGNETOMETER HEADING JACOBIAN IS NOT YAW-ONLY.
+    //
+    // magnetometerYawObservation levels the measured field with the
+    // ESTIMATE's roll and pitch, so the heading it reports moves when the
+    // attitude error has a tilt component: by about tan(inclination) times
+    // that component, which is roughly 2.4 at the RDD2 test site. Pin the
+    // analytic sensitivity against a central difference of the observation
+    // itself, so a future yaw-only Jacobian cannot silently return and make
+    // the heading covariance optimistic again.
+    magneticFieldWorldEnu_T := {-1.738e-6, 2.0024e-5, -4.7907e-5};
+    headingQuaternion :=
+      LieGroups.SO3.EulerB321.to_Quat({0.3, 0.15, -0.1});
+    for axis in 1:3 loop
+      perturbation := zeros(3);
+      perturbation[axis] := 1.0e-6;
+      perturbedQuaternion := LieGroups.SO3.Quat.product(
+        headingQuaternion, LieGroups.SO3.Quat.exp_map(perturbation));
+      (headingPlus, scratchVariance, scratchUsable, scratchYaw,
+       scratchTilt) :=
+        Estimation.StrapdownINS.magnetometerYawObservation(
+          headingQuaternion,
+          transpose(LieGroups.SO3.Quat.to_DCM(perturbedQuaternion))
+            * magneticFieldWorldEnu_T,
+          identity(3) * 1.0e-13, magneticFieldWorldEnu_T);
+      perturbation[axis] := -1.0e-6;
+      perturbedQuaternion := LieGroups.SO3.Quat.product(
+        headingQuaternion, LieGroups.SO3.Quat.exp_map(perturbation));
+      (headingMinus, scratchVariance, scratchUsable, scratchYaw,
+       scratchTilt) :=
+        Estimation.StrapdownINS.magnetometerYawObservation(
+          headingQuaternion,
+          transpose(LieGroups.SO3.Quat.to_DCM(perturbedQuaternion))
+            * magneticFieldWorldEnu_T,
+          identity(3) * 1.0e-13, magneticFieldWorldEnu_T);
+      numericSensitivity[axis] :=
+        (headingPlus - headingMinus) / 2.0e-6;
+    end for;
+    (headingNominal, headingVariance_rad2, headingUsable, yawSensitivity,
+     tiltSensitivity) :=
+      Estimation.StrapdownINS.magnetometerYawObservation(
+        headingQuaternion,
+        transpose(LieGroups.SO3.Quat.to_DCM(headingQuaternion))
+          * magneticFieldWorldEnu_T,
+        identity(3) * 1.0e-13, magneticFieldWorldEnu_T);
+    assert(headingUsable and abs(headingNominal - 0.3) < 1.0e-9,
+      "Tilt-compensated heading did not reproduce the estimate's own yaw");
+    for axis in 1:3 loop
+      assert(abs(yawSensitivity[axis] + tiltSensitivity[axis]
+          - numericSensitivity[axis]) < 1.0e-4,
+        "Magnetometer heading Jacobian disagrees with its own observation");
+    end for;
+    tiltTransferMagnitude := sqrt(tiltSensitivity * tiltSensitivity);
+    assert(tiltTransferMagnitude > 1.5,
+      "Levelling transfer of the heading observation read as negligible");
+
     passed := true;
   end run;
 
