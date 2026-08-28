@@ -4,9 +4,18 @@ block OutputPredictor
   "SE_2(3) delta ring, delayed fusion window, and output predictor"
 
   parameter Real samplePeriod(unit = "s", min = 1.0e-9) = 0.00125
-    "800 Hz inertial tick, paced by the IMU data-ready interrupt";
+    "800 Hz inertial tick, paced by the IMU data-ready interrupt.
+    Structural: the release cadence and the buffer lengths derived from it are
+    array dimensions and loop bounds, which carry their value when the code is
+    generated rather than at run time. Evaluate = true says so; the
+    alternative is a dynamically sized ring, which is what the code generator
+    is right to refuse and what a flight timing record cannot be written
+    against."
+    annotation(Evaluate = true);
   parameter Real fusionPeriod_s(unit = "s", min = 1.0e-9) = 0.01
-    "100 Hz fusion release; one filter step per composed window";
+    "100 Hz fusion release; one filter step per composed window. Structural,
+     for the reason recorded on samplePeriod"
+    annotation(Evaluate = true);
   parameter Real fusionHorizon_s(unit = "s", min = 1.0e-9) = 0.2
     "Lag of the fusion instant behind now. Chosen so every aiding source has
      already delivered by the time the filter reaches that instant: on the
@@ -17,7 +26,9 @@ block OutputPredictor
      Jacobian to meet it.
 
      At least one fusionPeriod_s, and an exact multiple of it. Both are
-     asserted below rather than rounded quietly";
+     asserted below rather than rounded quietly. Structural, for the reason
+     recorded on samplePeriod: the ring length is derived from it"
+    annotation(Evaluate = true);
   parameter Real gravityWorldEnu_m_s2[3] = {0.0, 0.0, -9.81};
   parameter Boolean useFirstOrderHold = true
     "True composes each interval under a first-order hold with the coning,

@@ -10,11 +10,21 @@ block HorizonEstimator
      re-base, and the published boundary are shared, which is what makes a
      comparison between two filters a comparison of the filters";
 
+  // The rate lattice is STRUCTURAL. Both buffers this block composes -- the
+  // delta ring and the five measurement queues -- take their lengths from
+  // these three numbers, and a buffer length is an array dimension. It has to
+  // carry a value when the code is generated, so it is evaluated at
+  // translation rather than left tunable, here as well as inside each
+  // sub-block: a tunable parameter forwarded into a structural one is still
+  // tunable, and the dimension it feeds becomes unevaluable.
   parameter Real samplePeriod(unit = "s", min = 1.0e-9) = 0.00125
-    "Inertial and output-predictor tick";
+    "Inertial and output-predictor tick"
+    annotation(Evaluate = true);
   parameter Real fusionPeriod_s(unit = "s", min = 1.0e-9) = 0.01
-    "Filter release interval, one step per composed horizon packet";
-  parameter Real fusionHorizon_s(unit = "s", min = 0.0) = 0.2;
+    "Filter release interval, one step per composed horizon packet"
+    annotation(Evaluate = true);
+  parameter Real fusionHorizon_s(unit = "s", min = 0.0) = 0.2
+    annotation(Evaluate = true);
   parameter Real gravityWorldEnu_m_s2[3] = {0.0, 0.0, -9.81};
   parameter Boolean useFirstOrderHold = true;
   parameter Real initialPositionWorldEnu_m[3] = zeros(3);
@@ -22,6 +32,23 @@ block HorizonEstimator
   parameter Real initialQuaternionWorldBody[4] = {1.0, 0.0, 0.0, 0.0};
   parameter Real initialGyroscopeBiasBodyFlu_rad_s[3] = zeros(3);
   parameter Real initialAccelerometerBiasBodyFlu_m_s2[3] = zeros(3);
+  parameter Real mocapPeriod_s(unit = "s", min = 1.0e-9) = 0.01
+    annotation(Evaluate = true);
+  parameter Real gpsPeriod_s(unit = "s", min = 1.0e-9) = 0.1
+    annotation(Evaluate = true);
+  parameter Real magnetometerPeriod_s(unit = "s", min = 1.0e-9) = 0.05
+    annotation(Evaluate = true);
+  parameter Real barometerPeriod_s(unit = "s", min = 1.0e-9) = 0.02
+    annotation(Evaluate = true);
+  parameter Real opticalFlowPeriod_s(unit = "s", min = 1.0e-9) = 0.01
+    "Shortest interval each aiding source is declared to deliver at. It sizes
+     that source's delayed-measurement queue and nothing else, and it is
+     structural for the reason recorded on samplePeriod"
+    annotation(Evaluate = true);
+  parameter Real maximumResidualAge_s(unit = "s", min = 0.0) = fusionPeriod_s
+    "How far the fusion instant may stand past a measurement's own timestamp
+     and still fuse it. See Estimation.FusionHorizon.AidingBuffer, which owns
+     this bound and publishes the residual actually achieved";
 
   input Boolean reset;
   input Real angularVelocityMeasuredBodyFlu_rad_s[3](each unit = "rad/s");
@@ -41,6 +68,21 @@ block HorizonEstimator
     "The filter's bias moved further from the horizon's anchor than the
      first-order Jacobian move is declared good for. A supervision signal, not
      a gate: the state is published as computed";
+  discrete output Real worstAidingResidualAge_s(
+    unit = "s", start = 0.0, fixed = true)
+    "Largest residual any aiding measurement has been delivered to the filter
+     with. Bounded by maximumResidualAge_s by construction and published so
+     the bound is observable rather than argued: it is the whole quantitative
+     claim of fusing at a horizon";
+  discrete output Boolean aidingRefused(start = false, fixed = true)
+    "A measurement was refused at arrival for being later than the horizon,
+     discarded at delivery for the same reason, or displaced from a full
+     queue, on this tick";
+  discrete output Integer aidingRefusedLateCount(start = 0, fixed = true)
+    "Measurements the fusion instant had already passed when they arrived. On
+     a horizon longer than every source's transport latency this stays zero,
+     and a nonzero value is a statement about the horizon length rather than
+     about the filter";
 
   Estimation.FusionHorizon.OutputPredictor horizon(
     samplePeriod=samplePeriod,
@@ -56,8 +98,32 @@ block HorizonEstimator
     initialVelocityWorldEnu_m_s=initialVelocityWorldEnu_m_s,
     initialQuaternionWorldBody=initialQuaternionWorldBody);
 
+  // THE OTHER HALF OF A DELAYED HORIZON. Moving the filter's epoch back to
+  // t - D without holding the aiding back with it does not fuse delayed
+  // measurements, it fuses measurements from the FUTURE: every sensor packet
+  // is stamped ahead of the instant the filter is standing on, and the
+  // filter's own timestamp rule rejects a negative age outright. The queues
+  // hold each measurement until the fusion instant reaches its timestamp.
+  Estimation.FusionHorizon.AidingBuffer aiding(
+    samplePeriod=samplePeriod,
+    fusionPeriod_s=fusionPeriod_s,
+    fusionHorizon_s=fusionHorizon_s,
+    mocapPeriod_s=mocapPeriod_s,
+    gpsPeriod_s=gpsPeriod_s,
+    magnetometerPeriod_s=magnetometerPeriod_s,
+    barometerPeriod_s=barometerPeriod_s,
+    opticalFlowPeriod_s=opticalFlowPeriod_s,
+    maximumResidualAge_s=maximumResidualAge_s);
+
   FilterModel filter(
     samplePeriod=fusionPeriod_s,
+    // The filter's own timestamp bound IS the queue's residual bound, not the
+    // quarter second the live-edge path admits. Behind the queues nothing can
+    // reach the filter outside that bound, so this is defence in depth rather
+    // than the mechanism; what it buys is that a future change which bypasses
+    // a queue is refused by timestamp instead of quietly transporting a
+    // measurement Jacobian a quarter of a second to meet the state.
+    maximumAidingDelay_s=maximumResidualAge_s,
     gravityWorldEnu_m_s2=gravityWorldEnu_m_s2,
     initialPositionWorldEnu_m=initialPositionWorldEnu_m,
     initialVelocityWorldEnu_m_s=initialVelocityWorldEnu_m_s,
@@ -165,6 +231,9 @@ algorithm
     rebased := horizon.rebased;
     bufferedDeltaCount := horizon.bufferedDeltaCount;
     biasMoveExceeded := horizon.biasMoveExceeded;
+    worstAidingResidualAge_s := aiding.worstDeliveredAge_s;
+    aidingRefused := aiding.aidingRefused;
+    aidingRefusedLateCount := aiding.refusedLateCount;
   end when;
 
 equation
@@ -181,18 +250,43 @@ equation
   horizon.horizonGyroscopeBiasBodyFlu_rad_s = horizonGyroscopeBias_rad_s;
   horizon.horizonAccelerometerBiasBodyFlu_m_s2 = horizonAccelerometerBias_m_s2;
 
+  // The queues are clocked with the predictor and pulsed by it. The epoch is
+  // the one the predictor stamps on the inertial packet it releases, and it
+  // has to be the same number: the two packets the filter consumes on one
+  // tick name one fusion instant, which is the entire content of fusing at a
+  // horizon. Reading it off the packet rather than recomputing it is what
+  // makes that identity structural instead of a coincidence between two
+  // arithmetic expressions.
+  aiding.reset = reset;
+  aiding.horizonValid = horizon.horizonReady;
+  aiding.horizonEpoch_s = horizon.horizonPacket.timestamp_s;
+  aiding.horizonReleased = horizon.horizonPacket.valid;
+  aiding.mocap = mocap;
+  aiding.gps = gps;
+  aiding.magnetometer = magnetometer;
+  aiding.barometer = barometer;
+  aiding.opticalFlow = opticalFlow;
+
   filter.reset = reset;
-  // Whole-record equalities rather than connect equations. The aiding
-  // streams pass straight through to the filter unchanged, and a connection
-  // set whose only members are one outer input and one inner input leaves
+  // Whole-record equalities rather than connect equations. A connection set
+  // whose only members are one outer input and one inner input leaves
   // OpenModelica unable to sort the result against the clocked producers on
   // either side.
+  //
+  // The aiding streams no longer pass straight through. Each one now reaches
+  // the filter from its queue, at the fusion instant its own timestamp names,
+  // which is what makes the filter's measurement age a residual inside one
+  // release window rather than the whole transport latency of the sensor.
+  // EVERY source routes through the same path, mocap included: the
+  // asymmetry where mocap was aged like the others and aligned like nothing
+  // else closes here by construction rather than by adding a fifth copy of a
+  // retrodiction stanza.
   filter.imu = horizon.horizonPacket;
-  filter.mocap = mocap;
-  filter.gps = gps;
-  filter.magnetometer = magnetometer;
-  filter.barometer = barometer;
-  filter.opticalFlow = opticalFlow;
+  filter.mocap = aiding.mocapAtHorizon;
+  filter.gps = aiding.gpsAtHorizon;
+  filter.magnetometer = aiding.magnetometerAtHorizon;
+  filter.barometer = aiding.barometerAtHorizon;
+  filter.opticalFlow = aiding.opticalFlowAtHorizon;
 
   annotation(Documentation(info = "<html>
     <p>The composition the architecture exists for. The filter runs AT the
@@ -200,12 +294,27 @@ equation
     never fuses a delayed measurement and never transports a measurement
     Jacobian backwards in time. The state control consumes is the horizon state
     composed with the buffered deltas, republished at the inertial rate.</p>
-    <p><b>What this replaces.</b> Measurement-age alignment of the nominal state
-    (<code>Estimation.StrapdownINS.ESKF.retrodict</code>, one held IMU sample
-    over ages up to 100 ms) and the delay-transport factor of the measurement
-    Jacobian. What remains is the undelayed Jacobian itself, which is the half
-    that has been mechanically verified. Sensor transport latency is not
-    removed by anything here; it is where the horizon length comes from.</p>
+    <p><b>What this replaces.</b> Measurement-age alignment over the whole
+    transport latency of a sensor. <code>Estimation.FusionHorizon.AidingBuffer</code>
+    holds every aiding packet until the fusion instant reaches its own
+    timestamp, so the filter's measurement age is a residual inside one
+    release window instead of the age the packet happened to arrive with. The
+    interval <code>Estimation.StrapdownINS.ESKF.retrodict</code> and the
+    <code>Phi(-age)</code> Jacobian transport run over therefore falls from
+    <code>maximumAidingDelay_s</code>, a quarter of a second, to
+    <code>fusionPeriod_s</code>, ten milliseconds. Neither function is removed
+    and neither is wrong; the argument is that what they are asked to cover is
+    now twenty-five times smaller and is a parameter of the release lattice
+    rather than a property of a driver. The residual actually achieved is
+    published as <code>worstAidingResidualAge_s</code>. Sensor transport
+    latency is not removed by anything here; it is where the horizon length
+    comes from.</p>
+    <p><b>Both halves are required.</b> The predictor alone moves the filter's
+    epoch back to <code>t - D</code> and leaves the aiding at the live edge,
+    which does not fuse delayed measurements: every sensor packet is then
+    stamped AHEAD of the instant the filter stands on, and a negative age is
+    refused by the filter's own timestamp rule. The queues are what make the
+    delayed epoch usable.</p>
     <p><b>What is generic and what is not.</b> The filter enters through
     <code>Estimation.StrapdownINS.PartialEstimator</code> and is used only
     through the algorithm-neutral part of that boundary: it is handed an
