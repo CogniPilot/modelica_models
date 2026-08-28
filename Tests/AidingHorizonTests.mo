@@ -81,6 +81,26 @@ model AidingHorizonTests
     "Declares 5 Hz and delivers at 200 Hz, so its queue is four times shorter
      than the backlog its own rate builds while waiting for the horizon";
 
+  // THE DEGENERATE-CASE ANCHOR. One release window of horizon, which is the
+  // shortest the block admits, and measurements that arrive with no latency at
+  // all. In that corner the delay a measurement experiences is at most one
+  // release period, which is exactly the delay the live-edge path imposes by
+  // sampling: a queue at the minimum horizon is indistinguishable from handing
+  // the measurement to the filter on its next tick. Nothing may be refused,
+  // nothing may go stale, and the residual bound must still hold. If the queue
+  // machinery has a cost that does not vanish as the horizon shrinks, this is
+  // the arm that shows it.
+  Estimation.FusionHorizon.OutputPredictor degeneratePredictor(
+    samplePeriod=samplePeriod,
+    fusionPeriod_s=fusionPeriod_s,
+    fusionHorizon_s=fusionPeriod_s);
+  Estimation.FusionHorizon.AidingBuffer degenerate(
+    samplePeriod=samplePeriod,
+    fusionPeriod_s=fusionPeriod_s,
+    fusionHorizon_s=fusionPeriod_s,
+    gpsPeriod_s=gpsPeriod_s,
+    barometerPeriod_s=barometerPeriod_s);
+
   discrete Real gpsTimestamp_s(start = -1.0, fixed = true);
   discrete Boolean gpsPresent(start = false, fixed = true);
   discrete Real barometerTimestamp_s(start = -1.0, fixed = true);
@@ -246,6 +266,63 @@ equation
   late.opticalFlow.groundDistanceVariance_m2 = 0.01;
   late.opticalFlow.quality = 1.0;
 
+  degeneratePredictor.reset = false;
+  degeneratePredictor.angularVelocityMeasuredBodyFlu_rad_s =
+    predictor.angularVelocityMeasuredBodyFlu_rad_s;
+  degeneratePredictor.specificForceMeasuredBodyFlu_m_s2 =
+    predictor.specificForceMeasuredBodyFlu_m_s2;
+  degeneratePredictor.horizonStateValid = degeneratePredictor.horizonReady;
+  degeneratePredictor.horizonStateShifted = false;
+  degeneratePredictor.horizonPositionWorldEnu_m = zeros(3);
+  degeneratePredictor.horizonVelocityWorldEnu_m_s = zeros(3);
+  degeneratePredictor.horizonQuaternionWorldBody = {1.0, 0.0, 0.0, 0.0};
+  degeneratePredictor.horizonGyroscopeBiasBodyFlu_rad_s = zeros(3);
+  degeneratePredictor.horizonAccelerometerBiasBodyFlu_m_s2 = zeros(3);
+
+  degenerate.reset = false;
+  degenerate.horizonValid = degeneratePredictor.horizonReady;
+  degenerate.horizonEpoch_s = degeneratePredictor.horizonPacket.timestamp_s;
+  degenerate.horizonReleased = degeneratePredictor.horizonPacket.valid;
+  degenerate.mocap.valid = false;
+  degenerate.mocap.fresh = false;
+  degenerate.mocap.timestamp_s = time;
+  degenerate.mocap.positionWorldEnu_m = zeros(3);
+  degenerate.mocap.quaternionWorldBody = {1.0, 0.0, 0.0, 0.0};
+  degenerate.mocap.positionCovarianceWorld_m2 = identity(3);
+  degenerate.mocap.attitudeCovarianceBody_rad2 = identity(3);
+  // ZERO LATENCY: stamped at the instant it is presented.
+  degenerate.gps.valid = gpsPresent;
+  degenerate.gps.fresh = gpsPresent;
+  degenerate.gps.positionValid = true;
+  degenerate.gps.velocityValid = false;
+  degenerate.gps.timestamp_s = time;
+  degenerate.gps.geodetic_deg_m = zeros(3);
+  degenerate.gps.positionWorldEnu_m = zeros(3);
+  degenerate.gps.velocityWorldEnu_m_s = zeros(3);
+  degenerate.gps.positionCovarianceWorld_m2 = identity(3);
+  degenerate.gps.velocityCovarianceWorld_m2_s2 = identity(3);
+  degenerate.magnetometer.valid = false;
+  degenerate.magnetometer.fresh = false;
+  degenerate.magnetometer.timestamp_s = time;
+  degenerate.magnetometer.magneticFieldBodyFlu_T = zeros(3);
+  degenerate.magnetometer.covarianceBody_T2 = identity(3);
+  degenerate.barometer.valid = false;
+  degenerate.barometer.fresh = false;
+  degenerate.barometer.timestamp_s = time;
+  degenerate.barometer.altitudeWorldEnu_m = 0.0;
+  degenerate.barometer.variance_m2 = 1.0;
+  degenerate.opticalFlow.valid = false;
+  degenerate.opticalFlow.fresh = false;
+  degenerate.opticalFlow.timestamp_s = time;
+  degenerate.opticalFlow.integratedLineOfSight_rad = zeros(2);
+  degenerate.opticalFlow.integratedLineOfSightCovariance_rad2 = identity(2);
+  degenerate.opticalFlow.integratedGyroscopeBodyFlu_rad = zeros(3);
+  degenerate.opticalFlow.integratedGyroscopeCovariance_rad2 = identity(3);
+  degenerate.opticalFlow.integrationTime_s = 0.01;
+  degenerate.opticalFlow.groundDistance_m = 1.0;
+  degenerate.opticalFlow.groundDistanceVariance_m2 = 0.01;
+  degenerate.opticalFlow.quality = 1.0;
+
   crowded.reset = false;
   crowded.horizonValid = predictor.horizonReady;
   crowded.horizonEpoch_s = predictor.horizonPacket.timestamp_s;
@@ -359,6 +436,33 @@ equation
   assert(time < stopTime_s - 1.0e-9 or nominal.deliveredCount >= 10,
     "Too few measurements reached the filter for the delivery assertions above
      to mean anything");
+
+  // ---- 5b. the degenerate case is a pass-through --------------------------
+  // At the shortest horizon the block admits and with no sensor latency, the
+  // queue must cost nothing: everything delivered, nothing refused, nothing
+  // stale, and the residual still inside one release window. This is the
+  // anchor the delayed case is measured against, and it is what says the
+  // machinery has no fixed overhead that survives shrinking the horizon.
+  // Measured: 19 deliveries over 0.4 s, worst residual 0.008750 s, no
+  // refusals of any kind.
+  assert(degenerate.refusedLateCount == 0,
+    "A zero-latency measurement was refused as later than a horizon of one
+     release window, so the queue is not a pass-through in the degenerate
+     case");
+  assert(degenerate.refusedOverflowCount == 0,
+    "A zero-latency measurement overflowed a queue at the shortest horizon");
+  assert(degenerate.droppedStaleCount == 0,
+    "A zero-latency measurement went stale at the shortest horizon");
+  assert(degenerate.worstDeliveredAge_s <= residualBound_s + 1.0e-9,
+    "The degenerate case delivered outside the residual bound, so the bound is
+     not a property of the release lattice");
+  assert(not degenerate.deliveryAfterHorizon,
+    "The degenerate case delivered ahead of its own fusion instant");
+  assert(not degenerate.deliveryOutOfOrder,
+    "The degenerate case delivered out of timestamp order");
+  assert(time < stopTime_s - 1.0e-9 or degenerate.deliveredCount >= 10,
+    "The degenerate case delivered almost nothing, so the assertions above
+     hold vacuously and the anchor is not anchoring anything");
 
   // ---- 6. a measurement older than the horizon is refused BY NAME ---------
   // Measured: 18 refusals and 0 deliveries over the run.
