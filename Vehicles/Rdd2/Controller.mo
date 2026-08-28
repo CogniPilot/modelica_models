@@ -9,7 +9,7 @@ block Controller
   parameter Real samplePeriod(unit = "s") = 0.000625;
   parameter Real guidancePeriod(unit = "s") = 0.005;
 
-  input Integer mode(min = 0, max = 2);
+  input Integer mode(min = 0, max = 3);
   input Boolean armed;
   Interfaces.PilotInput pilot;
   Avionics.NavigationEstimateInput navigation;
