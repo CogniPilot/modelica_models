@@ -17,26 +17,63 @@ if not loadModel(Tests) then
   exit(1);
 end if;
 
-print(checkModel(Tests.HorizonPredictorTests));
-print(getErrorString());
-print(checkModel(Tests.HorizonInterfaceTests));
-print(getErrorString());
-print(checkModel(Tests.HorizonResetTests));
-print(getErrorString());
-// Translation only. OpenModelica cannot BUILD a simulation containing a bare
-// Estimation.StrapdownINS.PartialEstimator: it reports an independent subset of
-// the flattened estimator over-determined by nineteen equations, and the
-// existing Tests.StrapdownEstimatorInterfaceTests fails identically on an
-// untouched tree.
+// Every model is checked once and the report is kept, because the report is
+// itself evidence: see the balance gate below.
 //
-// Rumoca does NOT lower this model either, and the previous version of this
+// Tests.HorizonEstimatorWiring is TRANSLATION ONLY. OpenModelica cannot BUILD a
+// simulation containing a bare Estimation.StrapdownINS.PartialEstimator: it
+// reports an independent subset of the flattened estimator over-determined by
+// nineteen equations, and the existing Tests.StrapdownEstimatorInterfaceTests
+// fails identically on an untouched tree.
+//
+// Rumoca does NOT lower that model either, and an earlier version of this
 // comment claimed it did. What tools/ci.py lowers is
 // Estimation.FusionHorizon.OutputPredictor, the horizon block on its own. The
 // composed model is unbalanced by fourteen equations per harness, for a reason
 // that has nothing to do with this package and is recorded in
 // tools/rumoca-repros/connector-boolean-balance/.
-print(checkModel(Tests.HorizonEstimatorWiring));
+reports := {
+  checkModel(Tests.HorizonPredictorTests),
+  checkModel(Tests.HorizonInterfaceTests),
+  checkModel(Tests.HorizonResetTests),
+  checkModel(Tests.HorizonBiasSupervisionTests),
+  checkModel(Tests.HorizonEstimatorWiring)};
 print(getErrorString());
+
+// ---- checkModel says "successfully" about an unbalanced model -------------
+// It does. Deleting one status assignment from the ESKF -- the accepted
+// correction count the horizon's re-base trigger reads -- leaves every gate in
+// this repository green while corrections stop reaching the predictor
+// entirely. checkModel reports 3182 equations against 3183 variables and still
+// prints "completed successfully", and the composed model is translation-only,
+// so no simulation runs to notice.
+//
+// STATE WHAT THIS CATCHES. It is not a check that the counter is wired to the
+// re-base; nothing here can simulate the composed block, so nothing here can
+// assert that. It is a check that every discrete in these models has an
+// equation, which is the shape the failure takes: a when-clause assignment
+// that goes missing leaves its variable holding its start value for ever, and
+// the equation count falls by one. Any unassigned discrete in any of these
+// five models fails the suite, whatever put it there.
+for reportIndex in 1:5 loop
+  print(reports[reportIndex]);
+  (balanceHits, balanceGroups) := regex(
+    reports[reportIndex],
+    "has ([0-9]+) equation\\(s\\) and ([0-9]+) variable\\(s\\)",
+    3,
+    true);
+  if balanceHits < 3 then
+    print("Could not read the equation and variable counts out of a checkModel
+           report, so the balance gate is not running\n");
+    exit(1);
+  end if;
+  if balanceGroups[2] <> balanceGroups[3] then
+    print("A horizon model has more variables than equations, so some discrete
+           is never assigned and holds its start value for ever. checkModel
+           calls this successful; it is not\n");
+    exit(1);
+  end if;
+end for;
 
 testOutputDirectory := getTempDirectoryPath();
 cd(testOutputDirectory);

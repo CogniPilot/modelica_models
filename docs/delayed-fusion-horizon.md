@@ -296,6 +296,21 @@ Three things the block used to accept quietly and now refuses:
 `Tests.HorizonRefusals` is one model per precondition and the requirement on
 each is that it does not run.
 
+**And one gate that is not a precondition but belongs with them.** Deleting a
+single status assignment from either shipped filter -- the accepted-correction
+count the re-base trigger reads -- leaves every gate in the repository green
+while corrections stop reaching the predictor entirely. `checkModel` reports
+3182 equations against 3183 variables and still prints "completed
+successfully", and the composed model is translation-only, so no simulation
+runs to notice. `Tests/run-horizon.mos` therefore reads the equation and
+variable counts out of every `checkModel` report and fails when they differ.
+
+Say what that gate catches, because it is narrower than it looks: not that the
+counter is wired to the re-base, which nothing here can assert without
+simulating the composed block, but that every discrete in these models has an
+equation. That is the shape this failure takes, and any other unassigned
+discrete fails the suite the same way.
+
 ### Readiness means a packet exists
 
 `horizonReady` is latched by the FIRST RELEASE. For one release window the ring
