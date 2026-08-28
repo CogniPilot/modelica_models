@@ -177,6 +177,13 @@ def run_rumoca_tests(repository: Path) -> None:
                 "fusion-horizon-output-predictor",
             ),
             (
+                "Estimation/FusionHorizon/AidingBuffer.mo",
+                "Estimation.FusionHorizon.AidingBuffer",
+                "--target",
+                "galec-production",
+                "fusion-horizon-aiding-buffer",
+            ),
+            (
                 "Estimation/StrapdownINS/UKF/Estimator.mo",
                 "Estimation.StrapdownINS.UKF.Estimator",
                 "--target",
@@ -230,6 +237,86 @@ def run_rumoca_tests(repository: Path) -> None:
                 repository,
                 f"Rumoca {format_name} compile for {model_name}",
             )
+
+        check_pin_dependent_lowering(repository, rumoca, output)
+
+
+# Models that do not lower today for one identified upstream reason, recorded
+# with the exact number the reason predicts.
+#
+# This is not an ignore list. The entry fails the build if the model stops
+# lowering for a DIFFERENT reason, which is the case an ignore list hides, and
+# it says so plainly when the model starts lowering, which is the moment the
+# entry should be promoted into named_models above and this table shrink.
+#
+# The cause: Rumoca does not count the BOOLEAN components of a sub-block's
+# input connector among the unknowns, while the whole-record pass-through
+# equality still contributes their equations. A seventeen-line reproducer and
+# the bisection are in tools/rumoca-repros/connector-boolean-balance/. The fix
+# is upstream and in flight.
+PIN_DEPENDENT_MODELS = (
+    (
+        "Estimation/FusionHorizon/HorizonEstimator.mo",
+        "Estimation.FusionHorizon.HorizonEstimator",
+        26,
+        "14 Booleans on the filter's six input connectors plus 12 on the "
+        "aiding buffer's five",
+    ),
+)
+
+
+def check_pin_dependent_lowering(repository: Path, rumoca: str, output: Path) -> None:
+    print("==> Rumoca composed-model lowering (pin dependent)", flush=True)
+    for model_file, model_name, expected_excess, cause in PIN_DEPENDENT_MODELS:
+        completed = subprocess.run(
+            [
+                rumoca,
+                "compile",
+                model_file,
+                "--model",
+                model_name,
+                "--source-root",
+                str(repository),
+                "--emit",
+                "dae-json",
+                "--output",
+                str(output / "pin-dependent.dae.json"),
+            ],
+            cwd=repository,
+            capture_output=True,
+            text=True,
+        )
+        if completed.returncode == 0:
+            print(
+                f"    {model_name} now lowers. The connector Boolean balance "
+                "gap has closed: move this entry into named_models and delete "
+                "it from PIN_DEPENDENT_MODELS.",
+                flush=True,
+            )
+            continue
+        diagnostics = completed.stdout + completed.stderr
+        balance = re.search(
+            r"unbalanced model: (\d+) equations, (\d+) unknowns", diagnostics
+        )
+        if balance is None:
+            raise TaskError(
+                f"{model_name} failed to lower for a reason that is NOT the "
+                "recorded connector Boolean balance gap, so a new defect has "
+                f"been introduced:\n{diagnostics}"
+            )
+        excess = int(balance.group(1)) - int(balance.group(2))
+        if excess != expected_excess:
+            raise TaskError(
+                f"{model_name} is unbalanced by {excess} equations where the "
+                f"recorded connector Boolean gap predicts {expected_excess} "
+                f"({cause}). Either the boundary changed or a second cause has "
+                "appeared; neither may pass silently."
+            )
+        print(
+            f"    {model_name} unbalanced by {expected_excess} as expected "
+            f"({cause})",
+            flush=True,
+        )
 
 
 def run_planning_plots(repository: Path) -> None:

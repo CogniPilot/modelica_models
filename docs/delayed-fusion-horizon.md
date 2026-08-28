@@ -50,11 +50,11 @@ edit.
 
 | concern | today | under this design |
 | --- | --- | --- |
-| measurement-age alignment of the nominal state | `ESKF/retrodict.mo`, one held IMU sample over the age | not needed for anything inside the horizon: the measurement is fused at its own timestamp, which IS the fusion instant |
-| aged measurement Jacobian `H_d Phi(-age)` | built in `ESKF/step.mo` | `Phi(-age)` becomes identity for aiding inside the horizon; only `H_d` remains, and `H_d` is the half already mechanically verified (`lie-jacobian-eskf-proof`, commit 17767d3) |
+| measurement-age alignment of the nominal state | `ESKF/retrodict.mo`, one held IMU sample over the age | still used, over a much shorter interval. `AidingBuffer` delivers a measurement at the first fusion instant at or after its own timestamp, so what remains is a residual inside one release window: 10 ms rather than the sensor's whole transport latency |
+| aged measurement Jacobian `H_d Phi(-age)` | built in `ESKF/step.mo` | `Phi(-age)` is transported over the residual only. It is NOT the identity, and an earlier version of this table said it would be: a measurement timestamp falls between two fusion instants, so the transport runs over `[0, fusionPeriod_s)`. `H_d` is the half already mechanically verified (`lie-jacobian-eskf-proof`, commit 17767d3) |
 | `maximumAidingDelay_s = 0.25` | admits packets whose cubic-Taylor transport is 12 to 27 percent wrong, against a deployed GPS age nearer 0.1 s | the transport is not used for aiding that reaches the horizon. What remains is the residual window for a packet that arrives AFTER its epoch has passed the horizon; that window is `age - fusionHorizon_s`, and the horizon length is chosen so it is normally empty. A packet later than the horizon is a supervision event, not a transport problem, and should be rejected on its timestamp |
-| process noise over the aging window | the gain and the Joseph posterior neglect the process noise accumulated between the measurement timestamp and the fusion time | the class is removed by construction: at the horizon there is no gap between measurement epoch and fusion epoch, so there is no window to accumulate over |
-| `correctMocap` has no retrodiction stanza at all, though the paper claims every `correct*` has one | a real asymmetry: mocap is aged like everything else and is aligned like nothing else | every source routes through one horizon path. The asymmetry closes by construction rather than by adding a fifth copy of the same stanza |
+| process noise over the aging window | the gain and the Joseph posterior neglect the process noise accumulated between the measurement timestamp and the fusion time | REDUCED, not removed, and an earlier version of this table claimed removal. The neglected window is the residual above, so the term shrinks with it by the same factor of twenty-five; what changes in kind is that the window is now a parameter of the release lattice rather than whatever age a packet arrived with |
+| `correctMocap` has no retrodiction stanza at all, though the paper claims every `correct*` has one | a real asymmetry: mocap is aged like everything else and is aligned like nothing else | closed two ways. Every source now routes through the same queue, and `correctMocap` carries the same age stanza as the other four, because the residual alignment is needed there too. An asymmetry that only the routing closed would have left mocap the one source with no sub-window transport |
 | carrying the state to now for control | nothing. Control reads the filter output, one estimator period stale, and there is no output predictor | the output predictor of Sec. 4 |
 | the 29 `delay()` operators in `Vehicles/Rdd2/WaypointVehicleSystem.mo` | model the physical transport latency of the simulated sensors | **unchanged.** They are plant-side truth, not estimator machinery. A horizon does not remove sensor latency; it is where the horizon length comes from |
 | bias relinearization of buffered increments | `correctPreintegratedImu.mo`, first order in `db` | unchanged in form, now bounded by Prop. 8 over a window whose length is a parameter rather than over whatever age a packet happened to have |
@@ -198,6 +198,114 @@ second against a measured budget of 7.3, seven times the ceiling, in a
 configuration nothing refused. The tolerance the budget actually leaves is
 0.025 rad, so that is the default, and the WCET record states the price in
 attitude that buys.
+
+## 3b. The delayed measurement queues
+
+`Estimation.FusionHorizon.AidingBuffer`. This is the half the first landing
+did not have, and the gap it leaves is worth stating exactly, because it is
+sharper than "incomplete".
+
+**A horizon without measurement queues fuses nothing.** The predictor moves the
+filter's epoch back to `t - D`. The aiding streams stay at the live edge. So
+every sensor packet is stamped AHEAD of the instant the filter is standing on,
+the age `imuTimestampHeld - source.timestamp_s` comes out NEGATIVE, and
+`ESKF/step.mo` refuses it as `CorrectionRejectedTimestamp`. The only aiding
+that ever reached a filter behind the horizon was in
+`Tests.HorizonEstimatorWiring`, which hand-stamps its mocap sample at
+`time - fusionHorizon_s` so that its age is zero by construction. The merged
+composition was therefore correct in every part and inert as a whole.
+
+### What a queue does
+
+One bounded FIFO per source, holding measurements packed into flat `Real` rows
+whose column 1 is the timestamp. `stepQueue` knows nothing else about any row,
+which is what lets one kernel serve five sources of five different widths.
+
+Per inertial tick, in order: **deliver**, then **admit**. Deliver first so a
+full queue can drain on the tick it is written to. Delivery happens only on a
+release, pulsed onto the same clock the inertial packet is pulsed onto, because
+the two packets the filter consumes on one tick have to name one fusion
+instant. The epoch is read off the released inertial packet rather than
+recomputed, so that identity is structural.
+
+An entry is RIPE when the fusion instant has reached its timestamp. That is the
+whole delayed-fusion contract: at the instant the filter stands on, the
+measurement is no longer in the future, so fusing it is fusing a measurement at
+its own epoch rather than transporting one backwards to meet a state that has
+moved on.
+
+### The residual, which is the quantitative claim
+
+A measurement ripens on the first release at or after its own timestamp, so the
+offset between the two is in `[0, fusionPeriod_s)` by construction. That offset
+is `maximumResidualAge_s`, it is the interval `retrodict` and `Phi(-age)` now
+run over, and it is published as `worstDeliveredAge_s` rather than argued.
+
+At the flight lattice it is 0.01 s against the 0.25 s `maximumAidingDelay_s`
+admits: a factor of twenty-five on the interval, and the transport error is
+cubic in it. Measured in `Tests.AidingHorizonTests` on a stream whose fixes
+arrive 0.03 s old: worst delivered residual 0.008750 s against a derived bound
+of 0.01 s.
+
+### Four outcomes, all named
+
+| outcome | when |
+| --- | --- |
+| `AidingQueued` | stored, to be fused when the fusion instant reaches it |
+| `AidingRefusedLate` | the fusion instant had already passed it by more than the residual bound. There is no instant left to fuse it at. This is the outcome that replaces transporting a Jacobian a quarter second backwards |
+| `AidingRefusedOverflow` | the queue was full. The queue keeps what it holds and the NEW measurement is lost |
+| `AidingBeforeHorizon` | presented before the first release. NOT a refusal and not counted as one: the horizon costs one horizon of start-up, during which the filter had no inertial packet either. The sample is left unconsumed, so a held packet is admitted on the first tick after the horizon becomes real |
+
+plus `AidingDroppedStale` on the delivery side, for an entry that was ripe but
+older than the residual bound.
+
+### The overflow policy is the opposite of a live-edge buffer's
+
+This took an adversarial test to see, and the intuition runs the wrong way.
+
+A live-edge buffer that overflows should drop its OLDEST entry: the newest
+measurement is the most useful. A delayed queue must drop the NEWEST, because
+the oldest entry is the one the fusion instant is about to reach. Displace it
+and the queue becomes a sliding window of the newest arrivals, every one of
+which is still in the filter's future when the next arrival displaces it.
+Nothing ever ripens. The source is silent for the whole flight while every
+arrival is dutifully stored, and every assertion about ordering and residuals
+still passes, because a queue that delivers nothing violates none of them.
+
+Measured on a source delivering forty times its declared rate: 0 deliveries
+with the oldest displaced, 47 deliveries with the arrival refused.
+
+Refusing the arrival cannot deadlock. On every release the oldest entry either
+delivers or, if the fusion instant has passed it, is discarded as stale, so one
+slot frees per release whatever the source does. The queue degrades to
+delivering at the release rate rather than to delivering nothing.
+
+### Capacity, and why it is the whole horizon
+
+In steady flight a measurement stamped `t_m` reaches the driver at `t_m + L`
+and ripens at `t_m + D`, so it waits `D - L` and the queue stands at
+`(D - L) / P` entries. STARTUP is the worse case and is the one the capacity
+covers: the fusion instant does not advance until the delta ring has filled, so
+everything a source delivers during that first horizon is queued at once, which
+is `D / P`. Depths are `ceil(D / P) + slack`, fixed at translation, and final
+rather than overridable, because a capacity and the rate it is derived from
+must not be settable independently.
+
+At the flight lattice: mocap 22, GPS 4, magnetometer 6, barometer 12, optical
+flow 22 slots, 1312 reals in all, 5,248 B at single precision.
+
+### Bias coupling on the filter side
+
+The released window carries the bias anchor it was integrated at and its five
+Jacobians, and `StrapdownINS/correctPreintegratedImu.mo` applies the first-order
+move to the filter's current bias when the filter CONSUMES it. So the filter
+side needs nothing new, and the bound is sharper than the predictor's: a
+released window spans ONE `fusionPeriod_s`, not the horizon, so the Prop. 8
+remainder is `(fusionPeriod_s ||db_g||)^2` rather than `(fusionHorizon_s
+||db_g||)^2` -- a factor of 400 at the flight lattice, about 2.5e-7 rad at a
+0.05 rad/s bias offset. Buffered-but-unconsumed windows are not touched when
+the bias moves, and must not be: each carries its own anchor and is moved when
+it is consumed.
 
 ## 4. The rate structure
 
@@ -496,7 +604,7 @@ among the unknowns, `Avionics.PartialNavigationEstimator` carries fourteen of
 them, and a seventeen-line reproducer plus the bisection is in
 `tools/rumoca-repros/connector-boolean-balance/`.
 
-## 8. Landing split
+## 8. Landing split (superseded; see Sec. 9)
 
 The horizon package, the predictor, and their tests land as a **parallel path**:
 new files plus three one-line edits. The ESKF rewiring that moves
@@ -510,3 +618,86 @@ new files plus three one-line edits. The ESKF rewiring that moves
    nothing.
 3. The parallel path is independently useful and independently testable, and
    the rewiring only changes what the horizon's filter slot is wired to.
+
+## 9. What has landed, and what the vehicle integration waits on
+
+The follow-up Sec. 8 deferred has now landed as far as it can be validated, and
+the part that cannot be is named here rather than left implied.
+
+**Landed.** `AidingBuffer`, the `stepQueue` kernel and the five pack/unpack
+pairs; the age stanza on `correctMocap`; `HorizonEstimator` routing every
+aiding stream through a queue, reading the queue epoch off the released
+inertial packet, and binding the filter's own aiding-delay bound to the queue's
+residual bound; `Tests.AidingHorizonTests` and
+`Tests.AidingHorizonRefusals` under `Tests/run-horizon.mos`, with the balance
+gate extended to six reports; and `AidingBuffer` as a Rumoca
+galec-production target in `tools/ci.py`, which lowers in about one second.
+
+**Not landed: the RDD2 vehicle configuration, and it is blocked rather than
+deferred.** Neither tool can run a mission built on the horizon composition
+today.
+
+- OpenModelica cannot BUILD a model containing `HorizonEstimator`. Re-measured
+  for this change: a single-instance harness was still building after ten
+  minutes with no result. This is the limitation already recorded for a bare
+  `PartialEstimator` in `Tests.HorizonEstimatorWiring`.
+- Rumoca cannot LOWER it: unbalanced by 26 equations, which is exactly the
+  connector Boolean balance gap, 14 on the filter's six input connectors plus
+  12 on the aiding buffer's five. The RDD2 qualification missions are simulated
+  by Rumoca, so this is the binding constraint on the deployment gate.
+
+The mission qualification is therefore not "passing" or "degraded"; it cannot
+be executed. The live-edge ESKF stays the RDD2 default, which is the
+conservative reading of that, and `tools/ci.py` carries a
+`PIN_DEPENDENT_MODELS` entry that pins the exact 26 and fails if the model ever
+stops lowering for a DIFFERENT reason. It reports plainly when the model starts
+lowering, which is the moment the entry should be promoted and the
+qualification run.
+
+**The vehicle change the configuration will need, recorded so it is not
+rediscovered.** `Vehicles/Rdd2/WaypointVehicleSystem.mo` selects its estimator
+through `replaceable block EstimatorModel ... constrainedby
+Estimation.StrapdownINS.PartialEstimator`, and fills `estimator.imu` with the
+100 Hz preintegrated packet. `HorizonEstimator` cannot drop into that slot as
+it stands, for one concrete reason: it needs the RAW 800 Hz inertial stream and
+that boundary does not carry one. `estimator.imu.angularVelocityBodyFlu_rad_s`
+is the packet AVERAGE, `deltaAngle / integrationTime`, held for eight ticks, so
+feeding it to the predictor's integrator would hand a 100 Hz staircase to a
+block whose whole claim is first-order-hold accuracy at 800 Hz.
+
+Two ways out, and neither should be taken before the qualification can be run:
+
+1. Carry the raw inertial stream on `Estimation.StrapdownINS.PartialEstimator`
+   as two inputs. Balance-neutral for both shipped filters, which ignore them.
+   The cost is real and is not model-side: `Vehicles.Rdd2.NavigationEstimator`
+   is exported as the `rdd2-estimator` eFMU, so its interface gains two ports
+   that the deployed wrapper must fill.
+2. Buffer the vehicle's existing 100 Hz packets instead of integrating raw
+   samples. The ring is already release-granular and a vehicle packet IS one
+   window's SE_2(3) delta with all five Jacobians, so this fits the deployed
+   lattice exactly and needs no boundary change. It costs a second predictor
+   block, and it gives up the 800 Hz republication that the output predictor
+   exists for.
+
+(2) is the better fit for the deployed rate lattice and (1) is the smaller
+diff. The choice wants the qualification numbers that neither can produce yet,
+which is why it is recorded rather than made.
+
+## 10. Compiler and tool defects this work hit
+
+Recorded with what each one does, because every one of them is SILENT and each
+makes a check pass rather than fail.
+
+| tool | defect | effect |
+| --- | --- | --- |
+| Rumoca 0.10.0 | a user function call in an array-dimension expression is not folded once the block is a SUB-component; the same arithmetic written inline is | `AidingBuffer` reported unevaluable dimensions inside `HorizonEstimator` while lowering standalone. Worked around inline, with the site marked |
+| Rumoca 0.10.0 | Boolean components of a sub-block's input connector are not counted among the unknowns (AS-051) | `HorizonEstimator` unbalanced by 26. Upstream fix in flight; `tools/ci.py` pins the number |
+| OpenModelica 1.27 | a sub-component's output-connector Real members read as zero from the parent, while the Boolean members beside them read correctly | a delivered packet whose row held timestamp 0.03 read as `timestamp_s = 0` in a parent when-clause and in the result file. Every assertion about payload contents passed |
+| OpenModelica 1.27 | a whole-record equality between two connectors publishes zeros on the target | a test arm wired that way was never valid, so its queue admitted nothing and every assertion about it passed vacuously |
+| OpenModelica 1.27 | a driven input connector's Boolean did not report at all in the result file | made the two above much harder to localize |
+| OpenModelica 1.27 | `buildModel` on a model holding a navigation estimator sub-component does not complete | no time-domain test of the composed horizon is possible; every property is tested against the filter's connector or inside the block |
+
+The three OpenModelica ones are why `AidingBuffer` publishes
+`deliveryOutOfOrder` and `deliveryAfterHorizon` itself rather than leaving
+those to a consumer. That is weaker evidence than an external check and the
+test model says so.
