@@ -21,12 +21,19 @@ package FusionHorizon
     <code>Avionics.ImuSample</code> carries the accumulated delta and its bias
     Jacobians into the filter, <code>Avionics.NavigationEstimate</code> plus the
     published gyroscope and accelerometer bias carry the corrected horizon state
-    back out, and <code>Avionics.EstimatorStatus.correctionOutcome</code> is the
-    state-shifted signal that triggers a re-base. Any block extending
-    <code>Estimation.StrapdownINS.PartialEstimator</code> plugs in unchanged;
-    <code>HorizonEstimator</code> does exactly that through a
+    back out, and <code>Avionics.EstimatorStatus.acceptedCorrectionCount</code>
+    is the signal that triggers a re-base. It is read as an EDGE: a change in
+    the count is one accepted correction. The <code>correctionOutcome</code>
+    level beside it is not usable for this, because it stands for a whole
+    filter tick and would fire a re-base once per inertial tick of it. Any
+    block extending <code>Estimation.StrapdownINS.PartialEstimator</code> plugs
+    in unchanged; <code>HorizonEstimator</code> does exactly that through a
     <code>replaceable</code> slot, and the ESKF and the manifold UKF are both
-    exercised through it.</p>
+    translated through it in <code>Tests.HorizonEstimatorWiring</code>. That
+    gate is a translation gate, not a simulation: OpenModelica cannot build a
+    simulation containing either composition, for a reason recorded in that
+    model. The time-domain behaviour is exercised against a filter stand-in on
+    the same declared boundary.</p>
 
     <p><b>Why the buffer is exact.</b> Under the mixed-invariant flow
     <code>Xdot = M X + X N(t)</code> with constant <code>M</code>, the flow over

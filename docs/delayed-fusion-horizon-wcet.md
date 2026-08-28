@@ -40,6 +40,26 @@ and the disagreement is left visible.
 | one re-base: fold the buffer, move the bias, recompose | not trusted | +81,983,049 | 10,931% |
 | 100 Hz filter prediction from an accumulated delta, no correction | 304,363 | not differenced | 5.1% of the 6,000,000 cycle budget at 100 Hz |
 
+**What changed after these numbers were taken.** The counts above are from the
+block as it stood before the epoch, edge-trigger and supervision fixes. Those
+changed the re-base TRIGGER and the re-base ARITHMETIC. A fold now walks one
+more iteration -- twenty-three compositions rather than twenty-two, about 4.5
+percent -- because the window accumulated since the last adopt rides the same
+walk as a trailing row. The common tick gained one square root, three
+comparisons and an integer increment.
+
+The trailing row rides the walk rather than being composed at the call site
+for a reason this record already explains. Written as two extra calls in
+`step.mo`, an unpack and a composition, the production lowering of the block
+stopped completing: 37 seconds became more than eight minutes with no result,
+which is the same per-component materialization of record-valued calls that
+costs the re-base its 82 million instructions, showing up in the compiler
+rather than in the generated code. One more iteration of a loop that already
+exists costs one composition.
+
+Neither figure is re-measured here; a re-run of `tools/wcet/` is the way to
+replace them, not an estimate.
+
 Flash, both translation units, `-Os`: 148,596 B of `.text`.
 RAM: `sizeof(State)` 24,012 B, working memory 5,440 B, which is the ring plus
 the live window plus the published packet.
@@ -78,11 +98,46 @@ the re-base from 117M to 82M but did not remove the expansion.
 
 Consequently, with today's compiler:
 
-- The maximum rate at which a correction can be applied is 600e6 / 82e6, about
-  **7.3 Hz**. That is below the GPS rate, so the horizon as generated today
-  cannot re-base on every GPS fix.
+- One accepted correction costs ONE re-base, so the maximum rate at which a
+  correction can be applied is 600e6 / 82e6, about **7.3 Hz**. That is below
+  the GPS rate, so the horizon as generated today cannot re-base on every GPS
+  fix.
 - Nothing else about the architecture is implicated. The common tick, the
   release, the buffer, and the composition algebra are all inside budget.
+
+**That number was not true when this record was first written, and the reason
+is worth keeping.** The re-base used to be triggered by
+`filter.status.correctionOutcome == CorrectionAccepted`, which is a LEVEL: it
+stands for the whole 100 Hz filter tick, which is eight inertial ticks. One
+accepted correction therefore fired deltasPerFusion full folds, not one, and at
+the flight rates that is eight. The real ceiling was 7.3 / 8, about
+**0.91 Hz**, which is below the mocap rate and below the barometer rate as well
+as below GPS. The adversarial review that found this reports measuring 160
+shifted ticks in the 161 following a single correction; that figure is quoted,
+not reproduced here, because no simulation in this tree can run the composed
+block (see `Tests.HorizonEstimatorWiring`). What IS in the tree is the
+arithmetic and the boundary field the fix rests on.
+
+The trigger is now an edge on
+`Avionics.EstimatorStatus.acceptedCorrectionCount`, one re-base per accepted
+correction, and the 7.3 Hz above is what the design is judged on. A rising edge
+on the level would not have been enough: back-to-back accepted corrections hold
+the level true across the filter-tick boundary and the second one would never
+reach the predictor, which is why the count was added to the boundary rather
+than reconstructed downstream.
+
+**The re-base budget now has a second claimant.** The incremental path composes
+tick factors integrated at the ANCHOR bias and does not move them to the
+filter's bias; only a re-base does that. Between re-bases the predictor
+therefore drifts from the filter at `||db_g||`, without bound in the time since
+the last one, which under sustained correction rejection is the whole rejection
+episode. `OutputPredictor.maximumPredictorDivergence_rad` bounds it by forcing a
+fold when the accumulated divergence would exceed it. At the default 1e-3 rad
+and a 5e-3 rad/s bias offset that is one forced re-base every 0.2 s, about
+5 Hz, and the two claimants add: the correction rate plus the re-anchor rate is
+what must stay under 7.3 Hz, not the correction rate alone. Raising the
+tolerance trades predictor accuracy for re-base rate and is the dial to reach
+for if the code generator is not fixed first.
 
 Three ways out, in the order they should be tried:
 

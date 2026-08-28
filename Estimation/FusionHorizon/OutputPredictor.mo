@@ -353,8 +353,8 @@ equation
     composes onto name the same fusion instant. The pose arrives one inertial
     tick after the filter published it, so the fold runs over the ring as it
     stood before this tick's adopt and release, and the partly accumulated
-    window is composed on explicitly. See <code>step.mo</code>, which states
-    the invariant where it is enforced.</p>
+    window rides that fold as its trailing row. See <code>step.mo</code>,
+    which states the invariant where it is enforced.</p>
     <p><b>Startup.</b> A horizon that is real costs one horizon of startup.
     <code>horizonReady</code> is latched by the FIRST RELEASE, not by the ring
     merely being long enough: for one release window the ring already spans

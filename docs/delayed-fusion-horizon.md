@@ -1,4 +1,4 @@
-# Delayed fusion horizon with an estimator-agnostic SE_2(3) output predictor
+| `foldBuffer.mo` | function | the re-base kernel: a fixed-length branch-free walk of the ring plus one trailing row |# Delayed fusion horizon with an estimator-agnostic SE_2(3) output predictor
 
 Status: design of record for `Estimation.FusionHorizon`.
 
@@ -115,7 +115,7 @@ already has, used in one direction each way:
 | horizon to filter | `Avionics.{Mocap,Gps,Magnetometer,Barometer,OpticalFlow}Sample` | the aiding streams, passed through untouched |
 | filter to horizon | `Avionics.NavigationEstimate` | the corrected pose at the fusion instant: position, velocity, quaternion |
 | filter to horizon | `gyroscopeBiasBodyFlu_rad_s`, `accelerometerBiasBodyFlu_m_s2` | a bias VALUE, not an increment and not an injection |
-| filter to horizon | `Avionics.EstimatorStatus.correctionOutcome` | the state-shifted signal that triggers a re-base |
+| filter to horizon | `Avionics.EstimatorStatus.acceptedCorrectionCount` | the state-shifted signal that triggers a re-base, read as an EDGE: a change in the count is one accepted correction. `correctionOutcome` beside it is a LEVEL held for a whole filter tick and is NOT usable here |
 
 Every one of those already exists on
 `Estimation.StrapdownINS.PartialEstimator`, which both shipped filters extend,
@@ -123,6 +123,19 @@ so the filter enters `HorizonEstimator` through a `replaceable ...
 constrainedby` slot and nothing else changes. `PartialEstimator` does also
 publish `navigationCovarianceLocal`; the horizon never reads it, and the
 horizon-facing subset is the table above.
+
+**One field was added to that boundary, deliberately.**
+`Avionics.EstimatorStatus.acceptedCorrectionCount` is new. The horizon has to
+act exactly once per accepted correction, and there was nothing on the boundary
+that could tell it so. `correctionOutcome` is a level that stands for the whole
+filter tick, which at a 100 Hz filter behind an 800 Hz predictor is eight
+predictor ticks; reading it directly fired eight full folds per correction and
+made the WCET record's correction-rate ceiling eight times optimistic. A rising
+edge on that level is no better, because back-to-back accepted corrections hold
+it true across the filter-tick boundary and the second correction disappears. A
+monotonic count is the only signal that gives a well-defined edge across a rate
+change, so it lives on the boundary rather than being guessed at downstream.
+Both shipped filters maintain it in three lines each.
 
 **Bias coupling, stated as an interface rule.** Buffered deltas are integrated
 at one anchor bias fixed at initialization. The estimator supplies a bias
@@ -138,6 +151,37 @@ a 0.05 rad/s bias offset, and it does not grow with flight time.
 The anchor is deliberately never moved. Re-anchoring mid-buffer would mix
 linearization points inside a single composed Jacobian, which is an error
 nothing in a closed-loop test would show.
+
+**The bias move is bounded, flagged, and never clamped.** The first-order move
+is good over a stated ball around the anchor and no further.
+`OutputPredictor.maximumGyroscopeBiasMove_rad_s` and
+`maximumAccelerometerBiasMove_m_s2` name that ball; outside it the block raises
+`biasMoveExceeded` and publishes the state as computed. Clamping the move
+instead would put the predictor on a bias nobody estimated and report nothing,
+which is the worse of the two failures: a flagged wrong answer can be demoted
+by a supervisor, a silently corrected one cannot.
+
+**The incremental path does not carry the bias move, and that is bounded by a
+re-anchor rather than left open.** Only a re-base applies `db` to the buffered
+window; the incremental path composes tick factors integrated at the anchor and
+composes them onto its own previous answer. Between re-bases the predictor
+therefore leaves the filter's own bias at `||db_g||`, without bound in the time
+since the last re-base, and under sustained correction rejection that time is
+the whole rejection episode. Two answers were available.
+
+1. Move each tick factor as it is composed. Correct to first order, but it puts
+   a `rebiasDelta` on the 800 Hz path, which is the one path the WCET record
+   measures and the one the design's cost story rests on.
+2. Bound the drift and force a fold when it would be exceeded.
+
+This design takes (2). `maximumPredictorDivergence_rad` is the bound, the
+accumulated divergence is `||db_g||` times the time since the last re-base, and
+exceeding it makes the tick take the re-base path. The common tick pays one
+comparison; the fold, when it happens, costs what a fold costs and the WCET
+record charges the re-anchor rate against the same budget as the correction
+rate. The consequence to state plainly: under sustained rejection the horizon
+is MORE expensive, not less, and that is the honest direction for the trade to
+run.
 
 ## 4. The rate structure
 
@@ -206,10 +250,83 @@ ring and **release** the oldest if the horizon is full; **compose**.
   buffer, move it to the filter's current bias in one Jacobian step, and compose
   onto the corrected pose. Theorem 6 applied literally.
 
-**Re-base is triggered by an accepted correction, not by a window slide.** This
-is the single most important cost fact in the design. The fusion instant
-advances every 10 ms unconditionally; only a nonzero state shift requires the
-recomposition.
+**Re-base is triggered by an accepted correction, not by a window slide, and by
+the EDGE of one.** This is the single most important cost fact in the design.
+The fusion instant advances every 10 ms unconditionally; only a nonzero state
+shift requires the recomposition, and one correction is one recomposition. The
+signal is a change in `acceptedCorrectionCount`, not the level beside it, for
+the reason given in Sec. 3. A re-base also fires when the accumulated bias-move
+divergence would exceed `maximumPredictorDivergence_rad`, which is the other
+half of the same cost story and is charged against the same budget.
+
+
+### The epoch invariant
+
+The single property everything in Sec. 5 rests on, stated where it is enforced
+(`step.mo`) and asserted where it is observable (`Tests.HorizonInterfaceTests`):
+
+> The window a re-base folds and the pose it composes that window onto name the
+> SAME fusion instant.
+
+The horizon pose arrives one inertial tick after the filter published it, so it
+belongs to the fusion instant reached by the PREVIOUS release. The fold
+therefore runs over the ring as it stood BEFORE this tick's adopt and BEFORE
+this tick's release, and the window accumulated up to the previous tick rides
+that fold as a trailing row, because on a release boundary it is no longer part
+of the live delta and the ring the fold is given predates this tick's store.
+
+Folding the advanced indices instead is not a rounding error and it is not
+visible off a boundary. On a release tick it drops the entry the pose has not
+absorbed yet and picks up the head slot, which on that tick still holds the row
+from a whole ring ago, or zeros before the ring has wrapped. A zero row is a
+zero quaternion, and `normalize(product(q, 0))` is the identity, so the composed
+rotation collapses without a diagnostic. Written the way it is now the identity
+holds on every tick with no case split at all.
+
+### Preconditions, asserted rather than assumed
+
+Three things the block used to accept quietly and now refuses:
+
+| precondition | why it is not a preference |
+| --- | --- |
+| `fusionPeriod_s` an exact multiple of `samplePeriod` | the cadence is counted in inertial ticks, so a fractional ratio is rounded and every published epoch is wrong by the remainder |
+| `fusionHorizon_s` an exact multiple of `fusionPeriod_s` | the buffer is counted in whole windows, same argument |
+| `fusionHorizon_s` at least one `fusionPeriod_s` | at zero windows the first release hands over the ring slot the tick has not written yet: a zero span and a zero quaternion, and the consumer divides the rotation increment by that span |
+
+`Tests.HorizonRefusals` is one model per precondition and the requirement on
+each is that it does not run.
+
+### Readiness means a packet exists
+
+`horizonReady` is latched by the FIRST RELEASE. For one release window the ring
+already spans `fusionHorizon_s` and no packet has been handed over, so the
+epoch is still its seed value; a consumer that stood on "the ring is long
+enough" would be standing on that seed. There is no separate `bufferOverflowed`
+signal any longer: the release is unconditional, so the ring can never exceed
+the horizon it is sized for, and the condition the signal named was
+unobservable from inside the block. A supervision signal that cannot fire is
+worse than none.
+
+### Reset re-anchors the epoch
+
+The packet epoch is carried, not read off a clock, so the only place it can be
+tied to anything outside the block is the tick that drops the buffer. A reset
+re-anchors it to a monotonic tick counter that survives the reset. Seeding it
+at minus one sample period, which is right at power-on and was what the block
+did everywhere, leaves a mid-flight reset publishing an epoch that is behind
+wall time by the whole flight so far, permanently: downstream, aiding aligned
+by timestamp would be rejected from the reset onwards. The counter rather than
+`time` because the code generator refuses a runtime coordinate in production
+code, and because two instances handed the same boundary values must still
+agree exactly.
+
+### Packet delivery is pulsed
+
+`valid` and `fresh` on the released packet are true on the release tick and no
+other. They are the same boolean on purpose: a window either was handed over on
+this tick or was not, and there is no held packet to distinguish. The consumer
+is the filter, whose clock IS the release clock, so it samples the packet on
+the tick it is published. Anything wired to a different clock must latch it.
 
 ### Why the full fold and not the peel
 
@@ -279,7 +396,9 @@ New package `Estimation/FusionHorizon/`:
 | `HorizonEstimator.mo` | block | horizon plus a `replaceable` filter |
 
 Existing files edited: `Estimation/package.order`, `Tests/package.order`,
-`tools/ci.py` (one Rumoca target, one OpenModelica script).
+`tools/ci.py` (one Rumoca target, one OpenModelica script), and
+`Avionics/package.mo` plus the two shipped filters, for the one boundary field
+Sec. 3 records.
 
 Every buffer operation is a **function**, not a when-body loop. That is a
 deliberate accommodation of three known compiler limits: conditional
@@ -290,16 +409,40 @@ booleans, and the caller assembles the packet record from a returned row.
 
 ## 7. Tests
 
-`Tests/HorizonPredictorTests.mo` (algebraic identities, constant-folded),
-`Tests/HorizonInterfaceTests.mo` (time-domain), and
-`Tests/HorizonEstimatorWiring.mo` (filter interchange), with their own
-`Tests/run-horizon.mos` entry. `when`-clause assertions are vacuous under OMC
-and a fully constant-foldable model is evaluated away inside `Tests.All`, so
-the entry point that gates the properties is a top-level simulation, following
-`Tests/run-position-loop.mos`.
+| model | what it gates |
+| --- | --- |
+| `Tests/HorizonPredictorTests.mo` | the algebraic identities, constant-folded: composition, re-base by fold, incremental-versus-re-base THROUGH `step.mo`, and the bias move against Prop. 8 |
+| `Tests/HorizonInterfaceTests.mo` | the time domain: the epoch-equivalence probe on every tick, a correction taken ON a release boundary, the epoch-against-buffer invariant, and packet validity |
+| `Tests/HorizonResetTests.mo` | the epoch through a mid-run reset |
+| `Tests/HorizonRefusals.mo` | the three preconditions, one NEGATIVE model each |
+| `Tests/HorizonEstimatorWiring.mo` | filter interchange, at translation |
+
+with their own `Tests/run-horizon.mos` entry. `when`-clause assertions are
+vacuous under OMC and a fully constant-foldable model is evaluated away inside
+`Tests.All`, so the entry point that gates the properties is a top-level
+simulation, following `Tests/run-position-loop.mos`.
 
 Measured residuals are recorded in the assertion comments so the next reader
 sees the margin rather than a bare limit.
+
+**Two things the first version of this suite got wrong, recorded so they are
+not reintroduced.** The interface model drove a body-constant stream, which
+makes every buffered window the SAME group element: folding the wrong
+contiguous run of ring slots then produces the right answer and a slot-identity
+error is algebraically invisible. The stream is now coning-rich and
+sculling-rich, the same one the algebraic drivers and the WCET rig use. And the
+correction was taken deliberately OFF a release boundary, with a comment saying
+so; a boundary tick is exactly where the epoch and the window can disagree, so
+the correction is now taken at 0.25 s, which is one.
+
+**The sharpest test is the equivalence probe.** A fourth output predictor is
+handed the exact pose the dead-reckoning reference stood on at the fusion
+instant and told a correction was accepted on every ready tick. With nothing to
+shift, re-basing must reproduce the incremental answer to floating point, on
+release boundaries and off them alike. It exercises the fold, the ring indices,
+the carried live window and the state machine on every single tick, and it does
+not depend on the correction being nonzero. Measured worst disagreement over
+the run: 1.5e-17 m, 3.3e-16 m/s, 2.2e-16 on the quaternion.
 
 **A tool limitation, recorded rather than worked around.** OpenModelica cannot
 build a simulation containing a bare
@@ -308,9 +451,18 @@ the flattened estimator over-determined by nineteen equations. The existing
 `Tests.StrapdownEstimatorInterfaceTests` fails identically on an untouched tree
 at 8e19eba, which is why the corpus compiles it and never simulates it. The
 ESKF-and-UKF-through-one-horizon model is therefore gated at translation by
-OpenModelica and at lowering by Rumoca, on exactly the gate the corpus already
-uses for estimator interchange, and the time-domain behaviour is tested against
-a filter stand-in on the same declared boundary.
+OpenModelica, and the time-domain behaviour is tested against a filter stand-in
+on the same declared boundary.
+
+Rumoca does NOT lower that composed model, and an earlier version of this
+section implied otherwise. What `tools/ci.py` lowers is
+`Estimation.FusionHorizon.OutputPredictor`, all the way to galec-production;
+that is the largest subset that lowers. The composed model is over by fourteen
+equations per harness, and the cause is upstream and unrelated to this package:
+Rumoca does not count the Boolean components of a sub-block's input connector
+among the unknowns, `Avionics.PartialNavigationEstimator` carries fourteen of
+them, and a seventeen-line reproducer plus the bisection is in
+`tools/rumoca-repros/connector-boolean-balance/`.
 
 ## 8. Landing split
 

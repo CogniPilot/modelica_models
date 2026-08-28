@@ -80,22 +80,34 @@ model HorizonEstimatorWiring
     Tolerance=1.0e-8, Interval=0.00125),
     Documentation(info="<html>
     <p>Translated by OpenModelica; neither simulated by OpenModelica nor lowered
-    by Rumoca, and both limitations are upstream of this package. A model containing a bare
-    <code>Estimation.StrapdownINS.PartialEstimator</code> cannot be built by
-    OpenModelica at all -- an independent subset of the flattened estimator is
-    reported over-determined by nineteen equations -- and the existing
-    <code>Tests.StrapdownEstimatorInterfaceTests</code> fails identically on an
-    untouched tree, which is why it too is compiled and never simulated. That
-    limitation is upstream of this package and is recorded here so the next
-    reader does not mistake a translation-only gate for a design choice.</p>
+    by Rumoca, and both limitations are upstream of this package. A model
+    containing a bare <code>Estimation.StrapdownINS.PartialEstimator</code>
+    cannot be built by OpenModelica at all -- an independent subset of the
+    flattened estimator is reported over-determined by nineteen equations --
+    and the existing <code>Tests.StrapdownEstimatorInterfaceTests</code> fails
+    identically on an untouched tree, which is why it too is compiled and never
+    simulated. That limitation is upstream of this package and is recorded here
+    so the next reader does not mistake a translation-only gate for a design
+    choice.</p>
     <p>Rumoca reports the composed model unbalanced by twenty-eight equations,
-    fourteen per harness. That is the same class of imbalance OpenModelica
-    reports for a bare estimator, and it appears only when a filter is composed
-    with something else; the horizon block on its own lowers all the way to
-    galec-production, which is the gate <code>tools/ci.py</code> runs on it.
-    The generality claim is therefore carried at translation here and by the
-    algebraic and time-domain suites elsewhere, and pinning down the composed
-    imbalance is follow-up work rather than something to hide behind a
-    weaker test.</p>
+    fourteen per harness. <b>That is not the same class of imbalance</b>, and an
+    earlier version of this note said it was. It is not about a bare estimator:
+    the bare <code>PartialEstimator</code> lowers, the concrete ESKF lowers, the
+    concrete UKF lowers, and <code>Estimation.FusionHorizon.OutputPredictor</code>
+    lowers all the way to galec-production, which is the gate
+    <code>tools/ci.py</code> runs on it. What does not lower is any block that
+    holds a navigation estimator as a SUB-COMPONENT and passes the aiding
+    connectors through to it, and the number is the same fourteen for both
+    filters and unchanged by consuming the estimator's outputs.</p>
+    <p>The cause is pinned down rather than left as a class: Rumoca does not
+    count the BOOLEAN components of a sub-block's input connector among the
+    unknowns, while the whole-record pass-through equality still contributes
+    their equations. <code>Avionics.PartialNavigationEstimator</code> declares
+    six input connectors carrying fourteen Booleans between them, so a wrapper
+    around one estimator is over by fourteen and this model, which holds two, is
+    over by twenty-eight. A seventeen-line reproducer and the bisection are in
+    <code>tools/rumoca-repros/connector-boolean-balance/</code>. Nothing in
+    <code>Estimation.FusionHorizon</code> is implicated, and the fix is
+    upstream.</p>
     </html>"));
 end HorizonEstimatorWiring;
