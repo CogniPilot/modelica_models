@@ -743,9 +743,46 @@ def scoreboard(rows):
             f"{name:22} {entry['total']:>5} {entry['ok']:>4}  {detail or '-'}"
         )
     lines.append("")
-    lines.append("blocked models per gap (the campaign's measured priority order):")
+    lines.append(
+        "blocked models per gap, by FIRST failure "
+        "(the campaign's measured priority order):"
+    )
     for bucket, count in sorted(buckets.items(), key=lambda item: -item[1]):
         lines.append(f"  {count:>4}  {bucket}")
+
+    # Publish the bucket-by-mechanism cross-tab rather than the two margins
+    # alone. Quoting one margin next to the other invites reading the
+    # mechanism totals as a decomposition of the largest bucket, which they
+    # are not: they span every failure. Every model carries exactly one
+    # mechanism, so the body of this table partitions the failures and the
+    # margins are its sums.
+    failures = [row for row in rows if row["outcome"] != "ok"]
+    mechanisms = sorted({(row["mechanism"] or "(none)").split()[0] for row in failures})
+    order = sorted(buckets, key=lambda bucket: -buckets[bucket])
+    cross = {}
+    for row in failures:
+        key = (
+            row["bucket"] or row["outcome"],
+            (row["mechanism"] or "(none)").split()[0],
+        )
+        cross[key] = cross.get(key, 0) + 1
+    lines.append("")
+    lines.append("bucket by mechanism (one mechanism per model; body partitions):")
+    lines.append(
+        f"  {'bucket':22}" + "".join(f"{name:>11}" for name in mechanisms) + f"{'sum':>7}"
+    )
+    for bucket in order:
+        cells = [cross.get((bucket, name), 0) for name in mechanisms]
+        lines.append(
+            f"  {bucket:22}" + "".join(f"{cell:>11}" for cell in cells) + f"{sum(cells):>7}"
+        )
+    totals = [
+        sum(cross.get((bucket, name), 0) for bucket in order) for name in mechanisms
+    ]
+    lines.append(
+        f"  {'sum':22}" + "".join(f"{total:>11}" for total in totals)
+        + f"{sum(totals):>7}"
+    )
     return "\n".join(lines)
 
 

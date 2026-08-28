@@ -9,6 +9,11 @@ one row per model: what happened, which phase it died in, and which
 architecture gap the failure evidences. Each landing that moves the compiler
 should move the headline number, and nothing should silently move it back.
 
+The number is a **ratchet, not an acceptance gate**: a row that starts
+compiling has stopped being refused, which is not the same as being right. See
+"What a moved number does and does not prove" before citing an increase as
+progress.
+
 It is **not** run by CI. It starts up to 115 compiler processes against a full
 standard library and costs minutes. Run it by hand when a branch claims to have
 moved the frontier, and diff its CSV against the committed one.
@@ -54,6 +59,34 @@ its own MSL rows, entry point and all, so a frontier row and a corpus-pin row
 mean the same thing about the same compiler. Front-end depth is the whole
 point here, so no target or emission flag is passed: a row is OK when the
 compiler produces a balanced DAE.
+
+## What a moved number does and does not prove
+
+**A compile-count increase is not a correctness oracle.** This rig measures how
+far the front end gets, and nothing about whether what it produced is right. A
+row flips from failing to compiling the moment the compiler stops refusing,
+which is exactly the outcome a bug that drops a constraint, discards an
+equation, or silently selects the wrong effective class also produces. A
+specialization fix that resolves `Medium` to the wrong concrete medium would
+raise this number.
+
+So the headline is a **ratchet, not an acceptance gate**. Before a promoted row
+counts as accepted it needs a witness of its own:
+
+- a row that now compiles needs an **expected-result witness** -- a simulated
+  value checked against a reference, or a checked structural property of the
+  DAE such as the state count the model documents. `IncompressibleFluidNetwork`
+  documents 22 pressure states reducing to 9; a row that compiles and reports a
+  different number has not been fixed, it has been broken differently.
+- a row that now fails **later or differently** needs its new diagnostic
+  recorded, and that is a legitimate outcome. Downstream failure is progress;
+  it is silent success that is not evidence.
+- a row that still fails needs its bucket unchanged, or the change explained.
+
+The CSV supports this: `code`, `phase` and `diagnostic` are recorded for every
+row precisely so a diff shows *how* a failure moved, not merely that the total
+changed. A review that reads only the headline number is reading the one field
+that cannot distinguish a fix from a regression.
 
 ## The target set
 
@@ -112,13 +145,31 @@ Where each failure dies:
 ## Findings: which P0 lands first
 
 **P0-A effective specialization, by a margin that leaves nothing to argue
-about. It blocks 97 of the 112 failures, and the remaining 15 are behind it.**
+about. It is the first failure of 97 of the 112 failing models.**
+
+Read every bucket in this file as a **first-failure** attribution. The rig
+records the FIRST diagnostic each model produces and stops there, so a row says
+"this is the wall this model hits first", never "this is the only thing wrong
+with this model". Two consequences, and both matter to the campaign:
+
+- **97 is a lower bound on P0-A's work, not a forecast of the headline.** A
+  model whose first wall is P0-A may hit a second wall behind it. Nobody should
+  read "fix P0-A, get 97 more models" out of this table.
+- **The other 15 split 6 / 9, not 15 / 0.** The 6 `zero-extent` rows are a
+  demonstrated P0-A interaction: the repro shows the member is lost only when a
+  replaceable package slot is involved, so a correct specialization graph is
+  what makes them reachable. The other 9 -- 3 StateGraph `ED010`, 3
+  record-constant `ED008`, 2 evaluator `ED019`, 1 declared-unsupported -- are
+  independent defects that a perfect P0-A would not touch. An earlier draft of
+  this file said all 15 were "behind" P0-A. That was wrong.
 
 Everything else in the taxonomy scores **zero**, and the reason is not that
 those gaps are absent. It is that **no model in the corpus survives long enough
-to reach them**:
+to reach them**.
 
-| bucket | blocked | why the number is what it is |
+The table below accounts for all **112** failing models, not the 15:
+
+| bucket | blocked (first failure) | why the number is what it is |
 | --- | ---: | --- |
 | p0a-specialization | 97 | measured |
 | genuinely-new | 8 | measured; see below |
@@ -159,13 +210,25 @@ member. The measurement says it cannot be designed independently of P0-A.
 The `mechanism` column names the compiler site the evidence points at. Each was
 confirmed present in the pinned tree before being cited.
 
-| mechanism | models | site |
-| --- | ---: | --- |
-| ALIAS | 55 | `rumoca-phase-instantiate/src/type_overrides/override_map.rs` -- an exact alias DefId falls back to a path key, missing declarations are filter-mapped away, and a missing selected package or member returns rather than refusing |
-| FIXPOINT | 37 | `rumoca-phase-flatten/src/constant_extraction.rs` -- bounded recovery loops, `MAX_PASSES` 4 and 5 |
-| GUESSNAME | 14 | `rumoca-phase-flatten/src/equations/mod.rs::lookup_parameter_in_scope` -- classifies a reference by initial capitalisation, retries case-mangled spellings, then infers `nX`/`nXi`/`nC`/`nS` from already-known array dimensions |
-| SIGWALK | 2 | `rumoca-phase-typecheck/src/function_signatures.rs` -- parallel string/DefId/unqualified maps and a depth-64 walk whose overflow, cycle and missing cases continue |
-| (none) | 4 | the three `ED010` StateGraph rows and one declared-unsupported row |
+**Every failing model carries exactly one mechanism**, so these are disjoint
+sets that partition the failures and never a multi-attribution. The table spans
+**all 112 failing models**, not the 97 in the P0-A bucket; the `of which P0-A`
+column is the decomposition of that 97, and it is the column to cite when the
+subject is P0-A. Both columns are derivable from `frontier.csv` by crossing
+`bucket` against `mechanism`.
+
+| mechanism | all failures | of which P0-A | site |
+| --- | ---: | ---: | --- |
+| ALIAS | 55 | 55 | `rumoca-phase-instantiate/src/type_overrides/override_map.rs` -- an exact alias DefId falls back to a path key, missing declarations are filter-mapped away, and a missing selected package or member returns rather than refusing |
+| FIXPOINT | 37 | 32 | `rumoca-phase-flatten/src/constant_extraction.rs` -- bounded recovery loops, `MAX_PASSES` 4 and 5 |
+| GUESSNAME | 14 | 8 | `rumoca-phase-flatten/src/equations/mod.rs::lookup_parameter_in_scope` -- classifies a reference by initial capitalisation, retries case-mangled spellings, then infers `nX`/`nXi`/`nC`/`nS` from already-known array dimensions |
+| SIGWALK | 2 | 2 | `rumoca-phase-typecheck/src/function_signatures.rs` -- parallel string/DefId/unqualified maps and a depth-64 walk whose overflow, cycle and missing cases continue |
+| (none) | 4 | 0 | the three `ED010` StateGraph rows and the one declared-unsupported row |
+| **total** | **112** | **97** | |
+
+The 15 non-P0-A failures sit in the difference: FIXPOINT 5 (3 record-constant
+`ED008`, 2 evaluator `ED019`), GUESSNAME 6 (the zero-extent rows), and the 4
+with no mechanism.
 
 The FIXPOINT attribution is not inferred from the file alone. It is measured:
 **the largest single failure shape does not reproduce at shallow depth.** The
