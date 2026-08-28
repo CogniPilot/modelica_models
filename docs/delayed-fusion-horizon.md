@@ -814,3 +814,208 @@ The three OpenModelica ones are why `AidingBuffer` publishes
 `deliveryOutOfOrder` and `deliveryAfterHorizon` itself rather than leaving
 those to a consumer. That is weaker evidence than an external check and the
 test model says so.
+
+## 11. Two states on the boundary, and which consumer gets which
+
+Once the filter fuses at `t - D` the block holds two different answers to
+"where is the vehicle", 200 ms and one horizon of motion apart.
+`HorizonEstimator` therefore publishes `predictedEstimate` and
+`horizonEstimate` and **no field called `estimate`**. Removing the generic name
+is the point: a consumer cannot pick one by accident because there is nothing
+generic to pick. The two carry different timestamps -- now, and the fusion
+instant -- so a mis-wiring is visible in any log rather than only in flight.
+
+`horizonEstimate` is built from the same latched filter pose the re-base
+composes onto, not from a second read, so the state the predictor was built on
+and the state published for analysis cannot disagree.
+
+### Which one, per consumer
+
+Audited across `Vehicles/Rdd2` and the whole repository.
+
+| consumer | wire to | why |
+| --- | --- | --- |
+| `AvionicsSystem` `manualTask.navigation` | **predicted** | anchors the carrot latch and the leash |
+| `AvionicsSystem` `guidanceTask.navigation` | **predicted** | position/velocity/attitude cascade |
+| `AvionicsSystem` `rateTask` body rates | **predicted** | 1600 Hz rate loop, 50 ms time constant |
+| `Controller.mo` `navigation` port | **predicted** | a SECOND, independent `NavigationEstimateInput`, not reached through `PartialController` |
+| `FlightModeSelector` | nothing | reads no estimate field at all; decodes RC only |
+| `LogLinear`/`Proportional`/`ReducedRate` controllers | nothing directly | inherited or unconnected |
+| `navigationError_m` | **decide at integration** | today one signal serves as both a guidance metric and an estimator metric; at a horizon those want different states |
+| `controllerEstimatorFeedbackError_m` | **analysis** | best repurposed as the now-minus-horizon prediction magnitude |
+| Python qualification harness | **analysis** | reads `estimator.estimate.*` by STRING NAME and will pick up whichever state keeps the old name |
+
+Three findings from that audit are worth stating rather than leaving in a
+table.
+
+**The rate loop is not a degradation case, it is an instability case.**
+`RateControlAllocator` runs at 1600 Hz with a rate gain of 20 s^-1, a 50 ms
+loop time constant. A 200 ms delay is four time constants of pure dead time.
+
+**Guidance and the carrot must be on the SAME epoch as each other, not merely
+both on a sensible one.** The LogLinear position integral is driven by
+`positionReference - positionWorld`, where the reference comes from the carrot
+and the feedback from guidance. Split those across the two states and the
+integral sees a constant fictitious error of `D` times ground speed -- 1.0 m at
+5 m/s -- and winds to its limit of 0.25 g, about 2.45 m/s^2 of spurious tilt
+command. This is the failure that a per-block test cannot see, because each
+block is individually correct.
+
+**The carrot's bumpless entry is the sharpest single case.**
+`ManualTrajectorySource` latches `basePose := vehiclePose` on the entry sample,
+seeding position, velocity and heading together from the estimate. On the
+horizon state the entry starts from where the vehicle was `D` ago: 1.0 m of
+commanded position step at 5 m/s, and 0.3 rad -- 17 degrees -- of heading step
+at the 1.5 rad/s pilot heading rate, which rotates the whole stick frame. The
+leash has the same anchor twice, and it cancels exactly while no bound binds
+and stops cancelling the moment one does, turning a symmetric 2.0 m leash into
+roughly 1.0 m ahead of the vehicle and 3.0 m behind it.
+
+### The closed-loop assert, specified and not yet runnable
+
+The signature of consuming the wrong state is a persistent along-track offset
+of `D` times ground speed between commanded and achieved position, and the
+required gate is that no such offset appears. It is NOT added here, because
+nothing can run it: no tool in this tree builds a mission containing
+`HorizonEstimator`. Adding a check that cannot execute would be the dead
+assertion this package refuses elsewhere. It is the gate the vehicle
+integration must bring with it, and the existing witness needs care --
+`Test/ManualFlightMission.mo` measures the carrot residual against the same
+`avionics.navigation` signal the carrot latched from, so on a single shared
+epoch it is self-consistent and passes while the vehicle is really 0.2 to 1.0 m
+off.
+
+## 12. Counting shifted fusion instants, not corrections
+
+`Avionics.EstimatorStatus.acceptedCorrectionCount` now states the contract it
+always needed: **at most one increment per estimator tick**, counting ticks on
+which at least one correction was accepted rather than counting measurements.
+The predictor recomposes once per tick on which the pose it composes onto
+moved, and two measurements fused into one tick move it once.
+
+Both shipped filters already satisfied this, by construction rather than by
+arithmetic: each fuses at most one source per tick from a priority chain, so
+the per-tick outcome is a single value. The contract is now written on the
+field and on both filters, so a filter that fused several sources in one tick
+would know it has to coalesce.
+
+**What the audit of that arithmetic actually found is more serious than the
+counting.** The predictor's fold budget was charged a nominal 5 Hz of accepted
+corrections, documented as covering a 5 Hz GPS fix rate. Behind the delayed
+measurement queues that number is wrong in kind. Every measurement the horizon
+reaches is ripe; the filter can accept one on every tick; and this vehicle's
+aiding set offers a candidate on essentially every tick. **The shifted-instant
+rate is the FUSION rate, 100 Hz at the flight lattice, against a measured fold
+budget of 7.3 Hz.** A fourteenfold overrun.
+
+`HorizonEstimator` therefore forwards `correctionRateBudget_hz = 1 /
+fusionPeriod_s` to the predictor, so the block's existing budget assertion sees
+the true number -- and refuses. `Tests.HorizonRefusals.FusionRateOverBudget`
+demonstrates the refusal on the predictor alone, where it can actually be built
+and run.
+
+That refusal is the honest state of the architecture on today's code generator,
+and it is a code-generation limit rather than an architectural one: the fold
+costs about 2500 times its algorithmic content because a record-valued call is
+materialized once per component. Section 13 is the change that removes the
+dependence on that fix for the re-base path.
+
+## 13. Retiring the earliest factor is exact, and what follows from it
+
+### The result
+
+A composed window divided by its own earliest factor returns the rest of the
+window EXACTLY. `Estimation.FusionHorizon.retireDelta` is the closed form and
+`Tests.HorizonPredictorTests` measures the residual below 1e-15 in position,
+velocity and attitude and below 1e-14 in every bias Jacobian block, over two
+160-tick factors of the coning-rich and sculling-rich stream.
+
+**This refutes a claim in this document.** Section 5 rejects the peel partly
+because "the peel's bias Jacobians are only first order through the inverse,
+which is a silent error". For the composition this package actually uses they
+are not first order, they are exact, and the reason is structural rather than
+lucky: read `composeDelta` as a map from the second factor to the composed one
+with the first held fixed, and every line is a known quantity plus a ROTATION
+times a block of the second factor. An affine map with orthogonal leading
+coefficients is solved by a subtraction and a transpose. Nothing is
+linearized and nothing is inverted. The other reason Section 5 gives, drift in
+an accumulator that never re-anchors, is untouched by this and is dealt with
+below.
+
+### What that enables, and what is NOT built
+
+A correction never changes the buffer. It moves only the left anchor, so the
+composed window product is invariant across corrections and can be MAINTAINED
+rather than recomputed: on release compose the new window on the right, on
+retirement divide the oldest out on the left, and a re-base becomes one
+composition regardless of horizon length. That removes the fold-rate ceiling
+from Section 12 entirely and decouples correction cost from horizon length.
+
+**Only the enabling algebra is shipped here.** `retireDelta` and its exactness
+test are in the tree; the maintained product is not wired into
+`OutputPredictor`, and the re-base still folds. Three reasons, in order of
+weight.
+
+1. **The rotating shadow rebuild does not fit this ring.** The drift answer for
+   a maintained product is to rebuild it from the stored windows and swap. At
+   one composition per fusion tick a rebuild of `horizonWindows = 20` takes 20
+   fusion ticks, during which the ring must still hold the rows being rebuilt
+   from. The ring is `horizonWindows + 2` -- two slots of slack -- so those rows
+   are overwritten after two releases. Making the rebuild fit means roughly
+   doubling the ring, which doubles the buffer memory the WCET record is
+   written against. That is a design fork with a real cost, and it wants
+   deciding rather than guessing.
+2. **It changes the re-base path of a block whose epoch-consistency bug is
+   recorded as having cost a full review cycle**, and no tool in this tree can
+   simulate the composed estimator to check the result end to end.
+3. **It changes nothing about deployability today.** The composed block neither
+   builds under OpenModelica nor lowers under Rumoca, so a faster re-base does
+   not move the gate.
+
+### The numerical guarantee the maintained product would have to carry
+
+Stated now because it is the input to the tolerance the eventual swap-boundary
+assertion must use, and because it is cheap to derive and expensive to
+rediscover.
+
+**Finite memory.** A swap REPLACES the maintained product with one rebuilt from
+stored windows, and a stored window itself retires after `k` releases. No
+floating-point error can survive more than one rebuild period plus one window
+lifetime, so the predictor path holds no state in which unbounded accumulation
+can live. The bound at any instant is one `k`-fold's error plus at most `k`
+inverse-update pairs since the last swap. That is a hard bound, not a
+statistical one.
+
+**Why it is small.** Rotations are isometries and every step normalizes its
+quaternion, so constraint violation sits at machine epsilon and does not
+accumulate; velocity and position errors are rotated, which preserves their
+norm, and added. Error grows like `N * eps * scale` with `N` around `3k`, about
+60 operations at the flight geometry. At a 200 ms horizon and 5 m/s, scale is
+about 1 m in position, 5 m/s in velocity and unity on the quaternion:
+
+| precision | position | velocity | attitude |
+| --- | --- | --- | --- |
+| binary64, simulation | 1.3e-14 m | 6.7e-14 m/s | 1.3e-14 rad |
+| binary32, the flight artifact | 7.1e-6 m | 3.6e-5 m/s | 7.1e-6 rad |
+
+The flight-precision numbers are the ones that matter, and they are seven
+microns and four ten-thousandths of a degree, against a predictor divergence
+tolerance of 0.025 rad. The boundedness claim is comfortable in single
+precision by four orders.
+
+**Runtime enforcement.** The swap-boundary assertion must take its tolerance
+from that binary32 row rather than from a hand-picked constant, the same
+discipline the Proposition 8 arms already follow, so that a subtly wrong
+left-division, a conditioning pathology or a compiler defect fires within one
+swap period in flight instead of drifting quietly. The long-run test that goes
+with it must record the maintained-versus-folded residual at every swap over
+hundreds of swaps and assert it is STATIONARY as well as bounded: a trend is
+the signature of an error surviving the swap through a path the analysis
+missed, which is exactly what a bound alone would not catch.
+
+**The corollary worth stating.** The only long-lived state in the pipeline is
+then the filter's own estimate, whose error dynamics are governed by
+measurement corrections and are the filter's own business, with its own
+consistency machinery. The predictor's boundedness composes with that and does
+not depend on it.
+

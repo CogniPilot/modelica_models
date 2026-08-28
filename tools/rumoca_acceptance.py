@@ -249,15 +249,18 @@ def check_horizon_balance(
     # Estimation.FusionHorizon.AidingBuffer beside the filter, and that buffer
     # carries twelve Booleans across its five aiding input connectors on top of
     # the filter's fourteen across six. The equation total moved with it
-    # because the block grew.
+    # because the block grew, and again when the block began publishing the
+    # horizon state alongside the predicted one. The BALANCE is the number the
+    # row is about and it has not moved: the defect counts connector Booleans,
+    # and neither change added an input connector.
     #
     # Keeping the old string here would have been the worst outcome available:
     # the row would have failed against a FIXED compiler for the wrong reason
     # and read as the defect surviving.
     row = Row(
         "horizon-balance",
-        "ED001 4416 equations / 4390 unknowns (balance = 26)",
-        "balanced at 4416/4416, lowers",
+        "ED001 4549 equations / 4523 unknowns (balance = 26)",
+        "balanced at 4549/4549, lowers",
     )
     status, log, elapsed = compile_model(
         options,
