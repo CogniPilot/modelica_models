@@ -13,17 +13,35 @@ model HorizonEstimatorWiring
     Estimation.FusionHorizon.HorizonEstimator estimator(
       samplePeriod=0.00125,
       fusionPeriod_s=0.01,
-      fusionHorizon_s=0.05);
+      fusionHorizon_s=0.05,
+      // The declared source delay has to match the horizon this harness runs,
+      // not the flight one the block defaults to. Left at the default, a 50 ms
+      // horizon in front of a source declared to arrive 110 ms late is a
+      // configuration the block refuses, and this model would carry it
+      // unnoticed because it is gated at translation and never simulated.
+      maximumSourceDelay_s=0.04,
+      horizonJitterMargin_s=0.01,
+      mocapPeriod_s=0.01);
   equation
     // A vehicle at rest, level, at the local origin, with motion capture
-    // delivered AT the horizon. Its age is therefore zero and nothing is
-    // retrodicted, which is the whole point of fusing at the horizon.
+    // arriving 40 ms late: inside the 50 ms horizon by the declared margin, so
+    // it is queued and delivered at the fusion instant its own timestamp
+    // names, with a residual under one release window rather than the whole
+    // transport latency.
+    //
+    // It used to be stamped at the horizon exactly, `time - fusionHorizon_s`,
+    // with a comment saying its age was therefore zero. That was true and it
+    // was the only reason any aiding reached the filter at all: the harness
+    // was hand-aligning the measurement because nothing else did. A packet
+    // stamped exactly at the horizon now lands in the band where it arrives
+    // already ripe and cannot be delivered until the next release, so it would
+    // be discarded as stale.
     estimator.reset = false;
     estimator.angularVelocityMeasuredBodyFlu_rad_s = zeros(3);
     estimator.specificForceMeasuredBodyFlu_m_s2 = {0.0, 0.0, 9.81};
     estimator.mocap.valid = true;
     estimator.mocap.fresh = true;
-    estimator.mocap.timestamp_s = time - estimator.fusionHorizon_s;
+    estimator.mocap.timestamp_s = time - 0.04;
     estimator.mocap.positionWorldEnu_m = zeros(3);
     estimator.mocap.quaternionWorldBody = {1.0, 0.0, 0.0, 0.0};
     estimator.mocap.positionCovarianceWorld_m2 = identity(3) * 1.0e-4;
