@@ -20,6 +20,8 @@ HorizonInterfaceTests
 HorizonResetTests
 HorizonBiasSupervisionTests
 HorizonRefusals
+AidingHorizonTests
+AidingHorizonRefusals
 HorizonEstimatorWiring
 EstimatorHealthTests
 EstimatorHardeningTests
