@@ -1,0 +1,65 @@
+within Estimation.FusionHorizon;
+
+function unpackDelta "Read one delta back out of a ring row"
+  input Real row[DeltaLength];
+  output Estimation.FusionHorizon.Delta delta;
+algorithm
+  // Flat, for the reason recorded in packDelta: the nested-loop form is what
+  // the code generator turns into a per-element copy call.
+  delta.deltaPositionBodyFlu_m[1] := row[1];
+  delta.deltaPositionBodyFlu_m[2] := row[2];
+  delta.deltaPositionBodyFlu_m[3] := row[3];
+  delta.deltaVelocityBodyFlu_m_s[1] := row[4];
+  delta.deltaVelocityBodyFlu_m_s[2] := row[5];
+  delta.deltaVelocityBodyFlu_m_s[3] := row[6];
+  delta.deltaQuaternionBodyFlu[1] := row[7];
+  delta.deltaQuaternionBodyFlu[2] := row[8];
+  delta.deltaQuaternionBodyFlu[3] := row[9];
+  delta.deltaQuaternionBodyFlu[4] := row[10];
+  delta.integrationTime_s := row[11];
+  delta.deltaRotationGyroscopeBiasJacobian_s[1, 1] := row[12];
+  delta.deltaRotationGyroscopeBiasJacobian_s[1, 2] := row[13];
+  delta.deltaRotationGyroscopeBiasJacobian_s[1, 3] := row[14];
+  delta.deltaRotationGyroscopeBiasJacobian_s[2, 1] := row[15];
+  delta.deltaRotationGyroscopeBiasJacobian_s[2, 2] := row[16];
+  delta.deltaRotationGyroscopeBiasJacobian_s[2, 3] := row[17];
+  delta.deltaRotationGyroscopeBiasJacobian_s[3, 1] := row[18];
+  delta.deltaRotationGyroscopeBiasJacobian_s[3, 2] := row[19];
+  delta.deltaRotationGyroscopeBiasJacobian_s[3, 3] := row[20];
+  delta.deltaVelocityGyroscopeBiasJacobian_m[1, 1] := row[21];
+  delta.deltaVelocityGyroscopeBiasJacobian_m[1, 2] := row[22];
+  delta.deltaVelocityGyroscopeBiasJacobian_m[1, 3] := row[23];
+  delta.deltaVelocityGyroscopeBiasJacobian_m[2, 1] := row[24];
+  delta.deltaVelocityGyroscopeBiasJacobian_m[2, 2] := row[25];
+  delta.deltaVelocityGyroscopeBiasJacobian_m[2, 3] := row[26];
+  delta.deltaVelocityGyroscopeBiasJacobian_m[3, 1] := row[27];
+  delta.deltaVelocityGyroscopeBiasJacobian_m[3, 2] := row[28];
+  delta.deltaVelocityGyroscopeBiasJacobian_m[3, 3] := row[29];
+  delta.deltaVelocityAccelerometerBiasJacobian_s[1, 1] := row[30];
+  delta.deltaVelocityAccelerometerBiasJacobian_s[1, 2] := row[31];
+  delta.deltaVelocityAccelerometerBiasJacobian_s[1, 3] := row[32];
+  delta.deltaVelocityAccelerometerBiasJacobian_s[2, 1] := row[33];
+  delta.deltaVelocityAccelerometerBiasJacobian_s[2, 2] := row[34];
+  delta.deltaVelocityAccelerometerBiasJacobian_s[2, 3] := row[35];
+  delta.deltaVelocityAccelerometerBiasJacobian_s[3, 1] := row[36];
+  delta.deltaVelocityAccelerometerBiasJacobian_s[3, 2] := row[37];
+  delta.deltaVelocityAccelerometerBiasJacobian_s[3, 3] := row[38];
+  delta.deltaPositionGyroscopeBiasJacobian_m_s[1, 1] := row[39];
+  delta.deltaPositionGyroscopeBiasJacobian_m_s[1, 2] := row[40];
+  delta.deltaPositionGyroscopeBiasJacobian_m_s[1, 3] := row[41];
+  delta.deltaPositionGyroscopeBiasJacobian_m_s[2, 1] := row[42];
+  delta.deltaPositionGyroscopeBiasJacobian_m_s[2, 2] := row[43];
+  delta.deltaPositionGyroscopeBiasJacobian_m_s[2, 3] := row[44];
+  delta.deltaPositionGyroscopeBiasJacobian_m_s[3, 1] := row[45];
+  delta.deltaPositionGyroscopeBiasJacobian_m_s[3, 2] := row[46];
+  delta.deltaPositionGyroscopeBiasJacobian_m_s[3, 3] := row[47];
+  delta.deltaPositionAccelerometerBiasJacobian_s2[1, 1] := row[48];
+  delta.deltaPositionAccelerometerBiasJacobian_s2[1, 2] := row[49];
+  delta.deltaPositionAccelerometerBiasJacobian_s2[1, 3] := row[50];
+  delta.deltaPositionAccelerometerBiasJacobian_s2[2, 1] := row[51];
+  delta.deltaPositionAccelerometerBiasJacobian_s2[2, 2] := row[52];
+  delta.deltaPositionAccelerometerBiasJacobian_s2[2, 3] := row[53];
+  delta.deltaPositionAccelerometerBiasJacobian_s2[3, 1] := row[54];
+  delta.deltaPositionAccelerometerBiasJacobian_s2[3, 2] := row[55];
+  delta.deltaPositionAccelerometerBiasJacobian_s2[3, 3] := row[56];
+end unpackDelta;

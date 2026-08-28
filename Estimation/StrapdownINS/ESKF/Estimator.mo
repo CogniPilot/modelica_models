@@ -149,6 +149,11 @@ protected
   discrete Integer recoveryStage(start = 0, fixed = true);
   discrete Integer correctionOutcome(start = 0, fixed = true);
   discrete Integer correctionSource(start = 0, fixed = true);
+  discrete Integer acceptedCorrectionCount(start = 0, fixed = true)
+    "Monotonic accepted-correction counter published on the status boundary.
+     The outcome field is a level held for the whole filter tick, so a
+     consumer running faster than the filter cannot edge-detect it; the count
+     gives that consumer a well-defined edge.";
   discrete Real normalizedInnovationSquared(start = 0.0, fixed = true);
   discrete Boolean estimateValid(start = false, fixed = true);
   discrete Integer anchorSource(start = 0, fixed = true);
@@ -434,6 +439,10 @@ algorithm
           integrationTime_s=imu.integrationTime_s),
         gravityWorldEnu_m_s2,
         estimateValid);
+    acceptedCorrectionCount := if reset then 0
+      elseif correctionOutcome == Estimation.StrapdownINS.CorrectionAccepted
+        then pre(acceptedCorrectionCount) + 1
+      else pre(acceptedCorrectionCount);
     status.initialized := initialized;
     status.predictionAccepted := predictionAccepted;
     status.mocapCorrectionAccepted := mocapCorrectionAccepted;
@@ -449,6 +458,7 @@ algorithm
     status.gpsConsecutiveRejections := gpsRejections;
     status.opticalFlowConsecutiveRejections := opticalFlowRejections;
     status.correctionOutcome := correctionOutcome;
+    status.acceptedCorrectionCount := acceptedCorrectionCount;
     status.correctionSource := correctionSource;
     status.normalizedInnovationSquared := normalizedInnovationSquared;
     status.recoveryStage := recoveryStage;
