@@ -45,6 +45,12 @@ block HorizonEstimator
      that source's delayed-measurement queue and nothing else, and it is
      structural for the reason recorded on samplePeriod"
     annotation(Evaluate = true);
+  parameter Real maximumSourceDelay_s(unit = "s", min = 0.0) = 0.11
+    "Worst end-to-end age any aiding source is declared to deliver at. The
+     horizon must cover it with headroom; see
+     Estimation.FusionHorizon.AidingBuffer, which owns the relation and asserts
+     it";
+  parameter Real horizonJitterMargin_s(unit = "s", min = 0.0) = 0.05;
   parameter Real maximumResidualAge_s(unit = "s", min = 0.0) = fusionPeriod_s
     "How far the fusion instant may stand past a measurement's own timestamp
      and still fuse it. See Estimation.FusionHorizon.AidingBuffer, which owns
@@ -113,6 +119,8 @@ block HorizonEstimator
     magnetometerPeriod_s=magnetometerPeriod_s,
     barometerPeriod_s=barometerPeriod_s,
     opticalFlowPeriod_s=opticalFlowPeriod_s,
+    maximumSourceDelay_s=maximumSourceDelay_s,
+    horizonJitterMargin_s=horizonJitterMargin_s,
     maximumResidualAge_s=maximumResidualAge_s);
 
   FilterModel filter(

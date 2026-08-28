@@ -94,9 +94,19 @@ package FusionHorizon
   constant Integer AidingDroppedStale = 2
     "The oldest entry was ripe but older than the residual alignment covers,
      so it was discarded rather than fused against a state that has already
-     moved past it. Unreachable while every source samples no faster than the
-     release rate; reported because the configuration that makes it reachable
-     is not refused";
+     moved past it.
+
+     An earlier note here called this unreachable in a correctly configured
+     buffer. It is not, and the case it missed is worth naming: a measurement
+     arriving ALREADY ripe, with a transport latency between fusionHorizon_s
+     and fusionHorizon_s + maximumResidualAge_s, cannot be delivered on the
+     tick it arrives, because delivery reads the queue as it stood before that
+     tick's store. By the next release the fusion instant has moved a whole
+     window past it and it leaves as stale. So the outcome of an anomalously
+     late packet is AidingRefusedLate above that band and AidingDroppedStale
+     inside it, and both are counted. The horizon assertion in AidingBuffer
+     keeps every DECLARED source far below the band; only a packet later than
+     its own source declares can reach it";
 
   annotation(Documentation(info = "<html>
     <p>The estimator fuses at a delayed horizon <code>t - D</code>, where every
