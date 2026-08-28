@@ -8,8 +8,27 @@ model WaypointVehicleSystem
   parameter Integer maxWaypoints(min = 2) = 8;
   parameter Integer waypointCount(min = 2, max = maxWaypoints) = 8;
   parameter Boolean useGlobalWaypoints = false;
-  parameter Integer navigationSource(min = 0, max = 2) = 0
-    "Guidance feedback: 0 truth baseline, 1 GPS-aided estimator, 2 optical-flow-aided estimator";
+  parameter Integer navigationSource(min = 0, max = 3) = 0
+    "Guidance feedback: 0 truth baseline, 1 GPS-aided estimator,
+     2 optical-flow-aided estimator, 3 motion-capture-aided estimator.
+
+     Mode 3 is the indoor-rig configuration and the aiding set is chosen to
+     match one, not by leaving everything else switched on. Motion capture and
+     the IMU, and nothing else:
+
+     GPS is off because a rig lives indoors and there is no sky. Optical flow
+     is off because it is the other GPS-denied answer and running both would
+     make the mission a test of arbitration rather than of mocap. The
+     MAGNETOMETER is off, which is the choice worth defending: a mocap
+     correction is 6-dof and observes yaw directly and far better than a
+     magnetometer can, while the steel and motors of a rig hall are exactly
+     where a magnetometer is least trustworthy. The BAROMETER is off for the
+     same shape of reason -- mocap gives absolute altitude at centimetre
+     accuracy, and an indoor pressure datum moves with the building's
+     ventilation.
+
+     So mode 3 flies on one aiding source, which is what makes it a clean
+     measurement of that source.";
   parameter Boolean fuseOpticalFlowWithGps = false
     "Feed optical flow to the estimator alongside GPS so a GPS outage falls back
      to flow-aided dead reckoning instead of pure inertial coasting"
@@ -142,6 +161,31 @@ model WaypointVehicleSystem
      Finite and positive, so the ordinary delay() path applies: a zero delay
      would have to be expressed by removing the operator, as the barometer and
      magnetometer paths do.";
+  parameter Boolean mocapCoverageWindow = false
+    "Fly INTO and OUT OF rig coverage during the mission: inside the window
+     motion capture aids and GPS is withheld, outside it the reverse. The
+     pattern is gpsDeniedWindow's, which already models a source appearing and
+     disappearing mid-flight, and it is what makes a two-way handoff testable
+     without a time-varying navigationSource"
+    annotation(Evaluate = true);
+  parameter Real mocapCoverageStart_s(unit = "s") = 0.0;
+  parameter Real mocapCoverageEnd_s(unit = "s") = 0.0;
+  parameter Real mocapRigOriginWorldEnu_m[3] = {0.0, 0.0, 0.0}
+    "Where the rig's own origin sits in the estimator world frame. The world
+     frame is the local East-North-Up tangent frame anchored at `origin`, the
+     same Geodesy.GeodeticOrigin datum the global waypoint routes project
+     through, and it is the only frame the filter's state lives in";
+  parameter Real mocapRigSurveyOffsetWorldEnu_m[3] = {0.0, 0.0, 0.0}
+    "Error in the surveyed rig origin: what the survey believes minus where the
+     rig actually is. Zero is a perfect survey and makes the rig-to-world
+     composition the identity. A nonzero value is what makes a handoff between
+     GPS and motion capture nontrivial, because the two sources then disagree
+     about where the world's origin is by exactly this much";
+  parameter Real mocapRigSurveyHeadingError_rad = 0.0
+    "Error in the surveyed rig heading about world up. Position and heading are
+     what a rig survey realistically delivers; roll and pitch are assumed
+     levelled out by the calibration wand, which is stated in
+     Vehicles.Rdd2.mocapRigToWorld rather than left implicit";
   parameter Real mocapPositionCovarianceWorld_m2[3, 3] = identity(3) * 1.0e-4
     "1 cm per axis, a rig-class position solution";
   parameter Real mocapAttitudeCovarianceBody_rad2[3, 3] = identity(3) * 1.0e-4
@@ -320,9 +364,12 @@ protected
     "Independent unit-normal samples driving gyro-bias random walks";
   Real imuAccelerometerBiasDrivingNoise[3]
     "Independent unit-normal samples driving accelerometer-bias random walks";
+  Real mocapDelayedPositionWorldEnu_m[3];
+  Real mocapDelayedQuaternionWorldBody[4];
   Real mocapCapturePositionWorldEnu_m[3];
   Real mocapCaptureQuaternionWorldBody[4];
   Real mocapPositionNoise_m[3];
+  Real mocapAttitudeNoise_rad[3];
   discrete Real mocapPacketTimestamp_s(start = -1.0e30, fixed = true);
   discrete Real mocapPacketPositionWorldEnu_m[3](
     each start = 0.0, each fixed = true);
@@ -450,15 +497,26 @@ equation
   // payload, which is why the age-alignment stanza in
   // Estimation.StrapdownINS.ESKF.correctMocap was never exercised on this
   // vehicle: there was no age for it to align over.
-  mocapCapturePositionWorldEnu_m = {
+  mocapDelayedPositionWorldEnu_m = {
     delay(plant.truth.positionWorldEnu_m[1], mocapTransportDelay_s),
     delay(plant.truth.positionWorldEnu_m[2], mocapTransportDelay_s),
     delay(plant.truth.positionWorldEnu_m[3], mocapTransportDelay_s)};
-  mocapCaptureQuaternionWorldBody = {
+  mocapDelayedQuaternionWorldBody = {
     delay(plant.truth.quaternionWorldBody[1], mocapTransportDelay_s),
     delay(plant.truth.quaternionWorldBody[2], mocapTransportDelay_s),
     delay(plant.truth.quaternionWorldBody[3], mocapTransportDelay_s),
     delay(plant.truth.quaternionWorldBody[4], mocapTransportDelay_s)};
+  // Through the rig placement, so the pose the estimator receives is expressed
+  // in the world frame the SURVEY believes in rather than the one the vehicle
+  // actually flies in. With an exact survey the two are the same frame and
+  // this is the identity.
+  (mocapCapturePositionWorldEnu_m, mocapCaptureQuaternionWorldBody) =
+    Vehicles.Rdd2.mocapRigToWorld(
+      mocapDelayedPositionWorldEnu_m,
+      mocapDelayedQuaternionWorldBody,
+      mocapRigOriginWorldEnu_m,
+      mocapRigSurveyOffsetWorldEnu_m,
+      mocapRigSurveyHeadingError_rad);
   gpsCapturePositionWorldEnu_m = {
     delay(plant.truth.positionWorldEnu_m[1], gpsLatency_s),
     delay(plant.truth.positionWorldEnu_m[2], gpsLatency_s),
@@ -590,8 +648,20 @@ equation
   // Held valid as a level and pulsed fresh, which is the waveform a pose
   // driver produces and the one the filter's novelty-by-timestamp rule
   // consumes exactly once.
-  estimator.mocap.valid = fuseMocap;
-  estimator.mocap.fresh = fuseMocap and sample(0.0, mocapSamplePeriod);
+  // NO RE-ANCHORING ANYWHERE ON THIS PATH. Entering and leaving rig coverage
+  // changes which stream is valid and nothing else: both sources correct the
+  // SAME world state through their own transform into it, so the filter is
+  // never told to move its state because the source changed. Whatever the two
+  // sources disagree about -- datum error against rig survey error -- arrives
+  // as an innovation and is either corrected within the gate or refused by
+  // name, which is the only honest pair of outcomes.
+  estimator.mocap.valid = (if mocapCoverageWindow then
+      time >= mocapCoverageStart_s and time < mocapCoverageEnd_s
+    else fuseMocap or navigationSource == 3);
+  estimator.mocap.fresh = (if mocapCoverageWindow then
+      time >= mocapCoverageStart_s and time < mocapCoverageEnd_s
+    else fuseMocap or navigationSource == 3)
+    and sample(0.0, mocapSamplePeriod);
   estimator.mocap.timestamp_s = mocapPacketTimestamp_s;
   estimator.mocap.positionWorldEnu_m = mocapPacketPositionWorldEnu_m;
   estimator.mocap.quaternionWorldBody = mocapPacketQuaternionWorldBody;
@@ -602,12 +672,18 @@ equation
   // aiding source (optical flow, when fused) can be shown carrying the estimate.
   // With gpsDeniedWindow = false the guard folds away to the original
   // navigationSource == 1 gate, leaving every non-outage mission unchanged.
-  estimator.gps.valid = if gpsDeniedWindow then
+  estimator.gps.valid = if mocapCoverageWindow then
+      navigationSource == 1
+        and not (time >= mocapCoverageStart_s and time < mocapCoverageEnd_s)
+    elseif gpsDeniedWindow then
       navigationSource == 1
         and not (time >= gpsDeniedStart_s and time < gpsDeniedEnd_s)
     else
       navigationSource == 1;
-  estimator.gps.fresh = (if gpsDeniedWindow then
+  estimator.gps.fresh = (if mocapCoverageWindow then
+      navigationSource == 1
+        and not (time >= mocapCoverageStart_s and time < mocapCoverageEnd_s)
+    elseif gpsDeniedWindow then
       navigationSource == 1
         and not (time >= gpsDeniedStart_s and time < gpsDeniedEnd_s)
     else
@@ -668,7 +744,9 @@ equation
 
   // Raw calibrated magnetic field. The estimator tilt-compensates it into a
   // yaw-only observation; it is never wired directly to the controller.
-  estimator.magnetometer.valid = navigationSource <> 0;
+  // Off in mocap mode: a 6-dof pose observes yaw directly and better, and a
+  // rig hall is where a magnetometer is least trustworthy.
+  estimator.magnetometer.valid = navigationSource <> 0 and navigationSource <> 3;
   estimator.magnetometer.fresh = navigationSource <> 0
     and sample(0.012, magnetometerSamplePeriod);
   estimator.magnetometer.timestamp_s = magnetometerPacketTimestamp_s;
@@ -678,8 +756,10 @@ equation
 
   // The barometer front end provides pressure-derived altitude. Its slowly
   // varying offset is estimated separately before vertical-state fusion.
-  estimator.barometer.valid = navigationSource <> 0;
-  estimator.barometer.fresh = navigationSource <> 0
+  // Off in mocap mode: centimetre absolute altitude from the rig beats an
+  // indoor pressure datum that moves with the building's ventilation.
+  estimator.barometer.valid = navigationSource <> 0 and navigationSource <> 3;
+  estimator.barometer.fresh = navigationSource <> 0 and navigationSource <> 3
     and sample(0.005, barometerSamplePeriod);
   estimator.barometer.timestamp_s = barometerPacketTimestamp_s;
   estimator.barometer.altitudeWorldEnu_m =
@@ -811,6 +891,10 @@ equation
       sqrt(mocapPositionCovarianceWorld_m2[i, i])
         * Vehicles.Rdd2.standardNormalNoise(
           time / mocapSamplePeriod, i + 21.0, sensorNoiseSeed) else 0.0;
+    mocapAttitudeNoise_rad[i] = if enableSensorNoise then
+      sqrt(mocapAttitudeCovarianceBody_rad2[i, i])
+        * Vehicles.Rdd2.standardNormalNoise(
+          time / mocapSamplePeriod, i + 24.0, sensorNoiseSeed) else 0.0;
     assert(mocapPositionCovarianceWorld_m2[i, i] > 0.0
       and mocapAttitudeCovarianceBody_rad2[i, i] > 0.0,
       "Motion-capture covariance diagonals must be positive");
@@ -878,12 +962,25 @@ algorithm
     mocapPacketTimestamp_s := time - mocapTransportDelay_s;
     mocapPacketPositionWorldEnu_m :=
       mocapCapturePositionWorldEnu_m + mocapPositionNoise_m;
-    // The attitude is not perturbed. A rotation perturbed component-wise is
-    // not a rotation, and the correction path normalizes what it is handed, so
-    // additive quaternion noise would be silently renormalized into something
-    // whose covariance is not the one declared. The position channel carries
-    // the noise this fixture is for.
-    mocapPacketQuaternionWorldBody := mocapCaptureQuaternionWorldBody;
+    // MULTIPLICATIVE attitude noise, not additive. A quaternion perturbed
+    // component-wise is not a rotation, and the correction path normalizes
+    // what it is handed, so additive noise would be renormalized into
+    // something whose covariance is not the declared one. A small-angle
+    // perturbation composed on the RIGHT is a rotation by construction and its
+    // covariance is exactly attitudeCovarianceBody_rad2 in the body tangent,
+    // which is the frame that record names.
+    //
+    // Leaving the attitude unperturbed, which this line first did, is not the
+    // conservative choice it looks like. The filter is still told the pose
+    // carries 10 mrad of attitude uncertainty, so three of the six innovation
+    // degrees of freedom contribute nothing and the mean NIS comes out at half
+    // its dimension: measured 3.01 against 6. That reads as a filter whose
+    // innovation covariance is twice too large, when in fact the plant was not
+    // producing the noise the covariance declared.
+    mocapPacketQuaternionWorldBody := LieGroups.SO3.Quat.normalize(
+      LieGroups.SO3.Quat.product(
+        mocapCaptureQuaternionWorldBody,
+        LieGroups.SO3.Quat.exp_map(mocapAttitudeNoise_rad)));
   end when;
 
   when sample(0.0, gpsSamplePeriod) then
