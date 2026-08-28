@@ -124,10 +124,10 @@ to reach them**:
 | genuinely-new | 8 | measured; see below |
 | zero-extent | 6 | measured, but it is a P0-A interaction (below) |
 | declared-unsupported | 1 | MLS §12.4.2.1 partial application, honestly refused |
-| p0c-topology | 0 | **masked.** Connection processing runs in flatten; 81 of 112 failures die in typecheck or instantiate, before any connect set is built |
+| p0c-topology | 0 | **masked.** 81 of 112 failures die in typecheck or instantiate, before flatten builds a connect set. Thirteen models do get past connection processing, and not one carries a fluid connector network: three are StateGraph controllers, eight are Media models, and the two Fluid ones are a metal wall with heat ports and a pump-monitoring base class with no ports at all |
 | p0d-stream | 0 | **masked.** Not one `inStream`/`actualStream` diagnostic in 115 models. The stream lowering the tranche convicted is never reached |
-| p0e-balance | 0 | **masked.** Balance is a late global count; nothing reaches it |
-| as051 | 0 | **masked**, and worth stating plainly: the known Boolean-connector defect cannot be observed anywhere on this corpus. Its fix will not move this number |
+| p0e-balance | 0 | **masked.** Balance is a late global count, and the only models that reach it are the three that balance |
+| as051 | 0 | **masked**, and worth stating plainly: the known Boolean-connector defect cannot be observed anywhere on this corpus, because no model reaches the balance count to be wrong about. Its fix will not move this number |
 | p0g-annotations | 0 | **masked.** `derivative`/`inverse`/`smoothOrder` are pervasive in Fluid and Media and are never consulted |
 
 So the campaign's priority order is not a ranking of five comparable gaps. It
