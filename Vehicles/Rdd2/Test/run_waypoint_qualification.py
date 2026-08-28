@@ -62,6 +62,7 @@ SCENARIOS = {
     "eskf_gps": MODEL_DIR / "rumoca-scenario.waypoint-global.toml",
     "ukf_optical_flow": MODEL_DIR / "rumoca-scenario.waypoint-local-ukf.toml",
     "ukf_gps": MODEL_DIR / "rumoca-scenario.waypoint-global-ukf.toml",
+    "eskf_mocap": MODEL_DIR / "rumoca-scenario.waypoint-mocap.toml",
 }
 TRACE_NAMES = [
     "time_s",
@@ -141,6 +142,17 @@ TRACE_NAMES = [
     "estimator.status.gpsPositionCorrectionAccepted",
     "estimator.status.gpsVelocityCorrectionAccepted",
     "estimator.status.opticalFlowCorrectionAccepted",
+    "estimator.status.mocapCorrectionAccepted",
+    *[f"mocapPositionNoise_m[{index}]" for index in range(1, 4)],
+    *[f"mocapAttitudeNoise_rad[{index}]" for index in range(1, 4)],
+    *[
+        f"estimator.mocap.positionCovarianceWorld_m2[{index},{index}]"
+        for index in range(1, 4)
+    ],
+    *[
+        f"estimator.mocap.attitudeCovarianceBody_rad2[{index},{index}]"
+        for index in range(1, 4)
+    ],
     "estimator.status.anchorSource",
     "estimator.status.correctionSource",
     "estimator.status.normalizedInnovationSquared",
@@ -333,7 +345,11 @@ def innovation_nis(
     ]
     if not selected:
         return [], [], 0
-    degree = 6 if expected_source == 2 else 2
+    # Mocap (source 1) corrects position AND attitude, and GPS (source 2)
+    # position and velocity: both are 6-dof. Optical flow is a 2-dof planar
+    # line-of-sight observation. Reading mocap as 2-dof would compare its NIS
+    # against the wrong chi-square and the gate would be meaningless.
+    degree = 6 if expected_source in (1, 2) else 2
     return (
         [times[index] for index in selected],
         [nis[index] for index in selected],
@@ -398,10 +414,16 @@ def evaluate(values: dict[str, list[float]], feedback_mode: str) -> dict[str, ob
     optical_flow_accepted = signal(
         values, "estimator.status.opticalFlowCorrectionAccepted"
     )
+    mocap_accepted = signal(values, "estimator.status.mocapCorrectionAccepted")
     anchor_source = signal(values, "estimator.status.anchorSource")
     estimate_valid = signal(values, "estimator.estimate.valid")
 
-    expected_sources = {"truth": 0.0, "gps": 1.0, "optical_flow": 2.0}
+    expected_sources = {
+        "truth": 0.0,
+        "gps": 1.0,
+        "optical_flow": 2.0,
+        "mocap": 3.0,
+    }
     if feedback_mode not in expected_sources:
         raise ValueError(f"unsupported feedback mode {feedback_mode!r}")
 
@@ -475,7 +497,10 @@ def evaluate(values: dict[str, list[float]], feedback_mode: str) -> dict[str, ob
 
     if feedback_mode == "truth":
         all_corrections = (
-            gps_position_accepted + gps_velocity_accepted + optical_flow_accepted
+            gps_position_accepted
+            + gps_velocity_accepted
+            + optical_flow_accepted
+            + mocap_accepted
         )
         checks.update(
             {
@@ -498,9 +523,17 @@ def evaluate(values: dict[str, list[float]], feedback_mode: str) -> dict[str, ob
             selected_correction = optical_flow_accepted
             unexpected_corrections = gps_position_accepted + gps_velocity_accepted
             expected_anchor = 3.0
+        elif feedback_mode == "mocap":
+            # Mocap is the highest-authority source, so its anchor code is 1
+            # and everything else is unexpected: mode 3 flies on one aid.
+            selected_correction = mocap_accepted
+            unexpected_corrections = (
+                gps_position_accepted + gps_velocity_accepted + optical_flow_accepted
+            )
+            expected_anchor = 1.0
         else:
             selected_correction = gps_position_accepted + gps_velocity_accepted
-            unexpected_corrections = optical_flow_accepted
+            unexpected_corrections = optical_flow_accepted + mocap_accepted
             expected_anchor = 2.0
 
         nees_time, nees = navigation_nees(values)
@@ -536,6 +569,25 @@ def evaluate(values: dict[str, list[float]], feedback_mode: str) -> dict[str, ob
                 ],
                 "estimator.opticalFlow.groundDistanceVariance_m2",
             ]
+        elif feedback_mode == "mocap":
+            # Both channels carry noise and both are checked. The attitude
+            # perturbation is multiplicative, a small-angle rotation composed
+            # on the right, so its covariance is exactly the one the connector
+            # declares in the body tangent and the ratio below is meaningful.
+            noise_names = [
+                *[f"mocapPositionNoise_m[{index}]" for index in range(1, 4)],
+                *[f"mocapAttitudeNoise_rad[{index}]" for index in range(1, 4)],
+            ]
+            covariance_names = [
+                *[
+                    f"estimator.mocap.positionCovarianceWorld_m2[{index},{index}]"
+                    for index in range(1, 4)
+                ],
+                *[
+                    f"estimator.mocap.attitudeCovarianceBody_rad2[{index},{index}]"
+                    for index in range(1, 4)
+                ],
+            ]
         else:
             noise_names = [
                 *[f"gpsPositionNoise_m[{index}]" for index in range(1, 4)],
@@ -551,7 +603,9 @@ def evaluate(values: dict[str, list[float]], feedback_mode: str) -> dict[str, ob
                     for index in range(1, 4)
                 ],
             ]
-        measurement_period_s = 0.01 if feedback_mode == "optical_flow" else 0.1
+        measurement_period_s = (
+            0.01 if feedback_mode in ("optical_flow", "mocap") else 0.1
+        )
         measurement_indices = native_sample_indices(values, measurement_period_s)
         raw_imu_period_s = signal(values, "imuSamplePeriod_s")[0]
         imu_indices = native_sample_indices(values, raw_imu_period_s)
@@ -1202,6 +1256,7 @@ def write_reports(report: dict[str, object], plot_paths: list[Path]) -> None:
         "eskf_gps",
         "ukf_optical_flow",
         "ukf_gps",
+        "eskf_mocap",
         "baseline_comparison",
         "algorithm_comparison",
     ):
@@ -1286,6 +1341,7 @@ def main() -> None:
         "eskf_gps": evaluate(traces["eskf_gps"], "gps"),
         "ukf_optical_flow": evaluate(traces["ukf_optical_flow"], "optical_flow"),
         "ukf_gps": evaluate(traces["ukf_gps"], "gps"),
+        "eskf_mocap": evaluate(traces["eskf_mocap"], "mocap"),
     }
     comparison = baseline_comparison(
         traces["truth"],
