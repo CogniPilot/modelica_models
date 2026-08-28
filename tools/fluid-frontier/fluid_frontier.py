@@ -693,22 +693,6 @@ def reclassify(previous: Path, logs_dir: Path):
     return rows
 
 
-def row_for(model, group, outcome, phase, code, bucket, diagnostic, evidence,
-            mechanism, seconds=""):
-    return {
-        "model": model,
-        "package": group,
-        "outcome": outcome,
-        "phase": phase,
-        "code": code,
-        "bucket": bucket,
-        "seconds": seconds,
-        "diagnostic": diagnostic,
-        "evidence": evidence,
-        "mechanism": mechanism,
-    }
-
-
 def write_rows(rows, out: Path):
     out.parent.mkdir(parents=True, exist_ok=True)
     with out.open("w", newline="", encoding="utf-8") as handle:
@@ -824,6 +808,16 @@ def main(argv=None) -> int:
         [options.rumoca, "build-info"], capture_output=True, text=True
     ).stdout.strip()
     print(f"fluid-frontier: {len(targets)} targets, compiler {version}", file=sys.stderr)
+    if not version.startswith(PIN):
+        # Not a warning about correctness: a run against another binary is
+        # exactly what this rig is for. It is a warning about comparison, so
+        # nobody diffs the committed CSV against a different compiler and reads
+        # the difference as a regression.
+        print(
+            f"fluid-frontier: this is not the pin {PIN}; the committed CSV was "
+            "measured with the pin, so a diff against it mixes two compilers",
+            file=sys.stderr,
+        )
 
     rows = measure(options, targets, cache_dir, logs_dir)
 
