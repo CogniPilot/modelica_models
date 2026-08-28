@@ -6,6 +6,8 @@ GlobalWaypointMission
 MocapWaypointMission
 MocapHandoffMission
 MocapHandoffIdealMission
+LongRangeFlowMission
+LongRangeGpsMission
 ManualFlightMission
 VibrationGlobalWaypointMission
 UnfilteredVibrationGlobalWaypointMission
