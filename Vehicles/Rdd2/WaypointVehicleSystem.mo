@@ -118,6 +118,34 @@ model WaypointVehicleSystem
      to one, so a modification that made this nonzero would move the packet
      timestamp without moving the measurement and the plant would report an age
      it had not applied. Restoring a delay means restoring the operator too.";
+  parameter Boolean fuseMocap = false
+    "Feed a motion-capture pose to the estimator alongside whatever else is
+     aiding it. Off by default, so every existing mission is unchanged; the
+     pattern is fuseOpticalFlowWithGps's, which adds a stream without taking
+     over navigationSource"
+    annotation(Evaluate = true);
+  parameter Real mocapSamplePeriod(unit = "s") = 0.01
+    "100 Hz external pose update interval";
+  parameter Real mocapTransportDelay_s(unit = "s") = 0.02
+    "End-to-end age of each delivered motion-capture pose: camera exposure,
+     centroiding and solve, then the network hop to the vehicle.
+
+     20 ms, specified for this deployment. PX4 ships EKF2_EV_DELAY = 0 ms for
+     external vision, on main and at v1.15.0 alike, and that zero is NOT a
+     measurement of a mocap link -- it is the same onboard-topology assumption
+     EKF2_BARO_DELAY and EKF2_MAG_DELAY carry, appropriate to a vision
+     estimator that timestamps at the source and shares the autopilot's clock.
+     An external rig solving on a workstation and publishing over a network has
+     a transport this vehicle must model, so the deployment number governs and
+     PX4's is recorded beside it rather than adopted.
+
+     Finite and positive, so the ordinary delay() path applies: a zero delay
+     would have to be expressed by removing the operator, as the barometer and
+     magnetometer paths do.";
+  parameter Real mocapPositionCovarianceWorld_m2[3, 3] = identity(3) * 1.0e-4
+    "1 cm per axis, a rig-class position solution";
+  parameter Real mocapAttitudeCovarianceBody_rad2[3, 3] = identity(3) * 1.0e-4
+    "10 mrad per axis";
   parameter Real barometerVariance_m2 = 0.25;
   parameter Real barometerBias_m = 0.4
     "Constant pressure-altitude bias learned by the estimator";
@@ -292,6 +320,14 @@ protected
     "Independent unit-normal samples driving gyro-bias random walks";
   Real imuAccelerometerBiasDrivingNoise[3]
     "Independent unit-normal samples driving accelerometer-bias random walks";
+  Real mocapCapturePositionWorldEnu_m[3];
+  Real mocapCaptureQuaternionWorldBody[4];
+  Real mocapPositionNoise_m[3];
+  discrete Real mocapPacketTimestamp_s(start = -1.0e30, fixed = true);
+  discrete Real mocapPacketPositionWorldEnu_m[3](
+    each start = 0.0, each fixed = true);
+  discrete Real mocapPacketQuaternionWorldBody[4](
+    start = {1.0, 0.0, 0.0, 0.0}, each fixed = true);
   Real gpsCapturePositionWorldEnu_m[3];
   Real gpsCaptureVelocityWorldEnu_m_s[3];
   Real opticalFlowCapturePositionWorldEnu_m[3];
@@ -407,6 +443,22 @@ protected
 equation
   opticalFlowGyroscopeIntegratedNoise_rad =
     opticalFlowGyroscopeNoise_rad_s * opticalFlowSamplePeriod;
+  // MOTION CAPTURE, DELAYED LIKE EVERY OTHER SENSOR. The pose the rig reports
+  // is the pose the vehicle held mocapTransportDelay_s ago, so the plant is
+  // read through delay() and the packet is stamped at the instant it
+  // describes. Before this the stream was held permanently invalid with a zero
+  // payload, which is why the age-alignment stanza in
+  // Estimation.StrapdownINS.ESKF.correctMocap was never exercised on this
+  // vehicle: there was no age for it to align over.
+  mocapCapturePositionWorldEnu_m = {
+    delay(plant.truth.positionWorldEnu_m[1], mocapTransportDelay_s),
+    delay(plant.truth.positionWorldEnu_m[2], mocapTransportDelay_s),
+    delay(plant.truth.positionWorldEnu_m[3], mocapTransportDelay_s)};
+  mocapCaptureQuaternionWorldBody = {
+    delay(plant.truth.quaternionWorldBody[1], mocapTransportDelay_s),
+    delay(plant.truth.quaternionWorldBody[2], mocapTransportDelay_s),
+    delay(plant.truth.quaternionWorldBody[3], mocapTransportDelay_s),
+    delay(plant.truth.quaternionWorldBody[4], mocapTransportDelay_s)};
   gpsCapturePositionWorldEnu_m = {
     delay(plant.truth.positionWorldEnu_m[1], gpsLatency_s),
     delay(plant.truth.positionWorldEnu_m[2], gpsLatency_s),
@@ -535,20 +587,16 @@ equation
   estimator.imu.deltaPositionAccelerometerBiasJacobian_s2 =
     imuPacketPositionAccelerometerBiasJacobian_s2;
 
-  // NO MOCAP LATENCY PARAMETER, and that is not an omission. PX4 ships
-  // EKF2_EV_DELAY = 0 ms for external vision, but this vehicle carries no
-  // external-odometry path at all: the stream is held permanently invalid and
-  // its payload is zeros, so there is nothing for a delay to act on. A
-  // parameter that drives no equation is configuration nobody can test, and a
-  // mocap-fed variant of this vehicle would have to model the network hop
-  // this one does not have.
-  estimator.mocap.valid = false;
-  estimator.mocap.fresh = false;
-  estimator.mocap.timestamp_s = time;
-  estimator.mocap.positionWorldEnu_m = zeros(3);
-  estimator.mocap.quaternionWorldBody = {1.0, 0.0, 0.0, 0.0};
-  estimator.mocap.positionCovarianceWorld_m2 = identity(3);
-  estimator.mocap.attitudeCovarianceBody_rad2 = identity(3);
+  // Held valid as a level and pulsed fresh, which is the waveform a pose
+  // driver produces and the one the filter's novelty-by-timestamp rule
+  // consumes exactly once.
+  estimator.mocap.valid = fuseMocap;
+  estimator.mocap.fresh = fuseMocap and sample(0.0, mocapSamplePeriod);
+  estimator.mocap.timestamp_s = mocapPacketTimestamp_s;
+  estimator.mocap.positionWorldEnu_m = mocapPacketPositionWorldEnu_m;
+  estimator.mocap.quaternionWorldBody = mocapPacketQuaternionWorldBody;
+  estimator.mocap.positionCovarianceWorld_m2 = mocapPositionCovarianceWorld_m2;
+  estimator.mocap.attitudeCovarianceBody_rad2 = mocapAttitudeCovarianceBody_rad2;
 
   // GPS aiding is withheld during a commanded outage window so a downstream
   // aiding source (optical flow, when fused) can be shown carrying the estimate.
@@ -758,6 +806,15 @@ equation
       end if;
     end for;
   end for;
+  for i in 1:3 loop
+    mocapPositionNoise_m[i] = if enableSensorNoise then
+      sqrt(mocapPositionCovarianceWorld_m2[i, i])
+        * Vehicles.Rdd2.standardNormalNoise(
+          time / mocapSamplePeriod, i + 21.0, sensorNoiseSeed) else 0.0;
+    assert(mocapPositionCovarianceWorld_m2[i, i] > 0.0
+      and mocapAttitudeCovarianceBody_rad2[i, i] > 0.0,
+      "Motion-capture covariance diagonals must be positive");
+  end for;
   for i in 1:2 loop
     opticalFlowIntegratedNoise_rad[i] = if enableSensorNoise then
       sqrt(opticalFlowRateCovariance_rad2_s2[i, i])
@@ -817,6 +874,18 @@ equation
   end if;
 
 algorithm
+  when sample(0.0, mocapSamplePeriod) then
+    mocapPacketTimestamp_s := time - mocapTransportDelay_s;
+    mocapPacketPositionWorldEnu_m :=
+      mocapCapturePositionWorldEnu_m + mocapPositionNoise_m;
+    // The attitude is not perturbed. A rotation perturbed component-wise is
+    // not a rotation, and the correction path normalizes what it is handed, so
+    // additive quaternion noise would be silently renormalized into something
+    // whose covariance is not the one declared. The position channel carries
+    // the noise this fixture is for.
+    mocapPacketQuaternionWorldBody := mocapCaptureQuaternionWorldBody;
+  end when;
+
   when sample(0.0, gpsSamplePeriod) then
     gpsPacketTimestamp_s := time - gpsLatency_s;
     gpsPacketPositionWorldEnu_m :=
