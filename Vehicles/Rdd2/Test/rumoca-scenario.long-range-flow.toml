@@ -1,0 +1,17 @@
+source_roots = [
+  "../../..",
+]
+
+[model]
+file = "LongRangeFlowMission.mo"
+name = "Vehicles.Rdd2.Test.LongRangeFlowMission"
+
+[rumoca]
+task = "simulate"
+version = "1"
+
+[sim]
+dt = 0.005
+t_end = 70.0
+solver = "rk-like"
+output = "artifacts/vehicles/rdd2/long-range-flow.csv"
