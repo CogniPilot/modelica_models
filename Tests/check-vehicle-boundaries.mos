@@ -33,6 +33,23 @@ if not reducedControllerTranslation then
 end if;
 print(reducedControllerMessages);
 
+manualGuidanceTranslation :=
+  translateModel(Vehicles.Rdd2.ManualTrajectorySource);
+manualGuidanceMessages := getErrorString();
+if not manualGuidanceTranslation then
+  print(manualGuidanceMessages);
+  exit(1);
+end if;
+print(manualGuidanceMessages);
+
+modeSelectorTranslation := translateModel(Vehicles.Rdd2.FlightModeSelector);
+modeSelectorMessages := getErrorString();
+if not modeSelectorTranslation then
+  print(modeSelectorMessages);
+  exit(1);
+end if;
+print(modeSelectorMessages);
+
 plantTranslation := translateModel(Vehicles.Rdd2.Plant);
 plantMessages := getErrorString();
 if not plantTranslation then
@@ -100,6 +117,18 @@ if opticalFlowGpsDeniedMissionErrors > 0 then
 end if;
 print(opticalFlowGpsDeniedMissionCheck);
 print(opticalFlowGpsDeniedMissionMessages);
+
+clearMessages();
+manualFlightMissionCheck :=
+  checkModel(Vehicles.Rdd2.Test.ManualFlightMission);
+manualFlightMissionMessages := getErrorString();
+(_, manualFlightMissionErrors, _) := countMessages();
+if manualFlightMissionErrors > 0 then
+  print(manualFlightMissionMessages);
+  exit(1);
+end if;
+print(manualFlightMissionCheck);
+print(manualFlightMissionMessages);
 
 clearMessages();
 vibrationMissionCheck :=

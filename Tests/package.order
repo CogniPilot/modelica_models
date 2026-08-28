@@ -21,6 +21,8 @@ PlanningTests
 BezierTests
 LogLinearTests
 PositionLoopStabilityTests
+ManualGuidanceTests
+ManualGuidanceDynamics
 GeodesyTests
 MultirotorInnerLoopTests
 Cubs2EstimatorTests

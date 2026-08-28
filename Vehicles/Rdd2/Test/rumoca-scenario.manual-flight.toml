@@ -1,0 +1,17 @@
+source_roots = [
+  "../../..",
+]
+
+[model]
+file = "ManualFlightMission.mo"
+name = "Vehicles.Rdd2.Test.ManualFlightMission"
+
+[rumoca]
+task = "simulate"
+version = "1"
+
+[sim]
+dt = 0.005
+t_end = 28.0
+solver = "rk-like"
+output = "artifacts/vehicles/rdd2/manual-flight.csv"
