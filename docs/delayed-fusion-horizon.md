@@ -1019,3 +1019,141 @@ measurement corrections and are the filter's own business, with its own
 consistency machinery. The predictor's boundedness composes with that and does
 not depend on it.
 
+## 14. The maintained window product, as built
+
+The re-base no longer folds the ring. `step.mo` carries the composition of the
+ring entries and advances it by one composition when a window is adopted and
+one exact division when the oldest is retired, so a correction costs ONE
+composition onto the trailing row regardless of horizon length. The
+fold-rate ceiling of Section 12 stops being a function of the horizon.
+
+The enabling fact is Section 13: the left division is exact, measured below
+1e-15. The decision record's stated fallback reason -- that a peel's bias
+Jacobians are only first order through the inverse -- does not apply to this
+composition and is withdrawn. Drift, the record's other reason, is what the
+rebuild below answers.
+
+### The rebuild is prospective, and that is why the ring did not have to grow
+
+A carried product is exact in real arithmetic and drifts in floating point, and
+an accumulator never forgets a rounding error. So a second product is built
+from stored rows and REPLACES the carried one every `horizonWindows` adopts:
+no error can outlive one rebuild period. That is the finite-memory guarantee,
+and it is a hard bound rather than a statistical one.
+
+The obvious way to rebuild is retrospective: snapshot the current window and
+walk it. That needs those rows to survive the whole rebuild, which is a second
+horizon of retention and a ring of `2k`, and the rebuilt product then lands
+`k` ticks stale and needs a catch-up that is itself `O(k)`.
+
+**The rebuild here targets the window that will exist when it FINISHES.** Each
+adopted row is composed on the tick it is adopted, in the order the window
+needs. After `horizonWindows` adopts the accumulated rows are exactly the last
+`horizonWindows` adopted, which is exactly the window the next tick presents,
+so the replacement lands with no catch-up and no stale rows. The rebuild never
+reads a row older than the one being adopted, so **the retention requirement is
+the live window and nothing more.**
+
+That was checked against `step.mo`'s own index bookkeeping before it was
+written, by replaying the adopt-then-release-when-count-exceeds-`k` sequence and
+comparing the rebuild's row set against the ring's window at every replacement.
+They agree at every one, at `bufferLength = horizonWindows + 2`. **The ring is
+NOT doubled**, and the earlier conclusion that `2k` retention is fundamental
+holds only for the retrospective ordering.
+
+### Cost
+
+Per FUSION tick: one composition to append the adopted window, one division to
+retire the oldest, one composition into the rebuild. Three group operations,
+flat, on the tick a window closes and nothing on the seven ticks between. A
+re-base is one composition plus the trailing row, against the twenty-three the
+fold cost. Ring memory is unchanged.
+
+### What is asserted, and where
+
+| check | where | limit |
+| --- | --- | --- |
+| carried product equals the rebuilt one | `OutputPredictor`, equation section, every rebuild period | `maximumProductResidual`, derived from the binary32 rounding floor of one rebuild period with a factor of a hundred in hand |
+| the same, through the real state machine | `Tests.HorizonPredictorTests`, `incremental[4]` | 1e-12, a binary64 simulation limit four orders under the block's own |
+| left division is exact | `Tests.HorizonPredictorTests`, `retirement[1..4]` | 1e-15, 1e-14 on the Jacobians |
+
+The block's assertion lives in the equation section rather than in the clause
+that produces the number, for two reasons that agree: an assertion inside a
+`when` is vacuous under OpenModelica, and Rumoca refuses to read a variable in
+an assertion after an earlier write in the same algorithm.
+
+The retired rows are immutable, so how long a row is retained does not enter
+the tolerance derivation. Only the rebuild period does.
+
+## 15. The alternative that was evaluated and not taken: predicted-state snapshots
+
+Instead of storing increments, store the predicted state at each fusion instant
+plus a cumulative bias Jacobian, and compute the window transform fresh from
+two rows: `W = X_h^-1 (x) X_now`. This is PX4 EKF2's output-predictor shape. It
+deletes the carried product, the division chain, the rebuild and the
+maintained-equals-rebuilt invariant in one move, because every `W` is a fresh
+two-operand computation over immutable rows and nothing accumulates.
+
+### The duality, which is exact
+
+The two designs are the same algebra with the storage transposed. If
+`S_i = D_1 (x) ... (x) D_i` are prefix products from a common base, then
+`S_{i-1}^-1 (x) S_i = D_i` -- and that left division is precisely
+`retireDelta`. **Snapshots relative to a common base ARE the prefix products,
+and differencing two of them IS the operation Section 13 measured exact to
+1e-15.** So the snapshot design's per-window filter input and its relative
+Jacobian recovery inherit that exactness result directly; item 2 of the
+evaluation needed no new measurement.
+
+It is the classic prefix-sums-versus-increments trade. Prefix sums answer a
+range query in `O(1)` but lose relative precision when the prefix magnitude
+greatly exceeds the range queried; increments keep full relative precision but
+need `O(k)` for a range query, unless the product is maintained, which is
+Section 14.
+
+### What decided it: binary32 conditioning of the position block
+
+Snapshots are global-frame, so the window displacement is `R^T (p_now - p_h)`:
+a metre-scale quantity differenced out of two position vectors whose magnitude
+is the distance from the local origin. Velocity is metres per second and does
+not grow, and quaternion components are bounded by one, so **the cancellation
+concern is the position block and nothing else.**
+
+Measured, binary32, against a 1 m window displacement:
+
+| distance from origin | snapshot error | delta-design error |
+| --- | --- | --- |
+| 100 m | 9.3e-6 m | 4.4e-8 m |
+| 1 km | 7.7e-5 m | 4.4e-8 m |
+| 10 km | 1.0e-3 m | 4.4e-8 m |
+| 100 km | 8.8e-3 m | 4.4e-8 m |
+
+The delta design's error is **magnitude independent**; the snapshot design's
+grows linearly with distance from the origin.
+
+Against the swap-tolerance-class bound of 7.1e-6 m the snapshot design is 1.3x
+over at 100 m and 140x over at 10 km. Clearing it comfortably needs the
+position magnitude held under roughly 30 m, which at 5 m/s is a local-origin
+re-anchor every six seconds, and a re-anchor rewrites every stored row: an
+`O(k)` spike at 0.17 Hz, plus origin state, a per-tick distance test, and a
+rule for a window that straddles a re-anchor. **That machinery does not
+undercut the rebuild it deletes, and it reintroduces the periodic `O(k)` spike
+that was already rejected.**
+
+**Decision: keep the maintained product.** Say the honest counter-case with it,
+because the snapshot design is not wrong: against the QUALIFICATION tolerances
+that actually gate this vehicle -- 3.0e-2 m on a box corner, 1.3e-1 m on rms
+navigation error -- even the unanchored 10 km case has thirty times margin. The
+bar it fails is the maintained product's own consistency-check tolerance, not a
+flight-accuracy requirement, and a vehicle that never leaves a 100 m box would
+be well served by it.
+
+What decides it for a library rather than for one vehicle is the structural
+property: an estimator whose window transform degrades linearly with distance
+from the origin is one that has to be told where it is allowed to fly. The
+delta design has no such parameter, and that is worth the three group
+operations a fusion tick that Section 14 costs.
+
+`retireDelta` and its exactness test stay regardless. They are the theory both
+designs rest on.
+
