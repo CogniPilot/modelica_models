@@ -25,6 +25,26 @@ function step
      not per tick: composition is exact at any granularity (FOH paper Lemma 5),
      the fusion instant only ever lands on a release, and a per-tick ring costs
      eight times the storage traffic for the same group element.";
+  input Real windowProductRow[DeltaLength]
+    "The composition of the ring entries the buffer held at the PREVIOUS tick,
+     carried rather than refolded. A correction never touches the buffer -- it
+     moves the pose the buffer is composed onto and nothing else -- so this
+     product is invariant across corrections and only has to change when the
+     ring does: once on the right when a window is adopted, once on the left
+     when the oldest is retired.
+
+     It is the same group element foldBuffer would return for the same run,
+     and Estimation.FusionHorizon.retireDelta is exact, so `carried` here means
+     equal and not approximately equal. What carrying costs instead is
+     floating-point error that would random-walk without bound over a flight,
+     which is what the rebuilt product below exists to bound.";
+  input Real freshProductRow[DeltaLength]
+    "A second product being rebuilt from scratch out of adopted rows, to
+     replace the carried one every horizonWindows adopts. See the rebuild
+     comment where it is advanced.";
+  input Integer rebuildCount(min = 0)
+    "Adopted rows composed into freshProductRow so far. Zero means no rebuild
+     is in flight and the next adopt starts one.";
   input Real previousLiveRow[DeltaLength]
     "The window accumulated up to the previous tick. Carried as its own state
      rather than read back out of the ring: reading one entry through a fold
@@ -89,6 +109,17 @@ function step
      bias move is a wrong state published as a right one";
   output Integer bufferedDeltaCount "Inertial ticks spanning horizon to now";
   output Real nextPacketTimestamp_s(unit = "s");
+  output Real nextWindowProductRow[DeltaLength];
+  output Real nextFreshProductRow[DeltaLength];
+  output Integer nextRebuildCount(min = 0);
+  output Real productResidual
+    "Largest absolute disagreement between the carried product and the one
+     rebuilt from stored rows, on the tick a rebuild completes, and zero on
+     every other tick. The observable half of the finite-memory argument: it
+     is published rather than only asserted so a run can be inspected for a
+     TREND, which a bound alone would not show.";
+  output Boolean productReplaced
+    "This tick replaced the carried product with the rebuilt one";
 protected
   Integer bufferLength;
   Boolean fusionBoundary;
@@ -103,6 +134,13 @@ protected
   Estimation.FusionHorizon.Delta windowDelta;
   Estimation.FusionHorizon.Delta openingDelta;
   Estimation.FusionHorizon.Delta foldedWindow;
+  Real grownRow[DeltaLength];
+  Real carriedRow[DeltaLength];
+  Real grownFreshRow[DeltaLength];
+  Real foldedRow[DeltaLength];
+  Boolean adopting;
+  Boolean rebuilding;
+  Boolean completing;
   Estimation.FusionHorizon.Delta movedWindow;
   Real identityRow[DeltaLength];
   Estimation.FusionHorizon.Pose predictedNext;
@@ -205,6 +243,74 @@ algorithm
       else nextRingTail + 1;
     nextRingCount := adoptedCount - 1;
   end if;
+  // ---- 3b. carry the window product ---------------------------------------
+  // One composition when a window is adopted and one division when the oldest
+  // is retired, in that order, because the retired row is the LEFTMOST factor
+  // of the product only after the adopt has gone on the right. Off a release
+  // boundary neither happens and the product is untouched, which is why the
+  // common tick pays nothing for it.
+  //
+  // The ORDER matches section 2 and section 3 above and has to: this product
+  // stands for the ring the caller passed in, so it is advanced by exactly the
+  // operations the caller's own indices were advanced by, and it becomes the
+  // input for the next tick at the same moment they do.
+  //
+  // EVERY OPERATION HERE IS A FLAT-ROW CALL. composeRows and retireRows return
+  // arrays, not Deltas, and that is a code-generator accommodation rather than
+  // a style: a record-valued call is materialized once per component, a Delta
+  // has 56, and writing this stanza with Delta-valued call sites took the
+  // galec-production lowering of this block from 1.2 seconds to minutes
+  // without completing. The record stays inside those functions.
+  adopting := (not reset) and fusionBoundary and seeded;
+  grownRow := if adopting
+    then Estimation.FusionHorizon.composeRows(windowProductRow, storedRow)
+    else windowProductRow;
+  carriedRow := if released
+    then Estimation.FusionHorizon.retireRows(releasedRow, grownRow)
+    else grownRow;
+
+  // ---- 3c. rebuild a second product, one row per adopt --------------------
+  // THE FINITE-MEMORY ARGUMENT. The carried product above is exact in real
+  // arithmetic and drifts in floating point, and an accumulator never forgets
+  // a rounding error. So a second product is built from stored rows and
+  // REPLACES it every horizonWindows adopts: no error can outlive one rebuild
+  // period, which turns an unbounded random walk into a bounded one.
+  //
+  // It is built PROSPECTIVELY -- it targets the window that will exist when
+  // the rebuild finishes, not the one that exists when it starts -- and that
+  // is what keeps the ring the size it already is. Each adopted row is
+  // composed on the tick it is adopted, in the order the window needs, so the
+  // rebuild never reads a row older than the newest. A retrospective rebuild
+  // walking the CURRENT window would need those rows to survive the whole
+  // rebuild, which is a second horizon of retention and twice the ring, and
+  // would land a horizon stale needing an O(k) catch-up.
+  //
+  // After horizonWindows adopts the accumulated rows are exactly the last
+  // horizonWindows adopted, which is exactly the window the next tick will
+  // present, so the replacement lands with no catch-up.
+  rebuilding := adopting and horizonReleased;
+  grownFreshRow := if not rebuilding then freshProductRow
+    elseif rebuildCount <= 0 then storedRow
+    else Estimation.FusionHorizon.composeRows(freshProductRow, storedRow);
+  completing := rebuilding and (rebuildCount + 1 >= horizonWindows);
+  nextRebuildCount := if reset or not rebuilding then 0
+    elseif completing then 0 else rebuildCount + 1;
+  nextFreshProductRow := if reset then identityRow else grownFreshRow;
+  productReplaced := completing;
+  nextWindowProductRow := if reset then identityRow
+    elseif completing then nextFreshProductRow else carriedRow;
+  // An explicit fixed-length walk rather than max(abs(a - b)) over the whole
+  // row. A whole-array reduction is not something the GALEC projection lowers,
+  // and a counted walk is the shape the rest of this package uses for exactly
+  // that reason: the cost is the same on every tick whether or not a rebuild
+  // completes.
+  productResidual := 0.0;
+  for k in 1:DeltaLength loop
+    productResidual := max(productResidual,
+      (if completing then abs(nextFreshProductRow[k] - carriedRow[k])
+       else 0.0));
+  end for;
+
   // The fusion instant advances by exactly one release window per release and
   // by nothing otherwise, so it is carried rather than read off a clock: the
   // code generator has no runtime coordinate, and a carried epoch says the
@@ -287,10 +393,20 @@ algorithm
     // off a boundary the trailing row plus tickDelta is exactly liveDelta; on
     // a boundary liveDelta is tickDelta alone and the trailing row is the
     // window the ring has not adopted yet from the pose's point of view.
+    // ONE COMPOSITION, NOT A FOLD. windowProductRow already is the product of
+    // exactly the ring entries foldBuffer would have walked -- the run
+    // (ringTail, ringCount) the caller passed in, before this tick's adopt and
+    // release -- so the re-base only has to put the trailing row on the right.
+    // That is what removes the horizon length from the cost of a correction.
+    //
+    // The epoch invariant is unchanged and is the reason this is correct: the
+    // product stands for the ring BEFORE this tick moved it, which is the ring
+    // the horizon pose belongs to.
     epochRingCount := if reset then 0 else ringCount;
-    foldedWindow := Estimation.FusionHorizon.foldBuffer(
-      ring, ringTail, epochRingCount,
+    foldedRow := Estimation.FusionHorizon.composeRows(
+      if reset then identityRow else windowProductRow,
       if reset then identityRow else previousLiveRow);
+    foldedWindow := Estimation.FusionHorizon.unpackDelta(foldedRow);
     windowDelta := Estimation.FusionHorizon.composeDelta(
       foldedWindow, tickDelta);
     movedWindow := Estimation.FusionHorizon.rebiasDelta(
