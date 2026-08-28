@@ -8,8 +8,12 @@ function incrementalResidual
   input Integer deltasPerFusion(min = 1);
   input Integer horizonWindows(min = 1);
   input Real gravityWorldEnu_m_s2[3];
-  output Real worst[3] "position [m], velocity [m/s], attitude [rad]";
+  output Real worst[4]
+    "position [m], velocity [m/s], attitude [rad], carried-versus-rebuilt
+     window product [max over the packed row]";
 protected
+  Real incrementalProduct;
+  Real rebasedProduct;
   Real incrementalPose[count + 1, 10];
   Integer incrementalCount[count];
   Boolean incrementalReady[count];
@@ -31,15 +35,20 @@ algorithm
   // step.mo at all: the ring indices, the live-window carry, the release
   // bookkeeping and the incremental branch were all outside it. A window
   // folded over the wrong contiguous run of slots passed it unchanged.
-  (incrementalPose, incrementalCount, incrementalReady) :=
+  (incrementalPose, incrementalCount, incrementalReady, incrementalProduct) :=
     Tests.HorizonChecks.runHorizonArm(
       count, dt, deltasPerFusion, horizonWindows, gravityWorldEnu_m_s2,
       false);
-  (rebasedPose, rebasedCount, rebasedReady) :=
+  (rebasedPose, rebasedCount, rebasedReady, rebasedProduct) :=
     Tests.HorizonChecks.runHorizonArm(
       count, dt, deltasPerFusion, horizonWindows, gravityWorldEnu_m_s2,
       true, incrementalPose, incrementalCount, incrementalReady);
-  worst := zeros(3);
+  worst := zeros(4);
+  // The maintained window product against the one rebuilt from stored rows,
+  // measured through the real state machine on both arms. This is the
+  // finite-memory check: it is what fails if the carried product stops being
+  // the product of the entries the buffer holds.
+  worst[4] := max(incrementalProduct, rebasedProduct);
   for k in 1:count + 1 loop
     worst[1] := max(worst[1],
       max(abs(rebasedPose[k, 1:3] - incrementalPose[k, 1:3])));

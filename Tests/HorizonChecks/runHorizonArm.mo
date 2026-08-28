@@ -20,7 +20,17 @@ function runHorizonArm
     "Row j is this arm's pose at the end of tick j-1";
   output Integer bufferedCount[count];
   output Boolean ready[count];
+  output Real worstProductResidual
+    "Largest disagreement between the carried window product and the one
+     rebuilt from stored rows, over the whole run. Driven out of step.mo so
+     the maintained product is measured through the same state machine the
+     block runs, and not through a separate re-implementation of it.";
 protected
+  Real windowProductRow[Estimation.FusionHorizon.DeltaLength];
+  Real freshProductRow[Estimation.FusionHorizon.DeltaLength];
+  Integer rebuildCount;
+  Real productResidual;
+  Boolean productReplaced;
   Integer bufferLength;
   Real ring[horizonWindows + 2, Estimation.FusionHorizon.DeltaLength];
   Real liveRow[Estimation.FusionHorizon.DeltaLength];
@@ -60,6 +70,11 @@ algorithm
   // without an event scheduler in the way, and it is a check on step.mo
   // itself rather than on an algebraic helper step.mo happens to call.
   bufferLength := horizonWindows + 2;
+  windowProductRow := Estimation.FusionHorizon.packDelta(
+    Estimation.FusionHorizon.identityDelta());
+  freshProductRow := windowProductRow;
+  rebuildCount := 0;
+  worstProductResidual := 0.0;
   ring := zeros(bufferLength, Estimation.FusionHorizon.DeltaLength);
   liveRow := Estimation.FusionHorizon.packDelta(
     Estimation.FusionHorizon.identityDelta());
@@ -120,7 +135,12 @@ algorithm
      released,
      biasMoveExceeded,
      bufferedDeltaCount,
-     packetTimestamp_s) := Estimation.FusionHorizon.step(
+     packetTimestamp_s,
+     windowProductRow,
+     freshProductRow,
+     rebuildCount,
+     productResidual,
+     productReplaced) := Estimation.FusionHorizon.step(
       false,
       tickIndex,
       angularVelocity_rad_s,
@@ -128,6 +148,9 @@ algorithm
       previousAngularVelocity_rad_s,
       previousSpecificForce_m_s2,
       ring,
+      windowProductRow,
+      freshProductRow,
+      rebuildCount,
       liveRow,
       headSlot,
       ringTail,
@@ -153,6 +176,7 @@ algorithm
       1.0,
       1.0,
       1.0);
+    worstProductResidual := max(worstProductResidual, productResidual);
     ring := Estimation.FusionHorizon.storeRow(ring, storeSlot, storedRow);
     headSlot := headSlotNext;
     predicted := Estimation.FusionHorizon.Pose(
