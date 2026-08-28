@@ -69,6 +69,7 @@ protected
   Integer bufferLength;
   Boolean fusionBoundary;
   Integer adoptedCount;
+  Integer epochRingCount;
   Estimation.FusionHorizon.Delta tickDelta;
   Estimation.FusionHorizon.Delta liveDelta;
   Estimation.FusionHorizon.Delta windowDelta;
@@ -203,12 +204,35 @@ algorithm
     // Theorem 6: the filter moved the left factor, and the buffered right
     // factors do not depend on it, so the state at now is recovered by
     // reapplying them to the corrected pose. No gain, no damping ratio, no
-    // tracking error. The buffer passed in predates this tick's store, so the
-    // live window is composed on explicitly.
+    // tracking error.
+    //
+    // THE EPOCH INVARIANT. The folded window and the pose it is composed onto
+    // must name the SAME fusion instant. horizonPose is the filter state at
+    // the instant reached by the PREVIOUS release: the caller reads it back
+    // through pre(), one inertial tick after the filter published it. So the
+    // window is folded over the ring as it stood BEFORE this tick's adopt and
+    // BEFORE this tick's release -- ringTail and ringCount, not their advanced
+    // successors -- and the window accumulated up to the previous tick rides
+    // the fold as its trailing row, because on a boundary tick it is no longer
+    // part of liveDelta and the ring passed in predates this tick's store.
+    //
+    // Folding the advanced tail instead is not a rounding error. On a release
+    // boundary it drops the entry the pose has not yet absorbed and picks up
+    // headSlot, which on this tick still holds the row from a whole ring ago,
+    // or zeros before the ring has wrapped. A zero row is a zero quaternion,
+    // and normalize(product(q, 0)) is the identity, so the composed rotation
+    // collapses silently.
+    //
+    // Written this way the identity holds on EVERY tick without a case split:
+    // off a boundary the trailing row plus tickDelta is exactly liveDelta; on
+    // a boundary liveDelta is tickDelta alone and the trailing row is the
+    // window the ring has not adopted yet from the pose's point of view.
+    epochRingCount := if reset then 0 else ringCount;
     foldedWindow := Estimation.FusionHorizon.foldBuffer(
-      ring, nextRingTail, nextRingCount);
+      ring, ringTail, epochRingCount,
+      if reset then identityRow else previousLiveRow);
     windowDelta := Estimation.FusionHorizon.composeDelta(
-      foldedWindow, liveDelta);
+      foldedWindow, tickDelta);
     movedWindow := Estimation.FusionHorizon.rebiasDelta(
       windowDelta, gyroscopeBiasMove_rad_s, accelerometerBiasMove_m_s2);
     predictedNext := Estimation.FusionHorizon.composePose(
