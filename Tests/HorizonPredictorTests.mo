@@ -38,7 +38,7 @@ model HorizonPredictorTests
   // (c) With no correction the incremental predictor equals a re-base from
   // the exact epoch pose, THROUGH step.mo: the ring, the live-window carry,
   // the release bookkeeping and the state machine are all inside this one.
-  final parameter Real incremental[3] =
+  final parameter Real incremental[4] =
     Tests.HorizonChecks.incrementalResidual(
       stepTicks, samplePeriod, deltasPerFusion, horizonWindows,
       gravityWorldEnu_m_s2);
@@ -154,6 +154,28 @@ equation
   // They are floating-point limits, not error budgets, because the claim is
   // an algebraic identity and not an approximation: retiring the earliest
   // factor is exact, so anything above rounding is a defect.
+  // ---- the carried window product equals the rebuilt one ------------------
+  // The re-base no longer folds the ring: it composes a product carried
+  // across ticks, advanced by one composition per adopt and one exact
+  // division per retirement. That product is replaced every horizonWindows
+  // adopts by one rebuilt from stored rows, which is what stops floating-point
+  // error random-walking without bound over a flight.
+  //
+  // This is the assertion that fails if the carried product stops standing for
+  // the entries the buffer holds -- a wrong advance order, an index off by
+  // one, or a division that is not the inverse of the composition. It is
+  // measured through step.mo's own state machine on both arms of the
+  // equivalence check, so the ring indices and the release bookkeeping are
+  // inside it rather than beside it.
+  //
+  // The limit is a SIMULATION limit, four orders under the block's own
+  // single-precision bound, because this runs in binary64 and a binary32
+  // tolerance would pass on almost anything here.
+  assert(incremental[4] < 1.0e-12,
+    "The carried window product disagrees with the one rebuilt from stored
+     rows, so the predictor is composing onto a window the buffer does not
+     contain");
+
   assert(retirement[1] < 1.0e-15,
     "Retiring the earliest factor from a composed window does not return the
      rest of the window in position, so a maintained window product cannot
