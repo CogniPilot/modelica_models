@@ -261,3 +261,79 @@ The correction path is the same arithmetic it always was; what changed is which
 epoch it runs at and how long the interval `retrodict` and `Phi(-age)` cover.
 The 304,363 instructions a prediction step costs are unchanged, and the
 delayed horizon still does not move the filter onto the 800 Hz tick.
+
+## The re-base after the window product was carried
+
+The re-base numbers in the table above are for the FOLD, and the fold is gone
+from the hot path. They are kept because they are what the design was judged on
+and because the code-generation defect they expose is unfixed, but they no
+longer describe what a correction costs.
+
+**Not re-measured on the target.** The rig has not been re-run, and saying so
+matters more than a plausible figure: every number in the table above came off
+a disassembly or a callgrind differential. What follows is an operation count
+taken off the source, which is exact as a count and says nothing about the
+constant.
+
+| what | before | after |
+| --- | --- | --- |
+| one re-base | 22 SE_2(3) compositions | 1 composition, plus the trailing row |
+| one fusion tick, no correction | 0 | 1 composition, 1 division, 1 composition into the rebuild |
+| one inertial tick between releases | 0 | 0 |
+| ring memory | `horizonWindows + 2` rows | unchanged |
+| additional carried state | none | 2 rows plus a counter, 113 floats |
+
+The re-base is now constant in the horizon length, which is the point: the
+correction-rate ceiling stops being a function of how far back the horizon
+reaches.
+
+**The ring did not have to grow.** A retrospective rebuild -- snapshot the
+window and walk it -- needs the snapshot rows to survive the whole rebuild, and
+that is a second horizon of retention and a ring of `2k`, about 5 KB more at
+the flight geometry against a scratch budget near 19 KB. The rebuild here is
+prospective: it targets the window that will exist when it finishes and
+consumes each row on the tick that row is adopted, so it never reads a row
+older than the newest one. The retention requirement is the live window and
+nothing more, and the ring stays at `horizonWindows + 2`.
+
+**What this does NOT fix.** The measured 82 million instructions were a fold of
+22 compositions costing about 2500 times their algorithmic content, because a
+record-valued call is materialized once per component in the generated code.
+That defect is unchanged. One composition still costs about 35 times what it
+should, so the re-base is now roughly one thirty-fifth of a per-component
+expansion rather than twenty-two of them, and the honest reading is that the
+architecture removed the horizon-length term while the code generator keeps the
+constant.
+
+**Deployment of horizon fusion is formally gated on the record-call fix.** With
+the correction rate charged honestly at the fusion rate -- Section 12 of the
+design document -- the block's own budget assertion refuses the flight
+configuration today, and that refusal is the correct shipped state rather than
+a bug to be tuned around. When the record-call materialization is fixed,
+`foldBudget_hz` re-derives upward by about the same factor the fold cost drops
+and the assertion admits the configuration. Until then the composed block also
+neither builds under OpenModelica nor lowers under Rumoca, so nothing is
+deployable regardless, and the refusal is not the binding constraint.
+
+The rig in `tools/wcet/` is the way to replace the counts above with
+measurements, not an estimate.
+
+### What carrying the product cost the LOWERING, not the target
+
+Recorded because it is the constraint that shaped the code rather than a
+footnote to it. The maintenance stanza was first written with Delta-valued call
+sites -- unpack, compose, retire, bound to locals as this file already
+recommends -- and the galec-production lowering of `OutputPredictor` went from
+**1.2 s to minutes without completing.** Binding to locals is not sufficient
+protection when the number of record-valued call sites grows; a Delta carries
+56 components and each site multiplies the lowering work by that.
+
+Rewriting the stanza against flat-row facades, `composeRows` and `retireRows`,
+which keep the record inside one function body and return an array, brings it
+to **65 s**. That is inside the "tens of seconds, not minutes" bar this record
+sets for a block of this class, and it is still a 55x regression against the
+1.2 s baseline, which is the same record-call materialization defect measured
+from the compiler's side instead of the generated code's.
+
+The number to watch when that defect is fixed is this one as much as the fold
+cost.
