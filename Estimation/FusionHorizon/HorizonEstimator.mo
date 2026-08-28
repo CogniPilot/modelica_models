@@ -37,6 +37,10 @@ block HorizonEstimator
   discrete output Boolean horizonReady(start = false, fixed = true);
   discrete output Boolean rebased(start = false, fixed = true);
   discrete output Integer bufferedDeltaCount(start = 0, fixed = true);
+  discrete output Boolean biasMoveExceeded(start = false, fixed = true)
+    "The filter's bias moved further from the horizon's anchor than the
+     first-order Jacobian move is declared good for. A supervision signal, not
+     a gate: the state is published as computed";
 
   Estimation.FusionHorizon.OutputPredictor horizon(
     samplePeriod=samplePeriod,
@@ -75,6 +79,10 @@ protected
     each start = 0.0, each fixed = true);
   discrete Boolean filterValidHeld(start = false, fixed = true);
   discrete Boolean filterShiftedHeld(start = false, fixed = true);
+  discrete Integer filterCorrectionCountHeld(start = 0, fixed = true)
+    "The accepted-correction count as of the previous inertial tick. The edge
+     the re-base fires on is a CHANGE in this number, which is the only
+     well-defined edge across the rate change between the filter and here.";
   discrete Real filterPositionHeld_m[3](each start = 0.0, each fixed = true);
   discrete Real filterVelocityHeld_m_s[3](each start = 0.0, each fixed = true);
   discrete Real filterQuaternionHeld[4](
@@ -113,8 +121,21 @@ algorithm
     // reads the filter, which the horizon feeds. Written as one clause the two
     // halves would sit in a current-value cycle that no scheduler can order.
     filterValidHeld := filter.estimate.valid;
-    filterShiftedHeld := filter.status.correctionOutcome ==
-      Estimation.StrapdownINS.CorrectionAccepted;
+    // EDGE, not level. filter.status.correctionOutcome is a LEVEL: it stands
+    // for the whole 100 Hz filter tick, which is eight inertial ticks here, so
+    // reading it directly fired a re-base on all eight and turned one accepted
+    // correction into eight full folds. The WCET record carries what that did
+    // to the correction-rate ceiling.
+    //
+    // A rising edge on the level would not do either: back-to-back accepted
+    // corrections hold the level true across the filter-tick boundary, and the
+    // second correction would never reach the predictor. So the boundary
+    // carries a monotonic accepted-correction count and the edge is a change
+    // in it. Avionics.EstimatorStatus.acceptedCorrectionCount was added for
+    // this and its documentation records why the level was the wrong signal.
+    filterShiftedHeld := filter.status.acceptedCorrectionCount
+      <> pre(filterCorrectionCountHeld);
+    filterCorrectionCountHeld := filter.status.acceptedCorrectionCount;
     filterPositionHeld_m := filter.estimate.positionWorldEnu_m;
     filterVelocityHeld_m_s := filter.estimate.velocityWorldEnu_m_s;
     filterQuaternionHeld := filter.estimate.quaternionWorldBody;
@@ -143,6 +164,7 @@ algorithm
     horizonReady := horizon.horizonReady;
     rebased := horizon.rebased;
     bufferedDeltaCount := horizon.bufferedDeltaCount;
+    biasMoveExceeded := horizon.biasMoveExceeded;
   end when;
 
 equation
