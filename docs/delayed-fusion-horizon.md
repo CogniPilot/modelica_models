@@ -241,11 +241,31 @@ offset between the two is in `[0, fusionPeriod_s)` by construction. That offset
 is `maximumResidualAge_s`, it is the interval `retrodict` and `Phi(-age)` now
 run over, and it is published as `worstDeliveredAge_s` rather than argued.
 
-At the flight lattice it is 0.01 s against the 0.25 s `maximumAidingDelay_s`
-admits: a factor of twenty-five on the interval, and the transport error is
-cubic in it. Measured in `Tests.AidingHorizonTests` on a stream whose fixes
-arrive 0.03 s old: worst delivered residual 0.008750 s against a derived bound
-of 0.01 s.
+Two ratios follow, and they are different sizes. Keeping them apart matters,
+because quoting the larger one for the smaller one's claim is the easiest way
+to overstate this whole change.
+
+**Bound against bound:** 0.01 s against the 0.25 s `maximumAidingDelay_s`
+admits, a factor of twenty-five. That is the worst case the live-edge path
+would accept measured against the worst case this one can produce, and it is
+the figure the source comments carry.
+
+**Actual against actual:** 0.008750 s against the 0.110 s a GPS fix really
+arrives with, a factor of 12.6. That is what the deployed configuration
+actually gains, and it is smaller than the bound ratio because the deployed
+GPS is nowhere near the bound the live-edge path tolerates.
+
+The transport error is cubic in the interval either way. Measured in
+`Tests.AidingHorizonTests` at the flight lattice and the flight latencies:
+worst delivered residual 0.008750 s against a derived bound of 0.01 s, on a
+stream whose fixes arrived 0.110 s old.
+
+One consequence of the new latencies belongs here rather than buried. With GPS
+at PX4's 110 ms, a live-edge fix is up to 110 ms plus one 100 ms sample period
+old, so its worst age is about 0.21 s against a `maximumAidingDelay_s` of
+0.25 s. The live-edge path therefore runs with about 16 percent margin on its
+own admission bound, not the comfortable fraction the old 0.1 s placeholder
+implied.
 
 ### Four outcomes, all named
 
@@ -722,10 +742,18 @@ galec-production target in `tools/ci.py`, which lowers in about one second.
 deferred.** Neither tool can run a mission built on the horizon composition
 today.
 
-- OpenModelica cannot BUILD a model containing `HorizonEstimator`. Re-measured
-  for this change: a single-instance harness was still building after ten
-  minutes with no result. This is the limitation already recorded for a bare
-  `PartialEstimator` in `Tests.HorizonEstimatorWiring`.
+- OpenModelica cannot BUILD a model containing `HorizonEstimator`. Measured
+  twice for this change, because the obvious suspicion was worth eliminating:
+  a single-instance harness using the block's `replaceable` filter slot was
+  still building after TEN minutes, and a second harness that redeclares the
+  slot to the concrete ESKF -- removing the replaceable indirection entirely --
+  was still building after FORTY, at which point it was killed rather than
+  waited out. So the cause is not the replaceable slot, and there is no
+  cheap way around this by making the composition concrete. It is the
+  limitation already recorded for a bare `PartialEstimator` in
+  `Tests.HorizonEstimatorWiring`, and it is why every property in
+  `Tests.AidingHorizonTests` is tested up to the filter's connector rather
+  than through it.
 - Rumoca cannot LOWER it: unbalanced by 26 equations, which is exactly the
   connector Boolean balance gap, 14 on the filter's six input connectors plus
   12 on the aiding buffer's five. The RDD2 qualification missions are simulated
