@@ -33,6 +33,36 @@ package HorizonRefusals
     extends Tests.HorizonRefusals.Driver(fusionHorizon_s=0.055);
   end FractionalHorizon;
 
+  model FusionRateOverBudget
+    "A correction rate equal to the fusion rate, which is what a delayed
+     horizon actually produces"
+    // THE FINDING THIS MODEL PINS. On the live-edge path the predictor's fold
+    // budget was charged a nominal 5 Hz of accepted corrections, documented as
+    // covering a 5 Hz GPS fix rate. Behind the delayed-measurement queues that
+    // number is wrong in kind rather than in size: every measurement the
+    // horizon reaches is ripe, the filter accepts at most one per tick and can
+    // accept on every tick, and this vehicle's aiding set offers a candidate on
+    // essentially every one. The shifted-instant rate is therefore the FUSION
+    // rate, 100 Hz at the flight lattice.
+    //
+    // Against a measured fold budget of 7.3 Hz that is a fourteenfold overrun,
+    // and the block refuses it. Composed into Estimation.FusionHorizon
+    // HorizonEstimator the same refusal fires from the forwarded
+    // correctionRateBudget_hz, but no model holding that block can be built by
+    // any tool in this tree, so the refusal is demonstrated here on the
+    // predictor alone where it CAN be built and run.
+    //
+    // The budget is a property of the generated code and not of the
+    // architecture: the fold costs about 2500 times its algorithmic content
+    // because a record-valued call is materialized once per component. When
+    // that lands the budget rises by about the same factor and this
+    // configuration stops being refused; see
+    // docs/delayed-fusion-horizon-wcet.md.
+    extends Tests.HorizonRefusals.Driver(
+      fusionHorizon_s=0.05,
+      correctionRateBudget_hz=100.0);
+  end FusionRateOverBudget;
+
   model OverBudgetSupervision
     "Supervision parameters that ask for more folds than the target can run"
     // The divergence tolerance that suits a healthy filter's bias moves, at
@@ -47,12 +77,14 @@ package HorizonRefusals
     parameter Real samplePeriod = 0.00125;
     parameter Real fusionPeriod_s = 0.01;
     parameter Real fusionHorizon_s = 0.05;
+    parameter Real correctionRateBudget_hz = 5.0;
     Real elapsed_s(start = 0.0, fixed = true)
       "Continuous anchor; not under test";
     Estimation.FusionHorizon.OutputPredictor horizon(
       samplePeriod=samplePeriod,
       fusionPeriod_s=fusionPeriod_s,
-      fusionHorizon_s=fusionHorizon_s);
+      fusionHorizon_s=fusionHorizon_s,
+      correctionRateBudget_hz=correctionRateBudget_hz);
   equation
     der(elapsed_s) = 1.0;
     horizon.reset = false;
