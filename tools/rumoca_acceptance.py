@@ -22,6 +22,8 @@ pin: that failure is the AS-051 defect.
         --msl-root /path/to/msl
 
 Run `--rows repro-balance,horizon-balance` for the two cheap AS-051 rows.
+Run `--rows cubs2-galec` to prove a candidate binary contains fix/cubs2-ci
+before any pin bump (guards the freeze-ancestry hazard).
 """
 
 from __future__ import annotations
@@ -113,6 +115,7 @@ def main(arguments: Sequence[str] | None = None) -> int:
         "record-call-cardinality": lambda: check_call_cardinality(
             options, repository, work
         ),
+        "cubs2-galec": lambda: check_cubs2_galec(options, repository, work),
     }
     selected = options.rows.split(",") if options.rows else list(checks)
     unknown = [name for name in selected if name not in checks]
@@ -275,6 +278,37 @@ def check_horizon_balance(
     if status == 0:
         return row.resolve(True, "balanced, lowers")
     return row.resolve(False, describe_balance(log))
+
+
+def check_cubs2_galec(
+    options: argparse.Namespace, repository: Path, work: Path
+) -> Row:
+    # Guard row for the pin-bump hazard (channel finding R3): the models CI
+    # pin fix/cubs2-ci carries the EG012 dependent-parameter namespacing fix
+    # and the flake vendor hash. A future compiler freeze that does not
+    # CONTAIN that branch would re-introduce EG012 on Cubs2.OuterLoop, and
+    # CI would go red on a "fix". This row fails on any such binary BEFORE
+    # the pin moves. Pre-cubs2-ci binaries (853791b5 and older) fail EG012
+    # by construction; the current pin and every valid successor must pass.
+    row = Row(
+        "cubs2-galec",
+        "compiles (pin contains fix/cubs2-ci)",
+        "compiles (freeze must contain fix/cubs2-ci)",
+    )
+    status, log, elapsed = compile_model(
+        options,
+        repository,
+        "Vehicles/package.mo",
+        "Vehicles.Cubs2.OuterLoop",
+        work / "cubs2-outer-loop",
+        ("--target", "galec-production"),
+    )
+    row.notes.append(f"compile {elapsed:.1f}s")
+    if status == 0:
+        return row.resolve(True, "compiles")
+    marker = "EG012" if "EG012" in log else describe_balance(log)
+    return row.resolve(False, f"refused: {marker}")
+
 
 
 def check_corpus_pin(options: argparse.Namespace, repository: Path, work: Path) -> Row:
