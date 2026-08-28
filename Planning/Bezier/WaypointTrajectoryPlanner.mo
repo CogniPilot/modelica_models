@@ -7,6 +7,9 @@ block WaypointTrajectoryPlanner
   parameter Real samplePeriod(unit = "s") = 0.02
     "Period at which new mission messages are accepted";
 
+  input Boolean hold
+    "Freeze mission progress while another guidance source is flying";
+
   Planning.Interfaces.WaypointPlanInput plan(capacity = maxWaypoints);
   Planning.Interfaces.TrajectoryReferenceOutput reference;
 
@@ -49,8 +52,11 @@ algorithm
           plan.nominalSpeed,
           plan.minSegmentDuration);
     elseif pre(waypointCount) >= 2 then
+      // The hold enters as a step size rather than as part of the branch
+      // guard, so the trajectory clock is written on the same path whether the
+      // mission is running or paused.
       trajectoryTime := min(
-        pre(trajectoryTime) + samplePeriod,
+        pre(trajectoryTime) + (if hold then 0.0 else samplePeriod),
         pre(totalDuration));
     end if;
 
@@ -110,5 +116,9 @@ algorithm
     <p>It is independent of vehicle dynamics and feedback control so it can be
     exported as its own eFMU. A controller eFMU consumes the tensor reference
     connector.</p>
+    <p><code>hold</code> stops the trajectory clock without discarding the
+    accepted plan, which is what a mission needs while the pilot has taken
+    over: the reference the mission resumes from is the one it was paused at,
+    rather than a point the trajectory ran on to unattended.</p>
   </html>"));
 end WaypointTrajectoryPlanner;

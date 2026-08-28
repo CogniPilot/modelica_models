@@ -4,6 +4,9 @@ Plant
 ControllerInterfaces
 CommandMapping
 ProportionalController
+ScriptedTransmitter
+FlightModeSelector
+ManualTrajectorySource
 Mixer
 RateControlAllocator
 GuidanceController

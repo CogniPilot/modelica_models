@@ -103,6 +103,36 @@ model WaypointVehicleSystem
       accelerometerBias_m2_s4=fill(1.0e-3, 3))
     "Shared mission prior: 20 cm, 0.1 m/s, 5 deg, and conservative bias standard deviations";
 
+  parameter Integer transmitterEventCount(min = 1) = 1
+    "Populated rows of the pilot transmitter script";
+  parameter Real transmitterEventTime_s[transmitterEventCount](each unit = "s") =
+    {0.0}
+    "Ascending times at which the pilot moves the sticks or the mode switch";
+  parameter Real transmitterChannel_us[transmitterEventCount, 5] = {
+    {1500.0, 1500.0, 1500.0, 1000.0, 1900.0}}
+    "Held pulse widths {roll, pitch, yaw, throttle, mode switch}; the default
+     row centers every stick and selects mission mode";
+  parameter Real modeSwitchEdge_us[2] = {1200.0, 1800.0}
+    "Band edges of the three-position mode switch";
+  parameter Integer modeForSwitchPosition[3] = {1, 3, 2}
+    "Flight mode per switch position: attitude, pilot position, mission";
+  parameter Real manualHorizontalSpeed_m_s(unit = "m/s", min = 0.0) = 5.0
+    "Reference speed at full horizontal stick in pilot position mode";
+  parameter Real manualClimbSpeed_m_s(unit = "m/s", min = 0.0) = 2.0
+    "Reference climb rate at full up throttle in pilot position mode";
+  parameter Real manualDescentSpeed_m_s(unit = "m/s", min = 0.0) = 1.0
+    "Reference sink rate at full down throttle in pilot position mode";
+  parameter Real manualHeadingRate_rad_s(unit = "rad/s", min = 0.0) = 1.5
+    "Heading rate at full yaw stick in pilot position mode";
+  parameter Real manualHorizontalLeash_m(unit = "m", min = 0.0) = 2.0
+    "Largest horizontal reference offset the pilot reference may hold";
+  parameter Real manualVerticalLeash_m(unit = "m", min = 0.0) = 1.0
+    "Largest vertical reference offset the pilot reference may hold";
+  parameter Real manualHorizontalSpeedLeash_m_s(unit = "m/s", min = 0.0) = 2.0
+    "Largest horizontal speed the pilot reference may lead the vehicle by";
+  parameter Real manualVerticalSpeedLeash_m_s(unit = "m/s", min = 0.0) = 1.0
+    "Largest vertical speed the pilot reference may lead the vehicle by";
+
   parameter Real segmentDuration[maxWaypoints - 1] =
     Planning.Bezier.waypointDurations(
       localRoute, nominalSpeed, minSegmentDuration);
@@ -114,6 +144,14 @@ model WaypointVehicleSystem
       magneticModelDecimalYear) else configuredLocalMagneticFieldWorldEnu_T;
 
   Vehicles.Rdd2.Plant plant;
+  Vehicles.Rdd2.ScriptedTransmitter transmitter(
+    eventCount = transmitterEventCount,
+    eventTime_s = transmitterEventTime_s,
+    channelPwm_us = transmitterChannel_us);
+  Vehicles.Rdd2.FlightModeSelector modeSelector(
+    samplePeriod = guidancePeriod,
+    bandEdge_us = modeSwitchEdge_us,
+    modeForPosition = modeForSwitchPosition);
   replaceable block ControllerModel = Vehicles.Rdd2.AvionicsSystem
     constrainedby Vehicles.Rdd2.PartialController
     "Flight controller stack selected for the vehicle";
@@ -121,7 +159,15 @@ model WaypointVehicleSystem
     maxWaypoints = maxWaypoints,
     planningPeriod = planningPeriod,
     guidancePeriod = guidancePeriod,
-    ratePeriod = ratePeriod);
+    ratePeriod = ratePeriod,
+    manualHorizontalSpeed_m_s = manualHorizontalSpeed_m_s,
+    manualClimbSpeed_m_s = manualClimbSpeed_m_s,
+    manualDescentSpeed_m_s = manualDescentSpeed_m_s,
+    manualHeadingRate_rad_s = manualHeadingRate_rad_s,
+    manualHorizontalLeash_m = manualHorizontalLeash_m,
+    manualVerticalLeash_m = manualVerticalLeash_m,
+    manualHorizontalSpeedLeash_m_s = manualHorizontalSpeedLeash_m_s,
+    manualVerticalSpeedLeash_m_s = manualVerticalSpeedLeash_m_s);
   replaceable block EstimatorModel = Vehicles.Rdd2.NavigationEstimator
     constrainedby Estimation.StrapdownINS.PartialEstimator
     "Algorithm selected for aided strapdown navigation";
@@ -147,6 +193,13 @@ model WaypointVehicleSystem
   output Real geodetic[3]
     "{latitude_deg, longitude_deg, altitude_m}";
   output Real missionPhase;
+  output Integer flightMode
+    "Flight mode decoded from the transmitter mode switch";
+  output Real referencePositionWorldEnu_m[3];
+  output Real referenceVelocityWorldEnu_m_s[3];
+  output Real referenceYaw_rad;
+  output Real referenceTrackingError_m
+    "Distance between the published reference and plant truth";
   output Real navigationError_m
     "Distance between the guidance navigation position and truth";
   output Real controllerEstimatorFeedbackError_m
@@ -365,9 +418,24 @@ equation
 
   armed = avionics.reference.valid and time < disarmTime_s;
   avionics.armed = armed;
-  avionics.mode = 2;
-  avionics.pilot.stick = zeros(3);
-  avionics.pilot.throttle = 0.0;
+
+  // The pilot flies through the same chain a flight would: the receiver
+  // delivers pulse widths, the stick channels are normalized, and the mode
+  // channel is decoded into the flight-mode enumeration.
+  modeSelector.switchPwm_us = transmitter.channelPwm_us_out[5];
+  avionics.mode = modeSelector.mode;
+  avionics.pilot.stick = {
+    Vehicles.Interfaces.centeredPwmToUnit(transmitter.channelPwm_us_out[1]),
+    Vehicles.Interfaces.centeredPwmToUnit(transmitter.channelPwm_us_out[2]),
+    Vehicles.Interfaces.centeredPwmToUnit(transmitter.channelPwm_us_out[3])};
+  avionics.pilot.throttle =
+    Vehicles.Interfaces.throttlePwmToUnit(transmitter.channelPwm_us_out[4]);
+  flightMode = modeSelector.mode;
+  referencePositionWorldEnu_m = avionics.reference.position;
+  referenceVelocityWorldEnu_m_s = avionics.reference.velocity;
+  referenceYaw_rad = avionics.reference.yaw;
+  referenceTrackingError_m = MathUtilities.norm3(
+    avionics.reference.position - plant.truth.positionWorldEnu_m);
   connect(avionics.motorCommands, plant.commands);
 
   // Onboard sensing: the estimator always predicts on the plant IMU and is

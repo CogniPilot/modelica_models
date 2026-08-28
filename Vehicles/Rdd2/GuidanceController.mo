@@ -10,8 +10,8 @@ block GuidanceController
   parameter Real maximumCollectiveThrust_N = 41.3749272
     "Four RDD2 rotors at maximum speed";
 
-  input Integer mode(min = 0, max = 2)
-    "0=acro, 1=attitude, 2=position";
+  input Integer mode(min = 0, max = 3)
+    "0=acro, 1=attitude, 2=mission, 3=pilot position";
   input Boolean armed;
   Interfaces.PilotInput pilot;
   Interfaces.GuidanceStateInput navigation;
@@ -55,20 +55,23 @@ equation
     reference.accelerationWorld_m_s2;
   positionGuidance.headingQuaternionReference =
     LieGroups.SO3.EulerB321.to_Quat({reference.yaw_rad, 0.0, 0.0});
-  positionGuidance.resetIntegral = not armed or mode <> 2;
+  // Mission and pilot position guidance are the same cascade on different
+  // reference sources, so both hold the integral and both take the outer-loop
+  // thrust and rate command.
+  positionGuidance.resetIntegral = not armed or mode < 2;
 
-  rateCommand.thrust_N = if mode == 2 then
+  rateCommand.thrust_N = if mode >= 2 then
       positionGuidance.thrust
     else
       maximumCollectiveThrust_N * pilotCommands.throttleInput ^ 2;
-  angularVelocitySetpointFlu_rad_s = if mode == 2 then
+  angularVelocitySetpointFlu_rad_s = if mode >= 2 then
       positionGuidance.angularVelocitySetpoint
     elseif mode == 1 then
       {1.0, 1.0, 0.0} .* attitudeRateSetpointFlu_rad_s
       + {0.0, 0.0, 1.0} .* pilotCommands.acroRateDesired_rad_s
     else
       pilotCommands.acroRateDesired_rad_s;
-  rateCorrectionFlu_rad_s = if mode == 2 then
+  rateCorrectionFlu_rad_s = if mode >= 2 then
       positionGuidance.angularVelocityCorrection
     else
       zeros(3);
