@@ -148,8 +148,8 @@ end if;
 aiding := simulate(
   Tests.AidingHorizonTests,
   startTime=0.0,
-  stopTime=0.4,
-  numberOfIntervals=400,
+  stopTime=1.2,
+  numberOfIntervals=1200,
   tolerance=1.0e-8,
   outputFormat="mat",
   fileNamePrefix="modelica_models_Tests_AidingHorizonTests");
@@ -228,6 +228,19 @@ if tightResidualBuild[1] <> "" then
     print("A residual bound tighter than one release window was accepted; it
            discards every measurement as stale and stops all aiding while
            reporting a stale drop rather than a configuration error\n");
+    exit(1);
+  end if;
+end if;
+
+shortHorizonBuild := buildModel(Tests.AidingHorizonRefusals.ShortHorizon);
+getErrorString();
+if shortHorizonBuild[1] <> "" then
+  shortHorizonStatus := system("\"" + shortHorizonBuild[1] + "\"");
+  if shortHorizonStatus == 0 then
+    print("A horizon shorter than the slowest declared source delay plus the
+           jitter margin was accepted; that source is refused as late on every
+           packet and its aiding is off while the reported fault is
+           per-measurement\n");
     exit(1);
   end if;
 end if;

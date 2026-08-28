@@ -19,17 +19,43 @@ package AidingHorizonRefusals
       </html>"));
   end TightResidual;
 
+  model ShortHorizon
+    "A horizon that does not cover the slowest declared source plus margin"
+    extends Tests.AidingHorizonRefusals.Arm(
+      fusionHorizon_s = 0.05,
+      maximumSourceDelay_s = 0.11,
+      horizonJitterMargin_s = 0.05);
+    annotation(experiment(StartTime=0.0, StopTime=0.05,
+      Tolerance=1.0e-8, Interval=0.00125),
+      Documentation(info="<html>
+      <p>Must NOT run. A 50 ms horizon in front of a source declared to deliver
+      110 ms late reaches that source's timestamps only long after they have
+      passed, so every one of its packets is refused as late. Aiding from the
+      slowest source is then simply off, and the fault reported is
+      per-measurement rather than the configuration error it is.</p>
+      <p>PX4 states the same relation for the same reason:
+      <code>EKF2_DELAY_MAX</code>, the delay between now and its delayed-time
+      horizon, is documented as needing to be at least as large as the largest
+      <code>EKF2_XXX_DELAY</code>. This is that rule with jitter headroom, and
+      it refuses rather than advises.</p>
+      </html>"));
+  end ShortHorizon;
+
   partial model Arm "One buffer, driven, with nothing asserted"
     parameter Real samplePeriod = 0.00125;
     parameter Real fusionPeriod_s = 0.01;
     parameter Real fusionHorizon_s = 0.02;
     parameter Real maximumResidualAge_s = fusionPeriod_s;
+    parameter Real maximumSourceDelay_s = 0.0;
+    parameter Real horizonJitterMargin_s = 0.0;
     Real elapsed_s(start = 0.0, fixed = true);
     Estimation.FusionHorizon.AidingBuffer buffer(
       samplePeriod=samplePeriod,
       fusionPeriod_s=fusionPeriod_s,
       fusionHorizon_s=fusionHorizon_s,
-      maximumResidualAge_s=maximumResidualAge_s);
+      maximumResidualAge_s=maximumResidualAge_s,
+      maximumSourceDelay_s=maximumSourceDelay_s,
+      horizonJitterMargin_s=horizonJitterMargin_s);
   equation
     der(elapsed_s) = 1.0;
     buffer.reset = false;
@@ -80,7 +106,7 @@ package AidingHorizonRefusals
     <p>One NEGATIVE model per precondition, run by
     <code>Tests/run-horizon.mos</code>, where the requirement on each is that
     it does NOT run. A precondition written only in a comment is not one.</p>
-    <p>There is one, not five, and the missing four are worth naming. An
+    <p>There are two. One was five, and the missing three are worth naming. An
     earlier version of the block also asserted that each queue could hold one
     horizon of its own source. With the capacities derived from the declared
     source rates that inequality is an identity, so those assertions could not
