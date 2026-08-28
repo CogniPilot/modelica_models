@@ -45,6 +45,25 @@ block HorizonEstimator
      that source's delayed-measurement queue and nothing else, and it is
      structural for the reason recorded on samplePeriod"
     annotation(Evaluate = true);
+  parameter Real correctionRateBudget_hz(unit = "1/s", min = 0.0) =
+    1.0 / fusionPeriod_s
+    "Shifted fusion instants per second this composition can produce, which is
+     what the predictor must recompose for. It is the FUSION RATE, not a
+     sensor rate, and that is the fact the delayed horizon changes.
+
+     On the live-edge path the predictor's budget was charged a nominal 5 Hz,
+     documented as covering a 5 Hz GPS fix rate. Behind the queues that number
+     is wrong in kind. Every measurement the horizon reaches is ripe, the
+     filter accepts at most one per tick and can accept on every tick, and the
+     aiding set of this vehicle offers a candidate on essentially every tick,
+     so the worst case and very nearly the typical case is one shifted instant
+     per fusion period.
+
+     Left as an expression rather than a number so it cannot drift from the
+     release rate it is derived from. It is forwarded to the predictor, whose
+     existing budget assertion then compares it against the measured fold
+     budget -- and at the flight lattice that comparison FAILS, which is the
+     honest outcome and is discussed in docs/delayed-fusion-horizon-wcet.md.";
   parameter Real maximumSourceDelay_s(unit = "s", min = 0.0) = 0.11
     "Worst end-to-end age any aiding source is declared to deliver at. The
      horizon must cover it with headroom; see
@@ -65,8 +84,34 @@ block HorizonEstimator
   Avionics.BarometerSampleInput barometer;
   Avionics.OpticalFlowSampleInput opticalFlow;
 
-  discrete Avionics.NavigationEstimateOutput estimate
-    "The state at NOW, republished every inertial tick";
+  // TWO STATES, NAMED APART. Once the filter fuses at t - D the block holds
+  // two different answers to "where is the vehicle", and they are 200 ms and
+  // one horizon of motion apart. There is deliberately NO field called
+  // `estimate` any more: a consumer cannot pick one by accident, because
+  // there is nothing generic to pick.
+  //
+  // Which one a consumer wants is not a matter of taste. Control and guidance
+  // must have the predicted state or they fly a horizon behind the vehicle,
+  // and anything that LATCHES the estimate on a mode change -- a trajectory
+  // carrot's bumpless entry is the case in this corpus -- must have it too,
+  // because latching the horizon state starts the new mode from where the
+  // vehicle was D ago and the entry jumps by D times ground speed. At the
+  // flight horizon and 3 m/s that is 0.6 m of commanded step at the instant a
+  // pilot changes mode.
+  //
+  // The horizon state is what the covariance describes, so consistency
+  // analysis, NEES, and any log line that is compared against a covariance
+  // must use IT and not the predicted one. Using the predicted state against
+  // the filter's covariance compares a state the covariance does not describe.
+  discrete Avionics.NavigationEstimateOutput predictedEstimate
+    "The state at NOW, republished every inertial tick. THE CONTROL PATH: this
+     is what guidance, control, and any mode-entry latch consume.";
+  discrete Avionics.NavigationEstimateOutput horizonEstimate
+    "The filter's own state at the fusion instant t - D, republished at the
+     inertial rate and stamped with the fusion instant rather than with now.
+     NOT FOR CONTROL. It is the state the filter's covariance describes, so it
+     is what a consistency or NEES evaluation must be computed against, and it
+     is what a log line carrying a covariance beside it must quote.";
   discrete output Boolean horizonReady(start = false, fixed = true);
   discrete output Boolean rebased(start = false, fixed = true);
   discrete output Integer bufferedDeltaCount(start = 0, fixed = true);
@@ -98,6 +143,7 @@ block HorizonEstimator
     useFirstOrderHold=useFirstOrderHold,
     initialGyroscopeBiasAnchorBodyFlu_rad_s=
       initialGyroscopeBiasBodyFlu_rad_s,
+    correctionRateBudget_hz=correctionRateBudget_hz,
     initialAccelerometerBiasAnchorBodyFlu_m_s2=
       initialAccelerometerBiasBodyFlu_m_s2,
     initialPositionWorldEnu_m=initialPositionWorldEnu_m,
@@ -215,13 +261,13 @@ algorithm
     filterQuaternionHeld := filter.estimate.quaternionWorldBody;
     filterGyroscopeBiasHeld_rad_s := filter.gyroscopeBiasBodyFlu_rad_s;
     filterAccelerometerBiasHeld_m_s2 := filter.accelerometerBiasBodyFlu_m_s2;
-    (estimate.positionWorldEnu_m,
-     estimate.velocityWorldEnu_m_s,
-     estimate.accelerationWorldEnu_m_s2,
-     estimate.quaternionWorldBody,
-     estimate.rotationWorldBody,
-     estimate.eulerRpy_rad,
-     estimate.angularVelocityWorldEnu_rad_s) :=
+    (predictedEstimate.positionWorldEnu_m,
+     predictedEstimate.velocityWorldEnu_m_s,
+     predictedEstimate.accelerationWorldEnu_m_s2,
+     predictedEstimate.quaternionWorldBody,
+     predictedEstimate.rotationWorldBody,
+     predictedEstimate.eulerRpy_rad,
+     predictedEstimate.angularVelocityWorldEnu_rad_s) :=
       Estimation.FusionHorizon.navigationEstimate(
         Estimation.FusionHorizon.Pose(
           positionWorldEnu_m=horizon.positionWorldEnu_m,
@@ -231,10 +277,47 @@ algorithm
         specificForceMeasuredBodyFlu_m_s2,
         filterAccelerometerBiasHeld_m_s2,
         gravityWorldEnu_m_s2);
-    estimate.valid := filter.estimate.valid;
-    estimate.timestamp_s := time;
-    estimate.angularVelocityBodyFlu_rad_s :=
+    predictedEstimate.valid := filter.estimate.valid;
+    predictedEstimate.timestamp_s := time;
+    predictedEstimate.angularVelocityBodyFlu_rad_s :=
       horizon.angularVelocityBodyFlu_rad_s;
+
+    // The horizon state, published from the SAME latched values the re-base
+    // composes onto. Deliberately not re-read from the filter here: one read
+    // of the filter's pose per tick, used for both purposes, so the state the
+    // predictor was built on and the state published for analysis cannot
+    // disagree. If that read is ever wrong, both go wrong together and the
+    // published state shows it, which is better than a re-base quietly
+    // composing onto something nobody can see.
+    (horizonEstimate.positionWorldEnu_m,
+     horizonEstimate.velocityWorldEnu_m_s,
+     horizonEstimate.accelerationWorldEnu_m_s2,
+     horizonEstimate.quaternionWorldBody,
+     horizonEstimate.rotationWorldBody,
+     horizonEstimate.eulerRpy_rad,
+     horizonEstimate.angularVelocityWorldEnu_rad_s) :=
+      Estimation.FusionHorizon.navigationEstimate(
+        Estimation.FusionHorizon.Pose(
+          positionWorldEnu_m=filterPositionHeld_m,
+          velocityWorldEnu_m_s=filterVelocityHeld_m_s,
+          quaternionWorldBody=filterQuaternionHeld),
+        horizon.angularVelocityBodyFlu_rad_s,
+        specificForceMeasuredBodyFlu_m_s2,
+        filterAccelerometerBiasHeld_m_s2,
+        gravityWorldEnu_m_s2);
+    horizonEstimate.valid := filter.estimate.valid and horizon.horizonReady;
+    // STAMPED WITH THE FUSION INSTANT, not with now. That is what makes a
+    // mis-wiring visible in any log rather than only in flight: the two
+    // published states carry timestamps a horizon apart, so a consumer that
+    // took the wrong one is reading a state whose own timestamp says so.
+    horizonEstimate.timestamp_s := horizon.horizonPacket.timestamp_s;
+    // The rate AT THE HORIZON, not at now: the released window's own mean
+    // rate, corrected by the bias the filter believes. Publishing the live
+    // rate here would put a now-epoch quantity inside a horizon-epoch record
+    // and defeat the point of separating them.
+    horizonEstimate.angularVelocityBodyFlu_rad_s :=
+      horizon.horizonPacket.angularVelocityBodyFlu_rad_s
+      - filterGyroscopeBiasHeld_rad_s;
     horizonReady := horizon.horizonReady;
     rebased := horizon.rebased;
     bufferedDeltaCount := horizon.bufferedDeltaCount;

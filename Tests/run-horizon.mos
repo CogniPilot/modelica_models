@@ -232,6 +232,19 @@ if tightResidualBuild[1] <> "" then
   end if;
 end if;
 
+fusionRateBuild := buildModel(Tests.HorizonRefusals.FusionRateOverBudget);
+getErrorString();
+if fusionRateBuild[1] <> "" then
+  fusionRateStatus := system("\"" + fusionRateBuild[1] + "\"");
+  if fusionRateStatus == 0 then
+    print("A correction rate equal to the fusion rate was accepted against the
+           measured fold budget. That is the rate a delayed horizon actually
+           produces, because every measurement it reaches is ripe and the
+           filter can accept one on every tick\n");
+    exit(1);
+  end if;
+end if;
+
 shortHorizonBuild := buildModel(Tests.AidingHorizonRefusals.ShortHorizon);
 getErrorString();
 if shortHorizonBuild[1] <> "" then
