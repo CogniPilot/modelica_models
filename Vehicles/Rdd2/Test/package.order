@@ -3,6 +3,8 @@ ReducedControllerWaypointMission
 OpticalFlowGpsDeniedMission
 TruthWaypointMission
 GlobalWaypointMission
+MocapWaypointMission
+MocapHandoffMission
 ManualFlightMission
 VibrationGlobalWaypointMission
 UnfilteredVibrationGlobalWaypointMission
