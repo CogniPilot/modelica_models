@@ -17,6 +17,9 @@ SensorCorrectionTests
 StrapdownEstimatorInterfaceTests
 HorizonPredictorTests
 HorizonInterfaceTests
+HorizonResetTests
+HorizonBiasSupervisionTests
+HorizonRefusals
 HorizonEstimatorWiring
 EstimatorHealthTests
 EstimatorHardeningTests

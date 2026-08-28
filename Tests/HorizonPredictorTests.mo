@@ -6,6 +6,14 @@ model HorizonPredictorTests
   constant Real samplePeriod = 0.00125 "800 Hz inertial tick";
   constant Integer horizonEntries = 160 "200 ms of buffer at 800 Hz";
   constant Real gravityWorldEnu_m_s2[3] = {0.0, 0.0, -9.81};
+  // The lattice the step-level arms below are run on. Deliberately the short
+  // horizon of Tests.HorizonInterfaceTests rather than the flight one: the
+  // ring has to FILL and RELEASE inside the run for the re-base path to be
+  // reached at all, and at twenty windows that would take 169 ticks before the
+  // first release.
+  constant Integer stepTicks = 400 "Half a second at 800 Hz";
+  constant Integer deltasPerFusion = 8;
+  constant Integer horizonWindows = 5;
 
   // (a) Composing the buffer reproduces one accumulating integration pass.
   // FOH paper Lemma 5, Sec. IV-C: adjacent right factors multiply.
@@ -27,21 +35,56 @@ model HorizonPredictorTests
     horizonEntries, samplePeriod, gravityWorldEnu_m_s2,
     {0.30, -0.20, 0.15, 0.05, 0.09, -0.04, 0.02, -0.03, 0.06});
 
-  // (c) With no correction the incremental predictor equals a full recompute.
+  // (c) With no correction the incremental predictor equals a re-base from
+  // the exact epoch pose, THROUGH step.mo: the ring, the live-window carry,
+  // the release bookkeeping and the state machine are all inside this one.
   final parameter Real incremental[3] =
     Tests.HorizonChecks.incrementalResidual(
-      horizonEntries, samplePeriod, gravityWorldEnu_m_s2);
+      stepTicks, samplePeriod, deltasPerFusion, horizonWindows,
+      gravityWorldEnu_m_s2);
 
   // (d) The Jacobian bias move stands in for re-integration at the new bias.
   // FOH paper Proposition 8, Sec. VI-A, whose bound is (T_D * ||db_g||)^2.
   constant Real gyroscopeBiasMove_rad_s[3] = {1.0e-3, -2.0e-3, 1.5e-3};
   constant Real accelerometerBiasMove_m_s2[3] = {2.0e-2, -1.0e-2, 3.0e-2};
+  constant Real specificForceSupremum_m_s2 =
+    sqrt(1.5 ^ 2 + 1.1 ^ 2 + (9.81 + 0.8) ^ 2)
+    "Envelope of Tests.HorizonChecks.syntheticImu: the three force amplitudes
+     taken together. The velocity and position bounds below are the attitude
+     bound integrated against this, so they are derived from the same
+     proposition and the same stream rather than picked to pass.";
   final parameter Real biasMove[3] = Tests.HorizonChecks.biasMoveResidual(
     horizonEntries, samplePeriod,
     gyroscopeBiasMove_rad_s, accelerometerBiasMove_m_s2);
   final parameter Real windowSpan_s = horizonEntries * samplePeriod;
-  final parameter Real biasMoveBound_rad = (windowSpan_s
-    * sqrt(gyroscopeBiasMove_rad_s * gyroscopeBiasMove_rad_s)) ^ 2;
+  final parameter Real gyroscopeBiasMoveMagnitude_rad_s =
+    sqrt(gyroscopeBiasMove_rad_s * gyroscopeBiasMove_rad_s);
+  final parameter Real accelerometerBiasMoveMagnitude_m_s2 =
+    sqrt(accelerometerBiasMove_m_s2 * accelerometerBiasMove_m_s2);
+  final parameter Real biasMoveBound_rad =
+    (windowSpan_s * gyroscopeBiasMoveMagnitude_rad_s) ^ 2
+    "Prop. 8 as the paper states it: the attitude remainder of the first-order
+     move, (T_D ||db_g||)^2. 2.90e-7 rad here.";
+  final parameter Real biasMoveBound_m_s =
+    specificForceSupremum_m_s2 * windowSpan_s ^ 3
+      * gyroscopeBiasMoveMagnitude_rad_s ^ 2 / 6.0
+    + 0.5 * windowSpan_s ^ 2 * gyroscopeBiasMoveMagnitude_rad_s
+      * accelerometerBiasMoveMagnitude_m_s2
+    "The velocity remainder has TWO terms and a bound written from the attitude
+     statement alone misses the one that dominates. The first is the attitude
+     remainder rotating the specific force under the integral,
+     sup||a|| T^3 ||db_g||^2 / 6. The second is the cross term: the velocity
+     increment is linear in db_a through -int R dt, so moving both biases
+     leaves the product of the attitude error and the accelerometer move,
+     T^2 ||db_g|| ||db_a|| / 2. At these offsets the two are 1.04e-7 and
+     2.01e-6 m/s, so the cross term is twenty times the pure gyroscope term
+     and the total bound is 2.12e-6 m/s.";
+  final parameter Real biasMoveBound_m =
+    specificForceSupremum_m_s2 * windowSpan_s ^ 4
+      * gyroscopeBiasMoveMagnitude_rad_s ^ 2 / 24.0
+    + windowSpan_s ^ 3 * gyroscopeBiasMoveMagnitude_rad_s
+      * accelerometerBiasMoveMagnitude_m_s2 / 6.0
+    "The same two terms integrated once more over the window: 1.40e-7 m.";
 
 equation
   // ---- (a) the composition theorem, to floating point ---------------------
@@ -91,25 +134,49 @@ equation
   assert(rebase[3] < 1.0e-12,
     "Re-base by one fold differs from stepwise composition in attitude");
 
-  // ---- (c) incremental predictor equals a full recompute ------------------
-  assert(incremental[1] < 1.0e-11,
-    "Incremental prediction differs from a full recomposition in position");
-  assert(incremental[2] < 1.0e-12,
-    "Incremental prediction differs from a full recomposition in velocity");
-  assert(incremental[3] < 1.0e-12,
-    "Incremental prediction differs from a full recomposition in attitude");
+  // ---- (c) incremental predictor equals a re-base at the same epoch -------
+  // Both arms run the real state machine over 400 ticks of the same stream,
+  // one taking the incremental path on every tick and the other the re-base
+  // path on every ready tick from the pose the first arm actually stood on at
+  // the fusion instant. Any disagreement means the window folded and the pose
+  // it was composed onto do not name the same instant. Measured over 400 ticks:
+  // 1.4e-17 m, 3.6e-16 m/s, 2.2e-16 rad. Reverting the epoch fix in step.mo
+  // takes it to 7.4e-4 m, 1.2e-2 m/s and 8.7e-4 rad.
+  assert(incremental[1] < 1.0e-13,
+    "Re-basing through step.mo from the exact epoch pose moves the predicted
+     position, so the folded window and the pose disagree about the fusion
+     instant");
+  assert(incremental[2] < 1.0e-13,
+    "Re-basing through step.mo from the exact epoch pose moves the predicted
+     velocity, so the folded window and the pose disagree about the fusion
+     instant");
+  assert(incremental[3] < 1.0e-13,
+    "Re-basing through step.mo from the exact epoch pose moves the predicted
+     attitude, so the folded window and the pose disagree about the fusion
+     instant");
 
   // ---- (d) the bias move is inside its own theorem's bound ----------------
-  // Measured: 1.4e-9 rad of attitude against a Proposition 8 bound of 2.9e-7
-  // for this bias offset and window. Asserting against the BOUND rather than a
-  // hand-picked number is what makes this a check of the theorem the design
-  // cites and not a regression lock on today's arithmetic.
+  // Asserted against the BOUND rather than a hand-picked number, in all three
+  // quantities. Measured: 1.39e-9 rad, 8.94e-7 m/s, 6.00e-8 m against bounds of
+  // 2.90e-7, 2.12e-6 and 1.40e-7. The previous velocity and position limits
+  // were 1.0e-5 and 1.0e-6, which are 4.7 and 7.2 times looser than the
+  // theorem the design cites and would have passed a move outside it.
+  //
+  // A bound written from the attitude statement alone -- 0.5 sup||a|| T^3
+  // ||db_g||^2, which is 3.12e-7 m/s here -- is BELOW the measurement, and the
+  // reason is recorded on biasMoveBound_m_s: it leaves out the cross term
+  // between the attitude error and the accelerometer bias move, which at these
+  // offsets is twenty times the term it keeps.
+
   assert(biasMove[3] < biasMoveBound_rad,
-    "Jacobian bias move exceeds the Proposition 8 second-order remainder bound");
-  assert(biasMove[1] < 1.0e-6,
-    "Jacobian bias move differs from re-integration in position");
-  assert(biasMove[2] < 1.0e-5,
-    "Jacobian bias move differs from re-integration in velocity");
+    "Jacobian bias move exceeds the Proposition 8 second-order remainder bound
+     in attitude");
+  assert(biasMove[2] < biasMoveBound_m_s,
+    "Jacobian bias move exceeds the Proposition 8 second-order remainder bound
+     in velocity");
+  assert(biasMove[1] < biasMoveBound_m,
+    "Jacobian bias move exceeds the Proposition 8 second-order remainder bound
+     in position");
 
   annotation(experiment(StartTime=0.0, StopTime=0.0,
     Tolerance=1.0e-10, Interval=1.0),

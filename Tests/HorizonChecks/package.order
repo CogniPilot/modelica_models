@@ -1,5 +1,6 @@
 syntheticImu
 compositionResidual
 rebaseResidual
+runHorizonArm
 incrementalResidual
 biasMoveResidual
