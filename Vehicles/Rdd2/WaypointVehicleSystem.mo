@@ -50,18 +50,74 @@ model WaypointVehicleSystem
     "True composes each raw IMU interval under a first-order hold with the
      coning, sculling, and scrolling cross terms; false keeps the
      zero-order hold of the current sample";
+  // ---- plant-side sensor transport latency -------------------------------
+  // These are PLANT truth, not estimator machinery: they model how old a
+  // measurement already is by the time a driver hands it over. Every one of
+  // them is taken from what PX4 ships today rather than chosen, because a
+  // placeholder latency makes a delayed-aiding result say more about the
+  // placeholder than about the filter.
+  //
+  // Source: PX4-Autopilot, src/modules/ekf2/params_*.yaml on main, read
+  // 2026-08-28. The complete EKF2 delay family there is EKF2_ASP_DELAY 100,
+  // EKF2_AVEL_DELAY 5, EKF2_BARO_DELAY 0, EKF2_EV_DELAY 0, EKF2_MAG_DELAY 0,
+  // EKF2_OF_DELAY 20, EKF2_RNGBC_DELAY 0, EKF2_RNG_DELAY 5, all in ms.
+  //
+  // PX4 also ships EKF2_DELAY_MAX = 200 ms, described as "the delay between
+  // the current time and the delayed-time horizon", which "should be at least
+  // as large as the largest EKF2_XXX_DELAY parameter". That is the same
+  // quantity as Estimation.FusionHorizon fusionHorizon_s and the same value,
+  // which is worth recording: the 200 ms horizon is not this corpus's
+  // invention, it is what the reference implementation runs.
   parameter Real gpsSamplePeriod(unit = "s") = 0.1
     "10 Hz GPS update interval";
-  parameter Real gpsLatency_s(unit = "s") = 0.1
-    "End-to-end age of each delivered GPS measurement";
+  parameter Real gpsLatency_s(unit = "s") = 0.11
+    "End-to-end age of each delivered GPS measurement.
+     EKF2_GPS_DELAY, default 110 ms, PX4-Autopilot v1.15.0
+     src/modules/ekf2/module.yaml.
+
+     Cited from v1.15.0 rather than main DELIBERATELY, and the reason belongs
+     with the number: the parameter NO LONGER EXISTS on PX4 main. The whole
+     EKF2 delay family was enumerated there and GNSS carries no delay
+     parameter at all, the driver's own sample timestamp having replaced it.
+     110 ms is therefore PX4's last shipped default rather than its current
+     one, and it is used because this model needs an explicit plant-side
+     latency where PX4 now needs none.";
   parameter Real opticalFlowSamplePeriod(unit = "s") = 0.01;
-  parameter Real opticalFlowLatency_s(unit = "s") = 0.01
-    "Age of the optical-flow integration midpoint at packet delivery";
+  parameter Real opticalFlowLatency_s(unit = "s") = 0.02
+    "EKF2_OF_DELAY, default 20 ms, PX4-Autopilot main
+     src/modules/ekf2/params_optical_flow.yaml.
+
+     PX4 qualifies that number with `Assumes measurement is timestamped at
+     trailing edge of integration period`. This model timestamps the
+     integration MIDPOINT, so the two conventions differ by half an exposure,
+     5 ms at this 100 Hz flow rate. The value is adopted unadjusted and the
+     difference is recorded rather than folded in silently.";
   parameter Real magnetometerSamplePeriod(unit = "s") = 0.05;
-  parameter Real magnetometerTransportDelay_s(unit = "s") = 0.02;
+  final parameter Real magnetometerTransportDelay_s(unit = "s") = 0.0
+    "EKF2_MAG_DELAY, default 0 ms, PX4-Autopilot main
+     src/modules/ekf2/params_magnetometer.yaml.
+
+     Zero is a TOPOLOGY claim, not an approximation, and it is adopted because
+     this vehicle matches the topology it claims: the magnetometer is an
+     onboard sensor read by the same autopilot that reads the IMU, so the two
+     are timestamped against one clock and there is no transport to model. It
+     was 0.02 s here, which was a placeholder describing a bus this vehicle
+     does not have. An off-board magnetometer arriving over a link would not
+     be entitled to this value.";
   parameter Real barometerSamplePeriod(unit = "s") = 0.02
     "50 Hz pressure-altitude update interval";
-  parameter Real barometerTransportDelay_s(unit = "s") = 0.04;
+  final parameter Real barometerTransportDelay_s(unit = "s") = 0.0
+    "EKF2_BARO_DELAY, default 0 ms, PX4-Autopilot main
+     src/modules/ekf2/params_barometer.yaml. Same onboard-sensor topology
+     argument as the magnetometer above, and it replaces a 0.04 s placeholder
+     that made the barometer the second most delayed source in the model when
+     the reference implementation treats it as undelayed.
+
+     FINAL, and so is the magnetometer's. A zero delay is expressed by the
+     ABSENCE of a delay() operator on the capture equation, not by passing zero
+     to one, so a modification that made this nonzero would move the packet
+     timestamp without moving the measurement and the plant would report an age
+     it had not applied. Restoring a delay means restoring the operator too.";
   parameter Real barometerVariance_m2 = 0.25;
   parameter Real barometerBias_m = 0.4
     "Constant pressure-altitude bias learned by the estimator";
@@ -384,18 +440,25 @@ equation
     delay(plant.truth.rotationWorldBody[3, 1], opticalFlowLatency_s),
     delay(plant.truth.rotationWorldBody[3, 2], opticalFlowLatency_s),
     delay(plant.truth.rotationWorldBody[3, 3], opticalFlowLatency_s)];
-  magnetometerCaptureQuaternionWorldBody = {
-    delay(plant.truth.quaternionWorldBody[1], magnetometerTransportDelay_s),
-    delay(plant.truth.quaternionWorldBody[2], magnetometerTransportDelay_s),
-    delay(plant.truth.quaternionWorldBody[3], magnetometerTransportDelay_s),
-    delay(plant.truth.quaternionWorldBody[4], magnetometerTransportDelay_s)};
+  // NO delay() HERE, because the delay is zero. An onboard magnetometer read
+  // by the autopilot that reads the IMU has no transport to model, which is
+  // the topology PX4's EKF2_MAG_DELAY = 0 asserts and this vehicle matches.
+  //
+  // Written as a direct read rather than delay(x, 0.0) because a zero delay is
+  // not expressible: Rumoca requires delayTime to be a finite POSITIVE scalar
+  // and refuses the operator otherwise, which is the right refusal. Restoring
+  // a nonzero magnetometerTransportDelay_s therefore means restoring the
+  // operator here as well, and the parameter is final so that cannot happen by
+  // modification alone and leave the timestamp below claiming an age the plant
+  // never applied.
+  magnetometerCaptureQuaternionWorldBody = plant.truth.quaternionWorldBody;
   magnetometerCaptureRotationWorldBody = LieGroups.SO3.Quat.to_DCM(
     magnetometerCaptureQuaternionWorldBody);
   magnetometerIdealFieldBodyFlu_T =
     transpose(magnetometerCaptureRotationWorldBody)
       * localMagneticFieldWorldEnu_T;
-  barometerCaptureAltitudeWorldEnu_m = delay(
-    plant.truth.positionWorldEnu_m[3], barometerTransportDelay_s);
+  // Direct read, zero delay, same argument as the magnetometer above.
+  barometerCaptureAltitudeWorldEnu_m = plant.truth.positionWorldEnu_m[3];
   barometerIdealAltitudeWorldEnu_m = barometerCaptureAltitudeWorldEnu_m;
 
   avionics.plan.valid = time >= armTime_s;
@@ -472,6 +535,13 @@ equation
   estimator.imu.deltaPositionAccelerometerBiasJacobian_s2 =
     imuPacketPositionAccelerometerBiasJacobian_s2;
 
+  // NO MOCAP LATENCY PARAMETER, and that is not an omission. PX4 ships
+  // EKF2_EV_DELAY = 0 ms for external vision, but this vehicle carries no
+  // external-odometry path at all: the stream is held permanently invalid and
+  // its payload is zeros, so there is nothing for a delay to act on. A
+  // parameter that drives no equation is configuration nobody can test, and a
+  // mocap-fed variant of this vehicle would have to model the network hop
+  // this one does not have.
   estimator.mocap.valid = false;
   estimator.mocap.fresh = false;
   estimator.mocap.timestamp_s = time;
