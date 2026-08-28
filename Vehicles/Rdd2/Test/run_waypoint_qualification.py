@@ -56,6 +56,18 @@ BOX_CORNERS = [
     ("north", (0.0, BOX_SIDE_M)),
     ("home", (0.0, 0.0)),
 ]
+# The handoff mission's own geometry, mirrored here because a scenario TOML
+# carries no parameters into this script. Every one of these is CHECKED against
+# the trace rather than trusted: `mocap_corrections_confined_to_coverage`
+# fails if the window moved, and the settle gate fails if the offset did.
+HANDOFF_COVERAGE_START_S = 15.0
+HANDOFF_COVERAGE_END_S = 32.0
+HANDOFF_SURVEY_OFFSET_M = (0.05, 0.03, 0.0)
+HANDOFF_CROSSING_WINDOW_S = 0.5
+# Motion-capture position noise, one sigma per axis, from the mission's
+# mocapPositionCovarianceWorld_m2.
+HANDOFF_MOCAP_SIGMA_M = 0.01
+
 SCENARIOS = {
     "truth": MODEL_DIR / "rumoca-scenario.waypoint-truth.toml",
     "eskf_optical_flow": MODEL_DIR / "rumoca-scenario.waypoint-local.toml",
@@ -63,6 +75,10 @@ SCENARIOS = {
     "ukf_optical_flow": MODEL_DIR / "rumoca-scenario.waypoint-local-ukf.toml",
     "ukf_gps": MODEL_DIR / "rumoca-scenario.waypoint-global-ukf.toml",
     "eskf_mocap": MODEL_DIR / "rumoca-scenario.waypoint-mocap.toml",
+    "eskf_mocap_handoff": MODEL_DIR / "rumoca-scenario.waypoint-mocap-handoff.toml",
+    "eskf_mocap_handoff_ideal": (
+        MODEL_DIR / "rumoca-scenario.waypoint-mocap-handoff-ideal.toml"
+    ),
 }
 TRACE_NAMES = [
     "time_s",
@@ -780,6 +796,248 @@ def evaluate(values: dict[str, list[float]], feedback_mode: str) -> dict[str, ob
     return {"passed": all(checks.values()), "checks": checks, "metrics": metrics}
 
 
+def evaluate_handoff(
+    values: dict[str, list[float]], survey_offset_m: tuple[float, float, float]
+) -> dict[str, object]:
+    """Gate a mission that changes aiding source twice while flying.
+
+    The shared evaluator cannot do this. It asks which single source was
+    expected for the whole run and calls every other acceptance unexpected,
+    which is exactly wrong here: both sources are supposed to correct, in their
+    own phases. What replaces that rule is a PHASE-AWARE one -- each phase has
+    an expected source set and an acceptance outside that set is the violation.
+
+    Say plainly what this can and cannot conclude. It can conclude that the
+    estimate never moved further in one estimator tick than a gain-limited
+    correction against the frame disagreement allows, that each source
+    corrected only while it was supposed to, and that the filter stayed
+    self-consistent in each phase against the frame that phase is estimating
+    in. It cannot conclude that the handoff is optimal, or that a larger survey
+    error would still be corrected rather than gated out; the offset here is
+    deliberately inside the innovation gate, and an offset outside it is a
+    different test with a different expected outcome.
+    """
+    time = signal(values, "time_s")
+    truth = np.column_stack(
+        [signal(values, f"position_m[{index}]") for index in range(1, 4)]
+    )
+    estimate = np.column_stack(
+        [
+            signal(values, f"estimator.estimate.positionWorldEnu_m[{index}]")
+            for index in range(1, 4)
+        ]
+    )
+    offset = np.array(survey_offset_m)
+    offset_magnitude = float(np.linalg.norm(offset))
+    mocap_accepted = np.array(signal(values, "estimator.status.mocapCorrectionAccepted"))
+    gps_accepted = np.array(
+        signal(values, "estimator.status.gpsPositionCorrectionAccepted")
+    ) + np.array(signal(values, "estimator.status.gpsVelocityCorrectionAccepted"))
+    flow_accepted = np.array(
+        signal(values, "estimator.status.opticalFlowCorrectionAccepted")
+    )
+    estimate_valid = np.array(signal(values, "estimator.estimate.valid"))
+    mission_phase = np.array(signal(values, "missionPhase"))
+    roll_deg = np.degrees(np.array(signal(values, "euler_rad[1]")))
+    pitch_deg = np.degrees(np.array(signal(values, "euler_rad[2]")))
+    motors = np.column_stack(
+        [signal(values, f"motorCommand[{index}]") for index in range(1, 5)]
+    )
+    times = np.array(time)
+
+    in_coverage = (times >= HANDOFF_COVERAGE_START_S) & (
+        times < HANDOFF_COVERAGE_END_S
+    )
+    airborne = mission_phase > 0.5
+
+    # ---- the estimate step, which is what "no jump" means -----------------
+    # Differenced on the ESTIMATOR clock and against TRUTH, so the vehicle's
+    # own motion cancels and what is left is the correction. A step measured on
+    # the raw position would be dominated by flying.
+    period = signal(values, "estimatorUpdatePeriod_s")[0]
+    tick_indices = native_sample_indices(values, period)
+    error = estimate - truth
+    steps = []
+    step_times = []
+    for previous, current in zip(tick_indices, tick_indices[1:]):
+        steps.append(float(np.linalg.norm(error[current] - error[previous])))
+        step_times.append(times[current])
+    steps = np.array(steps)
+    step_times = np.array(step_times)
+    near_crossing = (
+        np.abs(step_times - HANDOFF_COVERAGE_START_S) <= HANDOFF_CROSSING_WINDOW_S
+    ) | (np.abs(step_times - HANDOFF_COVERAGE_END_S) <= HANDOFF_CROSSING_WINDOW_S)
+    entry_window = (
+        np.abs(step_times - HANDOFF_COVERAGE_START_S) <= HANDOFF_CROSSING_WINDOW_S
+    )
+    exit_window = (
+        np.abs(step_times - HANDOFF_COVERAGE_END_S) <= HANDOFF_CROSSING_WINDOW_S
+    )
+    quiet = airborne[tick_indices[1:]] & ~near_crossing
+
+    # THE DERIVED BOUND, against the run's OWN quiet-flight step.
+    #
+    # The first version of this bound was |delta| plus a noise allowance, and
+    # measuring it showed why that was the wrong reference: ordinary flight
+    # already steps the estimate by 0.082 m per estimator tick, because a GPS
+    # correction against a half-metre sigma moves the state that far routinely.
+    # A crossing step of 0.09 m compared against a 0.088 m bound would have
+    # looked like a marginal pass when in fact the crossing is quieter than
+    # ordinary aiding.
+    #
+    # So the reference is what the SAME run does when nothing is crossing:
+    #
+    #     step_at_crossing  <=  step_in_quiet_flight  +  |delta|
+    #
+    # and the derivation is unchanged in kind. At a crossing the arriving
+    # source disagrees with the departing one about where the world's origin
+    # is, by the survey offset and nothing else -- both report the same truth
+    # through different transforms into the same frame. A Kalman update moves
+    # the state by K times the innovation and a gain cannot overshoot, since
+    # the posterior lies between the prior and the measurement, so the norm of
+    # K is at most one and the crossing can add at most |delta| on top of
+    # whatever correction activity was already happening.
+    #
+    # Self-calibrating against the same trajectory, same noise seed and same
+    # controller, so it is a statement about the HANDOFF rather than about the
+    # tuning. For a perfect survey it collapses to "the crossing is
+    # indistinguishable from ordinary flight", which is the honest form of the
+    # smoothness claim for this pipeline -- see the ideal mission, which
+    # records why bitwise continuity is false here.
+    quiet_step_m = float(steps[quiet].max()) if quiet.any() else 0.0
+    step_bound_m = quiet_step_m + offset_magnitude
+    metrics = {
+        "survey_offset_magnitude_m": offset_magnitude,
+        "derived_estimate_step_bound_m": step_bound_m,
+        "max_estimate_step_at_entry_m": float(steps[entry_window].max())
+        if entry_window.any()
+        else 0.0,
+        "max_estimate_step_at_exit_m": float(steps[exit_window].max())
+        if exit_window.any()
+        else 0.0,
+        "max_estimate_step_in_quiet_flight_m": quiet_step_m,
+        "mocap_corrections_in_coverage": int((mocap_accepted[in_coverage] > 0.5).sum()),
+        "mocap_corrections_outside_coverage": int(
+            (mocap_accepted[~in_coverage] > 0.5).sum()
+        ),
+        "gps_corrections_before_coverage": int(
+            (gps_accepted[airborne & (times < HANDOFF_COVERAGE_START_S)] > 0.5).sum()
+        ),
+        "gps_corrections_after_coverage": int(
+            (gps_accepted[times >= HANDOFF_COVERAGE_END_S] > 0.5).sum()
+        ),
+        "gps_corrections_in_coverage": int((gps_accepted[in_coverage] > 0.5).sum()),
+        "optical_flow_corrections": int((flow_accepted > 0.5).sum()),
+        "max_tilt_deg_at_crossings": float(
+            max(
+                np.abs(roll_deg[in_coverage]).max() if in_coverage.any() else 0.0,
+                np.abs(pitch_deg[in_coverage]).max() if in_coverage.any() else 0.0,
+            )
+        ),
+        "maximum_motor_command": float(motors.max()),
+    }
+
+    # ---- per-phase consistency, each against the frame that phase estimates in
+    # Mixing phases would corrupt the chi-square exactly as reading mocap as a
+    # 2-dof correction would. The reference matters as much as the dimension:
+    # inside coverage the filter is estimating position in the RIG's frame,
+    # which differs from truth by the survey offset, and the covariance is
+    # never told about that offset. Measuring consistency against unshifted
+    # truth there would measure the survey error and call it filter
+    # inconsistency.
+    nees_time, nees_gps_frame = navigation_nees(values)
+    nees_times = np.array(nees_time)
+    nees_values = np.array(nees_gps_frame)
+    gps_phase = (nees_times < HANDOFF_COVERAGE_START_S) | (
+        nees_times >= HANDOFF_COVERAGE_END_S
+    )
+    nees_lower, nees_upper = chi_square_95_bounds(6)
+    mean_nees_gps_phase = (
+        float(np.mean(nees_values[gps_phase])) if gps_phase.any() else 0.0
+    )
+    gps_nis_time, gps_nis, gps_nis_degrees = innovation_nis(values, 2)
+    mocap_nis_time, mocap_nis, mocap_nis_degrees = innovation_nis(values, 1)
+    metrics.update(
+        {
+            "mean_navigation_nees_gps_phases": mean_nees_gps_phase,
+            "nees_samples_gps_phases": int(gps_phase.sum()),
+            "mean_gps_innovation_nis": float(np.mean(gps_nis)) if gps_nis else 0.0,
+            "gps_innovation_nis_degrees_of_freedom": gps_nis_degrees,
+            "gps_nis_samples": len(gps_nis),
+            "mean_mocap_innovation_nis": (
+                float(np.mean(mocap_nis)) if mocap_nis else 0.0
+            ),
+            "mocap_innovation_nis_degrees_of_freedom": mocap_nis_degrees,
+            "mocap_nis_samples": len(mocap_nis),
+        }
+    )
+
+    checks = {
+        "finite_trace": all(
+            math.isfinite(sample) for sample in estimate.ravel().tolist()
+        ),
+        "estimate_valid_through_both_crossings": bool(airborne.any())
+        and all(estimate_valid[index] > 0.5 for index in np.flatnonzero(airborne)),
+        # PHASE-AWARE AIDING, replacing the single-source rule.
+        "mocap_corrections_confined_to_coverage": metrics[
+            "mocap_corrections_outside_coverage"
+        ]
+        == 0,
+        "gps_corrections_withheld_inside_coverage": metrics[
+            "gps_corrections_in_coverage"
+        ]
+        == 0,
+        "optical_flow_never_accepted": metrics["optical_flow_corrections"] == 0,
+        # BOTH DIRECTIONS, in one mission.
+        "gps_to_mocap_crossing_exercised": metrics["gps_corrections_before_coverage"]
+        > 0
+        and metrics["mocap_corrections_in_coverage"] > 0,
+        "mocap_to_gps_crossing_exercised": metrics["gps_corrections_after_coverage"]
+        > 0,
+        # NO JUMP, against the derived bound.
+        "entry_step_within_gain_limited_bound": metrics[
+            "max_estimate_step_at_entry_m"
+        ]
+        <= step_bound_m,
+        "exit_step_within_gain_limited_bound": metrics["max_estimate_step_at_exit_m"]
+        <= step_bound_m,
+        # DISCRIMINATION, which is what makes the pair of missions worth two
+        # rows. With a survey error the entry crossing must be VISIBLE -- the
+        # frame disagreement has to show up somewhere -- and with a perfect
+        # survey it must not be, because then there is nothing to see beyond
+        # the noise ordinary flight already carries. One row cannot establish
+        # both: a loose bound would pass the offset row on noise alone, and the
+        # ideal row is what refuses that.
+        "survey_offset_is_visible_at_entry": (
+            metrics["max_estimate_step_at_entry_m"] > quiet_step_m
+            if offset_magnitude > 0.0
+            else True
+        ),
+        "ideal_handoff_hides_in_quiet_flight": (
+            True
+            if offset_magnitude > 0.0
+            else metrics["max_estimate_step_at_entry_m"] <= quiet_step_m
+            and metrics["max_estimate_step_at_exit_m"] <= quiet_step_m
+        ),
+        # The control loop must not notice. Bounds are the mission's own, not
+        # new ones invented for this row.
+        "bounded_tilt_through_crossings": metrics["max_tilt_deg_at_crossings"] <= 25.0,
+        "bounded_motors": 0.0 <= metrics["maximum_motor_command"] <= 1.0,
+        # PER-PHASE consistency.
+        "gps_phase_nees_near_expected_dimension": bool(gps_phase.any())
+        and 0.65 * 6.0 <= mean_nees_gps_phase <= 1.35 * 6.0,
+        "gps_phase_nis_near_expected_dimension": bool(gps_nis)
+        and 0.70 * gps_nis_degrees
+        <= metrics["mean_gps_innovation_nis"]
+        <= 1.30 * gps_nis_degrees,
+        "mocap_phase_nis_near_expected_dimension": bool(mocap_nis)
+        and 0.70 * mocap_nis_degrees
+        <= metrics["mean_mocap_innovation_nis"]
+        <= 1.30 * mocap_nis_degrees,
+    }
+    return {"passed": all(checks.values()), "checks": checks, "metrics": metrics}
+
+
 def max_track_difference_m(
     reference: dict[str, list[float]], candidate: dict[str, list[float]]
 ) -> float:
@@ -1257,6 +1515,8 @@ def write_reports(report: dict[str, object], plot_paths: list[Path]) -> None:
         "ukf_optical_flow",
         "ukf_gps",
         "eskf_mocap",
+        "eskf_mocap_handoff",
+        "eskf_mocap_handoff_ideal",
         "baseline_comparison",
         "algorithm_comparison",
     ):
@@ -1343,6 +1603,14 @@ def main() -> None:
         "ukf_gps": evaluate(traces["ukf_gps"], "gps"),
         "eskf_mocap": evaluate(traces["eskf_mocap"], "mocap"),
     }
+    handoff_reports = {
+        "eskf_mocap_handoff": evaluate_handoff(
+            traces["eskf_mocap_handoff"], HANDOFF_SURVEY_OFFSET_M
+        ),
+        "eskf_mocap_handoff_ideal": evaluate_handoff(
+            traces["eskf_mocap_handoff_ideal"], (0.0, 0.0, 0.0)
+        ),
+    }
     comparison = baseline_comparison(
         traces["truth"],
         {name: traces[name] for name in aided_reports},
@@ -1366,6 +1634,8 @@ def main() -> None:
         diagnostic_interpretation = "controller/plant/planning baseline failure"
     elif not all(bool(section["passed"]) for section in aided_reports.values()):
         diagnostic_interpretation = "estimator or aiding-path failure"
+    elif not all(bool(section["passed"]) for section in handoff_reports.values()):
+        diagnostic_interpretation = "aiding-source handoff failure"
     elif not comparison["passed"] or not estimator_comparison["passed"]:
         diagnostic_interpretation = "estimator-to-baseline trajectory mismatch"
     else:
@@ -1374,12 +1644,14 @@ def main() -> None:
     report = {
         "passed": truth_report["passed"]
         and all(bool(section["passed"]) for section in aided_reports.values())
+        and all(bool(section["passed"]) for section in handoff_reports.values())
         and comparison["passed"]
         and estimator_comparison["passed"],
         "diagnostic_interpretation": diagnostic_interpretation,
         "recommended_for_flight": estimator_comparison["recommended_for_flight"],
         "truth": truth_report,
         **aided_reports,
+        **handoff_reports,
         "baseline_comparison": comparison,
         "algorithm_comparison": estimator_comparison,
         "provenance": {

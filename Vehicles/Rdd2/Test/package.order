@@ -5,6 +5,7 @@ TruthWaypointMission
 GlobalWaypointMission
 MocapWaypointMission
 MocapHandoffMission
+MocapHandoffIdealMission
 ManualFlightMission
 VibrationGlobalWaypointMission
 UnfilteredVibrationGlobalWaypointMission
