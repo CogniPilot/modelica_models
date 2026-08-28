@@ -14,6 +14,7 @@ Controller
 LogLinearController
 NavigationEstimator
 standardNormalNoise
+mocapRigToWorld
 simulateOpticalFlowPlane
 PartialController
 AvionicsSystem
