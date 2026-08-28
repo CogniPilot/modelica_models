@@ -1,9 +1,13 @@
 clip
 clipVector
+deadzone
+expo
+limitNorm
 wrapAngle
 lowPass
 lowPass3
 rateLimit
+squareRootRamp
 norm2
 norm3
 norm4
