@@ -162,9 +162,26 @@ package Avionics
        rejection cause is named rather than inferred from the absence of
        other flags";
     Integer acceptedCorrectionCount
-      "Monotonic count of aiding corrections this estimator has
-       ACCEPTED since its last reset, incremented once per estimator
-       tick whose correctionOutcome is CorrectionAccepted.
+      "Monotonic count of SHIFTED FUSION INSTANTS since the last reset: the
+       number of estimator ticks on which at least one aiding correction was
+       accepted. AT MOST ONE PER ESTIMATOR TICK, and that is a contract on
+       this field rather than a property of any particular filter.
+
+       It counts instants and not measurements deliberately. The consumer this
+       field exists for is an output predictor, which must recompose its
+       buffered window once per tick on which the state it composes onto
+       MOVED; two measurements fused into the same tick move it once, and
+       counting them twice would ask for a second recomposition that has
+       nothing to recompose.
+
+       Both shipped filters satisfy the contract by construction rather than
+       by arithmetic, because each fuses at most one source per tick from a
+       priority chain, so their per-tick outcome is a single value. A filter
+       that fused several sources in one tick would have to coalesce them here
+       and must not increment per measurement: at a delayed fusion horizon
+       every ripe measurement is an accepted correction, and the aiding set of
+       a small multirotor offers well over a hundred a second against a
+       recomposition budget of single digits.
 
        correctionOutcome is a LEVEL: it stands for the whole estimator
        tick, which at a 100 Hz filter behind an 800 Hz consumer is
