@@ -144,9 +144,16 @@ model HorizonPredictorTests
 
 equation
   // ---- (f) retiring the earliest factor is exact --------------------------
-  // Measured over two 160-tick factors: PLACEHOLDER. The limits are the same
-  // floating-point limits arm (a) uses, because the claim is the same kind of
-  // claim -- an algebraic identity, not an approximation with a bound.
+  // Measured over two 160-tick factors: every block passes at the limits
+  // written below, which were tightened until they were within an order of
+  // the composition residuals arm (a) reports on the same stream. Read them
+  // as measured upper bounds rather than as the residual itself -- a final
+  // parameter is constant-folded out of the result file, so the value is
+  // established by the limit that holds and not by a printed number.
+  //
+  // They are floating-point limits, not error budgets, because the claim is
+  // an algebraic identity and not an approximation: retiring the earliest
+  // factor is exact, so anything above rounding is a defect.
   assert(retirement[1] < 1.0e-15,
     "Retiring the earliest factor from a composed window does not return the
      rest of the window in position, so a maintained window product cannot
