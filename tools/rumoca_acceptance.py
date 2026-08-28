@@ -242,10 +242,22 @@ def check_repro_balance(
 def check_horizon_balance(
     options: argparse.Namespace, repository: Path, work: Path
 ) -> Row:
+    # The balance moved from 14 to 26 when the delayed measurement queues
+    # landed, and the new number is not a regression: it is the SAME defect
+    # counting more of the same thing. AS-051 misses the Boolean components of
+    # a sub-block's input connector, HorizonEstimator now holds an
+    # Estimation.FusionHorizon.AidingBuffer beside the filter, and that buffer
+    # carries twelve Booleans across its five aiding input connectors on top of
+    # the filter's fourteen across six. The equation total moved with it
+    # because the block grew.
+    #
+    # Keeping the old string here would have been the worst outcome available:
+    # the row would have failed against a FIXED compiler for the wrong reason
+    # and read as the defect surviving.
     row = Row(
         "horizon-balance",
-        "ED001 2443 equations / 2429 unknowns (balance = 14)",
-        "balanced at 2443/2443, lowers",
+        "ED001 4416 equations / 4390 unknowns (balance = 26)",
+        "balanced at 4416/4416, lowers",
     )
     status, log, elapsed = compile_model(
         options,
