@@ -32,14 +32,33 @@ block OutputPredictor
   parameter Real maximumAccelerometerBiasMove_m_s2(unit = "m/s2", min = 0.0) =
     0.5 "The same bound for the accelerometer bias";
   parameter Real maximumPredictorDivergence_rad(unit = "rad", min = 0.0) =
-    1.0e-3
+    0.025
     "Attitude divergence between the predictor and the filter's own bias that
      is allowed to accumulate on the incremental path before a re-base is
      forced. The incremental path composes factors integrated at the ANCHOR
      bias, so the divergence grows at ||db_g|| in the time since the last
      re-base and is unbounded under sustained correction rejection. Forcing
      the fold bounds it; the cost is the re-base cost the WCET record already
-     charges";
+     charges.
+
+     It is NOT a free choice. Together with maximumGyroscopeBiasMove_rad_s it
+     fixes the worst-case rate at which this block asks for a fold, and the
+     target can only afford so many. The two are related by the assertion
+     below, and 0.025 rad is what the declared bias-move bound and the
+     measured fold budget leave. It used to be 1e-3, which is the right number
+     for the bias moves a healthy filter produces and is fifty folds a second
+     at the bias move this block declares it will tolerate: seven times the
+     whole budget, in a configuration the parameters said was legal";
+  parameter Real foldBudget_hz(unit = "1/s", min = 0.0) = 7.3
+    "Buffer folds per second the flight target can afford, from
+     docs/delayed-fusion-horizon-wcet.md: 600 MHz against the 82 million
+     instructions one re-base costs as generated today. A property of the code
+     generator, not of the architecture, and the first number to change when
+     that is fixed";
+  parameter Real correctionRateBudget_hz(unit = "1/s", min = 0.0) = 5.0
+    "The share of foldBudget_hz reserved for accepted corrections, which are
+     the folds the design exists to perform. Five per second covers a 5 Hz GPS
+     fix rate. What is left is what the re-anchor may spend";
   parameter Real initialGyroscopeBiasAnchorBodyFlu_rad_s[3] = zeros(3);
   parameter Real initialAccelerometerBiasAnchorBodyFlu_m_s2[3] = zeros(3);
   parameter Real initialPositionWorldEnu_m[3] = zeros(3);
@@ -54,6 +73,12 @@ block OutputPredictor
     integer(fusionHorizon_s / fusionPeriod_s + 0.5)
     "Complete release windows that must stand between the fusion instant and
      now; 20 at a 200 ms horizon and a 100 Hz release";
+  final parameter Real worstReanchorRate_hz(unit = "1/s") =
+    maximumGyroscopeBiasMove_rad_s / maximumPredictorDivergence_rad
+    "Folds per second the re-anchor asks for at the largest bias move this
+     block declares it will tolerate. The divergence grows at the size of the
+     bias move and the fold is forced when it reaches the tolerance, so the
+     worst case is the ratio of the two";
   final parameter Integer bufferLength(min = 3) = horizonWindows + 2
     "Fixed ring capacity: the horizon, the window being accumulated, and one
      slot of slack so a release never has to race the store. Nothing here is
@@ -320,6 +345,29 @@ equation
     "fusionHorizon_s must be an exact integer multiple of fusionPeriod_s: the
      buffer is counted in whole release windows, so a fractional ratio makes
      the fusion instant differ from the declared horizon by the remainder");
+  // The supervision parameters and the timing record have to agree, and they
+  // did not: at the declared bias-move bound the re-anchor asked for fifty
+  // folds a second against a measured budget of 7.3, in a configuration
+  // nothing refused. A bound that cannot be honoured is not a bound.
+  //
+  //     maximumGyroscopeBiasMove_rad_s / maximumPredictorDivergence_rad
+  //       <= foldBudget_hz - correctionRateBudget_hz
+  //
+  // The left side is the worst-case re-anchor rate, the right side is what the
+  // fold budget has left after the corrections the design exists to serve.
+  assert(correctionRateBudget_hz < foldBudget_hz,
+    "correctionRateBudget_hz must leave something under foldBudget_hz for the
+     re-anchor, or the horizon has no way to bound the drift the incremental
+     path does not carry");
+  assert(worstReanchorRate_hz <= foldBudget_hz - correctionRateBudget_hz,
+    "The supervision parameters ask for more buffer folds than the timing
+     record says the target can run:
+     maximumGyroscopeBiasMove_rad_s / maximumPredictorDivergence_rad must be at
+     most foldBudget_hz - correctionRateBudget_hz. Widen the divergence
+     tolerance, narrow the bias-move bound the block claims to tolerate, or
+     raise the fold budget once the code generator stops materializing a
+     record-valued call once per component");
+
   assert(horizonWindows >= 1,
     "fusionHorizon_s must be at least one fusionPeriod_s: at zero windows the
      first release would hand over the ring slot this tick has not written

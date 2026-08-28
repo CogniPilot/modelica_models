@@ -33,6 +33,16 @@ package HorizonRefusals
     extends Tests.HorizonRefusals.Driver(fusionHorizon_s=0.055);
   end FractionalHorizon;
 
+  model OverBudgetSupervision
+    "Supervision parameters that ask for more folds than the target can run"
+    // The divergence tolerance that suits a healthy filter's bias moves, at
+    // the bias move the block declares it will tolerate, is fifty folds a
+    // second against a measured budget of 7.3. Nothing refused this before,
+    // and a bound that cannot be honoured is not a bound.
+    extends Tests.HorizonRefusals.Driver(
+      horizon(maximumPredictorDivergence_rad = 1.0e-3));
+  end OverBudgetSupervision;
+
   partial model Driver "One misconfigured horizon, fed a level stream"
     parameter Real samplePeriod = 0.00125;
     parameter Real fusionPeriod_s = 0.01;
@@ -60,10 +70,11 @@ package HorizonRefusals
   end Driver;
 
   annotation(Documentation(info="<html>
-    <p>NEGATIVE tests. <code>Tests/run-horizon.mos</code> simulates each of
-    these and requires the simulation to FAIL: the rate lattice and the horizon
-    length are preconditions of the block, they used to be rounded silently,
-    and a precondition that is only written in a comment is not one.</p>
+    <p>NEGATIVE tests. <code>Tests/run-horizon.mos</code> builds and runs each
+    of these and requires it to FAIL: the rate lattice, the horizon length and
+    the supervision budget are preconditions of the block. The first three used
+    to be rounded silently and the fourth was not checked at all, and a
+    precondition that is only written in a comment is not one.</p>
     <p>They are a package of top-level models rather than components of
     <code>Tests.All</code> for the obvious reason: a model that must not build
     cannot live inside a model that must.</p>

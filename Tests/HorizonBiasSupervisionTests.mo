@@ -9,7 +9,16 @@ model HorizonBiasSupervisionTests
   constant Real fusionHorizon_s = 0.05 "Five buffered release windows";
   constant Real gravityWorldEnu_m_s2[3] = {0.0, 0.0, -9.81};
   constant Real maximumGyroscopeBiasMove_rad_s = 0.05;
-  constant Real maximumPredictorDivergence_rad = 1.0e-3;
+  constant Real maximumPredictorDivergence_rad = 1.0e-3
+    "Tighter than the block default on purpose. The default is what the flight
+     fold budget leaves, and at the default this model would have to run for
+     more than a second per re-anchor to see one. The budget parameters below
+     are widened to match, which is legal and is what makes the run short: this
+     model measures the re-anchor TRIGGER, and has no way to measure a budget
+     that is a property of the generated code on a target it does not run on.";
+  constant Real foldBudget_hz = 60.0
+    "Wide enough to admit the tolerance above; see the note on it";
+  constant Real correctionRateBudget_hz = 0.0;
   constant Real insideBias_rad_s[3] = {0.02, 0.0, 0.0}
     "Inside the declared ball around the anchor, so the move is applied and
      nothing is flagged. 0.02 rad/s against a 1e-3 rad divergence tolerance is
@@ -32,14 +41,18 @@ model HorizonBiasSupervisionTests
     fusionHorizon_s=fusionHorizon_s,
     gravityWorldEnu_m_s2=gravityWorldEnu_m_s2,
     maximumGyroscopeBiasMove_rad_s=maximumGyroscopeBiasMove_rad_s,
-    maximumPredictorDivergence_rad=maximumPredictorDivergence_rad);
+    maximumPredictorDivergence_rad=maximumPredictorDivergence_rad,
+    foldBudget_hz=foldBudget_hz,
+    correctionRateBudget_hz=correctionRateBudget_hz);
   Estimation.FusionHorizon.OutputPredictor outside(
     samplePeriod=samplePeriod,
     fusionPeriod_s=fusionPeriod_s,
     fusionHorizon_s=fusionHorizon_s,
     gravityWorldEnu_m_s2=gravityWorldEnu_m_s2,
     maximumGyroscopeBiasMove_rad_s=maximumGyroscopeBiasMove_rad_s,
-    maximumPredictorDivergence_rad=maximumPredictorDivergence_rad);
+    maximumPredictorDivergence_rad=maximumPredictorDivergence_rad,
+    foldBudget_hz=foldBudget_hz,
+    correctionRateBudget_hz=correctionRateBudget_hz);
 
   discrete Integer insideTicksSinceRebase(start = 0, fixed = true);
   discrete Integer worstTicksSinceRebase(start = 0, fixed = true);

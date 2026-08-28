@@ -183,6 +183,22 @@ rate. The consequence to state plainly: under sustained rejection the horizon
 is MORE expensive, not less, and that is the honest direction for the trade to
 run.
 
+**And the tolerance is not a free parameter.** The re-anchor rate at the
+largest bias move the block declares it will tolerate is
+`maximumGyroscopeBiasMove_rad_s / maximumPredictorDivergence_rad`, and that has
+to fit in what the fold budget has left after the corrections the design exists
+to serve:
+
+    maximumGyroscopeBiasMove_rad_s / maximumPredictorDivergence_rad
+      <= foldBudget_hz - correctionRateBudget_hz
+
+The block asserts it. The first version of these parameters did not, and did
+not satisfy it either: 0.05 rad/s against a 1e-3 rad tolerance is fifty folds a
+second against a measured budget of 7.3, seven times the ceiling, in a
+configuration nothing refused. The tolerance the budget actually leaves is
+0.025 rad, so that is the default, and the WCET record states the price in
+attitude that buys.
+
 ## 4. The rate structure
 
 Aligned with the lattice commit 8e19eba established, and not fighting it:
@@ -285,13 +301,14 @@ holds on every tick with no case split at all.
 
 ### Preconditions, asserted rather than assumed
 
-Three things the block used to accept quietly and now refuses:
+Four things the block used to accept quietly and now refuses:
 
 | precondition | why it is not a preference |
 | --- | --- |
 | `fusionPeriod_s` an exact multiple of `samplePeriod` | the cadence is counted in inertial ticks, so a fractional ratio is rounded and every published epoch is wrong by the remainder |
 | `fusionHorizon_s` an exact multiple of `fusionPeriod_s` | the buffer is counted in whole windows, same argument |
 | `fusionHorizon_s` at least one `fusionPeriod_s` | at zero windows the first release hands over the ring slot the tick has not written yet: a zero span and a zero quaternion, and the consumer divides the rotation increment by that span |
+| the supervision parameters inside the fold budget | a divergence bound the target has no cycles to honour is not a bound; see Sec. 3 for the inequality |
 
 `Tests.HorizonRefusals` is one model per precondition and the requirement on
 each is that it does not run.
@@ -429,7 +446,7 @@ booleans, and the caller assembles the packet record from a returned row.
 | `Tests/HorizonPredictorTests.mo` | the algebraic identities, constant-folded: composition, re-base by fold, incremental-versus-re-base THROUGH `step.mo`, and the bias move against Prop. 8 |
 | `Tests/HorizonInterfaceTests.mo` | the time domain: the epoch-equivalence probe on every tick, a correction taken ON a release boundary, the epoch-against-buffer invariant, and packet validity |
 | `Tests/HorizonResetTests.mo` | the epoch through a mid-run reset |
-| `Tests/HorizonRefusals.mo` | the three preconditions, one NEGATIVE model each |
+| `Tests/HorizonRefusals.mo` | the four preconditions, one NEGATIVE model each |
 | `Tests/HorizonEstimatorWiring.mo` | filter interchange, at translation |
 
 with their own `Tests/run-horizon.mos` entry. `when`-clause assertions are

@@ -139,9 +139,11 @@ if supervisionResultFile == "" then
 end if;
 
 // ---- the negative tests -------------------------------------------------
-// Each of these must FAIL. The rate lattice and the horizon length are
-// preconditions of Estimation.FusionHorizon.OutputPredictor; they were rounded
-// silently before, and a precondition only written in a comment is not one.
+// Each of these must FAIL. The rate lattice, the horizon length and the
+// supervision budget are preconditions of
+// Estimation.FusionHorizon.OutputPredictor; the first three were rounded
+// silently before and the fourth was simply not checked, and a precondition
+// only written in a comment is not one.
 //
 // Built and then RUN, rather than handed to simulate, because the three
 // assertions do not all fire at the same stage: OpenModelica folds some of
@@ -181,6 +183,17 @@ if fractionalHorizonBuild[1] <> "" then
   if fractionalHorizonStatus == 0 then
     print("A horizon that is not a whole number of release windows was accepted
            and silently rounded\n");
+    exit(1);
+  end if;
+end if;
+
+overBudgetBuild := buildModel(Tests.HorizonRefusals.OverBudgetSupervision);
+getErrorString();
+if overBudgetBuild[1] <> "" then
+  overBudgetStatus := system("\"" + overBudgetBuild[1] + "\"");
+  if overBudgetStatus == 0 then
+    print("Supervision parameters asking for more buffer folds than the timing
+           record allows were accepted\n");
     exit(1);
   end if;
 end if;

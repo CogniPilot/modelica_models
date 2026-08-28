@@ -126,18 +126,50 @@ the level true across the filter-tick boundary and the second one would never
 reach the predictor, which is why the count was added to the boundary rather
 than reconstructed downstream.
 
-**The re-base budget now has a second claimant.** The incremental path composes
+**The re-base budget has a second claimant.** The incremental path composes
 tick factors integrated at the ANCHOR bias and does not move them to the
 filter's bias; only a re-base does that. Between re-bases the predictor
 therefore drifts from the filter at `||db_g||`, without bound in the time since
 the last one, which under sustained correction rejection is the whole rejection
 episode. `OutputPredictor.maximumPredictorDivergence_rad` bounds it by forcing a
-fold when the accumulated divergence would exceed it. At the default 1e-3 rad
-and a 5e-3 rad/s bias offset that is one forced re-base every 0.2 s, about
-5 Hz, and the two claimants add: the correction rate plus the re-anchor rate is
-what must stay under 7.3 Hz, not the correction rate alone. Raising the
-tolerance trades predictor accuracy for re-base rate and is the dial to reach
-for if the code generator is not fixed first.
+fold when the accumulated divergence would exceed it, so the correction rate
+plus the re-anchor rate is what must stay under the ceiling, not the correction
+rate alone.
+
+**The worst case is at the declared bound, not at a nominal bias.** This is
+where the first version of these parameters was wrong, and it was wrong in the
+direction that matters. The re-anchor rate is `||db_g||` divided by the
+tolerance, so the worst case a configuration admits is
+
+    maximumGyroscopeBiasMove_rad_s / maximumPredictorDivergence_rad
+
+which at the original defaults, 0.05 rad/s and 1e-3 rad, is **50 folds per
+second against a budget of 7.3**: seven times the whole ceiling, in a
+configuration nothing refused. Quoting the rate at a healthy filter's 5e-3
+rad/s bias offset, which is what the earlier text did, describes the case the
+bound is not for.
+
+The block now asserts the inequality
+
+    maximumGyroscopeBiasMove_rad_s / maximumPredictorDivergence_rad
+      <= foldBudget_hz - correctionRateBudget_hz
+
+with `foldBudget_hz` defaulting to the 7.3 above and `correctionRateBudget_hz`
+to 5.0, which covers a 5 Hz GPS fix rate and leaves 2.3 Hz for the re-anchor.
+The divergence tolerance that fits is **0.025 rad**, and that is the default
+now. `Tests.HorizonRefusals.OverBudgetSupervision` is the negative test.
+
+State the price, because it is not small: in the corner where the filter's bias
+sits at the edge of the declared validity ball and no correction has been
+accepted for a while, the predictor may stand 0.025 rad, about 1.4 degrees, off
+the attitude the filter's own bias implies. That is a degraded-mode bound and
+not the normal one -- with corrections arriving the predictor re-bases on each
+of them and the drift never accumulates -- but it is a real number and it is
+the code generator's, not the architecture's. It is the first figure to shrink
+when a record-valued call stops being materialized once per component: at the
+33,000 instructions a re-base actually costs, the budget is about 18,000 folds
+per second and the tolerance can go back to 1e-3 with a factor of three
+hundred in hand.
 
 Three ways out, in the order they should be tried:
 
