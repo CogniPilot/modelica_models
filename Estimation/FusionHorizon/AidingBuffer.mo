@@ -732,6 +732,22 @@ equation
     keep: each queue is independent and the filter's own correction dispatch
     ranks the sources by authority.</p>
 
+    <p><b>One hazard this does not guard, stated rather than left to be
+    found.</b> A measurement stamped in the FUTURE -- past the fusion instant
+    by more than the horizon, which no honest sensor produces and a sensor with
+    a broken clock does -- occupies the head of its queue and cannot ripen
+    until the fusion instant reaches it. The queue behind it fills, and from
+    then on every arrival from that source is refused for overflow. The source
+    is effectively blind until the epoch catches up.</p>
+    <p>It is not silent: <code>refusedOverflowCount</code> climbs on every
+    refused arrival, which is the bar every other failure here is held to. It
+    is also not guarded, and guarding it would mean declaring how far ahead of
+    the fusion instant a timestamp may plausibly be, which is another parameter
+    and another negative test. The bound already exists in one direction --
+    <code>maximumResidualAge_s</code> refuses a measurement the horizon has
+    passed -- and the symmetric one belongs with it rather than bolted on
+    here.</p>
+
     <p><b>Nothing here knows what a filter is.</b> No covariance, no error
     state, no tangent, no injection: this block moves timestamped records in
     time and does nothing else, so it serves an additive-bias ESKF and a

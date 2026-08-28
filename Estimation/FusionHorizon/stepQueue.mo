@@ -70,7 +70,6 @@ protected
   Boolean beforeHorizon;
   Boolean admissible;
   Boolean overflow;
-  Integer occupancyAfterDrop;
 algorithm
   // The whole tick is one pure function for the same reason
   // Estimation.FusionHorizon.step is: it keeps every queue walk inside a
@@ -168,13 +167,16 @@ algorithm
   overflow := arrived and horizonValid and not lateArrival
     and occupancyAfterPop >= depth;
   admissible := arrived and horizonValid and not lateArrival and not overflow;
-  occupancyAfterDrop := occupancyAfterPop;
+  // The tail is untouched by an arrival. It moves only when an entry LEAVES,
+  // which is the delivery path above and nothing else; an earlier version
+  // advanced it here to displace the oldest entry, and the name that
+  // arrangement left behind outlived it.
   nextTail := tailAfterPop;
   storeSlot := if admissible then head else 0;
   storedRow := arrivedRow;
   nextHead := if admissible then (if head >= depth then 1 else head + 1)
     else head;
-  nextCount := occupancyAfterDrop + (if admissible then 1 else 0);
+  nextCount := occupancyAfterPop + (if admissible then 1 else 0);
   arrivalOutcome := if not arrived then AidingNoArrival
     elseif beforeHorizon then AidingBeforeHorizon
     elseif lateArrival then AidingRefusedLate
