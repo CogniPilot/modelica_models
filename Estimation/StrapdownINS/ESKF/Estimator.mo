@@ -150,7 +150,14 @@ protected
   discrete Integer correctionOutcome(start = 0, fixed = true);
   discrete Integer correctionSource(start = 0, fixed = true);
   discrete Integer acceptedCorrectionCount(start = 0, fixed = true)
-    "Monotonic accepted-correction counter published on the status boundary.
+    "Monotonic count of SHIFTED FUSION INSTANTS on the status boundary: ticks
+     on which at least one aiding correction was accepted, at most one per
+     tick. See Avionics.EstimatorStatus.acceptedCorrectionCount, which states
+     the contract; this filter satisfies it by construction because its
+     correction dispatch is a priority chain that fuses at most one source per
+     tick, so correctionOutcome carries a single value per tick and this
+     increments on it.
+
      The outcome field is a level held for the whole filter tick, so a
      consumer running faster than the filter cannot edge-detect it; the count
      gives that consumer a well-defined edge.";
