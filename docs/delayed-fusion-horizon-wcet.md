@@ -211,3 +211,53 @@ of the 6,000,000 cycle budget a 100 Hz tick has. That is the number to compare
 against when the horizon rewiring lands, because the rewiring changes which
 epoch the step runs at and nothing about the step itself. The horizon does not
 move the filter onto the 800 Hz tick and must not be read as doing so.
+
+## The delayed measurement queues
+
+Added after the table above was taken, and NOT measured on the target. Saying
+so matters more than a plausible figure would: every number above came off a
+disassembly or a callgrind differential, and these came off the source. A run
+of `tools/wcet/` is the way to replace them, not an estimate.
+
+What can be stated exactly is the structure, because every walk is fixed-length
+by construction. Per inertial tick each source pays one masked read of its
+whole queue and one masked store over it, so the traffic is
+`2 * depth * width` multiply-adds whether or not anything is admitted or
+delivered. That is deliberate and it is the same choice the delta ring makes:
+it puts the worst case where it can be measured.
+
+At the flight lattice, `fusionHorizon_s = 0.2` and the deployed source rates:
+
+| source | depth | width | reals | multiply-adds per tick |
+| --- | --- | --- | --- | --- |
+| mocap | 22 | 26 | 572 | 1,144 |
+| GPS | 4 | 30 | 120 | 240 |
+| magnetometer | 6 | 13 | 78 | 156 |
+| barometer | 12 | 3 | 36 | 72 |
+| optical flow | 22 | 23 | 506 | 1,012 |
+| **total** | | | **1,312** | **2,624** |
+
+RAM: 1,312 reals, 5,248 B at single precision, plus five head/tail/count
+triples, five novelty timestamps and five last-delivered timestamps.
+
+**State the comparison plainly: this roughly doubles the per-tick buffer
+traffic.** The delta ring's store and read together are 22 x 56 x 2 = 2,464
+multiply-adds, and the queues add 2,624 beside them. The ring's share of a tick
+is measured at 11.7 percent of the 750,000 cycle budget, and the queues are of
+the same order, so the 800 Hz path should land near a fifth of the budget
+rather than an eighth. That is still inside it with margin, and it is still an
+inference until the rig is re-run.
+
+Two ways to shrink it if the rig disagrees, in the order they should be tried.
+The mocap and optical-flow queues are 82 percent of the total between them, and
+mocap is disabled in every deployed vehicle model; declaring a longer
+`mocapPeriod_s` shrinks that queue to the minimum with no other effect. And a
+queue holds `(D - L) / P` entries in steady flight and `D / P` only through
+start-up, so a deployment willing to lose aiding during the first horizon can
+size for the former.
+
+**What the queues do NOT cost.** No new work appears on the filter's own step.
+The correction path is the same arithmetic it always was; what changed is which
+epoch it runs at and how long the interval `retrodict` and `Phi(-age)` cover.
+The 304,363 instructions a prediction step costs are unchanged, and the
+delayed horizon still does not move the filter onto the 800 Hz tick.
