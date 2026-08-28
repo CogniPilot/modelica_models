@@ -161,6 +161,20 @@ package Avionics
        covariance was not finite or claimed non-positive noise. Every
        rejection cause is named rather than inferred from the absence of
        other flags";
+    Integer acceptedCorrectionCount
+      "Monotonic count of aiding corrections this estimator has
+       ACCEPTED since its last reset, incremented once per estimator
+       tick whose correctionOutcome is CorrectionAccepted.
+
+       correctionOutcome is a LEVEL: it stands for the whole estimator
+       tick, which at a 100 Hz filter behind an 800 Hz consumer is
+       eight consumer ticks. A consumer that must act once per
+       correction cannot edge-detect that level -- back-to-back
+       accepted corrections hold it true across the boundary and the
+       second one is invisible -- so the boundary carries the count and
+       the consumer compares it with the one it last saw. That is the
+       only well-defined edge across a rate change, which is why it is
+       here and not reconstructed downstream";
     Integer correctionSource
       "Aiding source the outcome above refers to: 0 none, 1 mocap, 2 GPS,
        3 optical flow, 4 magnetometer, 5 barometer";
@@ -262,6 +276,7 @@ package Avionics
       gpsConsecutiveRejections(start = 0, fixed = true),
       opticalFlowConsecutiveRejections(start = 0, fixed = true),
       correctionOutcome(start = 0, fixed = true),
+      acceptedCorrectionCount(start = 0, fixed = true),
       correctionSource(start = 0, fixed = true),
       recoveryStage(start = 0, fixed = true),
       anchorSource(start = 0, fixed = true),

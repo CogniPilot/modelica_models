@@ -1,0 +1,201 @@
+// Tests.HorizonPredictorTests, Tests.HorizonInterfaceTests,
+// Tests.HorizonResetTests and Tests.HorizonBiasSupervisionTests are simulated
+// AS TOP-LEVEL MODELS, not through
+// Tests.All. The first is entirely constant-foldable, so instantiating it as a
+// component of Tests.All lets OpenModelica evaluate it away at translation and
+// none of its assertion messages reach the generated code; the same argument is
+// recorded in Tests/run-position-loop.mos. The other two carry several full
+// output predictors each and are too expensive to run inside the smoke suite.
+//
+// Tests.HorizonRefusals holds the NEGATIVE tests: configurations the block must
+// refuse. They are simulated here too, and the requirement on each is that the
+// simulation FAILS.
+setCommandLineOptions("--std=3.6");
+
+if not loadModel(Tests) then
+  print(getErrorString());
+  exit(1);
+end if;
+
+// Every model is checked once and the report is kept, because the report is
+// itself evidence: see the balance gate below.
+//
+// Tests.HorizonEstimatorWiring is TRANSLATION ONLY. OpenModelica cannot BUILD a
+// simulation containing a bare Estimation.StrapdownINS.PartialEstimator: it
+// reports an independent subset of the flattened estimator over-determined by
+// nineteen equations, and the existing Tests.StrapdownEstimatorInterfaceTests
+// fails identically on an untouched tree.
+//
+// Rumoca does NOT lower that model either, and an earlier version of this
+// comment claimed it did. What tools/ci.py lowers is
+// Estimation.FusionHorizon.OutputPredictor, the horizon block on its own. The
+// composed model is unbalanced by fourteen equations per harness, for a reason
+// that has nothing to do with this package and is recorded in
+// tools/rumoca-repros/connector-boolean-balance/.
+reports := {
+  checkModel(Tests.HorizonPredictorTests),
+  checkModel(Tests.HorizonInterfaceTests),
+  checkModel(Tests.HorizonResetTests),
+  checkModel(Tests.HorizonBiasSupervisionTests),
+  checkModel(Tests.HorizonEstimatorWiring)};
+print(getErrorString());
+
+// ---- checkModel says "successfully" about an unbalanced model -------------
+// It does. Deleting one status assignment from the ESKF -- the accepted
+// correction count the horizon's re-base trigger reads -- leaves every gate in
+// this repository green while corrections stop reaching the predictor
+// entirely. checkModel reports 3182 equations against 3183 variables and still
+// prints "completed successfully", and the composed model is translation-only,
+// so no simulation runs to notice.
+//
+// STATE WHAT THIS CATCHES. It is not a check that the counter is wired to the
+// re-base; nothing here can simulate the composed block, so nothing here can
+// assert that. It is a check that every discrete in these models has an
+// equation, which is the shape the failure takes: a when-clause assignment
+// that goes missing leaves its variable holding its start value for ever, and
+// the equation count falls by one. Any unassigned discrete in any of these
+// five models fails the suite, whatever put it there.
+for reportIndex in 1:5 loop
+  print(reports[reportIndex]);
+  (balanceHits, balanceGroups) := regex(
+    reports[reportIndex],
+    "has ([0-9]+) equation\\(s\\) and ([0-9]+) variable\\(s\\)",
+    3,
+    true);
+  if balanceHits < 3 then
+    print("Could not read the equation and variable counts out of a checkModel
+           report, so the balance gate is not running\n");
+    exit(1);
+  end if;
+  if balanceGroups[2] <> balanceGroups[3] then
+    print("A horizon model has more variables than equations, so some discrete
+           is never assigned and holds its start value for ever. checkModel
+           calls this successful; it is not\n");
+    exit(1);
+  end if;
+end for;
+
+testOutputDirectory := getTempDirectoryPath();
+cd(testOutputDirectory);
+
+identities := simulate(
+  Tests.HorizonPredictorTests,
+  startTime=0.0,
+  stopTime=0.0,
+  numberOfIntervals=1,
+  tolerance=1.0e-10,
+  outputFormat="mat",
+  fileNamePrefix="modelica_models_Tests_HorizonPredictorTests");
+getErrorString();
+identityResultFile := identities.resultFile;
+if identityResultFile == "" then
+  print("Horizon predictor identity simulation failed\n");
+  exit(1);
+end if;
+
+wiring := simulate(
+  Tests.HorizonInterfaceTests,
+  startTime=0.0,
+  stopTime=0.4,
+  numberOfIntervals=400,
+  tolerance=1.0e-8,
+  outputFormat="mat",
+  fileNamePrefix="modelica_models_Tests_HorizonInterfaceTests");
+getErrorString();
+wiringResultFile := wiring.resultFile;
+if wiringResultFile == "" then
+  print("Horizon estimator interface simulation failed\n");
+  exit(1);
+end if;
+
+resets := simulate(
+  Tests.HorizonResetTests,
+  startTime=0.0,
+  stopTime=0.32,
+  numberOfIntervals=320,
+  tolerance=1.0e-8,
+  outputFormat="mat",
+  fileNamePrefix="modelica_models_Tests_HorizonResetTests");
+getErrorString();
+resetResultFile := resets.resultFile;
+if resetResultFile == "" then
+  print("Horizon reset simulation failed\n");
+  exit(1);
+end if;
+
+supervision := simulate(
+  Tests.HorizonBiasSupervisionTests,
+  startTime=0.0,
+  stopTime=0.3,
+  numberOfIntervals=300,
+  tolerance=1.0e-8,
+  outputFormat="mat",
+  fileNamePrefix="modelica_models_Tests_HorizonBiasSupervisionTests");
+getErrorString();
+supervisionResultFile := supervision.resultFile;
+if supervisionResultFile == "" then
+  print("Horizon bias supervision simulation failed\n");
+  exit(1);
+end if;
+
+// ---- the negative tests -------------------------------------------------
+// Each of these must FAIL. The rate lattice, the horizon length and the
+// supervision budget are preconditions of
+// Estimation.FusionHorizon.OutputPredictor; the first three were rounded
+// silently before and the fourth was simply not checked, and a precondition
+// only written in a comment is not one.
+//
+// Built and then RUN, rather than handed to simulate, because the three
+// assertions do not all fire at the same stage: OpenModelica folds some of
+// them and fails translation, and keeps others as an initialization check. On
+// the ones it folds, simulate does not return a record at all and reading
+// .resultFile off it would be an error in its own right. buildModel always
+// returns a pair, empty when it refused, and running what it built reports the
+// rest as an exit status.
+zeroHorizonBuild := buildModel(Tests.HorizonRefusals.ZeroHorizon);
+getErrorString();
+if zeroHorizonBuild[1] <> "" then
+  zeroHorizonStatus := system("\"" + zeroHorizonBuild[1] + "\"");
+  if zeroHorizonStatus == 0 then
+    print("A zero-window horizon was accepted; the first release hands over an
+           unwritten ring slot, which is a zero span and a zero quaternion\n");
+    exit(1);
+  end if;
+end if;
+
+fractionalReleaseBuild := buildModel(Tests.HorizonRefusals.FractionalRelease);
+getErrorString();
+if fractionalReleaseBuild[1] <> "" then
+  fractionalReleaseStatus :=
+    system("\"" + fractionalReleaseBuild[1] + "\"");
+  if fractionalReleaseStatus == 0 then
+    print("A release period that is not a whole number of inertial ticks was
+           accepted and silently rounded\n");
+    exit(1);
+  end if;
+end if;
+
+fractionalHorizonBuild := buildModel(Tests.HorizonRefusals.FractionalHorizon);
+getErrorString();
+if fractionalHorizonBuild[1] <> "" then
+  fractionalHorizonStatus :=
+    system("\"" + fractionalHorizonBuild[1] + "\"");
+  if fractionalHorizonStatus == 0 then
+    print("A horizon that is not a whole number of release windows was accepted
+           and silently rounded\n");
+    exit(1);
+  end if;
+end if;
+
+overBudgetBuild := buildModel(Tests.HorizonRefusals.OverBudgetSupervision);
+getErrorString();
+if overBudgetBuild[1] <> "" then
+  overBudgetStatus := system("\"" + overBudgetBuild[1] + "\"");
+  if overBudgetStatus == 0 then
+    print("Supervision parameters asking for more buffer folds than the timing
+           record allows were accepted\n");
+    exit(1);
+  end if;
+end if;
+
+exit(0);
