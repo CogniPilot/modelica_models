@@ -1,0 +1,328 @@
+# Delayed fusion horizon with an estimator-agnostic SE_2(3) output predictor
+
+Status: design of record for `Estimation.FusionHorizon`.
+
+Companion theory: J. Goppert et al., *Closed-Form First-Order-Hold
+Preintegration on SE_2(3)* (the FOH paper). Numbered results cited below are
+from that paper and are quoted by label in the source comments of every
+function this document specifies.
+
+## 1. The problem this replaces
+
+The estimator fuses aiding measurements that are old when they arrive. GPS on
+the deployed stack is roughly 100 ms behind the inertial stream by the time the
+driver hands it over. Two families of answer exist.
+
+1. **Correct at now, transport the Jacobian back.** Build `H = H_d Phi(-age)`
+   and correct the current state with a measurement Jacobian walked backwards
+   through the transition. This is what the corpus does today:
+   `ESKF/retrodict.mo` walks the nominal state back by the exact inverse ZOH
+   mixed flow over a single held IMU sample, and `ESKF/step.mo` applies the aged
+   Jacobian.
+
+2. **Correct at the horizon, reapply the buffered increments.** Run the filter
+   at `t - D`, where every measurement has already arrived, and carry the state
+   forward to now by composing the preintegrated increments buffered while
+   waiting.
+
+The FOH paper calls (1) the *transported-Jacobian form* and (2) the
+*buffered-window form*, and states in Sec. XI-B that its delayed-fusion and
+reapplication theorems are written for (2) while the implementation realizes
+(1). This document specifies (2).
+
+### The abstract is currently ahead of the implementation
+
+Worth stating plainly, because it is the strongest single reason to do this
+work: **there is no FIFO and no buffered horizon in the corpus today.** The
+paper's abstract asserts a buffered 200 ms fusion horizon. What exists is a
+destructive accumulator that is reset at every 100 Hz packet boundary, one
+100 Hz loop predicting and correcting at the live edge, and measurement-age
+alignment by `retrodict`. The paper's own Sec. XI-B retracts the claim; the
+abstract does not.
+
+`Estimation.FusionHorizon` is what makes the abstract true. Once it lands, the
+paper needs either its abstract revised or its implementation reference
+updated to point at this package. **That is flagged, not done here**: the paper
+lives in its own repository with its own remote and is not this change's to
+edit.
+
+### What is replaced, and what remains
+
+| concern | today | under this design |
+| --- | --- | --- |
+| measurement-age alignment of the nominal state | `ESKF/retrodict.mo`, one held IMU sample over the age | not needed for anything inside the horizon: the measurement is fused at its own timestamp, which IS the fusion instant |
+| aged measurement Jacobian `H_d Phi(-age)` | built in `ESKF/step.mo` | `Phi(-age)` becomes identity for aiding inside the horizon; only `H_d` remains, and `H_d` is the half already mechanically verified (`lie-jacobian-eskf-proof`, commit 17767d3) |
+| `maximumAidingDelay_s = 0.25` | admits packets whose cubic-Taylor transport is 12 to 27 percent wrong, against a deployed GPS age nearer 0.1 s | the transport is not used for aiding that reaches the horizon. What remains is the residual window for a packet that arrives AFTER its epoch has passed the horizon; that window is `age - fusionHorizon_s`, and the horizon length is chosen so it is normally empty. A packet later than the horizon is a supervision event, not a transport problem, and should be rejected on its timestamp |
+| process noise over the aging window | the gain and the Joseph posterior neglect the process noise accumulated between the measurement timestamp and the fusion time | the class is removed by construction: at the horizon there is no gap between measurement epoch and fusion epoch, so there is no window to accumulate over |
+| `correctMocap` has no retrodiction stanza at all, though the paper claims every `correct*` has one | a real asymmetry: mocap is aged like everything else and is aligned like nothing else | every source routes through one horizon path. The asymmetry closes by construction rather than by adding a fifth copy of the same stanza |
+| carrying the state to now for control | nothing. Control reads the filter output, one estimator period stale, and there is no output predictor | the output predictor of Sec. 4 |
+| the 29 `delay()` operators in `Vehicles/Rdd2/WaypointVehicleSystem.mo` | model the physical transport latency of the simulated sensors | **unchanged.** They are plant-side truth, not estimator machinery. A horizon does not remove sensor latency; it is where the horizon length comes from |
+| bias relinearization of buffered increments | `correctPreintegratedImu.mo`, first order in `db` | unchanged in form, now bounded by Prop. 8 over a window whose length is a parameter rather than over whatever age a packet happened to have |
+
+Retrodiction is superseded for nominal-state alignment and for the delay
+transport factor of `H`. It is not superseded for anything else. The function
+and its callers stay in the tree until the ESKF rewiring of Sec. 8 lands.
+
+Two things about the current path are **verified correct and are not being
+replaced because they are wrong**: `retrodict` is numerically exact as an
+inverse to 1e-16, and its transport error is purely the cubic Taylor
+truncation. The argument for the horizon is that it does not need either.
+
+## 2. What makes the buffer exact
+
+Everything rests on one structural fact. Under the mixed-invariant flow
+`Xdot = M X + X N(t)` with `M` constant, the flow over `[0,T]` factors as
+
+    X(T) = L X(0) R,     L = exp(M T),   R = exp(Xi(T))
+
+with `L` and `R` **independent of `X(0)`** (FOH paper Lemma 3 and Theorem 6,
+Sec. VI). Three consequences, and they are the whole design.
+
+1. **A horizon correction reapplies the same factors.** If the filter shifts the
+   horizon state, `X'(T) = L X0' R` with the *same* precomputed `R`. No
+   re-integration. This is why the predictor is recomposed rather than tracked
+   by a gain.
+2. **Increments compose.** `L` and `R` over adjacent intervals multiply, so a
+   buffer of per-tick right factors accumulates to the right factor of the whole
+   window, exactly (Lemma 5, Sec. IV-C).
+3. **The FOH corrections live inside `R`.** The coning, sculling, and scrolling
+   terms of Theorem 1 (Sec. III-D) are components of the truncated Magnus
+   exponent, which is a right factor like any other and inherits both properties.
+
+In the corpus's composition order (paper eq. 18) the reapplication is exactly
+what `ESKF/predictPreintegrated.mo` already computes for the nominal state:
+
+    q+ = q0 (x) dq
+    v+ = v0 + g dt + R0 dv
+    p+ = p0 + v0 dt + (1/2) g dt^2 + R0 dp
+
+The gravity terms are the blocks of `L`; the `(dp, dv, dq)` triple is `R`.
+
+## 3. The estimator interface
+
+The horizon is **estimator-agnostic by construction**, so that an ESKF, the
+existing manifold UKF, and a later equivariant filter can be compared with the
+buffer, the predictor, and the re-base held bit-identical and only the filter
+swapped. Nothing in `Estimation.FusionHorizon` mentions covariance, sigma
+points, error states, tangent ordering, or injection.
+
+The interface is not new. It is the algorithm-neutral boundary the corpus
+already has, used in one direction each way:
+
+| direction | carrier | content |
+| --- | --- | --- |
+| horizon to filter | `Avionics.ImuSample` | the accumulated SE_2(3) delta since the last fusion instant, its span, the bias anchor it was integrated at, and the five bias Jacobians |
+| horizon to filter | `Avionics.{Mocap,Gps,Magnetometer,Barometer,OpticalFlow}Sample` | the aiding streams, passed through untouched |
+| filter to horizon | `Avionics.NavigationEstimate` | the corrected pose at the fusion instant: position, velocity, quaternion |
+| filter to horizon | `gyroscopeBiasBodyFlu_rad_s`, `accelerometerBiasBodyFlu_m_s2` | a bias VALUE, not an increment and not an injection |
+| filter to horizon | `Avionics.EstimatorStatus.correctionOutcome` | the state-shifted signal that triggers a re-base |
+
+Every one of those already exists on
+`Estimation.StrapdownINS.PartialEstimator`, which both shipped filters extend,
+so the filter enters `HorizonEstimator` through a `replaceable ...
+constrainedby` slot and nothing else changes. `PartialEstimator` does also
+publish `navigationCovarianceLocal`; the horizon never reads it, and the
+horizon-facing subset is the table above.
+
+**Bias coupling, stated as an interface rule.** Buffered deltas are integrated
+at one anchor bias fixed at initialization. The estimator supplies a bias
+value; **the horizon computes the difference from its own anchor and applies
+the Jacobian correction itself**. The filter is never asked for an error-state
+injection, an increment, or a covariance, which is what keeps the same path
+usable by an additive-bias ESKF, a manifold UKF, and a filter whose bias lives
+somewhere else entirely. The remainder of that first-order move is second
+order and bounded by Prop. 8 (Sec. VI-A) at `(T_D ||db_g||)^2` with `T_D` the
+window span, **not** the mission length: about 1e-4 rad at a 200 ms horizon and
+a 0.05 rad/s bias offset, and it does not grow with flight time.
+
+The anchor is deliberately never moved. Re-anchoring mid-buffer would mix
+linearization points inside a single composed Jacobian, which is an error
+nothing in a closed-loop test would show.
+
+## 4. The rate structure
+
+Aligned with the lattice commit 8e19eba established, and not fighting it:
+
+- **800 Hz**, IMU and rate loop off the same data-ready interrupt. One
+  FOH-corrected SE_2(3) delta per tick from two consecutive samples.
+- **100 Hz**, one filter release per composed packet.
+- **200 ms** fusion horizon: 160 buffered deltas at 800 Hz, 20 releases.
+
+The paper records the gap this closes. Remark `rev:asbuilt` in Sec. VIII states
+that every hold-order result presupposes samples between releases are
+accumulated into a delta packet, that the flight firmware does not do this, and
+that accumulation is therefore the precondition for any hold-order result to
+apply on hardware. The corpus does accumulate, destructively, over 8 ticks. The
+ring specified here is the same accumulation held for 160 ticks and non-
+destructively.
+
+**A delayed horizon costs one horizon of start-up.** Until the ring spans the
+horizon plus one release window there is no fusion instant, no packet is
+released, and the filter has not started. The predictor runs from the seed pose
+meanwhile. Releasing early would stamp a packet with an epoch the filter is not
+standing on, which is the failure the whole design exists to avoid.
+
+### Anti-aliasing is an assumption, not code
+
+The buffer integrates one sample per 800 Hz tick and claims first-order-hold
+accuracy for it. That is only true for a stream band-limited below 400 Hz. It
+is, in silicon, before sampling: the deployed ICM-45686 runs its gyroscope at
+1600 Hz ODR with the on-die low-pass at ODR/8 = 200 Hz and the accelerometer at
+ODR/16 = 100 Hz (`cerebri_rdd2`, `boards/mr_vmu_tropic.overlay`). The raw
+32 kHz mechanical bandwidth never reaches this code. The model carries no
+filter because its input is defined to be the already-filtered stream. This is
+written into the `Documentation` annotation of the package and of the block,
+and a change to the hardware filter configuration would invalidate the
+hold-order error budget with nothing in the model detecting it.
+
+## 5. The output predictor
+
+State carried at 800 Hz:
+
+- `ring`: a fixed-size discrete ring of deltas, each carrying `(dp, dv, dq, dt)`
+  and the five bias Jacobians, 56 reals per entry. **One entry per release
+  window, not per tick.** Composition is exact at any granularity by Lemma 5 and
+  the fusion instant only ever lands on a release, so one entry per window is
+  the same group element as eight per window at an eighth of the storage
+  traffic. Length is `fusionHorizon_s / fusionPeriod_s + 2` (22 at the flight
+  rates): the horizon, the window being accumulated, and one slot of slack so a
+  release never races the store. No dynamic allocation, and the index arithmetic
+  wraps at most once.
+- `ringTail`, `ringCount`: the complete windows standing behind the live one.
+- `liveRow`: the window being accumulated, carried as its own state rather than
+  read back out of the ring, because reading one entry through a fold costs a
+  whole window of group products for one row.
+- the predicted pose at now.
+
+Per tick, in order: **integrate** the newest interval by Theorem 1 and
+**accumulate** it into the live window; **adopt** the completed window into the
+ring and **release** the oldest if the horizon is full; **compose**.
+
+- *incremental*, the common case: one group composition onto the previous
+  answer. Correct because a window slide with no correction does not move now:
+  the factor the filter consumed in its own prediction is exactly the factor the
+  predictor already composed, and associativity does the rest.
+- *re-base*, only when the filter shifted the horizon state: fold the whole
+  buffer, move it to the filter's current bias in one Jacobian step, and compose
+  onto the corrected pose. Theorem 6 applied literally.
+
+**Re-base is triggered by an accepted correction, not by a window slide.** This
+is the single most important cost fact in the design. The fusion instant
+advances every 10 ms unconditionally; only a nonzero state shift requires the
+recomposition.
+
+### Why the full fold and not the peel
+
+A cheaper re-base exists. Because composition is a group operation,
+
+    D(h' -> now) = D(h -> h')^-1 (x) D(h -> now)
+
+peels the consumed span off a single running accumulator: one inverse and one
+composition instead of 160. `dev/2026-08-25-hot-loop-output-predictor.md` in
+the rumoca repository argues for exactly this, and it is algebraically exact
+for the nominal state.
+
+This design takes the fold anyway, for two reasons. The peel never re-anchors,
+so single-precision error in the accumulator compounds without bound over a
+flight, in the one quantity control reads. And the peel's bias Jacobians are
+only first order through the inverse, which is a silent error: nothing in a
+closed-loop test distinguishes a slightly wrong Jacobian from slightly wrong
+tuning. The fold re-derives the window from stored deltas every time, so the
+predictor's error is bounded by the horizon length rather than by mission
+length. The cost of that choice is measured, stated separately in the WCET
+table, and is the design's worst case. The peel stays available if the numbers
+ever demand it.
+
+The measured outcome is recorded in `delayed-fusion-horizon-wcet.md` and it does
+not flatter this choice. The fold is inside budget as an algorithm and two
+orders of magnitude outside it as generated, for a code-generation reason that
+is identified there. The peel is the fallback those numbers would force if the
+code generator is not fixed first, which is why the argument above is recorded
+rather than assumed settled.
+
+### What the predictor is not
+
+It is not a second integrator. PX4's `output_predictor.cpp` runs
+`calculateOutputStates()` as an independent earth-frame integrator and
+reconciles it to the EKF with a tuned complementary filter
+(`att_gain = 0.5 dt / time_delay`, chosen for a 0.7 damping ratio), because its
+increments are formed in the earth frame and therefore depend on the attitude
+anchor it is trying to correct. Its own comment concedes the buffer-wide
+correction is too expensive for the attitude states. Ours integrates in the
+anchor's body frame, so the increment is independent of the state by
+construction and the reconciliation is an algebraic identity rather than a
+tuned loop. One integrator with two consumers, not two integrators that must be
+made to agree.
+
+## 6. Files
+
+New package `Estimation/FusionHorizon/`:
+
+| file | kind | role |
+| --- | --- | --- |
+| `package.mo` | package | package head, `DeltaLength`, the assumptions |
+| `Delta.mo` | record | one SE_2(3) right factor, its span, its five Jacobians |
+| `Pose.mo` | record | position, velocity, attitude. No filter content |
+| `identityDelta.mo` | function | the identity over a zero span |
+| `packDelta.mo` / `unpackDelta.mo` | function | the one place the ring layout is known |
+| `integrateSample.mo` | function | Theorem 1: two raw samples to one delta |
+| `composeDelta.mo` | function | Lemma 5: delta (x) delta, with the time block and the Jacobian chain rule |
+| `rebiasDelta.mo` | function | Prop. 8: the first-order bias move |
+| `composePose.mo` | function | Theorem 6: `L X R` |
+| `foldBuffer.mo` | function | the re-base kernel |
+| `readRow.mo` | function | select one ring row without a dynamic index |
+| `storeRow.mo` | function | store one row, branch-free and fixed-length |
+| `jacobianBlock.mo` | function | read one 3x3 Jacobian out of a row |
+| `step.mo` | function | one whole inertial tick, pure |
+| `navigationEstimate.mo` | function | pose to `Avionics.NavigationEstimate` |
+| `OutputPredictor.mo` | block | the clocked shell over the ring |
+| `HorizonEstimator.mo` | block | horizon plus a `replaceable` filter |
+
+Existing files edited: `Estimation/package.order`, `Tests/package.order`,
+`tools/ci.py` (one Rumoca target, one OpenModelica script).
+
+Every buffer operation is a **function**, not a when-body loop. That is a
+deliberate accommodation of three known compiler limits: conditional
+accumulation inside a `for` in a `when` body, constant folding on long foldable
+loops, and the fact that the generated C does not survive a record inside a
+multiple-output tuple. `step` therefore returns plain arrays, integers, and
+booleans, and the caller assembles the packet record from a returned row.
+
+## 7. Tests
+
+`Tests/HorizonPredictorTests.mo` (algebraic identities, constant-folded),
+`Tests/HorizonInterfaceTests.mo` (time-domain), and
+`Tests/HorizonEstimatorWiring.mo` (filter interchange), with their own
+`Tests/run-horizon.mos` entry. `when`-clause assertions are vacuous under OMC
+and a fully constant-foldable model is evaluated away inside `Tests.All`, so
+the entry point that gates the properties is a top-level simulation, following
+`Tests/run-position-loop.mos`.
+
+Measured residuals are recorded in the assertion comments so the next reader
+sees the margin rather than a bare limit.
+
+**A tool limitation, recorded rather than worked around.** OpenModelica cannot
+build a simulation containing a bare
+`Estimation.StrapdownINS.PartialEstimator`: it reports an independent subset of
+the flattened estimator over-determined by nineteen equations. The existing
+`Tests.StrapdownEstimatorInterfaceTests` fails identically on an untouched tree
+at 8e19eba, which is why the corpus compiles it and never simulates it. The
+ESKF-and-UKF-through-one-horizon model is therefore gated at translation by
+OpenModelica and at lowering by Rumoca, on exactly the gate the corpus already
+uses for estimator interchange, and the time-domain behaviour is tested against
+a filter stand-in on the same declared boundary.
+
+## 8. Landing split
+
+The horizon package, the predictor, and their tests land as a **parallel path**:
+new files plus three one-line edits. The ESKF rewiring that moves
+`ESKF/Estimator.mo` and `ESKF/step.mo` to fuse at `t - D` and retires
+`retrodict`'s callers is a **follow-up**. Three reasons, all about risk:
+
+1. The rewiring touches the correction supervision path -- anchor selection,
+   staleness clocks, the recovery ladder -- which is where the measured failure
+   narratives live. It wants its own qualification run, not a shared one.
+2. The `ESKF/` subtree has concurrent in-flight work. New files collide with
+   nothing.
+3. The parallel path is independently useful and independently testable, and
+   the rewiring only changes what the horizon's filter slot is wired to.
