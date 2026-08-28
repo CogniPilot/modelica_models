@@ -1,0 +1,63 @@
+// Tests.ManualGuidanceTests and Tests.ManualGuidanceDynamics are simulated AS
+// TOP-LEVEL MODELS, not through Tests.All, for the reason recorded in
+// Tests/run-position-loop.mos: every variable of the first is
+// constant-foldable, so instantiated as a component of Tests.All OpenModelica
+// evaluates it away at translation and none of its assertion messages reach
+// the generated code. The second carries sampled state and is kept beside it
+// so one entry point gates the whole manual-guidance property set.
+setCommandLineOptions("--std=3.6");
+
+if not loadModel(LieGroups) then
+  print(getErrorString());
+  exit(1);
+end if;
+
+if not loadModel(Vehicles) then
+  print(getErrorString());
+  exit(1);
+end if;
+
+if not loadModel(Tests) then
+  print(getErrorString());
+  exit(1);
+end if;
+
+testOutputDirectory := getTempDirectoryPath();
+cd(testOutputDirectory);
+
+print(checkModel(Tests.ManualGuidanceTests));
+print(getErrorString());
+staticResult := simulate(
+  Tests.ManualGuidanceTests,
+  startTime=0.0,
+  stopTime=0.0,
+  numberOfIntervals=1,
+  tolerance=1.0e-10,
+  outputFormat="mat",
+  fileNamePrefix="modelica_models_Tests_ManualGuidanceTests");
+print(getErrorString());
+staticResultFile := staticResult.resultFile;
+if staticResultFile == "" then
+  print("Manual guidance shaping test simulation failed\n");
+  exit(1);
+end if;
+
+print(checkModel(Tests.ManualGuidanceDynamics));
+print(getErrorString());
+dynamicResult := simulate(
+  Tests.ManualGuidanceDynamics,
+  startTime=0.0,
+  stopTime=10.0,
+  numberOfIntervals=2000,
+  tolerance=1.0e-8,
+  method="dassl",
+  outputFormat="mat",
+  fileNamePrefix="modelica_models_Tests_ManualGuidanceDynamics");
+print(getErrorString());
+dynamicResultFile := dynamicResult.resultFile;
+if dynamicResultFile == "" then
+  print("Manual guidance dynamics test simulation failed\n");
+  exit(1);
+end if;
+
+exit(0);

@@ -68,6 +68,7 @@ def run_openmodelica_tests(repository: Path) -> None:
     run_omc_script(repository, "Tests/run.mos")
     run_omc_script(repository, "Tests/run-loglinear.mos")
     run_omc_script(repository, "Tests/run-position-loop.mos")
+    run_omc_script(repository, "Tests/run-manual-guidance.mos")
     run_omc_script(repository, "Tests/check-vehicle-boundaries.mos")
 
 
@@ -194,6 +195,13 @@ def run_rumoca_tests(repository: Path) -> None:
                 "--emit",
                 "dae-json",
                 "rdd2-waypoint-mission.dae.json",
+            ),
+            (
+                "Vehicles/Rdd2/Test/ManualFlightMission.mo",
+                "Vehicles.Rdd2.Test.ManualFlightMission",
+                "--emit",
+                "dae-json",
+                "rdd2-manual-flight-mission.dae.json",
             ),
         )
         for model_file, model_name, option, format_name, artifact in named_models:

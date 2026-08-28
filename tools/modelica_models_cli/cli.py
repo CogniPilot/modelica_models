@@ -59,9 +59,16 @@ EXPORTS = {
     ),
 }
 
+# Each vehicle runs its qualification scripts in order. The RDD2 manual-flight
+# mission is a closed-loop mission like the waypoint ones and belongs beside
+# them rather than in the fast compiler-and-assertions job, and it runs first
+# because it is the shorter of the two.
 QUALIFICATIONS = {
-    "cubs2": "Vehicles/Cubs2/Test/run_qualification.py",
-    "rdd2": "Vehicles/Rdd2/Test/run_waypoint_qualification.py",
+    "cubs2": ("Vehicles/Cubs2/Test/run_qualification.py",),
+    "rdd2": (
+        "Vehicles/Rdd2/Test/run_manual_flight.py",
+        "Vehicles/Rdd2/Test/run_waypoint_qualification.py",
+    ),
 }
 
 
@@ -110,8 +117,9 @@ def rumoca_version(root: Path) -> None:
 def qualify(root: Path, vehicle: str, arguments: Sequence[str]) -> None:
     rumoca_version(root)
     vehicles = QUALIFICATIONS if vehicle == "all" else {vehicle: QUALIFICATIONS[vehicle]}
-    for relative in vehicles.values():
-        script(root, relative, arguments)
+    for scripts in vehicles.values():
+        for relative in scripts:
+            script(root, relative, arguments)
 
 
 def export(root: Path, name: str, arguments: Sequence[str]) -> None:
