@@ -344,6 +344,33 @@ protected
   discrete Real opticalFlowOutGroundDistanceVariance_m2;
   discrete Real opticalFlowOutQuality;
 
+  // A DELIVERED PACKET IS HELD UNTIL THE NEXT ONE REPLACES IT, and only
+  // `fresh` is pulsed. Pulsing `valid` too was wrong and the reason is worth
+  // keeping: a filter fuses at most ONE correction per tick, chosen from a
+  // priority chain, so on a tick where several sources are ripe together the
+  // ones the chain does not pick are simply not consumed. With `valid` pulsed
+  // they were gone by the next tick and the measurement was lost with no
+  // outcome recorded anywhere. The live-edge wiring never had this problem
+  // because a driver holds `valid` as a level and pulses `fresh` beside it,
+  // and the filters' novelty-by-timestamp rule then consumes each packet
+  // exactly once whenever the chain gets to it. Holding restores that, and it
+  // is the deployed GPS driver's own waveform.
+  discrete Real mocapHeldRow[MocapMeasurementLength](
+    each start = 0.0, each fixed = true);
+  discrete Boolean mocapHeldValid(start = false, fixed = true);
+  discrete Real gpsHeldRow[GpsMeasurementLength](
+    each start = 0.0, each fixed = true);
+  discrete Boolean gpsHeldValid(start = false, fixed = true);
+  discrete Real magnetometerHeldRow[MagnetometerMeasurementLength](
+    each start = 0.0, each fixed = true);
+  discrete Boolean magnetometerHeldValid(start = false, fixed = true);
+  discrete Real barometerHeldRow[BarometerMeasurementLength](
+    each start = 0.0, each fixed = true);
+  discrete Boolean barometerHeldValid(start = false, fixed = true);
+  discrete Real opticalFlowHeldRow[OpticalFlowMeasurementLength](
+    each start = 0.0, each fixed = true);
+  discrete Boolean opticalFlowHeldValid(start = false, fixed = true);
+
   discrete Real mocapLastDelivered_s(
     start = -TimestampMagnitudeLimit, fixed = true);
   discrete Real gpsLastDelivered_s(
@@ -411,19 +438,22 @@ algorithm
       elseif mocapArrival <> AidingNoArrival
         and mocapArrival <> AidingBeforeHorizon
       then mocap.timestamp_s else pre(mocapAdmitted_s);
+    mocapHeldRow := if reset then zeros(MocapMeasurementLength)
+      elseif mocapDelivered then mocapDeliveredRow else pre(mocapHeldRow);
+    mocapHeldValid := (not reset) and (mocapDelivered or pre(mocapHeldValid));
     (mocapOutTimestamp_s,
      mocapOutPosition_m,
      mocapOutQuaternion,
      mocapOutPositionCovariance_m2,
      mocapOutAttitudeCovariance_rad2) :=
-      Estimation.FusionHorizon.unpackMocap(mocapDeliveredRow);
+      Estimation.FusionHorizon.unpackMocap(mocapHeldRow);
     mocapAtHorizon.timestamp_s := mocapOutTimestamp_s;
     mocapAtHorizon.positionWorldEnu_m := mocapOutPosition_m;
     mocapAtHorizon.quaternionWorldBody := mocapOutQuaternion;
     mocapAtHorizon.positionCovarianceWorld_m2 := mocapOutPositionCovariance_m2;
     mocapAtHorizon.attitudeCovarianceBody_rad2 :=
       mocapOutAttitudeCovariance_rad2;
-    mocapAtHorizon.valid := mocapDelivered;
+    mocapAtHorizon.valid := mocapHeldValid;
     mocapAtHorizon.fresh := mocapDelivered;
 
     // ---- GPS --------------------------------------------------------------
@@ -450,6 +480,9 @@ algorithm
       elseif gpsArrival <> AidingNoArrival
         and gpsArrival <> AidingBeforeHorizon
       then gps.timestamp_s else pre(gpsAdmitted_s);
+    gpsHeldRow := if reset then zeros(GpsMeasurementLength)
+      elseif gpsDelivered then gpsDeliveredRow else pre(gpsHeldRow);
+    gpsHeldValid := (not reset) and (gpsDelivered or pre(gpsHeldValid));
     (gpsOutTimestamp_s,
      gpsOutPositionValid,
      gpsOutVelocityValid,
@@ -458,20 +491,20 @@ algorithm
      gpsOutVelocity_m_s,
      gpsOutPositionCovariance_m2,
      gpsOutVelocityCovariance_m2_s2) :=
-      Estimation.FusionHorizon.unpackGps(gpsDeliveredRow);
+      Estimation.FusionHorizon.unpackGps(gpsHeldRow);
     gpsAtHorizon.timestamp_s := gpsOutTimestamp_s;
-    // A fix that was not delivered offers neither half of its solution. The
-    // stored flags say which half the SOLUTION carried; delivery says whether
-    // there is a solution at all, and both have to hold.
-    gpsAtHorizon.positionValid := gpsOutPositionValid and gpsDelivered;
-    gpsAtHorizon.velocityValid := gpsOutVelocityValid and gpsDelivered;
+    // A fix never delivered offers neither half of its solution. The stored
+    // flags say which half the SOLUTION carried; held validity says whether a
+    // solution has been handed over at all, and both have to hold.
+    gpsAtHorizon.positionValid := gpsOutPositionValid and gpsHeldValid;
+    gpsAtHorizon.velocityValid := gpsOutVelocityValid and gpsHeldValid;
     gpsAtHorizon.geodetic_deg_m := gpsOutGeodetic_deg_m;
     gpsAtHorizon.positionWorldEnu_m := gpsOutPosition_m;
     gpsAtHorizon.velocityWorldEnu_m_s := gpsOutVelocity_m_s;
     gpsAtHorizon.positionCovarianceWorld_m2 := gpsOutPositionCovariance_m2;
     gpsAtHorizon.velocityCovarianceWorld_m2_s2 :=
       gpsOutVelocityCovariance_m2_s2;
-    gpsAtHorizon.valid := gpsDelivered;
+    gpsAtHorizon.valid := gpsHeldValid;
     gpsAtHorizon.fresh := gpsDelivered;
 
     // ---- magnetometer -----------------------------------------------------
@@ -500,14 +533,17 @@ algorithm
       elseif magnetometerArrival <> AidingNoArrival
         and magnetometerArrival <> AidingBeforeHorizon
       then magnetometer.timestamp_s else pre(magnetometerAdmitted_s);
+    magnetometerHeldRow := if reset then zeros(MagnetometerMeasurementLength)
+      elseif magnetometerDelivered then magnetometerDeliveredRow else pre(magnetometerHeldRow);
+    magnetometerHeldValid := (not reset) and (magnetometerDelivered or pre(magnetometerHeldValid));
     (magnetometerOutTimestamp_s,
      magnetometerOutField_T,
      magnetometerOutCovariance_T2) :=
-      Estimation.FusionHorizon.unpackMagnetometer(magnetometerDeliveredRow);
+      Estimation.FusionHorizon.unpackMagnetometer(magnetometerHeldRow);
     magnetometerAtHorizon.timestamp_s := magnetometerOutTimestamp_s;
     magnetometerAtHorizon.magneticFieldBodyFlu_T := magnetometerOutField_T;
     magnetometerAtHorizon.covarianceBody_T2 := magnetometerOutCovariance_T2;
-    magnetometerAtHorizon.valid := magnetometerDelivered;
+    magnetometerAtHorizon.valid := magnetometerHeldValid;
     magnetometerAtHorizon.fresh := magnetometerDelivered;
 
     // ---- barometer --------------------------------------------------------
@@ -536,14 +572,17 @@ algorithm
       elseif barometerArrival <> AidingNoArrival
         and barometerArrival <> AidingBeforeHorizon
       then barometer.timestamp_s else pre(barometerAdmitted_s);
+    barometerHeldRow := if reset then zeros(BarometerMeasurementLength)
+      elseif barometerDelivered then barometerDeliveredRow else pre(barometerHeldRow);
+    barometerHeldValid := (not reset) and (barometerDelivered or pre(barometerHeldValid));
     (barometerOutTimestamp_s,
      barometerOutAltitude_m,
      barometerOutVariance_m2) :=
-      Estimation.FusionHorizon.unpackBarometer(barometerDeliveredRow);
+      Estimation.FusionHorizon.unpackBarometer(barometerHeldRow);
     barometerAtHorizon.timestamp_s := barometerOutTimestamp_s;
     barometerAtHorizon.altitudeWorldEnu_m := barometerOutAltitude_m;
     barometerAtHorizon.variance_m2 := barometerOutVariance_m2;
-    barometerAtHorizon.valid := barometerDelivered;
+    barometerAtHorizon.valid := barometerHeldValid;
     barometerAtHorizon.fresh := barometerDelivered;
 
     // ---- optical flow -----------------------------------------------------
@@ -572,6 +611,9 @@ algorithm
       elseif opticalFlowArrival <> AidingNoArrival
         and opticalFlowArrival <> AidingBeforeHorizon
       then opticalFlow.timestamp_s else pre(opticalFlowAdmitted_s);
+    opticalFlowHeldRow := if reset then zeros(OpticalFlowMeasurementLength)
+      elseif opticalFlowDelivered then opticalFlowDeliveredRow else pre(opticalFlowHeldRow);
+    opticalFlowHeldValid := (not reset) and (opticalFlowDelivered or pre(opticalFlowHeldValid));
     (opticalFlowOutTimestamp_s,
      opticalFlowOutLineOfSight_rad,
      opticalFlowOutLineOfSightCovariance_rad2,
@@ -581,7 +623,7 @@ algorithm
      opticalFlowOutGroundDistance_m,
      opticalFlowOutGroundDistanceVariance_m2,
      opticalFlowOutQuality) :=
-      Estimation.FusionHorizon.unpackOpticalFlow(opticalFlowDeliveredRow);
+      Estimation.FusionHorizon.unpackOpticalFlow(opticalFlowHeldRow);
     opticalFlowAtHorizon.timestamp_s := opticalFlowOutTimestamp_s;
     opticalFlowAtHorizon.integratedLineOfSight_rad :=
       opticalFlowOutLineOfSight_rad;
@@ -596,7 +638,7 @@ algorithm
     opticalFlowAtHorizon.groundDistanceVariance_m2 :=
       opticalFlowOutGroundDistanceVariance_m2;
     opticalFlowAtHorizon.quality := opticalFlowOutQuality;
-    opticalFlowAtHorizon.valid := opticalFlowDelivered;
+    opticalFlowAtHorizon.valid := opticalFlowHeldValid;
     opticalFlowAtHorizon.fresh := opticalFlowDelivered;
 
     // ---- supervision ------------------------------------------------------
