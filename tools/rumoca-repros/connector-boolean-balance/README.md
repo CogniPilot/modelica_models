@@ -10,7 +10,7 @@ Reproduced with `rumoca` `853791b5`:
 
     rumoca compile ConnectorBooleanBalance.mo \
       --model ConnectorBooleanBalance.Outer \
-      --emit dae-json --output /dev/null
+      --emit dae-json --output /tmp/connector-boolean-balance.dae.json
 
     [ED001] unbalanced model: 8 equations, 6 unknowns (balance = 2)
 
