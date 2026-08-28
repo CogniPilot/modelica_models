@@ -585,7 +585,11 @@ algorithm
         and (not anchorExclusive or anchorPresent == SourceMocap) then
       (working, mocapCorrectionAccepted, correctionOutcome,
        normalizedInnovationSquared) :=
-        correctMocap(working, mocap, tuning.innovationGate);
+        correctMocap(working, mocap, tuning.innovationGate,
+          imuTimestampHeldNext_s - mocap.timestamp_s,
+          imuAngularVelocityHeldNext_rad_s,
+          imuSpecificForceHeldNext_m_s2, gravityWorldEnu_m_s2,
+          tuning.maximumAidingDelay_s);
       correctionAttempted := true;
       correctionAccepted := mocapCorrectionAccepted;
       correctionSource := SourceMocap;
