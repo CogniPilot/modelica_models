@@ -60,6 +60,30 @@ block AidingBuffer
      not the same size: that one is 0.25 s and admits a cubic-Taylor transport
      error the design record puts at 12 to 27 percent, this one is one release
      period. At the flight lattice that is 0.01 s against 0.25 s.";
+  parameter Real maximumSourceDelay_s(unit = "s", min = 0.0) = 0.11
+    "Worst end-to-end age any aiding source is declared to deliver at. It is
+     what the horizon has to be long enough to cover, and it is stated rather
+     than inferred because this block cannot see a sensor: it sees timestamps.
+
+     The default is the largest plant-side latency the deployed vehicle
+     carries, GPS at 110 ms, which is PX4's last shipped EKF2_GPS_DELAY
+     default. A deployment with a slower source must raise this, and raising it
+     past the horizon is refused below rather than silently aging that source
+     out of every fusion.";
+  parameter Real horizonJitterMargin_s(unit = "s", min = 0.0) = 0.05
+    "Headroom the horizon must keep beyond the worst declared source delay.
+
+     A delay is a nominal, not a bound: a driver that usually delivers at
+     110 ms occasionally delivers later, and a horizon sized exactly to the
+     nominal turns every one of those into a refused measurement. 50 ms is
+     roughly half the GPS delay it is protecting, which is the same order as
+     the jitter a scheduler and a link contribute together, and the flight
+     configuration clears the sum by a further 40 ms.
+
+     PX4 states the same relation without the margin: EKF2_DELAY_MAX, the
+     delay between now and its delayed-time horizon, `should be at least as
+     large as the largest EKF2_XXX_DELAY parameter`. This is that rule with
+     headroom, and it is an assertion rather than a note.";
   parameter Real epochTolerance_s(unit = "s", min = 0.0) = 1.0e-7
     "Slack on the ripeness comparison. A measurement stamped AT the fusion
      instant has to be ripe at it, and a carried epoch advanced by repeated
@@ -676,6 +700,24 @@ equation
      residual reaches one release period by construction and a tighter bound
      discards every measurement as stale while reporting a stale drop rather
      than a configuration error");
+
+  // THE HORIZON MUST COVER THE SLOWEST SOURCE, with headroom. This is the
+  // relation that makes the older-than-the-horizon refusal an ANOMALY path
+  // rather than a routine one: inside it, every declared source ripens with
+  // time to spare and only a genuinely late packet is refused. A horizon
+  // shorter than the sum turns the refusal into the normal case for the
+  // slowest source, which is aiding silently switched off and reported as a
+  // per-measurement timestamp fault.
+  //
+  // PX4 ships the same rule for the same reason: EKF2_DELAY_MAX is documented
+  // as needing to be at least the largest EKF2_XXX_DELAY. This adds the
+  // jitter headroom and makes it refuse rather than advise.
+  assert(fusionHorizon_s >= maximumSourceDelay_s + horizonJitterMargin_s,
+    "fusionHorizon_s must cover the slowest declared aiding source plus the
+     jitter margin: a horizon shorter than maximumSourceDelay_s +
+     horizonJitterMargin_s reaches a measurement's timestamp only after it has
+     passed, so that source is refused as late on every packet and its aiding
+     is off while the reported fault is per-measurement");
 
   // CAPACITY IS NOT ASSERTED, and the reason is worth stating rather than
   // leaving as an omission. An earlier version of this block asserted that
