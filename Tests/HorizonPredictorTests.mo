@@ -124,7 +124,41 @@ model HorizonPredictorTests
     + releasedSpan_s ^ 3 * gyroscopeBiasMoveMagnitude_rad_s
       * accelerometerBiasMoveMagnitude_m_s2 / 6.0;
 
+  // (f) A composed window divided by its own earliest factor returns the rest
+  // of the window EXACTLY. This is the enabling fact for maintaining the
+  // window product across releases instead of refolding the ring on every
+  // correction, and it is measured rather than assumed because the design
+  // record asserts the opposite: docs/delayed-fusion-horizon.md rejects the
+  // peel partly because "the peel's bias Jacobians are only first order
+  // through the inverse, which is a silent error".
+  //
+  // For the composition this package uses they are exact, and the reason is
+  // structural rather than lucky. Read composeDelta as a map from the second
+  // factor to the composed one with the first held fixed: every line is a
+  // known quantity plus a ROTATION times a block of the second factor. An
+  // affine map with orthogonal leading coefficients is solved by a subtraction
+  // and a transpose, so nothing is linearized and nothing is inverted.
+  final parameter Real retirement[4] =
+    Tests.HorizonChecks.retirementResidual(
+      horizonEntries, horizonEntries, samplePeriod);
+
 equation
+  // ---- (f) retiring the earliest factor is exact --------------------------
+  // Measured over two 160-tick factors: PLACEHOLDER. The limits are the same
+  // floating-point limits arm (a) uses, because the claim is the same kind of
+  // claim -- an algebraic identity, not an approximation with a bound.
+  assert(retirement[1] < 1.0e-15,
+    "Retiring the earliest factor from a composed window does not return the
+     rest of the window in position, so a maintained window product cannot
+     stand in for refolding the ring");
+  assert(retirement[2] < 1.0e-15,
+    "Retiring the earliest factor is not exact in velocity");
+  assert(retirement[3] < 1.0e-15,
+    "Retiring the earliest factor is not exact in attitude");
+  assert(retirement[4] < 1.0e-14,
+    "Retiring the earliest factor is not exact in the bias Jacobians, which is
+     the block the design record predicted would only be first order");
+
   // ---- (a) the composition theorem, to floating point ---------------------
   // Measured on this stream: 1.3e-18 m, 1.3e-17 m/s, 5.6e-17 rad under the
   // first-order hold, and identically zero under the zero-order hold. The

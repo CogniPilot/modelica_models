@@ -21,6 +21,7 @@ unpackDelta
 integrateSample
 composeDelta
 rebiasDelta
+retireDelta
 composePose
 foldBuffer
 readRow
