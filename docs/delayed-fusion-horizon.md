@@ -254,6 +254,7 @@ of 0.01 s.
 | `AidingQueued` | stored, to be fused when the fusion instant reaches it |
 | `AidingRefusedLate` | the fusion instant had already passed it by more than the residual bound. There is no instant left to fuse it at. This is the outcome that replaces transporting a Jacobian a quarter second backwards |
 | `AidingRefusedOverflow` | the queue was full. The queue keeps what it holds and the NEW measurement is lost |
+| `AidingDroppedStale` | admitted, then discarded at delivery. Reachable by a packet whose latency lands between `fusionHorizon_s` and `fusionHorizon_s + maximumResidualAge_s`: delivery reads the queue as it stood before this tick's store, so a measurement arriving already ripe waits one release and the instant has moved a window past it by then. An earlier note called this unreachable, which was wrong |
 | `AidingBeforeHorizon` | presented before the first release. NOT a refusal and not counted as one: the horizon costs one horizon of start-up, during which the filter had no inertial packet either. The sample is left unconsumed, so a held packet is admitted on the first tick after the horizon becomes real |
 
 plus `AidingDroppedStale` on the delivery side, for an entry that was ripe but
@@ -293,6 +294,90 @@ must not be settable independently.
 
 At the flight lattice: mocap 22, GPS 4, magnetometer 6, barometer 12, optical
 flow 22 slots, 1312 reals in all, 5,248 B at single precision.
+
+### The horizon must cover the slowest source, and now says so
+
+`fusionHorizon_s >= maximumSourceDelay_s + horizonJitterMargin_s`, asserted in
+`AidingBuffer`, with `Tests.AidingHorizonRefusals.ShortHorizon` as the negative
+test.
+
+PX4 ships the same relation without the headroom: `EKF2_DELAY_MAX`, documented
+as "the delay between the current time and the delayed-time horizon", "should
+be at least as large as the largest `EKF2_XXX_DELAY` parameter". Its default is
+**200 ms**, which is the same quantity and the same value as
+`fusionHorizon_s`. Worth recording plainly: the 200 ms horizon is not this
+corpus's invention, it is what the reference implementation runs.
+
+The margin is what makes the older-than-the-horizon refusal an ANOMALY path
+rather than a routine one. A declared delay is a nominal, not a bound; a
+horizon sized exactly to the nominal turns every late delivery into a refused
+measurement. At the flight configuration the sum is 110 + 50 = 160 ms against a
+200 ms horizon, so it clears by a further 40 ms.
+
+### The plant-side sensor delays are PX4's, not placeholders
+
+`Vehicles/Rdd2/WaypointVehicleSystem.mo` models how old each measurement
+already is when a driver hands it over. Those latencies were placeholders; they
+are now taken from PX4-Autopilot `src/modules/ekf2/params_*.yaml`, read
+2026-08-28, because a delayed-aiding result computed against a placeholder says
+more about the placeholder than about the filter.
+
+| source | model parameter | value | PX4 parameter |
+| --- | --- | --- | --- |
+| GPS | `gpsLatency_s` | 0.110 s | `EKF2_GPS_DELAY`, v1.15.0 default 110 ms |
+| optical flow | `opticalFlowLatency_s` | 0.020 s | `EKF2_OF_DELAY`, main default 20 ms |
+| magnetometer | `magnetometerTransportDelay_s` | 0.0 s | `EKF2_MAG_DELAY`, main default 0 ms |
+| barometer | `barometerTransportDelay_s` | 0.0 s | `EKF2_BARO_DELAY`, main default 0 ms |
+| mocap | none | not modelled | `EKF2_EV_DELAY`, main default 0 ms |
+
+Three things about that table are worth stating rather than leaving to be
+noticed.
+
+**GPS is cited from v1.15.0 because the parameter no longer exists.** The whole
+EKF2 delay family on main is `EKF2_ASP_DELAY` 100, `EKF2_AVEL_DELAY` 5,
+`EKF2_BARO_DELAY` 0, `EKF2_EV_DELAY` 0, `EKF2_MAG_DELAY` 0, `EKF2_OF_DELAY` 20,
+`EKF2_RNGBC_DELAY` 0, `EKF2_RNG_DELAY` 5, all in ms, and GNSS carries no delay
+parameter at all: the driver's own sample timestamp replaced it. 110 ms is
+PX4's last shipped default, used because this model needs an explicit
+plant-side latency where PX4 now needs none.
+
+**Zero for the barometer and the magnetometer is a topology claim, not a
+rounding.** PX4 ships zero because those are onboard sensors read by the
+autopilot that reads the IMU, timestamped against one clock with no transport
+to model. This vehicle matches that topology, so zero is the honest value; an
+off-board magnetometer arriving over a link would not be entitled to it. The
+previous 0.02 and 0.04 described a bus this vehicle does not have, and made the
+barometer the second most delayed source in a model whose reference treats it
+as undelayed.
+
+**A zero delay is expressed by the ABSENCE of a `delay()` operator.** Rumoca
+requires `delayTime` to be a finite positive scalar and refuses the operator
+otherwise, which is the right refusal. The two capture equations therefore read
+plant truth directly and the two parameters are `final`, so a modification
+cannot move the packet timestamp without moving the measurement and leave the
+plant reporting an age it never applied.
+
+`EKF2_ASP_DELAY` and `EKF2_RNG_DELAY` are not adopted: this vehicle carries no
+airspeed sensor, and its downward range arrives inside the optical-flow packet
+rather than as an independent aided source.
+
+### Capacity is unchanged by the new delays, and here is why
+
+A depth is `ceil(D / P) + slack`, which depends on the horizon and the source
+PERIOD and not on the source delay, so no depth moved. What moved is the
+steady-state occupancy, `(D - L) / P`, and every case still fits:
+
+| source | period | depth | steady before | steady after | startup |
+| --- | --- | --- | --- | --- | --- |
+| GPS | 0.1 | 4 | 1.0 | 0.9 | 2.0 |
+| magnetometer | 0.05 | 6 | 3.6 | 4.0 | 4.0 |
+| barometer | 0.02 | 12 | 8.0 | 10.0 | 10.0 |
+| optical flow | 0.01 | 22 | 19.0 | 18.0 | 20.0 |
+
+Startup is the binding case and it is delay-independent, which is the reason
+the capacities did not have to move: a shorter latency means a measurement
+waits longer in the queue, and the worst wait is the whole horizon whatever the
+latency is.
 
 ### Bias coupling on the filter side
 
