@@ -70,6 +70,11 @@ block OutputPredictor
     "The share of foldBudget_hz reserved for accepted corrections, which are
      the folds the design exists to perform. Five per second covers a 5 Hz GPS
      fix rate. What is left is what the re-anchor may spend";
+  parameter Real maximumProductResidual(min = 0.0) = 1.0e-3
+    "Largest disagreement tolerated between the carried window product and the
+     one rebuilt from stored rows. Derived from the single-precision rounding
+     floor of one rebuild period with a factor of a hundred in hand; the
+     derivation is with the assertion below.";
   parameter Real initialGyroscopeBiasAnchorBodyFlu_rad_s[3] = zeros(3);
   parameter Real initialAccelerometerBiasAnchorBodyFlu_m_s2[3] = zeros(3);
   parameter Real initialPositionWorldEnu_m[3] = zeros(3);
@@ -140,6 +145,13 @@ block OutputPredictor
      first-order move is declared good for";
   discrete output Boolean rebased(start = false, fixed = true)
     "This tick recomposed the predictor over the whole buffer";
+  discrete output Real maintainedProductResidual(
+    start = 0.0, fixed = true)
+    "Disagreement between the carried window product and the one rebuilt from
+     stored rows, on the tick a rebuild completes and zero otherwise.
+     Published so a run can be inspected for a TREND and not merely for a
+     bound: a bound alone cannot distinguish a stationary rounding floor from
+     an error the replacement is failing to remove.";
   discrete output Boolean horizonReady(start = false, fixed = true)
     "A packet has been released, so the fusion instant is real and the epoch
      the packet carries can be stood on";
@@ -170,6 +182,15 @@ protected
   discrete Boolean seeded(start = false, fixed = true);
   discrete Boolean horizonReleased(start = false, fixed = true);
   discrete Real packetTimestamp_s(start = 0.0, fixed = true);
+  discrete Real windowProductRow[DeltaLength](
+    start = cat(1, zeros(6), {1.0}, zeros(49)), each fixed = true)
+    "The composition of the ring entries, carried across ticks instead of
+     refolded on every correction. Seeded at the group identity, which is the
+     empty product the ring starts as.";
+  discrete Real freshProductRow[DeltaLength](
+    start = cat(1, zeros(6), {1.0}, zeros(49)), each fixed = true);
+  discrete Integer rebuildCount(start = 0, fixed = true);
+  discrete Boolean productReplaced(start = false, fixed = true);
   discrete Real liveRow[DeltaLength](
     start = cat(1, zeros(6), {1.0}, zeros(49)), each fixed = true)
     "The window being accumulated, seeded at the group identity";
@@ -227,7 +248,12 @@ algorithm
      released,
      biasMoveExceeded,
      bufferedDeltaCount,
-     packetTimestamp_s) := Estimation.FusionHorizon.step(
+     packetTimestamp_s,
+     windowProductRow,
+     freshProductRow,
+     rebuildCount,
+     maintainedProductResidual,
+     productReplaced) := Estimation.FusionHorizon.step(
       reset,
       pre(tickIndex),
       angularVelocityMeasuredBodyFlu_rad_s,
@@ -235,6 +261,9 @@ algorithm
       pre(previousAngularVelocity_rad_s),
       pre(previousSpecificForce_m_s2),
       pre(ring),
+      pre(windowProductRow),
+      pre(freshProductRow),
+      pre(rebuildCount),
       pre(liveRow),
       pre(headSlot),
       pre(ringTail),
@@ -378,6 +407,48 @@ equation
      tolerance, narrow the bias-move bound the block claims to tolerate, or
      raise the fold budget once the code generator stops materializing a
      record-valued call once per component");
+
+  // The bound is enforced in the EQUATION section, not inside the clause that
+  // produces the number. Two reasons, and they agree. An assertion inside a
+  // when-clause is vacuous under OpenModelica, which is this suite's standing
+  // rule; and Rumoca refuses to read a variable in an assertion after an
+  // earlier write in the same algorithm, because that needs an SSA event
+  // transition it will not synthesize. Out here the residual is a discrete
+  // that holds between events, so the check stands on every tick and a carried
+  // product that has stopped agreeing with a rebuilt one is refused in flight
+  // rather than found in a log.
+  assert(maintainedProductResidual <= maximumProductResidual,
+    "The carried window product disagrees with the one rebuilt from stored
+     rows by more than single-precision rounding allows, so the incremental
+     maintenance is wrong and the predictor is composing onto a window the
+     buffer does not contain");
+
+  // THE REPLACEMENT HAS TO AGREE WITH WHAT IT REPLACES, within rounding, and
+  // the tolerance is derived rather than picked.
+  //
+  // Both products are the same group element reached by different routes, so
+  // the only difference is floating point. Rotations are isometries and every
+  // composition normalizes its quaternion, so constraint violation sits at
+  // machine epsilon and does not accumulate; position and velocity errors are
+  // rotated, which preserves their norm, and added. The error is therefore
+  // additive over the operations in one rebuild period: about three per adopt,
+  // horizonWindows adopts, so roughly 3 * horizonWindows operations on each
+  // quantity.
+  //
+  // At the single precision the flight artifact is generated in, eps is
+  // 1.19e-7, and the largest quantity in the row is the position increment
+  // over one horizon, of order metres. Sixty operations at that scale is about
+  // 7e-6. maximumProductResidual carries a factor of a hundred over that,
+  // which leaves the check able to catch a wrong left-division or a
+  // conditioning pathology while never firing on rounding.
+  //
+  // The RETIRED ROWS ARE IMMUTABLE, so lengthening or shortening how long a
+  // row is retained does not enter this count: the operation count depends on
+  // the rebuild period alone. Only the period appears below.
+  assert(maximumProductResidual >= 3.0 * horizonWindows * 1.19e-7,
+    "maximumProductResidual is below the single-precision rounding floor of a
+     rebuild period, so the replacement check would fire on arithmetic rather
+     than on a defect");
 
   assert(horizonWindows >= 1,
     "fusionHorizon_s must be at least one fusionPeriod_s: at zero windows the

@@ -22,6 +22,8 @@ integrateSample
 composeDelta
 rebiasDelta
 retireDelta
+composeRows
+retireRows
 composePose
 foldBuffer
 readRow
