@@ -86,6 +86,44 @@ model HorizonPredictorTests
       * accelerometerBiasMoveMagnitude_m_s2 / 6.0
     "The same two terms integrated once more over the window: 1.40e-7 m.";
 
+  // (e) THE FILTER SIDE OF THE SAME PROPOSITION, over the span the filter
+  // actually re-biases across.
+  //
+  // The predictor's fold moves a whole HORIZON of buffered deltas at once, so
+  // its remainder is bounded by fusionHorizon_s and that is what (d) measures.
+  // The filter never sees that window. It consumes one RELEASED window per
+  // step, and Estimation.StrapdownINS.correctPreintegratedImu applies the same
+  // first-order move to that packet alone when the packet is consumed, so the
+  // span in Prop. 8 is one fusionPeriod_s.
+  //
+  // The distinction is worth a separate arm because the two differ by the
+  // number of windows in the horizon and the bound is quadratic in the span:
+  // twenty windows is a factor of 400. Reading the filter's exposure off the
+  // horizon figure would overstate it by that much, and it is the filter's
+  // figure that decides whether buffered-but-unconsumed windows need anything
+  // done to them when the bias estimate moves. They do not: each carries its
+  // own anchor and its own Jacobians and is moved when it is consumed.
+  final parameter Real releasedBiasMove[3] =
+    Tests.HorizonChecks.biasMoveResidual(
+      deltasPerFusion, samplePeriod,
+      gyroscopeBiasMove_rad_s, accelerometerBiasMove_m_s2);
+  final parameter Real releasedSpan_s = deltasPerFusion * samplePeriod;
+  final parameter Real releasedBiasBound_rad =
+    (releasedSpan_s * gyroscopeBiasMoveMagnitude_rad_s) ^ 2
+    "Prop. 8 over one release window: 5.8e-10 rad, against 2.90e-7 rad over the
+     horizon.";
+  final parameter Real releasedBiasBound_m_s =
+    specificForceSupremum_m_s2 * releasedSpan_s ^ 3
+      * gyroscopeBiasMoveMagnitude_rad_s ^ 2 / 6.0
+    + 0.5 * releasedSpan_s ^ 2 * gyroscopeBiasMoveMagnitude_rad_s
+      * accelerometerBiasMoveMagnitude_m_s2 / 1.0
+    "The same two terms as biasMoveBound_m_s, over the release span.";
+  final parameter Real releasedBiasBound_m =
+    specificForceSupremum_m_s2 * releasedSpan_s ^ 4
+      * gyroscopeBiasMoveMagnitude_rad_s ^ 2 / 24.0
+    + releasedSpan_s ^ 3 * gyroscopeBiasMoveMagnitude_rad_s
+      * accelerometerBiasMoveMagnitude_m_s2 / 6.0;
+
 equation
   // ---- (a) the composition theorem, to floating point ---------------------
   // Measured on this stream: 1.3e-18 m, 1.3e-17 m/s, 5.6e-17 rad under the
@@ -177,6 +215,31 @@ equation
   assert(biasMove[1] < biasMoveBound_m,
     "Jacobian bias move exceeds the Proposition 8 second-order remainder bound
      in position");
+
+  // ---- (e) the same bound over the span the FILTER re-biases across -------
+  // The window the filter moves is one release, not the horizon, and the
+  // remainder is quadratic in the span. This is the arm that says the
+  // buffered-but-unconsumed windows need nothing done to them when the bias
+  // estimate moves: each is moved when it is consumed, across a span of one
+  // release period, and this is the error that leaves.
+  assert(releasedBiasMove[3] < releasedBiasBound_rad,
+    "The bias move over one released window exceeds the Proposition 8 bound in
+     attitude, so a packet re-biased at consumption is not covered by the span
+     it actually spans");
+  assert(releasedBiasMove[2] < releasedBiasBound_m_s,
+    "The bias move over one released window exceeds the Proposition 8 bound in
+     velocity");
+  assert(releasedBiasMove[1] < releasedBiasBound_m,
+    "The bias move over one released window exceeds the Proposition 8 bound in
+     position");
+  // And the point of the arm, stated as an assertion rather than left in a
+  // comment: the filter's exposure is smaller than the predictor's by the
+  // square of the number of windows in the horizon. If a future change made
+  // the filter re-bias across the whole buffer instead, this is what would
+  // catch it.
+  assert(releasedBiasMove[3] < biasMove[3],
+    "Re-biasing one released window costs at least as much as re-biasing the
+     whole horizon, so the filter is not moving the span it is supposed to");
 
   annotation(experiment(StartTime=0.0, StopTime=0.0,
     Tolerance=1.0e-10, Interval=1.0),
