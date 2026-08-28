@@ -4,9 +4,15 @@ Pose
 identityDelta
 packDelta
 unpackDelta
-jacobianBlock
 integrateSample
 composeDelta
 rebiasDelta
 composePose
+foldBuffer
+readRow
+storeRow
+jacobianBlock
+step
 navigationEstimate
+OutputPredictor
+HorizonEstimator
