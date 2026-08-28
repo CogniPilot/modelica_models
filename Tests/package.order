@@ -1,5 +1,6 @@
 Assertions
 RuleChecks
+HorizonChecks
 LinearAlgebraTests
 LieGroupsTests
 LieGroupTests
@@ -14,6 +15,9 @@ RotorVibrationHoverStudy
 OpticalFlowPlaneTests
 SensorCorrectionTests
 StrapdownEstimatorInterfaceTests
+HorizonPredictorTests
+HorizonInterfaceTests
+HorizonEstimatorWiring
 EstimatorHealthTests
 EstimatorHardeningTests
 VerificationTests

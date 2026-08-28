@@ -69,6 +69,7 @@ def run_openmodelica_tests(repository: Path) -> None:
     run_omc_script(repository, "Tests/run-loglinear.mos")
     run_omc_script(repository, "Tests/run-position-loop.mos")
     run_omc_script(repository, "Tests/run-manual-guidance.mos")
+    run_omc_script(repository, "Tests/run-horizon.mos")
     run_omc_script(repository, "Tests/check-vehicle-boundaries.mos")
 
 
@@ -167,6 +168,13 @@ def run_rumoca_tests(repository: Path) -> None:
                 "--emit",
                 "dae-json",
                 "strapdown-estimator-interface.dae.json",
+            ),
+            (
+                "Estimation/FusionHorizon/OutputPredictor.mo",
+                "Estimation.FusionHorizon.OutputPredictor",
+                "--target",
+                "galec-production",
+                "fusion-horizon-output-predictor",
             ),
             (
                 "Estimation/StrapdownINS/UKF/Estimator.mo",

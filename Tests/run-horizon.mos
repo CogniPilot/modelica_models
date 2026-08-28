@@ -1,0 +1,61 @@
+// Tests.HorizonPredictorTests and Tests.HorizonInterfaceTests are simulated AS
+// TOP-LEVEL MODELS, not through Tests.All. The first is entirely
+// constant-foldable, so instantiating it as a component of Tests.All lets
+// OpenModelica evaluate it away at translation and none of its assertion
+// messages reach the generated code; the same argument is recorded in
+// Tests/run-position-loop.mos. The second carries two full estimators through
+// the shared horizon and is far too expensive to run inside the smoke suite.
+setCommandLineOptions("--std=3.6");
+
+if not loadModel(Tests) then
+  print(getErrorString());
+  exit(1);
+end if;
+
+print(checkModel(Tests.HorizonPredictorTests));
+print(getErrorString());
+print(checkModel(Tests.HorizonInterfaceTests));
+print(getErrorString());
+// Translation only. OpenModelica cannot BUILD a simulation containing a bare
+// Estimation.StrapdownINS.PartialEstimator: it reports an independent subset of
+// the flattened estimator over-determined by nineteen equations, and the
+// existing Tests.StrapdownEstimatorInterfaceTests fails identically on an
+// untouched tree. Rumoca lowers this model in tools/ci.py, which is the gate
+// the corpus already uses for estimator interchange.
+print(checkModel(Tests.HorizonEstimatorWiring));
+print(getErrorString());
+
+testOutputDirectory := getTempDirectoryPath();
+cd(testOutputDirectory);
+
+identities := simulate(
+  Tests.HorizonPredictorTests,
+  startTime=0.0,
+  stopTime=0.0,
+  numberOfIntervals=1,
+  tolerance=1.0e-10,
+  outputFormat="mat",
+  fileNamePrefix="modelica_models_Tests_HorizonPredictorTests");
+getErrorString();
+identityResultFile := identities.resultFile;
+if identityResultFile == "" then
+  print("Horizon predictor identity simulation failed\n");
+  exit(1);
+end if;
+
+wiring := simulate(
+  Tests.HorizonInterfaceTests,
+  startTime=0.0,
+  stopTime=0.4,
+  numberOfIntervals=400,
+  tolerance=1.0e-8,
+  outputFormat="mat",
+  fileNamePrefix="modelica_models_Tests_HorizonInterfaceTests");
+getErrorString();
+wiringResultFile := wiring.resultFile;
+if wiringResultFile == "" then
+  print("Horizon estimator interface simulation failed\n");
+  exit(1);
+end if;
+
+exit(0);
