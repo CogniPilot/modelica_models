@@ -4,6 +4,18 @@ function step
   "One inertial tick of the buffered horizon: integrate, accumulate, release,
    predict"
   input Boolean reset;
+  input Integer tickIndex(min = 0)
+    "Inertial ticks completed since power-on. NOT cleared by a reset, which is
+     the whole point of it: the packet epoch has to be re-anchored to a
+     monotonic reference when the buffer is dropped, and this block has no
+     runtime coordinate to read. A counter is that reference, it is carried
+     like everything else here, and the code generator lowers it, which the
+     clock it stands in for is not (`runtime-coordinate` is a refused GALEC
+     projection feature).
+
+     At 800 Hz a 32-bit counter wraps after about 31 days of continuous
+     power-on, and single-precision tickIndex * dt stops being exact after
+     about 5.8 hours. Both are properties the carried epoch already had.";
   input Real angularVelocityMeasuredBodyFlu_rad_s[3];
   input Real specificForceMeasuredBodyFlu_m_s2[3];
   input Real previousAngularVelocityMeasuredBodyFlu_rad_s[3];
@@ -28,7 +40,10 @@ function step
      modulus: the code generator has no checked owner for a dynamic quotient,
      and a counter states the cadence in the words the scheduler uses.";
   input Boolean seeded;
-  input Boolean bufferOverflowed;
+  input Boolean horizonReleased
+    "A packet has already been handed over, so a fusion instant exists";
+  input Integer ticksSinceRebase(min = 0)
+    "Inertial ticks since the predictor was last recomposed from the horizon";
   input Estimation.FusionHorizon.Pose predicted "The state at the previous now";
   input Real packetTimestamp_s(unit = "s");
   input Real gyroscopeBiasAnchorBodyFlu_rad_s[3];
@@ -40,9 +55,12 @@ function step
   input Real horizonAccelerometerBiasBodyFlu_m_s2[3];
   input Real dt(unit = "s");
   input Integer deltasPerFusion(min = 1);
-  input Integer horizonWindows(min = 0);
+  input Integer horizonWindows(min = 1);
   input Real gravityWorldEnu_m_s2[3];
   input Boolean useFirstOrderHold;
+  input Real maximumGyroscopeBiasMove_rad_s(min = 0.0);
+  input Real maximumAccelerometerBiasMove_m_s2(min = 0.0);
+  input Real maximumPredictorDivergence_rad(min = 0.0);
   output Real liveRow[DeltaLength]
     "The window accumulated so far, carried by the caller as state";
   output Real storedRow[DeltaLength]
@@ -59,10 +77,16 @@ function step
   output Integer nextRingCount(min = 0);
   output Integer nextFusionCountdown(min = 0);
   output Boolean nextSeeded;
-  output Boolean nextBufferOverflowed;
+  output Integer nextTickIndex(min = 0);
+  output Boolean nextHorizonReleased;
+  output Integer nextTicksSinceRebase(min = 0);
   output Boolean horizonReady;
   output Boolean rebased;
   output Boolean released "A fusion window was handed over on this tick";
+  output Boolean biasMoveExceeded
+    "The filter's bias has moved further from the anchor than the first-order
+     move is declared good for. Reported, never clamped: a silently clamped
+     bias move is a wrong state published as a right one";
   output Integer bufferedDeltaCount "Inertial ticks spanning horizon to now";
   output Real nextPacketTimestamp_s(unit = "s");
 protected
@@ -70,6 +94,10 @@ protected
   Boolean fusionBoundary;
   Integer adoptedCount;
   Integer epochRingCount;
+  Boolean reanchor;
+  Real gyroscopeBiasMoveMagnitude_rad_s;
+  Real accelerometerBiasMoveMagnitude_m_s2;
+  Real predictorDivergence_rad;
   Estimation.FusionHorizon.Delta tickDelta;
   Estimation.FusionHorizon.Delta liveDelta;
   Estimation.FusionHorizon.Delta windowDelta;
@@ -133,27 +161,35 @@ algorithm
     nextRingTail := headSlot;
     nextRingCount := 0;
     nextHeadSlot := headSlot;
-    nextBufferOverflowed := false;
   elseif fusionBoundary and seeded then
     // The window just closed becomes a complete entry and the head moves on.
     nextRingCount := ringCount + 1;
     nextHeadSlot := if headSlot >= bufferLength then 1 else headSlot + 1;
     nextRingTail := ringTail;
-    nextBufferOverflowed := bufferOverflowed;
   else
     nextRingTail := ringTail;
     nextRingCount := ringCount;
     nextHeadSlot := headSlot;
-    nextBufferOverflowed := bufferOverflowed;
   end if;
 
   // ---- 3. release the oldest window to the filter -------------------------
   // A delayed horizon costs one horizon of start-up. Until the buffer spans it
   // there is no fusion instant to fuse at, and releasing early would stamp a
   // packet with an epoch the filter is not standing on.
+  //
+  // horizonWindows >= 1 is a precondition, asserted where the parameters are
+  // declared. At zero the first boundary would release the slot this tick is
+  // about to WRITE: the caller stores after the call, so that slot still holds
+  // zeros, and a zero row is a zero span and a zero quaternion. The consumer
+  // divides the rotation increment by the span, so the packet would carry a
+  // not-a-number into the filter on the first release.
   adoptedCount := nextRingCount;
   released := adoptedCount > horizonWindows;
-  horizonReady := adoptedCount >= horizonWindows;
+  // The first release is what creates a fusion instant. Before it the epoch is
+  // still the seed value and nothing downstream may stand on it, so readiness
+  // is latched on the release and not on the buffer merely being long enough.
+  nextHorizonReleased := (not reset) and (horizonReleased or released);
+  horizonReady := nextHorizonReleased;
   // Reading the oldest entry is row selection, not composition. A tick that
   // releases nothing still produces a row, and it is the group identity rather
   // than zeros: a zero quaternion has no logarithm, and handing one to a
@@ -169,12 +205,6 @@ algorithm
       else nextRingTail + 1;
     nextRingCount := adoptedCount - 1;
   end if;
-  if nextRingCount > horizonWindows then
-    // Capacity is a hard bound. Growing the buffer is not available on a
-    // flight controller, and pretending the horizon is still full depth would
-    // be worse than saying it is not.
-    nextBufferOverflowed := true;
-  end if;
   // The fusion instant advances by exactly one release window per release and
   // by nothing otherwise, so it is carried rather than read off a clock: the
   // code generator has no runtime coordinate, and a carried epoch says the
@@ -182,14 +212,17 @@ algorithm
   // The first tick closes the interval that ENDED at time zero, so the epoch
   // base is one tick before it. Getting this wrong shifts every fusion instant
   // by a sample and nothing downstream would notice.
-  nextPacketTimestamp_s := if reset or not seeded then -dt
+  // A reset RE-ANCHORS the epoch to the tick it happened on. Seeding it at
+  // -dt from a mid-flight reset would leave the packet epoch permanently
+  // behind wall time by the whole flight so far, and a consumer that aligns
+  // aiding by timestamp would then reject everything it was handed.
+  nextPacketTimestamp_s := if reset or not seeded then tickIndex * dt - dt
     elseif released then packetTimestamp_s + dt * deltasPerFusion
     else packetTimestamp_s;
   bufferedDeltaCount := nextRingCount * deltasPerFusion
     + deltasPerFusion - nextFusionCountdown + 1;
 
   // ---- 4. predict now -----------------------------------------------------
-  rebased := reset or not seeded or (horizonStateValid and horizonStateShifted);
   // The estimator supplies a bias VALUE; the horizon computes the move from
   // its own anchor and applies it through the Jacobians it accumulated. No
   // filter-internal quantity crosses this line.
@@ -200,6 +233,33 @@ algorithm
     then horizonAccelerometerBiasBodyFlu_m_s2
     else accelerometerBiasAnchorBodyFlu_m_s2)
     - accelerometerBiasAnchorBodyFlu_m_s2;
+  gyroscopeBiasMoveMagnitude_rad_s := sqrt(
+    gyroscopeBiasMove_rad_s * gyroscopeBiasMove_rad_s);
+  accelerometerBiasMoveMagnitude_m_s2 := sqrt(
+    accelerometerBiasMove_m_s2 * accelerometerBiasMove_m_s2);
+  // The first-order move is good over a stated ball around the anchor and no
+  // further (FOH paper Prop. 8). Outside it the published state is still the
+  // best available answer, so it is published and FLAGGED rather than clamped:
+  // clamping would move the state to a bias nobody estimated and report
+  // nothing.
+  biasMoveExceeded :=
+    gyroscopeBiasMoveMagnitude_rad_s > maximumGyroscopeBiasMove_rad_s
+    or accelerometerBiasMoveMagnitude_m_s2 > maximumAccelerometerBiasMove_m_s2;
+  // The incremental path composes tick factors integrated AT THE ANCHOR and
+  // never moves them to the filter's bias; only a re-base does that, over the
+  // whole buffered window at once. So between re-bases the predictor drifts
+  // away from the filter's own bias at ||db_g||, without bound in the time
+  // since the last re-base. Under sustained correction rejection that time is
+  // the whole rejection episode. A re-anchor bounds it: when the accumulated
+  // divergence would exceed the stated tolerance the fold runs anyway, at the
+  // cost the WCET record already charges a re-base.
+  predictorDivergence_rad :=
+    gyroscopeBiasMoveMagnitude_rad_s * ticksSinceRebase * dt;
+  reanchor := horizonStateValid
+    and predictorDivergence_rad > maximumPredictorDivergence_rad;
+  rebased := reset or not seeded
+    or (horizonStateValid and horizonStateShifted) or reanchor;
+  nextTicksSinceRebase := if rebased then 0 else ticksSinceRebase + 1;
   if rebased then
     // Theorem 6: the filter moved the left factor, and the buffered right
     // factors do not depend on it, so the state at now is recovered by
@@ -246,5 +306,13 @@ algorithm
   end if;
   predictedVector := cat(1, predictedNext.positionWorldEnu_m,
     predictedNext.velocityWorldEnu_m_s, predictedNext.quaternionWorldBody);
-  nextSeeded := not reset;
+  // Seeded from the tick after power-on AND from the tick after a reset. It
+  // used to be cleared by the reset itself, which left the block in its
+  // first-tick state for one tick too many: the epoch was re-anchored twice,
+  // once on the reset tick and once on the tick after it, so the epoch and
+  // the buffer span disagreed by a sample from there on, and the interval
+  // following a reset was integrated with a zero slope even though the reset
+  // tick had already recorded a perfectly good previous sample.
+  nextSeeded := true;
+  nextTickIndex := tickIndex + 1;
 end step;

@@ -7,18 +7,39 @@ block OutputPredictor
     "800 Hz inertial tick, paced by the IMU data-ready interrupt";
   parameter Real fusionPeriod_s(unit = "s", min = 1.0e-9) = 0.01
     "100 Hz fusion release; one filter step per composed window";
-  parameter Real fusionHorizon_s(unit = "s", min = 0.0) = 0.2
+  parameter Real fusionHorizon_s(unit = "s", min = 1.0e-9) = 0.2
     "Lag of the fusion instant behind now. Chosen so every aiding source has
      already delivered by the time the filter reaches that instant: on the
      deployed stack GPS is the latest, at about 100 ms at the driver and about
      200 ms end to end. A measurement that arrives after the horizon has
      passed its epoch is late in exactly the way it is late today, and the
      filter rejects it on its own timestamp rule rather than transporting a
-     Jacobian to meet it";
+     Jacobian to meet it.
+
+     At least one fusionPeriod_s, and an exact multiple of it. Both are
+     asserted below rather than rounded quietly";
   parameter Real gravityWorldEnu_m_s2[3] = {0.0, 0.0, -9.81};
   parameter Boolean useFirstOrderHold = true
     "True composes each interval under a first-order hold with the coning,
      sculling, and scrolling cross terms; false holds the current sample";
+  parameter Real maximumGyroscopeBiasMove_rad_s(unit = "rad/s", min = 0.0) =
+    0.05
+    "Largest gyroscope-bias move from the anchor the first-order Jacobian move
+     is declared good for. The Prop. 8 remainder is (T_D ||db_g||)^2, about
+     1e-4 rad at the flight horizon and this bound. Exceeding it raises
+     biasMoveExceeded and changes nothing else: the state is published as
+     computed rather than clamped to a bias nobody estimated";
+  parameter Real maximumAccelerometerBiasMove_m_s2(unit = "m/s2", min = 0.0) =
+    0.5 "The same bound for the accelerometer bias";
+  parameter Real maximumPredictorDivergence_rad(unit = "rad", min = 0.0) =
+    1.0e-3
+    "Attitude divergence between the predictor and the filter's own bias that
+     is allowed to accumulate on the incremental path before a re-base is
+     forced. The incremental path composes factors integrated at the ANCHOR
+     bias, so the divergence grows at ||db_g|| in the time since the last
+     re-base and is unbounded under sustained correction rejection. Forcing
+     the fold bounds it; the cost is the re-base cost the WCET record already
+     charges";
   parameter Real initialGyroscopeBiasAnchorBodyFlu_rad_s[3] = zeros(3);
   parameter Real initialAccelerometerBiasAnchorBodyFlu_m_s2[3] = zeros(3);
   parameter Real initialPositionWorldEnu_m[3] = zeros(3);
@@ -27,12 +48,13 @@ block OutputPredictor
 
   final parameter Integer deltasPerFusion(min = 1) =
     integer(fusionPeriod_s / samplePeriod + 0.5)
-    "Inertial ticks per release; 8 at 800 Hz against a 100 Hz release";
-  final parameter Integer horizonWindows(min = 0) =
+    "Inertial ticks per release; 8 at 800 Hz against a 100 Hz release. The
+     rounding is safe only because the ratio is asserted integral below";
+  final parameter Integer horizonWindows(min = 1) =
     integer(fusionHorizon_s / fusionPeriod_s + 0.5)
     "Complete release windows that must stand between the fusion instant and
      now; 20 at a 200 ms horizon and a 100 Hz release";
-  final parameter Integer bufferLength(min = 2) = horizonWindows + 2
+  final parameter Integer bufferLength(min = 3) = horizonWindows + 2
     "Fixed ring capacity: the horizon, the window being accumulated, and one
      slot of slack so a release never has to race the store. Nothing here is
      allocated at run time -- the length is a parameter, the index arithmetic
@@ -47,10 +69,14 @@ block OutputPredictor
   input Boolean horizonStateValid
     "The horizon pose and bias below are usable";
   input Boolean horizonStateShifted
-    "The filter moved the horizon state on this release. A window slide alone
-     must NOT set this: sliding the window with no correction does not move
-     now, because the factor the filter consumed is exactly the factor the
-     predictor already composed. Only a correction requires the re-base";
+    "The filter moved the horizon state on this release, EDGE triggered: true
+     for exactly one inertial tick per newly accepted correction. A window
+     slide alone must NOT set this, because sliding with no correction does
+     not move now -- the factor the filter consumed is exactly the factor the
+     predictor already composed. Neither may a held level: the filter's
+     outcome field stands for every inertial tick of a filter step, so a level
+     would re-base once per tick of a 100 Hz step and claim eight corrections
+     where one happened";
   input Real horizonPositionWorldEnu_m[3](each unit = "m");
   input Real horizonVelocityWorldEnu_m_s[3](each unit = "m/s");
   input Real horizonQuaternionWorldBody[4](each unit = "1");
@@ -73,13 +99,14 @@ block OutputPredictor
     "The composed window handed to the filter at the fusion instant";
   discrete output Integer bufferedDeltaCount(start = 0, fixed = true)
     "Inertial ticks standing between the fusion instant and now";
-  discrete output Boolean bufferOverflowed(start = false, fixed = true)
-    "The ring exceeded the horizon it is sized for. Reported rather than
-     silently absorbed: it means the fusion side stopped consuming";
+  discrete output Boolean biasMoveExceeded(start = false, fixed = true)
+    "The filter's bias has moved further from the horizon's anchor than the
+     first-order move is declared good for";
   discrete output Boolean rebased(start = false, fixed = true)
     "This tick recomposed the predictor over the whole buffer";
   discrete output Boolean horizonReady(start = false, fixed = true)
-    "The buffer spans the full horizon, so the fusion instant is real";
+    "A packet has been released, so the fusion instant is real and the epoch
+     the packet carries can be stood on";
 
 protected
   discrete Real ring[bufferLength, DeltaLength](
@@ -90,6 +117,12 @@ protected
   discrete Integer ringTail(start = 1, fixed = true);
   discrete Integer ringCount(start = 0, fixed = true);
   discrete Integer fusionCountdown(start = 0, fixed = true);
+  discrete Integer ticksSinceRebase(start = 0, fixed = true);
+  discrete Integer tickIndex(start = 0, fixed = true)
+    "Inertial ticks completed since power-on, never cleared by a reset. It is
+     the monotonic reference the packet epoch is re-anchored to when a reset
+     drops the buffer: this block has no runtime coordinate to read, and the
+     code generator refuses `time` in production code.";
   discrete Real anchorGyroscopeBias_rad_s[3](
     each start = 0.0, each fixed = true);
   discrete Real anchorAccelerometerBias_m_s2[3](
@@ -99,6 +132,7 @@ protected
   discrete Real previousSpecificForce_m_s2[3](
     each start = 0.0, each fixed = true);
   discrete Boolean seeded(start = false, fixed = true);
+  discrete Boolean horizonReleased(start = false, fixed = true);
   discrete Real packetTimestamp_s(start = 0.0, fixed = true);
   discrete Real liveRow[DeltaLength](
     start = cat(1, zeros(6), {1.0}, zeros(49)), each fixed = true)
@@ -132,6 +166,13 @@ algorithm
     // One pure function per tick, every history read written as pre(), and the
     // only thing the block itself does with the buffer is store the row the
     // function returned. Returning the whole ring instead would copy it.
+    //
+    // A carried tick counter is passed rather than a clock, and the function
+    // reads it only where a reset has to re-anchor the packet epoch. Every
+    // other tick is wall-clock free, which is what lets two instances handed
+    // the same boundary values agree exactly, and it is also what the code
+    // generator will lower: `time` in production code is a refused GALEC
+    // projection feature.
     (liveRow,
      storedRow,
      storeSlot,
@@ -142,13 +183,17 @@ algorithm
      ringCount,
      fusionCountdown,
      seeded,
-     bufferOverflowed,
+     tickIndex,
+     horizonReleased,
+     ticksSinceRebase,
      horizonReady,
      rebased,
      released,
+     biasMoveExceeded,
      bufferedDeltaCount,
      packetTimestamp_s) := Estimation.FusionHorizon.step(
       reset,
+      pre(tickIndex),
       angularVelocityMeasuredBodyFlu_rad_s,
       specificForceMeasuredBodyFlu_m_s2,
       pre(previousAngularVelocity_rad_s),
@@ -160,7 +205,8 @@ algorithm
       pre(ringCount),
       pre(fusionCountdown),
       pre(seeded),
-      pre(bufferOverflowed),
+      pre(horizonReleased),
+      pre(ticksSinceRebase),
       Estimation.FusionHorizon.Pose(
         positionWorldEnu_m=pre(positionWorldEnu_m),
         velocityWorldEnu_m_s=pre(velocityWorldEnu_m_s),
@@ -183,7 +229,10 @@ algorithm
       deltasPerFusion,
       horizonWindows,
       gravityWorldEnu_m_s2,
-      useFirstOrderHold);
+      useFirstOrderHold,
+      maximumGyroscopeBiasMove_rad_s,
+      maximumAccelerometerBiasMove_m_s2,
+      maximumPredictorDivergence_rad);
     // The store goes through a function because the code generator refuses a
     // dynamic array index at model level: it cannot prove the slot in range
     // there, and a ring buffer whose index it cannot bound is exactly what it
@@ -204,11 +253,20 @@ algorithm
     // filter be swapped without the buffer knowing.
     releasedSpan_s := max(releasedRow[11], 1.0e-9);
     releasedDeltaAngle_rad := LieGroups.SO3.Quat.log_map(releasedRow[7:10]);
-    horizonPacket.valid := released;
-    // Level-triggered delivery: the packet is held until replaced and the
-    // filter makes consumption exactly-once by timestamp novelty, which is the
-    // handshake the rest of the corpus already uses across clocks.
-    horizonPacket.fresh := released;
+    // PULSED delivery, on the release tick and no other. valid and fresh are
+    // the same boolean here on purpose: a window either was handed over on
+    // this tick or was not, and there is no held packet to distinguish the two
+    // cases. The consumer is the filter, whose clock IS the release clock, so
+    // it samples the packet on the tick it is published; anything wired to a
+    // different clock must latch the packet itself rather than assume it is
+    // still standing.
+    //
+    // The span guard is the second half of the zero-horizon defence. The
+    // parameter assertions below make a zero-span release unreachable; if a
+    // future change reaches it anyway, the packet goes out NOT valid instead
+    // of carrying a zero span into a consumer that divides by it.
+    horizonPacket.valid := released and releasedRow[11] > 0.0;
+    horizonPacket.fresh := released and releasedRow[11] > 0.0;
     horizonPacket.timestamp_s := packetTimestamp_s;
     // The scalar rate fields are DERIVED from the composed increment rather
     // than sampled, so a consumer of the packet sees the motion the deltas
@@ -246,6 +304,28 @@ algorithm
          else anchorGyroscopeBias_rad_s);
   end when;
 
+equation
+  // The rate lattice is a precondition, not a preference, and it used to be
+  // rounded silently: deltasPerFusion and horizonWindows are formed with a
+  // +0.5 rounding, so a fusionPeriod_s of 0.009 would have quietly become
+  // eight ticks and every epoch the block published would have been wrong by
+  // a tenth of a window with nothing reporting it. Assert the ratios instead.
+  assert(abs(fusionPeriod_s - deltasPerFusion * samplePeriod)
+      <= 1.0e-9 * fusionPeriod_s,
+    "fusionPeriod_s must be an exact integer multiple of samplePeriod: the
+     release cadence is counted in inertial ticks, so a fractional ratio makes
+     every published packet epoch wrong by the remainder");
+  assert(abs(fusionHorizon_s - horizonWindows * fusionPeriod_s)
+      <= 1.0e-9 * fusionHorizon_s,
+    "fusionHorizon_s must be an exact integer multiple of fusionPeriod_s: the
+     buffer is counted in whole release windows, so a fractional ratio makes
+     the fusion instant differ from the declared horizon by the remainder");
+  assert(horizonWindows >= 1,
+    "fusionHorizon_s must be at least one fusionPeriod_s: at zero windows the
+     first release would hand over the ring slot this tick has not written
+     yet, which is a zero span and a zero quaternion, and the consumer divides
+     the rotation increment by that span");
+
   annotation(Documentation(info = "<html>
     <p>Owns the buffer side of a delayed-fusion architecture and nothing else.
     Per inertial tick it integrates one interval into an SE_2(3) right factor,
@@ -260,16 +340,27 @@ algorithm
     as eight per window at an eighth of the storage traffic. That is not a
     micro-optimization: measured, a per-tick ring spent about nine tenths of
     every inertial tick moving the buffer around rather than integrating.</p>
-    <p><b>Re-base is triggered by a correction, not by a window slide.</b> The
-    fusion instant advances every release unconditionally, but an advance with
-    no correction does not move now: the factor the filter consumed in its own
-    prediction is exactly the factor the predictor already composed, so
-    associativity leaves the answer unchanged. Only a nonzero state shift makes
-    the buffered factors apply to a different pose.</p>
+    <p><b>Re-base is triggered by an accepted correction, not by a window
+    slide, and on the EDGE of one.</b> The fusion instant advances every
+    release unconditionally, but an advance with no correction does not move
+    now: the factor the filter consumed in its own prediction is exactly the
+    factor the predictor already composed, so associativity leaves the answer
+    unchanged. Only a nonzero state shift makes the buffered factors apply to a
+    different pose, and one correction is one re-base:
+    <code>horizonStateShifted</code> is a one-tick pulse, not the filter's
+    outcome level held across every inertial tick of a filter step.</p>
+    <p><b>The epoch invariant.</b> The window the re-base folds and the pose it
+    composes onto name the same fusion instant. The pose arrives one inertial
+    tick after the filter published it, so the fold runs over the ring as it
+    stood before this tick's adopt and release, and the partly accumulated
+    window is composed on explicitly. See <code>step.mo</code>, which states
+    the invariant where it is enforced.</p>
     <p><b>Startup.</b> A horizon that is real costs one horizon of startup.
-    Until the ring spans <code>fusionHorizon_s</code> there is no fusion
-    instant, <code>horizonReady</code> is false, and no packet is released. The
-    predictor still runs, dead reckoning from the seed pose.</p>
+    <code>horizonReady</code> is latched by the FIRST RELEASE, not by the ring
+    merely being long enough: for one release window the ring already spans
+    <code>fusionHorizon_s</code> and no packet has been handed over, so the
+    epoch is still its seed value and nothing may stand on it. The predictor
+    runs throughout, dead reckoning from the seed pose.</p>
     <p><b>Anti-aliasing</b> is assumed, not implemented: see the package
     documentation. The 800 Hz stream is taken to be the output of the sensor's
     on-die low-pass, not raw 32 kHz mechanical bandwidth.</p>

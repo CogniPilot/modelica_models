@@ -44,11 +44,11 @@ static void feed(OutputPredictorState *s, int k, int shifted) {
 }
 
 static void report(const char *tag) {
-    printf("%s count=%d ready=%d released=%d rebased=%d overflow=%d "
+    printf("%s count=%d ready=%d released=%d rebased=%d biasmove=%d "
            "p=%.7g %.7g %.7g v=%.7g q=%.7g ts=%.7g\n",
            tag, (int)g_state.bufferedDeltaCount, (int)g_state.horizonReady,
            (int)g_state.fresh, (int)g_state.rebased,
-           (int)g_state.bufferOverflowed,
+           (int)g_state.biasMoveExceeded,
            g_state.positionWorldEnu_m[0], g_state.positionWorldEnu_m[1],
            g_state.positionWorldEnu_m[2], g_state.velocityWorldEnu_m_s[0],
            g_state.quaternionWorldBody[0], g_state.timestamp_s);

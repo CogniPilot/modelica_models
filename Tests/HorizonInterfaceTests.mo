@@ -177,8 +177,6 @@ equation
       + 2.0 * samplePeriod or time < settled_s,
     "The fused epoch fell more than one release window behind the horizon, so
      the fusion side stopped consuming");
-  assert(not driven.bufferOverflowed,
-    "The delta ring exceeded the horizon it is sized for");
 
   annotation(experiment(StartTime=0.0, StopTime=0.4,
     Tolerance=1.0e-8, Interval=0.001),
