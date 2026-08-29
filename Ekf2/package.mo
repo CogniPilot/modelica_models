@@ -1,4 +1,12 @@
 within;
+
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) 2012 - 2025, PX4 Development Team. All rights reserved.
+// Transcribed from PX4-Autopilot at commit
+// bd62df5e3ac3f3f4a07da4518062a922492adb6c. The upstream copyright notice,
+// the three BSD-3-Clause conditions, and the warranty disclaimer are retained
+// verbatim in Ekf2/LICENSE, as condition 1 of that license requires.
+
 package Ekf2
   "Modelica reimplementation of the PX4 EKF2 error-state Kalman filter for benchmark comparison"
 
@@ -29,12 +37,52 @@ this package was read from:
     (covariance derivation Copyright (c) 2022-2023 PX4 Development Team)</li>
 </ul>
 <p>
-The BSD-3-Clause license permits redistribution in source and binary forms with
-or without modification provided the copyright notice and conditions are
-retained and the PX4 name is not used to endorse derived work without
-permission. This package honours those terms: it reproduces the copyright and
-provenance here, does not claim PX4 endorsement, and cites every upstream file
-and function it transcribes in the per-function documentation.
+This directory is therefore BSD-3-Clause, not Apache-2.0. It is the only
+exception in this repository; everything outside <code>Ekf2/</code> is
+Apache-2.0 under the root <code>LICENSE</code>.
+</p>
+<p>
+BSD-3-Clause condition 1 requires that a redistribution of source code retain
+the copyright notice, the list of conditions, and the disclaimer. They are
+retained verbatim, not paraphrased, in <code>Ekf2/LICENSE</code>, which also
+carries the upstream repository license, the per-file copyright lines of every
+transcribed source, and the transcription manifest. Every
+<code>Ekf2/*.mo</code> file additionally carries an
+<code>SPDX-License-Identifier: BSD-3-Clause</code> header and the copyright
+line of the source it transcribes. The conditions themselves, reproduced from
+the upstream file headers:
+</p>
+<blockquote>
+<p>
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+</p>
+<p>
+1. Redistributions of source code must retain the above copyright notice, this
+list of conditions and the following disclaimer.<br/>
+2. Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation
+and/or other materials provided with the distribution.<br/>
+3. Neither the name PX4 nor the names of its contributors may be used to
+endorse or promote products derived from this software without specific prior
+written permission.
+</p>
+<p>
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+</p>
+</blockquote>
+<p>
+No PX4 endorsement is claimed. Every upstream file and function transcribed is
+cited in the per-function documentation.
 </p>
 
 <h4>Covariance mathematics: SymForce-derived</h4>
@@ -78,9 +126,11 @@ This package keeps EKF2's own conventions rather than the repository's ENU/FLU
 convention, because the point of the port is fidelity to EKF2: world frame is
 North-East-Down (NED), body frame is Forward-Right-Down (FRD), the nominal
 attitude quaternion is Hamilton scalar-first mapping body to earth, and the
-attitude error is a left (global, NED-frame) multiplicative perturbation. See
-<code>design.md</code> in the benchmark tree for the full state map and a
-comparison to the repository's right-perturbation SE_2(3) ESKF convention.
+attitude error is a left (global, NED-frame) multiplicative perturbation. The full
+state map is the <code>state</code> input comment on
+<code>Ekf2.PredictCovariance</code>; the repository's own estimator uses the
+opposite (right, body-frame) perturbation on SE_2(3), documented at
+<code>Estimation.StrapdownINS.ESKF</code>.
 </p>
 </html>"));
 end Ekf2;

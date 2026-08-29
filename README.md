@@ -467,3 +467,19 @@ apply a nonlinear true-derivative repair iteration; use
 `junctionContinuityResidual` as the acceptance certificate. Every candidate
 must also retain a positive `metricScale`, since a zero value indicates a
 singular or locally reversed offset curve.
+
+## License
+
+This repository is licensed under the Apache License, Version 2.0. See
+[LICENSE](LICENSE).
+
+`Ekf2/` is the one exception: it is a transcription of PX4-Autopilot's ekf2
+module and is licensed under BSD-3-Clause. Its upstream copyright notice,
+conditions, and disclaimer are retained verbatim in [Ekf2/LICENSE](Ekf2/LICENSE).
+`Ekf2/` exists for the estimator fidelity benchmark, is not referenced by any
+other package here, and is not part of the released library archive.
+
+[NOTICE](NOTICE) indexes all third-party content redistributed here: the PX4
+derivation in `Ekf2/`, the NOAA/NCEI and BGS World Magnetic Model in
+`Geodesy/WMM2025/`, and the CogniPilot Python implementations that three
+packages follow.

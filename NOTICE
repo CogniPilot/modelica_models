@@ -1,0 +1,83 @@
+modelica_models (CogniPilot Modelica Models)
+Copyright 2026 CogniPilot Foundation
+
+This product includes software developed by the CogniPilot Foundation.
+Except where stated below, this repository is licensed under the Apache
+License, Version 2.0; see the root LICENSE file.
+
+This NOTICE records third-party content redistributed in this repository and
+the license each is under. It is the top-level index; the authoritative text
+for each entry is the license file named in that entry.
+
+
+1. Ekf2/ -- BSD-3-Clause (PX4)
+------------------------------
+
+Every file in Ekf2/ is a transcription of PX4-Autopilot's ekf2 module
+(src/modules/ekf2/EKF) and of the src/lib/matrix rotation primitives, read at
+PX4-Autopilot commit bd62df5e3ac3f3f4a07da4518062a922492adb6c.
+
+    Upstream:  https://github.com/PX4/PX4-Autopilot
+    License:   BSD-3-Clause
+    Copyright: (c) 2012 - 2025, PX4 Development Team, per the upstream
+               repository LICENSE; the transcribed files carry per-file
+               notices of (c) 2015-2023, (c) 2015-2024, (c) 2021-2022, and
+               (c) 2022-2023 PX4 Development Team
+    Retained:  Ekf2/LICENSE -- the upstream copyright notice, the three
+               conditions, and the warranty disclaimer, verbatim, plus a
+               per-file transcription manifest
+
+Ekf2/ is BSD-3-Clause, NOT Apache-2.0. It is the only such exception in this
+repository. Each Ekf2/*.mo file carries an SPDX-License-Identifier header.
+Ekf2/ is not part of the released library archive and is not referenced by any
+other package here; it exists for the estimator fidelity benchmark.
+
+No PX4 endorsement of this repository is claimed or implied (BSD-3-Clause
+condition 3).
+
+
+2. Geodesy/WMM2025/ -- US Government public domain, NOAA/NCEI and BGS
+---------------------------------------------------------------------
+
+Geodesy/WMM2025 is a pure-Modelica port of the World Magnetic Model 2025
+degree/order-12 spherical-harmonic evaluation and carries the WMM2025
+coefficient set.
+
+    Source:    World Magnetic Model 2025 (WMM2025)
+    Producers: NOAA National Centers for Environmental Information (NCEI),
+               United States, jointly with the British Geological Survey
+               (BGS), United Kingdom
+    Status:    The WMM software and coefficients are in the public domain in
+               the United States. BGS is a joint producer of the model and is
+               credited here; NOAA and BGS do not endorse this port.
+    Reference: WMM2025 Technical Report, NOAA NCEI / BGS,
+               https://www.ncei.noaa.gov/products/world-magnetic-model
+
+
+3. Modelica derived from CogniPilot Python implementations -- Apache-2.0
+------------------------------------------------------------------------
+
+Three packages state in-tree that they follow an implementation in another
+CogniPilot repository. All three upstreams are Apache-2.0, the same license
+this repository is under, so no additional condition attaches; they are listed
+so a reader need not go looking.
+
+    Vehicles/Templates/FixedWingPlant.mo
+        follows CogniPilot/cubs2, cubs2_dynamics/cubs2_dynamics/sportcub.py
+        Apache-2.0, Copyright CogniPilot Foundation
+    Control/Multirotor/LogLinear/
+        follows CogniPilot/cyecca, cyecca/models/rdd2_loglinear.py
+        Apache-2.0, Copyright CogniPilot Foundation
+    Planning/Bezier/
+        follows CogniPilot/cyecca, cyecca/models/bezier.py
+        Apache-2.0, Copyright CogniPilot Foundation
+
+
+4. Tooling invoked but not redistributed
+----------------------------------------
+
+flake.nix pins OpenModelica (OSMC-PL / GPL-3.0) and git (GPL-2.0) as
+development-shell and container tools. They are invoked as separate
+executables, are never linked into or redistributed with anything this
+repository produces, and are not in the closure of packages.default. No
+copyleft term attaches to this repository's output.

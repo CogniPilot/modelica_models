@@ -57,6 +57,7 @@ jobs:
             Vehicles \
             README.md \
             LICENSE \
+            NOTICE \
             "${stage}/"
 
           (

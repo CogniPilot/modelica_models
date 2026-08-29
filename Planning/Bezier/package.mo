@@ -481,6 +481,7 @@ reference := Planning.Bezier.flatReference(
     </pre>
     <p>The implementation follows the algorithms in
     <a href='https://github.com/CogniPilot/cyecca/blob/main/cyecca/models/bezier.py'>
-    cyecca/models/bezier.py</a>.</p>
+    cyecca/models/bezier.py</a>, which is Apache-2.0, Copyright CogniPilot
+    Foundation -- the same license this package is under.</p>
   </html>"));
 end Bezier;
