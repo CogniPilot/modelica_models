@@ -471,15 +471,18 @@ singular or locally reversed offset curve.
 ## License
 
 This repository is licensed under the Apache License, Version 2.0. See
-[LICENSE](LICENSE).
+[LICENSE](LICENSE). Every Modelica source here is original CogniPilot content
+under that license; the repository carries no third-party-derived source.
 
-`Ekf2/` is the one exception: it is a transcription of PX4-Autopilot's ekf2
-module and is licensed under BSD-3-Clause. Its upstream copyright notice,
-conditions, and disclaimer are retained verbatim in [Ekf2/LICENSE](Ekf2/LICENSE).
-`Ekf2/` exists for the estimator fidelity benchmark, is not referenced by any
-other package here, and is not part of the released library archive.
+`Ekf2/`, a statement-for-statement transcription of PX4-Autopilot's ekf2
+module and therefore BSD-3-Clause, was relocated out of this repository for
+that reason. It is maintained separately, outside CogniPilot, as a PX4-parity
+oracle for cross-validating the estimators here. Oracles are consumed only as
+external comparators, checked out at benchmark time with only their outputs
+compared, never vendored back in. The estimators in this repository derive
+from papers and specifications, with citations, and not from that
+transcription.
 
-[NOTICE](NOTICE) indexes all third-party content redistributed here: the PX4
-derivation in `Ekf2/`, the NOAA/NCEI and BGS World Magnetic Model in
-`Geodesy/WMM2025/`, and the CogniPilot Python implementations that three
-packages follow.
+[NOTICE](NOTICE) indexes the third-party content redistributed here: the
+NOAA/NCEI and BGS World Magnetic Model in `Geodesy/WMM2025/`, and the
+CogniPilot Python implementations that three packages follow.
