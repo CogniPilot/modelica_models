@@ -56,7 +56,19 @@ algorithm
     // and interval-end samples.  The right increment is the truncated Magnus
     // exponent T*N0 + (T^2/2)*N1 + (T^3/12)*[N0, N1] whose single Lie
     // bracket decomposes into the classical coning, sculling, and position
-    // (scrolling) corrections.  The deltas are formed as sample differences
+    // (scrolling) corrections.
+    //
+    // Magnus expansion: Magnus, Comm. Pure Appl. Math. 7(4):649-673, 1954;
+    // survey Blanes, Casas, Oteo and Ros, Phys. Rep. 470:151-238, 2009.  The
+    // truncation to third order, its exactly-vanishing T^4 grade, and the
+    // O(T^5) residual are the first-order-hold preintegration theorem of Lin,
+    // Pant, Perseghetti and Goppert, "An Exact Error Theory for
+    // Mixed-Invariant Preintegration on SE_2(3)" (manuscript in preparation,
+    // 2026); the coning/sculling/scrolling split of the single bracket is that
+    // manuscript's bracket-decomposition proposition.  The coning term
+    // coincides with the classical two-sample correction of Bortz (1971) and
+    // Savage (1998, parts 1 and 2).  See the References block on
+    // Estimation.StrapdownINS for the full entries.  The deltas are formed as sample differences
     // (the constant bias anchor cancels) and the cross terms use those
     // differences directly, never two nearly parallel consecutive samples,
     // to avoid cancellation in single-precision generated code.
@@ -115,6 +127,9 @@ algorithm
     updatedExtendedPose[7:10]);
 
   // Bias sensitivities are the first variation of the same composition.
+  // The appended dt^2/12 cross terms below are the FOH bias-sensitivity
+  // proposition of the same manuscript; the zero-order-hold recursions are
+  // those of the L-CSS 2025 closed form.  References: Estimation.StrapdownINS.
   // Evaluating the sensitivity at the interval midpoint keeps the Jacobians
   // second-order accurate while the nominal preintegral remains closed-form.
   // Under the first-order hold the increment sensitivities gain one
