@@ -1,4 +1,12 @@
 within Ekf2;
+
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) 2015-2023 PX4 Development Team. All rights reserved.
+// Transcribed from PX4-Autopilot at commit
+// bd62df5e3ac3f3f4a07da4518062a922492adb6c. The upstream copyright notice,
+// the three BSD-3-Clause conditions, and the warranty disclaimer are retained
+// verbatim in Ekf2/LICENSE, as condition 1 of that license requires.
+
 function predictState
   "Nominal strapdown state prediction (quaternion, velocity, position) for one IMU packet"
   // Transcribes Ekf::predictState, src/modules/ekf2/EKF/ekf.cpp:230, PX4-Autopilot commit

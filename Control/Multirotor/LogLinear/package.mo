@@ -412,6 +412,7 @@ package LogLinear
     controller constructs its own feedback-corrected thrust attitude.</p>
     <p>The implementation follows
     <a href='https://github.com/CogniPilot/cyecca/blob/main/cyecca/models/rdd2_loglinear.py'>
-    cyecca/models/rdd2_loglinear.py</a>.</p>
+    cyecca/models/rdd2_loglinear.py</a>, which is Apache-2.0, Copyright
+    CogniPilot Foundation -- the same license this package is under.</p>
   </html>"));
 end LogLinear;

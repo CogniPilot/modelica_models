@@ -1,4 +1,12 @@
 within Ekf2;
+
+// SPDX-License-Identifier: BSD-3-Clause
+// Copyright (c) 2022-2023 PX4 Development Team
+// Transcribed from PX4-Autopilot at commit
+// bd62df5e3ac3f3f4a07da4518062a922492adb6c. The upstream copyright notice,
+// the three BSD-3-Clause conditions, and the warranty disclaimer are retained
+// verbatim in Ekf2/LICENSE, as condition 1 of that license requires.
+
 function PredictCovariance
   "SymForce covariance prediction P_new = A P A' + G var_u G' for EKF2's 24-DOF error state"
   // Transcription of the SymForce-generated header

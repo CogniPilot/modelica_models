@@ -6,6 +6,8 @@ within Vehicles.Templates;
 //
 // Dynamics source:
 // https://github.com/CogniPilot/cubs2/blob/main/cubs2_dynamics/cubs2_dynamics/sportcub.py
+// Upstream license: Apache-2.0, Copyright CogniPilot Foundation -- the same
+// license this file is under, so no additional condition attaches.
 //
 // The force and moment model follows that Python implementation while CMM's
 // RigidBody6DOF remains the single source for rigid-body integration, gravity,

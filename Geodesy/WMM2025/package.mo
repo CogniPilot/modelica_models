@@ -279,10 +279,17 @@ package WMM2025
   end validInputs;
 
   annotation(Documentation(info = "<html>
-    <p>Pure-Modelica port of NOAA's public-domain WMM2025 degree/order-12
+    <p>Pure-Modelica port of the public-domain WMM2025 degree/order-12
     spherical-harmonic evaluation. The coefficient epoch is 2025.0 and the
     model is valid through 2030.0. Input altitude is above the WGS84 ellipsoid.
-    NOAA publishes components as north/east/down nanotesla; this package
+    The model publishes components as north/east/down nanotesla; this package
     returns East-North-Up tesla for direct use by the navigation models.</p>
+    <p>The World Magnetic Model is produced jointly by the NOAA National
+    Centers for Environmental Information (NCEI) and the British Geological
+    Survey (BGS); both are credited. The model and its software are in the
+    public domain in the United States. Neither producer endorses this port.
+    Coefficients and validity window are from the WMM2025 Technical Report,
+    <a href='https://www.ncei.noaa.gov/products/world-magnetic-model'>
+    https://www.ncei.noaa.gov/products/world-magnetic-model</a>.</p>
   </html>"));
 end WMM2025;
