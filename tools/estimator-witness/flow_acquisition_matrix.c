@@ -41,6 +41,7 @@ static void params(NavigationEstimatorState *s) {
     s->covarianceInflateTimeConstant_s = 0.5f;
     s->aidingDivergentWindow_s = 5.0f;
     s->aidingStaleTimeout_s = 0.5f;
+    s->aidingReseedWindow_s = 0.0f; /* generic default: re-seed disabled */
 #else
     s->rejectedCorrectionLimit = 50;
 #endif
@@ -73,7 +74,7 @@ static void run(float V, int hz) {
         S.opticalFlow_fresh = (k % period == 0);
         S.velocityBodyFlu_m_s[0] = V;            /* TRUTHFUL */
         S.velocityBodyFlu_m_s[1] = 0.0f;
-        S.integrationTime_s = (float)period * DT;
+        S.opticalFlow_integrationTime_s = (float)period * DT;
         S.groundDistance_m = 3.0f; S.quality = 1.0f;
         NavigationEstimator_dostep(&S);
         if (S.opticalFlow_fresh) { if (S.status_opticalFlowCorrectionAccepted) acc++; else rej++; }

@@ -24,6 +24,7 @@ limitCovariance
 inflateCovariance
 holdCovariance
 inject
+reseed
 conjugateReset
 considerGainProjector
 correctLinear
