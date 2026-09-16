@@ -7,6 +7,7 @@ model SO3 "SO(3) algebra, representations, Jacobians, and conversions"
   Real quaternion[4];
   Real quaternionIdentity[4];
   Real quaternionRoundTrip[4];
+  Real logRecovered[3];
   Real mrp[3];
   Real mrpIdentity[3];
   Real mrpRoundTrip[3];
@@ -34,6 +35,7 @@ equation
     quaternion, LieGroups.SO3.Quat.inverse(quaternion));
   quaternionRoundTrip = LieGroups.SO3.Quat.exp_map(
     LieGroups.SO3.Quat.log_map(quaternion));
+  logRecovered = LieGroups.SO3.Quat.log_map(quaternion);
   mrp = LieGroups.SO3.Mrp.exp_map(tangent);
   mrpIdentity = LieGroups.SO3.Mrp.product(mrp, LieGroups.SO3.Mrp.inverse(mrp));
   mrpRoundTrip = LieGroups.SO3.Mrp.exp_map(LieGroups.SO3.Mrp.log_map(mrp));
@@ -67,6 +69,8 @@ equation
     "SO3 quaternion inverse failed");
   assert(abs(abs(quaternionRoundTrip * quaternion) - 1.0) < tolerance,
     "SO3 quaternion exp/log failed");
+  assert(Tests.Assertions.maxAbsVector(logRecovered - tangent) < tolerance,
+    "SO3 quaternion log_map must recover all three rotation-vector components");
   assert(Tests.Assertions.maxAbsVector(mrpIdentity) < tolerance and
          Tests.Assertions.maxAbsVector(mrpRoundTrip - mrp) < tolerance,
     "SO3 MRP identity or exp/log failed");
