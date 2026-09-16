@@ -111,9 +111,12 @@ algorithm
     // else, while the tilt sensitivity still enters the innovation
     // covariance and the Joseph update, which is what the covariance
     // needed all along.
-    delayedH[1, 7] := yawSensitivityBodyFlu[1] + tiltSensitivityBodyFlu[1];
-    delayedH[1, 8] := yawSensitivityBodyFlu[2] + tiltSensitivityBodyFlu[2];
-    delayedH[1, 9] := yawSensitivityBodyFlu[3] + tiltSensitivityBodyFlu[3];
+    // Written as one slice assignment: the galec production lowering keeps only
+    // the last per-element write inside a conditional branch, so assigning
+    // delayedH[1, 7], [1, 8] and [1, 9] separately would drop the first two
+    // attitude columns and leave the heading Jacobian with only its up-axis
+    // entry. The row slice emits all three attitude sensitivities together.
+    delayedH[1, 7:9] := yawSensitivityBodyFlu + tiltSensitivityBodyFlu;
   end if;
   H := delayedH * currentToDelayed;
   // The gain acts in the CURRENT tangent, so the axis it is allowed to
