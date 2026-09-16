@@ -24,6 +24,8 @@ model SO3 "SO(3) algebra, representations, Jacobians, and conversions"
   Real eulerJr[3, 3];
   Real eulerJl[3, 3];
   Real negativeQuaternionR[3, 3];
+  Real dcmFromQuat[3, 3];
+  Real quatFromDcm[4];
   LieGroups.SO3.EulerSequences.B232.Orientation B232Element;
   LieGroups.SO3.EulerSequences.S123.Orientation S123Element;
   Real B232R[3, 3];
@@ -54,6 +56,8 @@ equation
   eulerJr = LieGroups.SO3.EulerB321.right_jacobian(euler);
   eulerJl = LieGroups.SO3.EulerB321.left_jacobian(euler);
   negativeQuaternionR = LieGroups.SO3.Quat.to_DCM(-quaternion);
+  dcmFromQuat = LieGroups.SO3.Quat.to_DCM(quaternion);
+  quatFromDcm = LieGroups.SO3.Quat.from_DCM(dcmFromQuat);
   B232Element = LieGroups.SO3.EulerSequences.B232.from_Matrix(R);
   S123Element = LieGroups.SO3.EulerSequences.S123.from_Matrix(R);
   B232R = LieGroups.SO3.EulerSequences.B232.to_Matrix(B232Element);
@@ -97,6 +101,8 @@ equation
     "Euler Jacobian-at-zero test failed");
   assert(Tests.Assertions.maxAbsMatrix(negativeQuaternionR - R) < tolerance,
     "Negative-quaternion DCM test failed");
+  assert(abs(abs(quatFromDcm * quaternion) - 1.0) < tolerance,
+    "SO3 quaternion from_DCM must recover all four quaternion components");
   assert(Tests.Assertions.maxAbsMatrix(B232R - R) < tolerance and
          Tests.Assertions.maxAbsMatrix(S123R - R) < tolerance,
     "Named B232 or S123 Euler representation failed");
