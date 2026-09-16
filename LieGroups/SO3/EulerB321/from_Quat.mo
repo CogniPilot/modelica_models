@@ -12,14 +12,18 @@ algorithm
   sinp := 2.0*(a*c - d*b);
   sinp := min(max(sinp, -1.0), 1.0);
 
+  // Each branch assembles the whole {yaw, pitch, roll} triple with one vector
+  // assignment. The galec production lowering keeps only the last per-element
+  // write inside a conditional branch, so writing euler[1..3] separately would
+  // drop yaw and pitch; the single vector form emits all three components.
   if sinp * sinp > 0.9999 * 0.9999 then
     // Gimbal lock: pitch near +/- 90 deg
-    euler[2] := asin(sinp);
-    euler[3] := 0.0;
-    euler[1] := atan2(2.0*(b*c + a*d), 1.0 - 2.0*(c*c + d*d));
+    euler := {atan2(2.0*(b*c + a*d), 1.0 - 2.0*(c*c + d*d)),
+              asin(sinp),
+              0.0};
   else
-    euler[1] := atan2(2.0*(a*d + b*c), 1.0 - 2.0*(c*c + d*d));
-    euler[2] := asin(sinp);
-    euler[3] := atan2(2.0*(a*b + c*d), 1.0 - 2.0*(b*b + c*c));
+    euler := {atan2(2.0*(a*d + b*c), 1.0 - 2.0*(c*c + d*d)),
+              asin(sinp),
+              atan2(2.0*(a*b + c*d), 1.0 - 2.0*(b*b + c*c))};
   end if;
 end from_Quat;
