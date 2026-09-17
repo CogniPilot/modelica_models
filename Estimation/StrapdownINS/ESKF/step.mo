@@ -66,6 +66,9 @@ function step
     "NIS for this tick's attempted correction, or zero when none was attempted";
   output Boolean estimateValid
     "Whether the published navigation estimate may be consumed";
+  output Boolean reseeded
+    "True on the tick the automatic recovery ladder re-seeded the state
+     from a fresh anchor sample after a sustained rejection window";
   output Integer mocapRejectionsNext
     "Consecutive rejections of the mocap source alone";
   output Integer gpsRejectionsNext
@@ -102,6 +105,11 @@ protected
   Boolean aidingLive;
   Boolean inflateCovarianceNow;
   Boolean aidingDivergent;
+  Boolean reseedConfigured;
+  Boolean reseedNow;
+  Integer reseedSource;
+  Real reseedPosition[3];
+  Real reseedVelocity[3];
   Boolean anchorExclusive;
   Boolean imuUsable;
   Boolean imuPayloadFinite;
@@ -130,6 +138,16 @@ algorithm
   correctionOutcome := CorrectionNotAttempted;
   correctionSource := SourceNone;
   normalizedInnovationSquared := 0.0;
+  reseeded := false;
+  reseedNow := false;
+  reseedSource := SourceNone;
+  reseedPosition := zeros(3);
+  reseedVelocity := zeros(3);
+  // Initialization-branch scratch, defined here so every read is dominated
+  // by a definition on all control-flow paths through the function.
+  alignmentAccepted := false;
+  initializationPosition := zeros(3);
+  initializationQuaternion := {1.0, 0.0, 0.0, 0.0};
   consecutiveRejectionsNext := 0;
   rejectionElapsedNext_s := 0.0;
   // A commanded reset and first initialization clear every source's
@@ -376,8 +394,8 @@ algorithm
   //
   // STAGE 2, at tuning.aidingDivergentWindow_s: the covariance has
   // reached the envelope and the anchor still does not fit. This is
-  // REPORTED and nothing more. The estimator does not adopt the fix, does
-  // not re-seed itself, and does not withdraw estimate.valid.
+  // REPORTED and, on its own, nothing more. The estimator does not
+  // withdraw estimate.valid.
   //
   // It previously withdrew estimate.valid, on the reasoning that handing
   // over to a failsafe beats guessing. That reasoning was right and the
@@ -390,10 +408,25 @@ algorithm
   // non-latching mode demotion; estimate.valid stays a statement about
   // whether the published numbers are numbers.
   //
-  // What remains true is that the estimator still never re-seeds from a
-  // stream it is rejecting. Re-seeding position, attitude and velocity
-  // stays available through the commanded `reset` input, where it is a
-  // deliberate act rather than a filter's guess.
+  // STAGE 3, at tuning.aidingReseedWindow_s (OPTIONAL, disabled unless the
+  // window is configured positive and above aidingDivergentWindow_s): the
+  // anchor has been divergent long enough that a widened gate has provably
+  // failed to readmit it, so the divergence is between the state and a
+  // stream that keeps arriving rather than a transient outlier burst. On
+  // the next fresh, finite anchor sample the estimator re-seeds position
+  // (and velocity from a GPS sample that reports velocity) directly from
+  // that sample and restores the position and velocity covariance to the
+  // initial variances, zeroing their cross-covariance with the attitude
+  // and bias blocks; attitude and the bias states are kept, since they are
+  // not what the anchor observes. The seed replaces confidence the ladder
+  // has already withdrawn, from the one source still delivering, and only
+  // after the gentler stages have been given the whole divergence window
+  // to recover on their own. It is reported as correctionOutcome ==
+  // CorrectionReseeded and status.reseeded, never as a gate acceptance.
+  // Re-seeding is refused on a non-finite payload exactly as the
+  // initialization branch is, so a NaN sample cannot seed the state. The
+  // commanded `reset` input remains the operator-level re-seed of
+  // position, attitude, and velocity together.
   // AFFIRMATIVE CONFIGURATION ADMISSION. The recovery ladder must prove its
   // configuration is usable before it is allowed to act on it; this keeps
   // the safety property local to the algorithm in every execution target.
@@ -421,6 +454,26 @@ algorithm
     and rejectionElapsedPrevious_s >= tuning.covarianceInflateWindow_s;
   aidingDivergent := ladderConfigured and initializedPrevious and not reset
     and rejectionElapsedPrevious_s >= tuning.aidingDivergentWindow_s;
+  // STAGE 3 configuration admission. Re-seed is opt-in: a non-positive or
+  // non-finite window disables it, and an enabled window that does not
+  // exceed the divergent window disables it too. A misconfigured value
+  // therefore silences only the re-seed and never disturbs the two
+  // always-on stages, the same affirmative-admission discipline the rest of
+  // the ladder uses on its own windows.
+  reseedConfigured := ladderConfigured
+    and tuning.aidingReseedWindow_s > 0.0
+    and tuning.aidingReseedWindow_s < FiniteMagnitudeLimit
+    and tuning.aidingReseedWindow_s > tuning.aidingDivergentWindow_s;
+  // The re-seed fires only past the re-seed window, on the anchor source
+  // PRESENT this tick, and only when that source delivered a fresh sample
+  // this tick that passes the same finite-data seed contract the
+  // initialization branch enforces (mocap position and a normalizable
+  // attitude; GPS position with positionValid). A non-finite payload falls
+  // through exactly as an absent one, so a NaN can never seed the state.
+  reseedNow := reseedConfigured and initializedPrevious and not reset
+    and rejectionElapsedPrevious_s >= tuning.aidingReseedWindow_s
+    and ((anchorPresent == SourceMocap and mocapNew and mocapSeedUsable)
+      or (anchorPresent == SourceGps and gpsNew and gpsSeedUsable));
   recoveryStage := if not ladderConfigured then RecoveryMisconfigured
     elseif aidingDivergent then RecoveryAidingDivergent
     elseif inflateCovarianceNow then RecoveryCovarianceInflated
@@ -560,6 +613,38 @@ algorithm
       accelerometerBiasBodyFlu_m_s2=working.accelerometerBiasBodyFlu_m_s2,
       covariance=limitCovariance(working.covariance, tuning.varianceLimits));
 
+    // STAGE 3 RE-SEED, applied to the predicted state in place of this
+    // tick's correction attempt. Only position and velocity, and only their
+    // own covariance blocks, are replaced; the attitude and bias states and
+    // their variances are carried through untouched, because the anchor does
+    // not observe them and re-seeding them from it would be a guess.
+    //
+    // The same sample is deliberately NOT then fused: the re-seed has
+    // already placed the state on it with the restored initial variances as
+    // the prior, and fusing it again would double-count the measurement and
+    // collapse the just-widened covariance back to the sensor-noise floor,
+    // discarding the wide prior the re-seed exists to establish. The
+    // ordinary correction path resumes on the next fresh sample against that
+    // restored prior. The correction dispatch below is skipped on this tick.
+    if reseedNow then
+      reseedSource := anchorPresent;
+      if anchorPresent == SourceMocap then
+        reseedPosition := mocap.positionWorldEnu_m;
+        reseedVelocity := working.velocityWorldEnu_m_s;
+      else
+        reseedPosition := gps.positionWorldEnu_m;
+        reseedVelocity := if gps.velocityValid then
+          gps.velocityWorldEnu_m_s else working.velocityWorldEnu_m_s;
+      end if;
+      // Position and velocity, and only their covariance blocks, are replaced;
+      // the attitude and bias states and their variances are carried through
+      // untouched. The record assembly lives in reseed() so it does not share
+      // a common-subexpression temporary with the prediction-side assemblies.
+      working := reseed(working, reseedPosition, reseedVelocity,
+        tuning.initialVariances);
+      reseeded := true;
+    end if;
+
     // ANCHOR EXCLUSIVITY, and only during stage 1.
     //
     // Stage 1 deliberately widens the gate, and a widened gate is open to
@@ -581,7 +666,11 @@ algorithm
     // velocity estimate to -0.21 m/s against a 4 m/s truth. Isolation of a
     // broken high-authority source is the rejection CLOCK being anchored
     // to it; that works without any veto over the other sources.
-    if mocapNew
+    if reseedNow then
+      // A re-seed happened this tick: the state is already on the anchor
+      // sample with the restored prior, so no correction is attempted.
+      correctionAttempted := false;
+    elseif mocapNew
         and (not anchorExclusive or anchorPresent == SourceMocap) then
       (working, mocapCorrectionAccepted, correctionOutcome,
        normalizedInnovationSquared) :=
@@ -763,6 +852,21 @@ algorithm
       if correctionSource == SourceOpticalFlow then
         (if correctionAccepted then 0 else opticalFlowRejectionsPrevious + 1)
       else opticalFlowRejectionsPrevious;
+
+    // STAGE 3 telemetry and clock reset. The re-seed is a deliberate
+    // replacement of the state, so the tick reports CorrectionReseeded
+    // rather than the gate acceptance the same-tick fusion recorded, and it
+    // clears the rejection clock and every per-source counter: the
+    // divergence they were measuring has been resolved by construction.
+    if reseeded then
+      correctionOutcome := CorrectionReseeded;
+      correctionSource := reseedSource;
+      consecutiveRejectionsNext := 0;
+      rejectionElapsedNext_s := 0.0;
+      mocapRejectionsNext := 0;
+      gpsRejectionsNext := 0;
+      opticalFlowRejectionsNext := 0;
+    end if;
   end if;
 
   positionNext := working.positionWorldEnu_m;

@@ -39,6 +39,10 @@ static void params(NavigationEstimatorState *s) {
     s->covarianceInflateTimeConstant_s = 0.5f;
     s->aidingDivergentWindow_s = 5.0f;
     s->aidingStaleTimeout_s = 0.5f;
+    /* Generic defaults keep the automatic re-seed disabled; the RDD2 export
+       enables it, so it is reset here to pin the ladder sections and the
+       commanded-reset section to the off-by-default behaviour. */
+    s->aidingReseedWindow_s = 0.0f;
 #else
     s->rejectedCorrectionLimit = 50;
 #endif
@@ -199,7 +203,7 @@ static void scenario_nominal(const char *path) {
         S.specificForceBodyFlu_m_s2[0]=(float)ACC;
         S.opticalFlow_valid=true; S.opticalFlow_fresh=(k%20==0);
         S.velocityBodyFlu_m_s[0]=(float)vx; S.velocityBodyFlu_m_s[1]=0.0f;
-        S.integrationTime_s=0.02f; S.groundDistance_m=3.0f; S.quality=1.0f;
+        S.opticalFlow_integrationTime_s=0.02f; S.groundDistance_m=3.0f; S.quality=1.0f;
         NavigationEstimator_dostep(&S);
         fprintf(f,"%d",k);
         for(int i=0;i<3;i++) fprintf(f," %a",(double)S.estimate_positionWorldEnu_m[i]);

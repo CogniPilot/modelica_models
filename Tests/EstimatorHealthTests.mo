@@ -52,6 +52,7 @@ model EstimatorHealthTests
     Real imuAccelHeld[3];
     Real imuStampHeld;
     Boolean imuHeldFlag;
+    Boolean reseeded;
     Integer anchorSourceNext;
     Real mocapStaleNext_s;
     Real gpsStaleNext_s;
@@ -86,6 +87,7 @@ model EstimatorHealthTests
      correctionSource,
      correctionNis,
      estimateValid,
+     reseeded,
      mocapRejections,
      gpsRejections,
      flowRejections,
@@ -210,7 +212,8 @@ model EstimatorHealthTests
         covarianceInflateWindow_s=covarianceInflateWindow_s,
         covarianceInflateTimeConstant_s=covarianceInflateTimeConstant_s,
         aidingDivergentWindow_s=aidingDivergentWindow_s,
-        aidingStaleTimeout_s=aidingStaleTimeout_s),
+        aidingStaleTimeout_s=aidingStaleTimeout_s,
+        aidingReseedWindow_s=0.0),
       rejections,
       rejectionElapsed_s,
       0,
@@ -229,6 +232,237 @@ model EstimatorHealthTests
       -1.0e30,
       -1.0e30);
   end mocapTick;
+
+  function gpsTick
+    "One estimator tick against a GPS-only fixture, with the optional
+     automatic re-seed window exposed so the recovery ladder's stage 3 can
+     be driven and its disabled default pinned"
+    input Boolean initialized;
+    input Real position[3];
+    input Real velocity[3];
+    input Real quaternion[4];
+    input Real gyroscopeBias[3];
+    input Real accelerometerBias[3];
+    input Estimation.StrapdownINS.ESKF.Covariance covariance;
+    input Integer rejections;
+    input Real rejectionElapsed_s;
+    input Real gpsPosition[3];
+    input Real gpsVelocity[3];
+    input Boolean positionValid;
+    input Boolean velocityValid;
+    input Real timestamp_s;
+    input Real dt;
+    input Real innovationGate;
+    input Real covarianceInflateWindow_s;
+    input Real aidingDivergentWindow_s;
+    input Real aidingReseedWindow_s;
+    input Integer anchorSourcePrevious;
+    output Real positionNext[3];
+    output Real velocityNext[3];
+    output Real quaternionNext[4];
+    output Real gyroscopeBiasNext[3];
+    output Real accelerometerBiasNext[3];
+    output Estimation.StrapdownINS.ESKF.Covariance covarianceNext;
+    output Boolean initializedNext;
+    output Integer rejectionsNext;
+    output Real rejectionElapsedNext_s;
+    output Boolean gpsAccepted;
+    output Integer recoveryStage;
+    output Integer correctionOutcome;
+    output Boolean estimateValid;
+    output Boolean reseededOut;
+  protected
+    Boolean predictionOk;
+    Boolean mocapOk;
+    Boolean gpsVelocityOk;
+    Boolean magnetometerOk;
+    Boolean barometerOk;
+    Boolean flowOk;
+    Integer correctionSource;
+    Real correctionNis;
+    Integer mocapRejections;
+    Integer gpsRejections;
+    Integer flowRejections;
+    Real imuOmegaHeld[3];
+    Real imuAccelHeld[3];
+    Real imuStampHeld;
+    Boolean imuHeldFlag;
+    Integer anchorSourceNext;
+    Real mocapStaleNext_s;
+    Real gpsStaleNext_s;
+    Real flowStaleNext_s;
+    Real mocapTimestampConsumedNext_s;
+    Real gpsTimestampConsumedNext_s;
+    Real magnetometerTimestampConsumedNext_s;
+    Real barometerTimestampConsumedNext_s;
+    Real opticalFlowTimestampConsumedNext_s;
+  algorithm
+    (positionNext,
+     velocityNext,
+     quaternionNext,
+     gyroscopeBiasNext,
+     accelerometerBiasNext,
+     covarianceNext,
+     initializedNext,
+     predictionOk,
+     mocapOk,
+     gpsAccepted,
+     gpsVelocityOk,
+     magnetometerOk,
+     barometerOk,
+     flowOk,
+     rejectionsNext,
+     rejectionElapsedNext_s,
+     recoveryStage,
+     correctionOutcome,
+     correctionSource,
+     correctionNis,
+     estimateValid,
+     reseededOut,
+     mocapRejections,
+     gpsRejections,
+     flowRejections,
+     anchorSourceNext,
+     mocapStaleNext_s,
+     gpsStaleNext_s,
+     flowStaleNext_s,
+     imuOmegaHeld,
+     imuAccelHeld,
+     imuStampHeld,
+     imuHeldFlag,
+     mocapTimestampConsumedNext_s,
+     gpsTimestampConsumedNext_s,
+     magnetometerTimestampConsumedNext_s,
+     barometerTimestampConsumedNext_s,
+     opticalFlowTimestampConsumedNext_s) :=
+      Estimation.StrapdownINS.ESKF.step(
+      initialized,
+      Estimation.StrapdownINS.ESKF.State(
+        positionWorldEnu_m=position,
+        velocityWorldEnu_m_s=velocity,
+        quaternionWorldBody=quaternion,
+        gyroscopeBiasBodyFlu_rad_s=gyroscopeBias,
+        accelerometerBiasBodyFlu_m_s2=accelerometerBias,
+        covariance=covariance),
+      false,
+      Avionics.ImuSample(
+        valid=true,
+        fresh=true,
+        timestamp_s=timestamp_s,
+        angularVelocityBodyFlu_rad_s=zeros(3),
+        specificForceBodyFlu_m_s2={0.0, 0.0, 9.81},
+        deltaAngleBodyFlu_rad=zeros(3),
+        deltaVelocityBodyFlu_m_s={0.0, 0.0, 0.00981},
+        deltaPositionBodyFlu_m={0.0, 0.0, 4.905e-6},
+        deltaQuaternionBodyFlu={1.0, 0.0, 0.0, 0.0},
+        gyroscopeBiasLinearizationBodyFlu_rad_s=zeros(3),
+        accelerometerBiasLinearizationBodyFlu_m_s2=zeros(3),
+        deltaRotationGyroscopeBiasJacobian_s=-identity(3) * 0.001,
+        deltaVelocityGyroscopeBiasJacobian_m=zeros(3, 3),
+        deltaVelocityAccelerometerBiasJacobian_s=-identity(3) * 0.001,
+        deltaPositionGyroscopeBiasJacobian_m_s=zeros(3, 3),
+        deltaPositionAccelerometerBiasJacobian_s2=
+          -0.5 * identity(3) * 1.0e-6,
+        integrationTime_s=0.001),
+      Avionics.MocapSample(
+        valid=false,
+        fresh=false,
+        timestamp_s=0.0,
+        positionWorldEnu_m=zeros(3),
+        quaternionWorldBody={1.0, 0.0, 0.0, 0.0},
+        positionCovarianceWorld_m2=identity(3),
+        attitudeCovarianceBody_rad2=identity(3)),
+      Avionics.GpsSample(
+        valid=true,
+        fresh=true,
+        positionValid=positionValid,
+        velocityValid=velocityValid,
+        timestamp_s=timestamp_s,
+        geodetic_deg_m=zeros(3),
+        positionWorldEnu_m=gpsPosition,
+        velocityWorldEnu_m_s=gpsVelocity,
+        positionCovarianceWorld_m2=identity(3) * 0.01,
+        velocityCovarianceWorld_m2_s2=identity(3) * 0.01),
+      Avionics.MagnetometerSample(
+        valid=false,
+        fresh=false,
+        timestamp_s=0.0,
+        magneticFieldBodyFlu_T={18.0e-6, 4.0e-6, -47.0e-6},
+        covarianceBody_T2=identity(3) * 1.0e-12),
+      Avionics.BarometerSample(
+        valid=false,
+        fresh=false,
+        timestamp_s=0.0,
+        altitudeWorldEnu_m=0.0,
+        variance_m2=1.0),
+      Avionics.OpticalFlowSample(
+        valid=false,
+        fresh=false,
+        timestamp_s=0.0,
+        integratedLineOfSight_rad=zeros(2),
+        integratedLineOfSightCovariance_rad2=identity(2),
+        integratedGyroscopeBodyFlu_rad=zeros(3),
+        integratedGyroscopeCovariance_rad2=identity(3),
+        integrationTime_s=0.0,
+        groundDistance_m=1.0,
+        groundDistanceVariance_m2=0.01,
+        quality=0.0),
+      {0.0, 0.0, -9.81},
+      dt,
+      Estimation.StrapdownINS.ESKF.Tuning(
+        initialState=Estimation.StrapdownINS.ESKF.NominalState(
+          positionWorldEnu_m=zeros(3),
+          velocityWorldEnu_m_s=zeros(3),
+          quaternionWorldBody={1.0, 0.0, 0.0, 0.0},
+          gyroscopeBiasBodyFlu_rad_s=zeros(3),
+          accelerometerBiasBodyFlu_m_s2=zeros(3)),
+        initialVariances=Estimation.StrapdownINS.InitialVariances(
+          position_m2=fill(1.0, 3),
+          velocity_m2_s2=fill(1.0, 3),
+          attitude_rad2=fill(0.25, 3),
+          gyroscopeBias_rad2_s2=fill(1.0e-4, 3),
+          accelerometerBias_m2_s4=fill(1.0e-2, 3)),
+        processNoise=Estimation.StrapdownINS.ProcessNoise(
+          gyroscope_rad2_s=identity(3) * 1.0e-5,
+          accelerometer_m2_s3=identity(3) * 1.0e-3,
+          gyroscopeBias_rad2_s3=identity(3) * 1.0e-8,
+          accelerometerBias_m2_s5=identity(3) * 1.0e-6),
+        varianceLimits=Estimation.StrapdownINS.ESKF.VarianceLimits(
+          position_m2=fill(1.0e4, 3),
+          velocity_m2_s2=fill(4.0e2, 3),
+          attitude_rad2=fill(10.0, 3),
+          gyroscopeBias_rad2_s2=fill(1.0e-2, 3),
+          accelerometerBias_m2_s4=fill(1.0, 3)),
+        innovationGate=innovationGate,
+        localMagneticFieldWorldEnu_T={18.0e-6, 4.0e-6, -47.0e-6},
+        barometerBias_m=0.0,
+        barometerBiasVariance_m2=1.0,
+        maximumAidingDelay_s=0.25,
+        minimumOpticalFlowQuality=0.2,
+        minimumOpticalFlowGroundDistance_m=0.2,
+        covarianceInflateWindow_s=covarianceInflateWindow_s,
+        covarianceInflateTimeConstant_s=0.5,
+        aidingDivergentWindow_s=aidingDivergentWindow_s,
+        aidingStaleTimeout_s=0.5,
+        aidingReseedWindow_s=aidingReseedWindow_s),
+      rejections,
+      rejectionElapsed_s,
+      0,
+      0,
+      0,
+      anchorSourcePrevious,
+      1.0e30,
+      0.0,
+      1.0e30,
+      zeros(3),
+      zeros(3),
+      0.0,
+      -1.0e30,
+      timestamp_s - dt,
+      -1.0e30,
+      -1.0e30,
+      -1.0e30);
+  end gpsTick;
 
   function run
     output Boolean passed;
@@ -294,6 +528,20 @@ model EstimatorHealthTests
     Integer ungatedReason;
     Real gatedNis;
     Real ungatedNis;
+    // Stage 3 re-seed fixture. A GPS stream jumps 2 km and is gate-rejected
+    // every tick, so the anchor clock runs unbroken through stages 1 and 2
+    // and into the re-seed window. With the window enabled the state must be
+    // re-seeded onto the fix with the initial variances restored; with it
+    // disabled (the default) the same sequence must never re-seed.
+    constant Real reseedInflate = 1.0 * dt;
+    constant Real reseedDivergent = 2.0 * dt;
+    constant Real reseedWindow = 3.0 * dt;
+    constant Real farGps[3] = {2.0e3, 0.0, 0.0};
+    constant Real farGpsVelocity[3] = {1.0, 0.0, 0.0};
+    Boolean gpsOk;
+    Boolean reseededOut;
+    Boolean reseedFireOk;
+    Boolean reseedDisabledOk;
   algorithm
     // Fix 1: the pivot threshold scales with the working precision. A
     // trailing pivot of 1e-8 is comfortably above the binary64 floor
@@ -622,6 +870,267 @@ model EstimatorHealthTests
       // partial-update covariance blend.
       and covariance[1, 1] < varianceBeforeAccept
       and estimateValid;
+
+    // ---- Stage 3 re-seed ENABLED: the ladder re-seeds onto a rejected but
+    // persistent GPS stream once the divergence outlasts the re-seed window.
+    position := zeros(3);
+    velocity := zeros(3);
+    quaternion := {1.0, 0.0, 0.0, 0.0};
+    gyroscopeBias := zeros(3);
+    accelerometerBias := zeros(3);
+    covariance := zeros(15, 15);
+    initialized := false;
+    rejections := 0;
+    rejectionElapsed := 0.0;
+    anchorPrev := 0;
+
+    // Tick 1: initialize from GPS at the origin.
+    (positionNext, velocityNext, quaternionNext, gyroscopeBiasNext,
+     accelerometerBiasNext, covarianceNext, initializedNext, rejectionsNext,
+     rejectionElapsedNext_s, gpsOk, recoveryStage, correctionOutcome,
+     estimateValid, reseededOut) := gpsTick(
+      initialized, position, velocity, quaternion, gyroscopeBias,
+      accelerometerBias, covariance, rejections, rejectionElapsed,
+      zeros(3), zeros(3), true, true, dt, dt, gate, reseedInflate,
+      reseedDivergent, reseedWindow, anchorPrev);
+    position := positionNext;
+    velocity := velocityNext;
+    quaternion := quaternionNext;
+    gyroscopeBias := gyroscopeBiasNext;
+    accelerometerBias := accelerometerBiasNext;
+    covariance := covarianceNext;
+    initialized := initializedNext;
+    rejections := rejectionsNext;
+    rejectionElapsed := rejectionElapsedNext_s;
+    anchorPrev := Estimation.StrapdownINS.SourceGps;
+
+    // Ticks 2-4: the 2 km fix is gate-rejected while the clock runs through
+    // stages 1 and 2. The estimate must stay at the origin the whole way.
+    // Unrolled rather than looped: rumoca 0.9.20 drops the loop-carried
+    // state copies across the back-edge, as the mocap ladder fixture above
+    // documents.
+    (positionNext, velocityNext, quaternionNext, gyroscopeBiasNext,
+     accelerometerBiasNext, covarianceNext, initializedNext, rejectionsNext,
+     rejectionElapsedNext_s, gpsOk, recoveryStage, correctionOutcome,
+     estimateValid, reseededOut) := gpsTick(
+      initialized, position, velocity, quaternion, gyroscopeBias,
+      accelerometerBias, covariance, rejections, rejectionElapsed,
+      farGps, farGpsVelocity, true, true, 2.0 * dt, dt, gate,
+      reseedInflate, reseedDivergent, reseedWindow, anchorPrev);
+    position := positionNext;
+    velocity := velocityNext;
+    quaternion := quaternionNext;
+    gyroscopeBias := gyroscopeBiasNext;
+    accelerometerBias := accelerometerBiasNext;
+    covariance := covarianceNext;
+    initialized := initializedNext;
+    rejections := rejectionsNext;
+    rejectionElapsed := rejectionElapsedNext_s;
+    reseedFireOk := not reseededOut and abs(position[1]) < 1.0;
+
+    (positionNext, velocityNext, quaternionNext, gyroscopeBiasNext,
+     accelerometerBiasNext, covarianceNext, initializedNext, rejectionsNext,
+     rejectionElapsedNext_s, gpsOk, recoveryStage, correctionOutcome,
+     estimateValid, reseededOut) := gpsTick(
+      initialized, position, velocity, quaternion, gyroscopeBias,
+      accelerometerBias, covariance, rejections, rejectionElapsed,
+      farGps, farGpsVelocity, true, true, 3.0 * dt, dt, gate,
+      reseedInflate, reseedDivergent, reseedWindow, anchorPrev);
+    position := positionNext;
+    velocity := velocityNext;
+    quaternion := quaternionNext;
+    gyroscopeBias := gyroscopeBiasNext;
+    accelerometerBias := accelerometerBiasNext;
+    covariance := covarianceNext;
+    initialized := initializedNext;
+    rejections := rejectionsNext;
+    rejectionElapsed := rejectionElapsedNext_s;
+    reseedFireOk := reseedFireOk and not reseededOut and abs(position[1]) < 1.0;
+
+    (positionNext, velocityNext, quaternionNext, gyroscopeBiasNext,
+     accelerometerBiasNext, covarianceNext, initializedNext, rejectionsNext,
+     rejectionElapsedNext_s, gpsOk, recoveryStage, correctionOutcome,
+     estimateValid, reseededOut) := gpsTick(
+      initialized, position, velocity, quaternion, gyroscopeBias,
+      accelerometerBias, covariance, rejections, rejectionElapsed,
+      farGps, farGpsVelocity, true, true, 4.0 * dt, dt, gate,
+      reseedInflate, reseedDivergent, reseedWindow, anchorPrev);
+    position := positionNext;
+    velocity := velocityNext;
+    quaternion := quaternionNext;
+    gyroscopeBias := gyroscopeBiasNext;
+    accelerometerBias := accelerometerBiasNext;
+    covariance := covarianceNext;
+    initialized := initializedNext;
+    rejections := rejectionsNext;
+    rejectionElapsed := rejectionElapsedNext_s;
+    reseedFireOk := reseedFireOk and not reseededOut and abs(position[1]) < 1.0;
+
+    // Tick 5: the clock has crossed the re-seed window, so this fresh fix
+    // re-seeds the state onto itself with the initial variances restored.
+    (positionNext, velocityNext, quaternionNext, gyroscopeBiasNext,
+     accelerometerBiasNext, covarianceNext, initializedNext, rejectionsNext,
+     rejectionElapsedNext_s, gpsOk, recoveryStage, correctionOutcome,
+     estimateValid, reseededOut) := gpsTick(
+      initialized, position, velocity, quaternion, gyroscopeBias,
+      accelerometerBias, covariance, rejections, rejectionElapsed,
+      farGps, farGpsVelocity, true, true, 5.0 * dt, dt, gate,
+      reseedInflate, reseedDivergent, reseedWindow, anchorPrev);
+    position := positionNext;
+    velocity := velocityNext;
+    covariance := covarianceNext;
+    rejections := rejectionsNext;
+    rejectionElapsed := rejectionElapsedNext_s;
+    reseedFireOk := reseedFireOk
+      and reseededOut
+      and correctionOutcome == Estimation.StrapdownINS.CorrectionReseeded
+      // Landed exactly on the fix: position from the sample, velocity from
+      // the GPS velocity the sample reported.
+      and abs(position[1] - farGps[1]) < tolerance
+      and abs(velocity[1] - farGpsVelocity[1]) < tolerance
+      // Position and velocity variance restored to the initial variances,
+      // not left at the pre-seed gated value and not collapsed by a fusion.
+      and abs(covariance[1, 1] - 1.0) < tolerance
+      and abs(covariance[4, 4] - 1.0) < tolerance
+      // Cross-covariance with the attitude block zeroed, attitude variance
+      // kept rather than reset.
+      and abs(covariance[1, 7]) < tolerance
+      and abs(covariance[7, 1]) < tolerance
+      and covariance[7, 7] > 0.0
+      // The rejection clock and stage report are cleared by the re-seed.
+      and rejections == 0
+      and abs(rejectionElapsed) < tolerance
+      and estimateValid;
+
+    // ---- Stage 3 re-seed DISABLED (the default): the identical sequence
+    // must never re-seed, and the persistent 2 km fix is never adopted.
+    position := zeros(3);
+    velocity := zeros(3);
+    quaternion := {1.0, 0.0, 0.0, 0.0};
+    gyroscopeBias := zeros(3);
+    accelerometerBias := zeros(3);
+    covariance := zeros(15, 15);
+    initialized := false;
+    rejections := 0;
+    rejectionElapsed := 0.0;
+    anchorPrev := 0;
+    reseedDisabledOk := true;
+
+    (positionNext, velocityNext, quaternionNext, gyroscopeBiasNext,
+     accelerometerBiasNext, covarianceNext, initializedNext, rejectionsNext,
+     rejectionElapsedNext_s, gpsOk, recoveryStage, correctionOutcome,
+     estimateValid, reseededOut) := gpsTick(
+      initialized, position, velocity, quaternion, gyroscopeBias,
+      accelerometerBias, covariance, rejections, rejectionElapsed,
+      zeros(3), zeros(3), true, true, dt, dt, gate, reseedInflate,
+      reseedDivergent, 0.0, anchorPrev);
+    position := positionNext;
+    velocity := velocityNext;
+    quaternion := quaternionNext;
+    gyroscopeBias := gyroscopeBiasNext;
+    accelerometerBias := accelerometerBiasNext;
+    covariance := covarianceNext;
+    initialized := initializedNext;
+    rejections := rejectionsNext;
+    rejectionElapsed := rejectionElapsedNext_s;
+    anchorPrev := Estimation.StrapdownINS.SourceGps;
+
+    // Ticks 2-6, unrolled: past the tick where the enabled window re-seeded,
+    // the disabled default must still be rejecting the 2 km fix and holding
+    // the estimate at the origin.
+    (positionNext, velocityNext, quaternionNext, gyroscopeBiasNext,
+     accelerometerBiasNext, covarianceNext, initializedNext, rejectionsNext,
+     rejectionElapsedNext_s, gpsOk, recoveryStage, correctionOutcome,
+     estimateValid, reseededOut) := gpsTick(
+      initialized, position, velocity, quaternion, gyroscopeBias,
+      accelerometerBias, covariance, rejections, rejectionElapsed,
+      farGps, farGpsVelocity, true, true, 2.0 * dt, dt, gate,
+      reseedInflate, reseedDivergent, 0.0, anchorPrev);
+    position := positionNext;
+    velocity := velocityNext;
+    covariance := covarianceNext;
+    initialized := initializedNext;
+    rejections := rejectionsNext;
+    rejectionElapsed := rejectionElapsedNext_s;
+    reseedDisabledOk := reseedDisabledOk and not reseededOut
+      and correctionOutcome <> Estimation.StrapdownINS.CorrectionReseeded
+      and abs(position[1]) < 1.0;
+
+    (positionNext, velocityNext, quaternionNext, gyroscopeBiasNext,
+     accelerometerBiasNext, covarianceNext, initializedNext, rejectionsNext,
+     rejectionElapsedNext_s, gpsOk, recoveryStage, correctionOutcome,
+     estimateValid, reseededOut) := gpsTick(
+      initialized, position, velocity, quaternion, gyroscopeBias,
+      accelerometerBias, covariance, rejections, rejectionElapsed,
+      farGps, farGpsVelocity, true, true, 3.0 * dt, dt, gate,
+      reseedInflate, reseedDivergent, 0.0, anchorPrev);
+    position := positionNext;
+    velocity := velocityNext;
+    covariance := covarianceNext;
+    initialized := initializedNext;
+    rejections := rejectionsNext;
+    rejectionElapsed := rejectionElapsedNext_s;
+    reseedDisabledOk := reseedDisabledOk and not reseededOut
+      and correctionOutcome <> Estimation.StrapdownINS.CorrectionReseeded
+      and abs(position[1]) < 1.0;
+
+    (positionNext, velocityNext, quaternionNext, gyroscopeBiasNext,
+     accelerometerBiasNext, covarianceNext, initializedNext, rejectionsNext,
+     rejectionElapsedNext_s, gpsOk, recoveryStage, correctionOutcome,
+     estimateValid, reseededOut) := gpsTick(
+      initialized, position, velocity, quaternion, gyroscopeBias,
+      accelerometerBias, covariance, rejections, rejectionElapsed,
+      farGps, farGpsVelocity, true, true, 4.0 * dt, dt, gate,
+      reseedInflate, reseedDivergent, 0.0, anchorPrev);
+    position := positionNext;
+    velocity := velocityNext;
+    covariance := covarianceNext;
+    initialized := initializedNext;
+    rejections := rejectionsNext;
+    rejectionElapsed := rejectionElapsedNext_s;
+    reseedDisabledOk := reseedDisabledOk and not reseededOut
+      and correctionOutcome <> Estimation.StrapdownINS.CorrectionReseeded
+      and abs(position[1]) < 1.0;
+
+    (positionNext, velocityNext, quaternionNext, gyroscopeBiasNext,
+     accelerometerBiasNext, covarianceNext, initializedNext, rejectionsNext,
+     rejectionElapsedNext_s, gpsOk, recoveryStage, correctionOutcome,
+     estimateValid, reseededOut) := gpsTick(
+      initialized, position, velocity, quaternion, gyroscopeBias,
+      accelerometerBias, covariance, rejections, rejectionElapsed,
+      farGps, farGpsVelocity, true, true, 5.0 * dt, dt, gate,
+      reseedInflate, reseedDivergent, 0.0, anchorPrev);
+    position := positionNext;
+    velocity := velocityNext;
+    covariance := covarianceNext;
+    initialized := initializedNext;
+    rejections := rejectionsNext;
+    rejectionElapsed := rejectionElapsedNext_s;
+    reseedDisabledOk := reseedDisabledOk and not reseededOut
+      and correctionOutcome <> Estimation.StrapdownINS.CorrectionReseeded
+      and abs(position[1]) < 1.0;
+
+    (positionNext, velocityNext, quaternionNext, gyroscopeBiasNext,
+     accelerometerBiasNext, covarianceNext, initializedNext, rejectionsNext,
+     rejectionElapsedNext_s, gpsOk, recoveryStage, correctionOutcome,
+     estimateValid, reseededOut) := gpsTick(
+      initialized, position, velocity, quaternion, gyroscopeBias,
+      accelerometerBias, covariance, rejections, rejectionElapsed,
+      farGps, farGpsVelocity, true, true, 6.0 * dt, dt, gate,
+      reseedInflate, reseedDivergent, 0.0, anchorPrev);
+    position := positionNext;
+    covariance := covarianceNext;
+    reseedDisabledOk := reseedDisabledOk and not reseededOut
+      and correctionOutcome <> Estimation.StrapdownINS.CorrectionReseeded
+      and abs(position[1]) < 1.0;
+
+    assert(reseedFireOk,
+      "Stage 3 did not re-seed the state onto the persistent fix at the "
+      + "configured window, or did not restore the position and velocity "
+      + "covariance while keeping attitude and clearing the clock");
+    assert(reseedDisabledOk,
+      "The default (disabled) re-seed window re-seeded the state or "
+      + "adopted the rejected fix");
 
     assert(boundsOk,
       "Bounded covariance propagation exceeded the position limit");

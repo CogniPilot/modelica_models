@@ -21,6 +21,7 @@ static void params(NavigationEstimatorState*s){
 #if AFTER
  s->covarianceInflateWindow_s=1;s->covarianceInflateTimeConstant_s=0.5f;
  s->aidingDivergentWindow_s=5;s->aidingStaleTimeout_s=0.5f;
+ s->aidingReseedWindow_s=0; /* generic default: automatic re-seed disabled */
 #endif
  for(int i=0;i<3;i++)for(int j=0;j<3;j++){s->gps_positionCovarianceWorld_m2[i][j]=(i==j)?0.25f:0;
   s->velocityCovarianceWorld_m2_s2[i][j]=(i==j)?0.01f:0;
