@@ -152,22 +152,14 @@ algorithm
     // CONSIDER PROJECTION ON THE ROTATION ROWS, when the caller asked for
     // one. Applied to the GAIN, before the correction and before the
     // Joseph form, so the correction, the gain and the posterior all
-    // describe ONE update. The projector is built by conditional
-    // EXPRESSION over the WHOLE matrix rather than element by element, so
-    // the checked DAE lowering sees one total definition: n*n' for a unit
-    // axis, the identity for the zero default, which leaves the optimal
-    // gain alone up to the multiply by one.
-    attitudeGainProjector := if attitudeGainAxis * attitudeGainAxis > 0.5
-      then {{attitudeGainAxis[1] * attitudeGainAxis[1],
-             attitudeGainAxis[1] * attitudeGainAxis[2],
-             attitudeGainAxis[1] * attitudeGainAxis[3]},
-            {attitudeGainAxis[2] * attitudeGainAxis[1],
-             attitudeGainAxis[2] * attitudeGainAxis[2],
-             attitudeGainAxis[2] * attitudeGainAxis[3]},
-            {attitudeGainAxis[3] * attitudeGainAxis[1],
-             attitudeGainAxis[3] * attitudeGainAxis[2],
-             attitudeGainAxis[3] * attitudeGainAxis[3]}}
-      else identity(3);
+    // describe ONE update. The projector is one total definition over the
+    // whole matrix -- n*n' for a unit axis, the identity for the zero
+    // default, which leaves the optimal gain alone up to the multiply by
+    // one. It is built by considerGainProjector rather than inline because
+    // a matrix-valued conditional written here is fused into the gain
+    // contraction below and instantiated per element; see that function.
+    attitudeGainProjector :=
+      Estimation.StrapdownINS.ESKF.considerGainProjector(attitudeGainAxis);
     gain := cat(1, gain[1:6, :],
       attitudeGainProjector * gain[7:9, :],
       gain[10:TangentLength, :]);
