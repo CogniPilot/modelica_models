@@ -8,6 +8,7 @@ CorrectionRejectedGate
 CorrectionRejectedFactorization
 CorrectionRejectedCovarianceUnusable
 CorrectionRejectedTimestamp
+CorrectionReseeded
 SourceNone
 SourceMocap
 SourceGps

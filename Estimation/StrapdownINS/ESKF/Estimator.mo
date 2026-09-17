@@ -108,6 +108,23 @@ block Estimator
      permanently valid and never fresh. 0.5 s spans ten intervals of the
      slowest aiding rate this block is specified for while still demoting
      a genuinely stalled source well inside the divergence window.";
+  parameter Real aidingReseedWindow_s(unit = "s") = 0.0
+    "Unbroken wall-clock time the anchor source has been unable to move the
+     state after which, on the next fresh finite anchor sample, the
+     estimator re-seeds position (and velocity from a GPS sample that
+     reports it) from that sample and restores the position and velocity
+     covariance to the initial variances. It keeps attitude and the bias
+     states.
+
+     DISABLED BY DEFAULT: non-positive turns re-seeding off, which is the
+     value carried here so every pinned test and witness trace keeps its
+     behaviour. When enabled it must be finite and exceed
+     aidingDivergentWindow_s, so a re-seed happens only after the gentler
+     covariance-inflation stage has been given the whole divergence window
+     to readmit the anchor on its own. A deployment that wants automatic
+     recovery from a sustained outage sets this positive on the extends
+     clause, as Vehicles.Rdd2.NavigationEstimator does. An unusable value
+     disables only the re-seed and leaves the rest of the ladder in force.";
 
 protected
   discrete Real statePosition[3](each start = 0.0, each fixed = true);
@@ -163,6 +180,10 @@ protected
      gives that consumer a well-defined edge.";
   discrete Real normalizedInnovationSquared(start = 0.0, fixed = true);
   discrete Boolean estimateValid(start = false, fixed = true);
+  discrete Boolean reseeded(start = false, fixed = true);
+  discrete Integer reseedCount(start = 0, fixed = true)
+    "Monotonic count of automatic recovery-ladder re-seeds since the last
+     reset; incremented on each tick reseeded is true";
   discrete Integer anchorSource(start = 0, fixed = true);
   discrete Real mocapStale_s(start = 1.0e30, fixed = true);
   discrete Real gpsStale_s(start = 1.0e30, fixed = true);
@@ -316,6 +337,7 @@ algorithm
      correctionSource,
      normalizedInnovationSquared,
      estimateValid,
+     reseeded,
      mocapRejections,
      gpsRejections,
      opticalFlowRejections,
@@ -379,7 +401,8 @@ algorithm
           covarianceInflateWindow_s=covarianceInflateWindow_s,
           covarianceInflateTimeConstant_s=covarianceInflateTimeConstant_s,
           aidingDivergentWindow_s=aidingDivergentWindow_s,
-          aidingStaleTimeout_s=aidingStaleTimeout_s),
+          aidingStaleTimeout_s=aidingStaleTimeout_s,
+          aidingReseedWindow_s=aidingReseedWindow_s),
         pre(consecutiveRejectedCorrections),
         pre(rejectionElapsed_s),
         pre(mocapRejections),
@@ -450,6 +473,9 @@ algorithm
       elseif correctionOutcome == Estimation.StrapdownINS.CorrectionAccepted
         then pre(acceptedCorrectionCount) + 1
       else pre(acceptedCorrectionCount);
+    reseedCount := if reset then 0
+      elseif reseeded then pre(reseedCount) + 1
+      else pre(reseedCount);
     status.initialized := initialized;
     status.predictionAccepted := predictionAccepted;
     status.mocapCorrectionAccepted := mocapCorrectionAccepted;
@@ -471,6 +497,8 @@ algorithm
     status.recoveryStage := recoveryStage;
     status.anchorSource := anchorSource;
     status.imuPayloadHeld := imuPayloadHeld;
+    status.reseeded := reseeded;
+    status.reseedCount := reseedCount;
     errorCovariance := stateCovariance;
     estimatedGyroscopeBias_rad_s := stateGyroscopeBias;
     estimatedAccelerometerBias_m_s2 := stateAccelerometerBias;
@@ -505,6 +533,14 @@ equation
   assert(aidingDivergentWindow_s > covarianceInflateWindow_s
     and aidingDivergentWindow_s < Estimation.StrapdownINS.ESKF.FiniteMagnitudeLimit,
     "aidingDivergentWindow_s must be finite and exceed covarianceInflateWindow_s");
+  // The re-seed is opt-in, so a non-positive window is a legitimate
+  // configuration and is not asserted against. A finite POSITIVE window that
+  // fails to exceed the divergent window is a configuration error, not a
+  // disable, so it is caught loudly here rather than silently ignored.
+  assert(not (aidingReseedWindow_s > 0.0
+      and aidingReseedWindow_s < Estimation.StrapdownINS.ESKF.FiniteMagnitudeLimit
+      and aidingReseedWindow_s <= aidingDivergentWindow_s),
+    "aidingReseedWindow_s, when enabled, must exceed aidingDivergentWindow_s");
 
   annotation(Documentation(info = "<html>
     <p>This block is a concrete implementation of the stable estimator
@@ -525,15 +561,25 @@ equation
     happened to fire, which is what allowed a NaN measurement -- against which
     every comparison is false -- to be applied and to poison the state
     permanently.</p>
-    <p><b>The estimator never re-seeds its own state from aiding it is
-    rejecting.</b> Sustained rejection drives a two-stage ladder timed in
-    wall-clock seconds: first the covariance is inflated to the declared
-    mission envelope with the state untouched, which is the only recovery
-    action that cannot itself be wrong and which is sufficient whenever
-    recovery is possible at all; then, if the aiding still does not fit,
-    <code>estimate.valid</code> goes false and the vehicle's failsafe takes
-    over. Re-seeding position, attitude, and velocity remains available
-    through the commanded <code>reset</code> input, where it is a deliberate
-    act rather than a filter's guess.</p>
+    <p><b>Recovery is a ladder timed in wall-clock seconds on the anchor
+    source.</b> First the position and velocity covariance is inflated
+    toward the declared mission envelope with the state untouched, which is
+    the only recovery action that cannot itself be wrong and which readmits
+    a good fix that had been locked out by an over-tight covariance. If the
+    anchor still does not fit by <code>aidingDivergentWindow_s</code> the
+    divergence is reported on <code>status.recoveryStage</code>;
+    <code>estimate.valid</code> deliberately stays a statement only about
+    whether the published numbers are finite, because clearing it on the
+    deployed stack latches a motors-zero fault in every mode. An optional
+    third stage, enabled by setting <code>aidingReseedWindow_s</code>
+    positive and above the divergent window, re-seeds position (and velocity
+    from a GPS sample that reports it) from the next fresh finite anchor
+    sample and restores the position and velocity covariance to the initial
+    variances, keeping attitude and the bias states; it is reported as
+    <code>correctionOutcome == CorrectionReseeded</code>,
+    <code>status.reseeded</code>, and <code>status.reseedCount</code>, never
+    as a gate acceptance, and is refused on a non-finite payload. It is
+    disabled by default. The commanded <code>reset</code> input remains the
+    operator-level re-seed of position, attitude, and velocity together.</p>
   </html>"));
 end Estimator;

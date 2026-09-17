@@ -298,6 +298,10 @@ algorithm
     status.recoveryStage := Estimation.StrapdownINS.RecoveryNominal;
     status.anchorSource := correctionSource;
     status.imuPayloadHeld := not predictionSucceeded;
+    // The UKF has no automatic re-seed stage; a commanded reset is its only
+    // re-seed, so these report the constant "never" state honestly.
+    status.reseeded := false;
+    status.reseedCount := 0;
   end when;
 
 equation

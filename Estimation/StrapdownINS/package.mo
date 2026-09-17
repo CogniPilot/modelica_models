@@ -15,6 +15,11 @@ package StrapdownINS
   constant Integer CorrectionRejectedFactorization = 4;
   constant Integer CorrectionRejectedCovarianceUnusable = 5;
   constant Integer CorrectionRejectedTimestamp = 6;
+  // Reported on the tick the automatic recovery ladder re-seeds the state
+  // from a fresh anchor sample after a sustained rejection window. It is a
+  // deliberate replacement of the state, not an ordinary gated fusion, so it
+  // is named rather than reported as CorrectionAccepted.
+  constant Integer CorrectionReseeded = 7;
   constant Integer SourceNone = 0;
   constant Integer SourceMocap = 1;
   constant Integer SourceGps = 2;

@@ -158,9 +158,10 @@ package Avionics
        attempted, 1 accepted, 2 rejected as not finite, 3 rejected by the
        innovation gate, 4 rejected because the innovation covariance did
        not factor, 5 rejected because the sensor-reported measurement
-       covariance was not finite or claimed non-positive noise. Every
-       rejection cause is named rather than inferred from the absence of
-       other flags";
+       covariance was not finite or claimed non-positive noise, 7 the state
+       was re-seeded from a fresh anchor sample by the automatic recovery
+       ladder. Every outcome is named rather than inferred from the absence
+       of other flags";
     Integer acceptedCorrectionCount
       "Monotonic count of SHIFTED FUSION INSTANTS since the last reset: the
        number of estimator ticks on which at least one aiding correction was
@@ -214,9 +215,12 @@ package Avionics
        the vehicle flying, so stage 2 raises this field and leaves valid
        alone.
 
-       The estimator never re-seeds its own state from an aiding stream it
-       is rejecting; a deliberate commanded reset is the only path that
-       re-seeds";
+       An optional third stage, off by default and enabled per deployment,
+       re-seeds position and velocity from a fresh anchor sample once the
+       divergence has outlasted a longer window; it is reported on the
+       separate reseeded flag and reseedCount rather than as a distinct
+       recoveryStage value, so a filter with the stage disabled reports only
+       stages 0 to 2 and a commanded reset stays the only other re-seed";
     Boolean imuPayloadHeld
       "True when this tick`s published IMU-derived outputs -- angular
        velocity, world acceleration and the estimate timestamp -- were held
@@ -234,6 +238,17 @@ package Avionics
       "Source currently anchoring the solution, by the same Source* codes
        as correctionSource. The recovery ladder is timed on this source
        alone, and a change of anchor restarts that timing";
+    Boolean reseeded
+      "True on the tick the automatic recovery ladder re-seeded the state
+       from a fresh anchor sample. It is an OPTIONAL, off-by-default stage,
+       so on a filter that leaves it disabled this is always false and the
+       commanded reset input is the only path that re-seeds. When it fires,
+       correctionOutcome carries the CorrectionReseeded code rather than an
+       acceptance code";
+    Integer reseedCount
+      "Monotonic count of automatic re-seeds since the last reset. Like
+       acceptedCorrectionCount it gives a consumer a well-defined edge
+       across a rate change, since reseeded is a per-tick level";
   end EstimatorStatus;
 
   connector ImuSampleInput = input Avionics.ImuSample;

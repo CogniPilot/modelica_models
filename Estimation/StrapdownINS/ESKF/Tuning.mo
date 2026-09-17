@@ -30,4 +30,13 @@ record Tuning
      counting as available for anchor selection. Bridges pulsed sensor
      wiring, where `valid` is asserted only on the ticks that carry a
      fix, and demotes a source that is permanently valid but never fresh";
+  Real aidingReseedWindow_s
+    "Wall-clock time the anchor source has been unable to move the state
+     after which, on the next fresh finite anchor sample, the estimator
+     re-seeds position (and velocity from a GPS sample that reports it)
+     from that sample and restores the position and velocity covariance
+     to the initial variances. Non-positive disables re-seeding; when
+     enabled it must exceed aidingDivergentWindow_s, and any unusable
+     value disables only the re-seed while leaving the rest of the ladder
+     in force";
 end Tuning;
