@@ -886,6 +886,9 @@ algorithm
     // itself observable through the velocity-attitude cross covariance.
     // Neither is an anchor, neither counts as an accepted aiding correction,
     // and neither is attempted on a tick that already fused a real sensor.
+    // They are fused ungated: an innovation gate would reject exactly the
+    // large residual the update exists to pull back, and their authority is
+    // already limited by the large variance they carry.
     // correctionAttempted is read here and deliberately left alone: it
     // tracks real-sensor attempts for the anchor bookkeeping below, and the
     // synthetic sources never match an anchor there.
@@ -908,14 +911,14 @@ algorithm
         (working, zeroVelocityCorrectionAccepted, correctionOutcome,
          normalizedInnovationSquared) :=
           correctZeroVelocity(working, tuning.zeroVelocityVariance_m2_s2,
-            tuning.innovationGate);
+            0.0);
         correctionAccepted := zeroVelocityCorrectionAccepted;
         correctionSource := SourceZeroVelocity;
       elseif pseudoPositionConfigured then
         (working, pseudoPositionCorrectionAccepted, correctionOutcome,
          normalizedInnovationSquared) :=
           correctPseudoPosition(working, pseudoPositionHoldPrevious_m,
-            tuning.pseudoPositionVariance_m2, tuning.innovationGate);
+            tuning.pseudoPositionVariance_m2, 0.0);
         correctionAccepted := pseudoPositionCorrectionAccepted;
         correctionSource := SourcePseudoPosition;
       end if;
