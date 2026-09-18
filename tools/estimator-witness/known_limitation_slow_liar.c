@@ -56,6 +56,9 @@ static void params(NavigationEstimatorState *s) {
     s->aidingDivergentWindow_s = 5.0f;
     s->aidingStaleTimeout_s = 0.5f;
     s->aidingReseedWindow_s = 0.0f; /* generic default: re-seed disabled */
+    s->initialAlignmentWindow_s = 0.0f; s->initialAlignmentTimeout_s = 0.0f; /* generic default: align on the first sample */
+    s->pseudoPositionVariance_m2 = 0.0f; /* generic default: no hold-position update */
+    s->zeroVelocityVariance_m2_s2 = 0.0f; /* generic default: no zero-velocity update */
     for (int i = 0; i < 3; i++) for (int j = 0; j < 3; j++) {
         s->gps_positionCovarianceWorld_m2[i][j] = (i == j) ? 0.25f : 0.0f;
         s->velocityCovarianceWorld_m2_s2[i][j]  = (i == j) ? 0.01f : 0.0f;

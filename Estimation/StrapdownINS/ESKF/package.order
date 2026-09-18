@@ -33,6 +33,8 @@ correctGps
 correctGpsPosition
 correctGpsVelocity
 correctMagnetometer
+correctPseudoPosition
+correctZeroVelocity
 correctBarometer
 opticalFlowRangeJacobian
 correctOpticalFlow

@@ -15,6 +15,13 @@ SourceGps
 SourceOpticalFlow
 SourceMagnetometer
 SourceBarometer
+SourcePseudoPosition
+SourceZeroVelocity
+AlignmentNone
+AlignmentMocap
+AlignmentAccelerometerMagnetometer
+AlignmentAccelerometer
+AlignmentFallback
 RecoveryNominal
 RecoveryCovarianceInflated
 RecoveryAidingDivergent

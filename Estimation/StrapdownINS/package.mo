@@ -26,6 +26,27 @@ package StrapdownINS
   constant Integer SourceOpticalFlow = 3;
   constant Integer SourceMagnetometer = 4;
   constant Integer SourceBarometer = 5;
+  constant Integer SourcePseudoPosition = 6
+    "Synthetic hold-position measurement fused while no anchor source is
+     live, so an unaided filter cannot integrate a tilt error into an
+     unbounded velocity. Never an anchor and never counted as an accepted
+     aiding correction";
+  constant Integer SourceZeroVelocity = 7
+    "Synthetic zero-velocity measurement fused while the IMU is quasi-static
+     and no anchor source is live. Same standing as SourcePseudoPosition";
+  constant Integer AlignmentNone = 0
+    "No initial attitude alignment has been performed yet";
+  constant Integer AlignmentMocap = 1
+    "Initial attitude taken from a motion-capture quaternion";
+  constant Integer AlignmentAccelerometerMagnetometer = 2
+    "Initial attitude leveled from the specific force with heading from the
+     magnetometer";
+  constant Integer AlignmentAccelerometer = 3
+    "Initial attitude leveled from the specific force with heading left at
+     zero, because no magnetometer sample was usable";
+  constant Integer AlignmentFallback = 4
+    "Initial attitude taken from the configured initial quaternion because no
+     usable sample was available";
   constant Integer RecoveryNominal = 0;
   constant Integer RecoveryCovarianceInflated = 1;
   constant Integer RecoveryAidingDivergent = 2;

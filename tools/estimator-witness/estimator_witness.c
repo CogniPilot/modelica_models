@@ -43,6 +43,9 @@ static void params(NavigationEstimatorState *s) {
        enables it, so it is reset here to pin the ladder sections and the
        commanded-reset section to the off-by-default behaviour. */
     s->aidingReseedWindow_s = 0.0f;
+    s->initialAlignmentWindow_s = 0.0f; s->initialAlignmentTimeout_s = 0.0f; /* generic default: align on the first sample */
+    s->pseudoPositionVariance_m2 = 0.0f; /* generic default: no hold-position update */
+    s->zeroVelocityVariance_m2_s2 = 0.0f; /* generic default: no zero-velocity update */
 #else
     s->rejectedCorrectionLimit = 50;
 #endif

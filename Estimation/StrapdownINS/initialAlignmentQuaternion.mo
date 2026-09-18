@@ -6,6 +6,9 @@ function initialAlignmentQuaternion
   input Real magneticFieldBodyFlu_T[3];
   input Real magneticFieldWorldEnu_T[3];
   input Real fallbackQuaternionWorldBody[4] = {1.0, 0.0, 0.0, 0.0};
+  input Boolean useMagnetometer = true
+    "When false the heading is left at zero and the alignment is accepted on
+     the specific force alone, for a vehicle without a usable magnetometer";
   output Real quaternionWorldBody[4];
   output Boolean accepted;
 protected
@@ -38,11 +41,15 @@ algorithm
   referenceHorizontalMagnitudeSquared :=
     magneticFieldWorldEnu_T[1] * magneticFieldWorldEnu_T[1]
       + magneticFieldWorldEnu_T[2] * magneticFieldWorldEnu_T[2];
-  accepted := accepted and horizontalMagnitudeSquared > 1.0e-20
-    and referenceHorizontalMagnitudeSquared > 1.0e-20;
-  heading := MathUtilities.wrapAngle(
-    atan2(magneticFieldWorldEnu_T[2], magneticFieldWorldEnu_T[1])
-      - atan2(fieldLeveled[2], fieldLeveled[1]));
+  if useMagnetometer then
+    accepted := accepted and horizontalMagnitudeSquared > 1.0e-20
+      and referenceHorizontalMagnitudeSquared > 1.0e-20;
+    heading := MathUtilities.wrapAngle(
+      atan2(magneticFieldWorldEnu_T[2], magneticFieldWorldEnu_T[1])
+        - atan2(fieldLeveled[2], fieldLeveled[1]));
+  else
+    heading := 0.0;
+  end if;
   if accepted then
     quaternionWorldBody := LieGroups.SO3.EulerB321.to_Quat(
       {heading, pitch, roll});

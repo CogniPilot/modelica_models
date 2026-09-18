@@ -33,6 +33,11 @@ function step
   input Real magnetometerTimestampConsumedPrevious_s;
   input Real barometerTimestampConsumedPrevious_s;
   input Real opticalFlowTimestampConsumedPrevious_s;
+  input Real quietElapsedPrevious_s;
+  input Real alignmentWaitPrevious_s;
+  input Real pseudoPositionHoldPrevious_m[3];
+  input Integer alignmentSourcePrevious;
+  input Real alignmentSpecificForcePrevious_m_s2[3];
   output Real positionNext[3];
   output Real velocityNext[3];
   output Real quaternionNext[4];
@@ -95,6 +100,21 @@ function step
   output Real magnetometerTimestampConsumedNext_s;
   output Real barometerTimestampConsumedNext_s;
   output Real opticalFlowTimestampConsumedNext_s;
+  output Real alignmentWaitNext_s
+    "Time with a usable IMU spent waiting for the alignment gate; zero once
+     aligned";
+  output Real quietElapsedNext_s
+    "Unbroken time the IMU has reported a quasi-static vehicle: specific
+     force within tolerance of gravity and angular rate below the limit";
+  output Real pseudoPositionHoldNext_m[3]
+    "Position the synthetic hold-position measurement is taken at: the
+     current estimate while an anchor is live, frozen when it drops";
+  output Integer alignmentSource
+    "Estimation.StrapdownINS.Alignment* code of the alignment in force";
+  output Real alignmentSpecificForce_m_s2[3]
+    "Specific-force sample the initial alignment leveled on";
+  output Boolean pseudoPositionCorrectionAccepted;
+  output Boolean zeroVelocityCorrectionAccepted;
 protected
   Estimation.StrapdownINS.ESKF.State prior;
   Estimation.StrapdownINS.ESKF.State working;
@@ -125,6 +145,16 @@ protected
   Boolean barometerNew;
   Boolean opticalFlowNew;
   Real mocapSeedQuaternionNorm;
+  Real specificForceMagnitude;
+  Real angularRateMagnitude;
+  Real gravityMagnitude;
+  Boolean imuQuiet;
+  Boolean alignmentGateConfigured;
+  Boolean alignmentReady;
+  Boolean alignmentTimedOut;
+  Boolean alignmentPending;
+  Boolean pseudoPositionConfigured;
+  Boolean zeroVelocityConfigured;
 algorithm
   predictionAccepted := false;
   mocapCorrectionAccepted := false;
@@ -139,6 +169,11 @@ algorithm
   correctionSource := SourceNone;
   normalizedInnovationSquared := 0.0;
   reseeded := false;
+  pseudoPositionCorrectionAccepted := false;
+  zeroVelocityCorrectionAccepted := false;
+  alignmentSource := alignmentSourcePrevious;
+  alignmentSpecificForce_m_s2 := alignmentSpecificForcePrevious_m_s2;
+  pseudoPositionHoldNext_m := pseudoPositionHoldPrevious_m;
   reseedNow := false;
   reseedSource := SourceNone;
   reseedPosition := zeros(3);
@@ -223,6 +258,28 @@ algorithm
   // recent packet, and timestamp novelty makes consumption exactly once.
   imuUsable := imuPayloadFinite
     and imu.timestamp_s > imuTimestampHeldPrevious_s + 1.0e-9;
+  // QUASI-STATIC DETECTOR. A vehicle at rest reports a specific force of
+  // gravity's magnitude and no rotation. The window it has held that state
+  // gates the initial alignment, so the filter never levels itself on a
+  // sample taken while the airframe is being carried or is still settling,
+  // and it gates the zero-velocity update below.
+  specificForceMagnitude := sqrt(imu.specificForceBodyFlu_m_s2
+    * imu.specificForceBodyFlu_m_s2);
+  angularRateMagnitude := sqrt(imu.angularVelocityBodyFlu_rad_s
+    * imu.angularVelocityBodyFlu_rad_s);
+  gravityMagnitude := sqrt(gravityWorldEnu_m_s2 * gravityWorldEnu_m_s2);
+  imuQuiet := imuUsable
+    and abs(specificForceMagnitude - gravityMagnitude)
+      <= tuning.quietSpecificForceTolerance_m_s2
+    and angularRateMagnitude <= tuning.quietAngularRateLimit_rad_s;
+  // The window is a property of the inertial stream alone: a commanded
+  // reset re-aligns from it but does not restart it, and a consumer that
+  // holds reset asserted until the filter reports initialized must still
+  // see the gate open.
+  quietElapsedNext_s := if not imuQuiet then 0.0
+    else quietElapsedPrevious_s + dt;
+  alignmentGateConfigured := tuning.initialAlignmentWindow_s > 0.0
+    and tuning.initialAlignmentWindow_s < FiniteMagnitudeLimit;
   mocapNew := mocap.valid
     and abs(mocap.timestamp_s) < FiniteMagnitudeLimit
     and mocap.timestamp_s > mocapTimestampConsumedPrevious_s + 1.0e-9;
@@ -491,7 +548,40 @@ algorithm
   // the identity quaternion when no mocap is present, which is correct on
   // the ground where it was written to run, and is exactly what must
   // never happen mid-flight.
-  if not initializedPrevious or reset then
+  // INITIAL ALIGNMENT GATE. A motion-capture seed carries its own attitude
+  // and is taken at once. Otherwise, when a window is configured, the
+  // filter waits until the IMU has been quasi-static for that long before
+  // it levels on the specific force; until then it stays uninitialized and
+  // publishes nothing, which is the honest state. Without GNSS or mocap
+  // nothing later can observe a tilt taken at alignment, so this is where a
+  // bad start is refused rather than integrated.
+  // A vehicle that never meets the quiet test (a vibrating airframe, a
+  // sensor whose scale is off) must still get a filter: after the timeout
+  // the alignment is taken on whatever the IMU reports, and the alignment
+  // source records that it was not a rested sample.
+  alignmentWaitNext_s := if initializedPrevious and not reset then 0.0
+    elseif imuUsable then alignmentWaitPrevious_s + dt
+    else alignmentWaitPrevious_s;
+  alignmentTimedOut := tuning.initialAlignmentTimeout_s > 0.0
+    and tuning.initialAlignmentTimeout_s < FiniteMagnitudeLimit
+    and alignmentWaitNext_s >= tuning.initialAlignmentTimeout_s;
+  alignmentReady := mocapSeedUsable or not alignmentGateConfigured
+    or (imuUsable
+      and (quietElapsedNext_s >= tuning.initialAlignmentWindow_s
+        or alignmentTimedOut));
+  alignmentPending := (not initializedPrevious or reset)
+    and not alignmentReady;
+  if alignmentPending then
+    working := Estimation.StrapdownINS.ESKF.State(
+      positionWorldEnu_m=previous.positionWorldEnu_m,
+      velocityWorldEnu_m_s=previous.velocityWorldEnu_m_s,
+      quaternionWorldBody=previous.quaternionWorldBody,
+      gyroscopeBiasBodyFlu_rad_s=previous.gyroscopeBiasBodyFlu_rad_s,
+      accelerometerBiasBodyFlu_m_s2=previous.accelerometerBiasBodyFlu_m_s2,
+      covariance=previous.covariance);
+    alignmentSource := AlignmentNone;
+    alignmentSpecificForce_m_s2 := zeros(3);
+  elseif not initializedPrevious or reset then
     // AFFIRMATIVE ADMISSION ON THE INITIALIZATION PATH.
     //
     // This branch writes the nominal state DIRECTLY from an aiding payload,
@@ -517,6 +607,7 @@ algorithm
     if mocapSeedUsable then
       initializationQuaternion := mocap.quaternionWorldBody;
       alignmentAccepted := true;
+      alignmentSource := AlignmentMocap;
     elseif imuUsable and magnetometerSeedUsable then
       (initializationQuaternion, alignmentAccepted) :=
         Estimation.StrapdownINS.initialAlignmentQuaternion(
@@ -524,10 +615,29 @@ algorithm
           magnetometer.magneticFieldBodyFlu_T,
           tuning.localMagneticFieldWorldEnu_T,
           tuning.initialState.quaternionWorldBody);
+      alignmentSource := if alignmentAccepted
+        then AlignmentAccelerometerMagnetometer else AlignmentFallback;
+    elseif imuUsable and alignmentGateConfigured then
+      // No magnetometer: level on the specific force and leave the heading
+      // at zero. Only offered behind the quiet gate, so the sample is one
+      // taken at rest.
+      (initializationQuaternion, alignmentAccepted) :=
+        Estimation.StrapdownINS.initialAlignmentQuaternion(
+          imu.specificForceBodyFlu_m_s2,
+          zeros(3),
+          tuning.localMagneticFieldWorldEnu_T,
+          tuning.initialState.quaternionWorldBody,
+          false);
+      alignmentSource := if alignmentAccepted
+        then AlignmentAccelerometer else AlignmentFallback;
     else
       initializationQuaternion := tuning.initialState.quaternionWorldBody;
       alignmentAccepted := false;
+      alignmentSource := AlignmentFallback;
     end if;
+    alignmentSpecificForce_m_s2 := if imuUsable
+      then imu.specificForceBodyFlu_m_s2 else zeros(3);
+    pseudoPositionHoldNext_m := initializationPosition;
     magnetometerCorrectionAccepted := magnetometerSeedUsable
       and alignmentAccepted
       and not mocapSeedUsable;
@@ -767,6 +877,51 @@ algorithm
       correctionSource := SourceMagnetometer;
       magnetometerTimestampConsumedNext_s := magnetometer.timestamp_s;
     end if;
+    // SYNTHETIC UPDATES WHILE UNAIDED. With no anchor source live nothing
+    // observes velocity or tilt, and a tilt error integrates into a velocity
+    // that grows without bound while every later measurement is gated out
+    // against it. PX4 EKF2 and ArduPilot NavEKF3 both close that loop with
+    // a fake position at the last known position; this does the same, and
+    // at rest also fuses zero velocity, which is what makes the tilt error
+    // itself observable through the velocity-attitude cross covariance.
+    // Neither is an anchor, neither counts as an accepted aiding correction,
+    // and neither is attempted on a tick that already fused a real sensor.
+    // correctionAttempted is read here and deliberately left alone: it
+    // tracks real-sensor attempts for the anchor bookkeeping below, and the
+    // synthetic sources never match an anchor there.
+    // An anchor that is present but has been rejected for the whole
+    // divergence window is unaided in every sense that matters here, so it
+    // opens the same path: a stream the gate keeps out must not also keep
+    // the filter from bounding itself. The divergence window rather than the
+    // inflate window, because a brief rejection burst during aided flight
+    // must not pull the state toward a hold point (measured: keying this on
+    // the inflate window cost 25 percent of aided horizontal accuracy).
+    pseudoPositionConfigured := tuning.pseudoPositionVariance_m2 > 0.0
+      and tuning.pseudoPositionVariance_m2 < FiniteMagnitudeLimit;
+    zeroVelocityConfigured := tuning.zeroVelocityVariance_m2_s2 > 0.0
+      and tuning.zeroVelocityVariance_m2_s2 < FiniteMagnitudeLimit;
+    if not correctionAttempted
+        and (not aidingLive or (ladderConfigured
+          and rejectionElapsedPrevious_s
+            >= tuning.aidingDivergentWindow_s)) then
+      if zeroVelocityConfigured and imuQuiet then
+        (working, zeroVelocityCorrectionAccepted, correctionOutcome,
+         normalizedInnovationSquared) :=
+          correctZeroVelocity(working, tuning.zeroVelocityVariance_m2_s2,
+            tuning.innovationGate);
+        correctionAccepted := zeroVelocityCorrectionAccepted;
+        correctionSource := SourceZeroVelocity;
+      elseif pseudoPositionConfigured then
+        (working, pseudoPositionCorrectionAccepted, correctionOutcome,
+         normalizedInnovationSquared) :=
+          correctPseudoPosition(working, pseudoPositionHoldPrevious_m,
+            tuning.pseudoPositionVariance_m2, tuning.innovationGate);
+        correctionAccepted := pseudoPositionCorrectionAccepted;
+        correctionSource := SourcePseudoPosition;
+      end if;
+    end if;
+    pseudoPositionHoldNext_m := if aidingLive
+      then working.positionWorldEnu_m else pseudoPositionHoldPrevious_m;
 
     // RECOVERY TIMER, measured on the ANCHOR SOURCE ONLY.
     //
@@ -875,7 +1030,7 @@ algorithm
   gyroscopeBiasNext := working.gyroscopeBiasBodyFlu_rad_s;
   accelerometerBiasNext := working.accelerometerBiasBodyFlu_m_s2;
   covarianceNext := working.covariance;
-  initializedNext := true;
+  initializedNext := not alignmentPending;
   // Publication guard, and DELIBERATELY NOT a ladder output.
   //
   // estimate.valid answers exactly one question: are the published

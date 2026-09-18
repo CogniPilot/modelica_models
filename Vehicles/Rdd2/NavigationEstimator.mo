@@ -48,16 +48,22 @@ block NavigationEstimator
     // before the estimator re-seeds position and velocity from the first
     // fresh fix; on the log this re-anchored within about ten seconds of
     // each outage.
-    aidingReseedWindow_s = 6.0);
+    aidingReseedWindow_s = 6.0,
+    initialAlignmentWindow_s = 0.5,
+    initialAlignmentTimeout_s = 5.0,
+    pseudoPositionVariance_m2 = 100.0,
+    zeroVelocityVariance_m2_s2 = 9.0e-2);
 
   annotation(Documentation(info = "<html>
     <p>Export this block as the default RDD2 estimator eFMU. Alternate filter
     blocks extend <code>Avionics.PartialNavigationEstimator</code>
     and therefore replace this artifact without changing any sensor input,
     navigation output, status field, or controller wiring.</p>
-    <p>The process-noise and initial-variance modifiers and the enabled
-    automatic re-seed window are RDD2 flight-log tuning of the generic
-    strapdown defaults; the defaults in
+    <p>The process-noise and initial-variance modifiers, the enabled
+    automatic re-seed window, the half-second quasi-static alignment window,
+    and the synthetic hold-position (10 m sigma) and zero-velocity (0.3 m/s
+    sigma) updates that keep an unaided indoor filter bounded are RDD2
+    flight-log tuning of the generic strapdown defaults; the defaults in
     <code>Estimation.StrapdownINS.PartialEstimator</code> are unchanged, so
     every other consumer of the filter keeps them.</p>
   </html>"));

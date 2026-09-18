@@ -39,4 +39,23 @@ record Tuning
      enabled it must exceed aidingDivergentWindow_s, and any unusable
      value disables only the re-seed while leaving the rest of the ladder
      in force";
+  Real initialAlignmentWindow_s
+    "Unbroken quasi-static time required before the filter aligns its
+     initial attitude from the IMU; non-positive aligns on the first usable
+     sample";
+  Real initialAlignmentTimeout_s
+    "Time with a usable IMU after which a pending alignment is taken on the
+     current sample even though the vehicle never held still for the
+     window; non-positive waits indefinitely";
+  Real quietSpecificForceTolerance_m_s2
+    "How far the specific-force magnitude may differ from gravity while the
+     vehicle still counts as quasi-static";
+  Real quietAngularRateLimit_rad_s
+    "Angular-rate magnitude below which the vehicle counts as quasi-static";
+  Real pseudoPositionVariance_m2
+    "Per-axis variance of the synthetic hold-position measurement fused while
+     no anchor source is live; non-positive disables it";
+  Real zeroVelocityVariance_m2_s2
+    "Per-axis variance of the synthetic zero-velocity measurement fused while
+     quasi-static and unaided; non-positive disables it";
 end Tuning;
