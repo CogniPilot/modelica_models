@@ -125,6 +125,48 @@ block Estimator
      recovery from a sustained outage sets this positive on the extends
      clause, as Vehicles.Rdd2.NavigationEstimator does. An unusable value
      disables only the re-seed and leaves the rest of the ladder in force.";
+  parameter Real initialAlignmentWindow_s(unit = "s") = 0.0
+    "Unbroken quasi-static time the IMU must report before the filter aligns
+     its initial attitude from the specific force. A vehicle that boots while
+     being carried, or whose inertial stream has not settled, is not leveled
+     on that sample; it stays uninitialized until it has rested this long.
+     Without GNSS or mocap nothing later can observe a tilt taken at
+     alignment, which is how a wrong start becomes an unbounded velocity.
+     DISABLED BY DEFAULT: non-positive aligns on the first usable sample, the
+     value carried here so every pinned test and witness trace keeps its
+     behaviour. Vehicles.Rdd2.NavigationEstimator sets it on the extends
+     clause. When the window is enabled a filter without a magnetometer
+     levels on the specific force with the heading left at zero instead of
+     taking the configured initial quaternion.";
+  parameter Real initialAlignmentTimeout_s(unit = "s") = 0.0
+    "Time with a usable IMU after which a pending alignment is taken on the
+     current sample even though the vehicle never held still for the window,
+     so a vibrating airframe or an out-of-scale sensor still gets a filter.
+     Non-positive waits indefinitely. Only meaningful with
+     initialAlignmentWindow_s enabled; RDD2 uses 5 s.";
+  parameter Real quietSpecificForceTolerance_m_s2(unit = "m/s2") = 0.5
+    "How far the specific-force magnitude may differ from gravity while the
+     vehicle still counts as quasi-static: about 0.05 g, above MEMS noise and
+     motor vibration at rest, below any real acceleration.";
+  parameter Real quietAngularRateLimit_rad_s(unit = "rad/s") = 0.1
+    "Angular-rate magnitude below which the vehicle counts as quasi-static,
+     about six degrees per second.";
+  parameter Real pseudoPositionVariance_m2(unit = "m2") = 0.0
+    "Per-axis variance of the synthetic hold-position measurement fused on
+     every tick that no anchor source is live and no real sensor was fused.
+     It holds the filter to the last position it had while aided (or the
+     initialization position) with a large uncertainty, the fake-position
+     fusion of the PX4 and ArduPilot filters, so a tilt error cannot
+     integrate into an unbounded velocity that gates every later measurement
+     out. DISABLED BY DEFAULT: non-positive turns it off. RDD2 uses 100
+     (10 m sigma).";
+  parameter Real zeroVelocityVariance_m2_s2(unit = "m2/s2") = 0.0
+    "Per-axis variance of the synthetic zero-velocity measurement fused while
+     the vehicle is quasi-static and no anchor source is live. Through the
+     velocity-attitude cross covariance this is the update that makes a tilt
+     error observable on a vehicle at rest with nothing else to aid it.
+     DISABLED BY DEFAULT: non-positive turns it off. RDD2 uses 0.09 (0.3 m/s
+     sigma), loose enough that a slowly drifting unaided hover is not pinned.";
 
 protected
   discrete Real statePosition[3](each start = 0.0, each fixed = true);
@@ -200,6 +242,13 @@ protected
   discrete Real barometerBiasTimestampConsumed_s(
     start = -1.0e30, fixed = true);
   discrete Real terrainTimestampConsumed_s(start = -1.0e30, fixed = true);
+  discrete Real quietElapsed_s(start = 0.0, fixed = true);
+  discrete Real alignmentWait_s(start = 0.0, fixed = true);
+  discrete Real pseudoPositionHold_m[3](each start = 0.0, each fixed = true);
+  discrete Integer alignmentSource(start = 0, fixed = true);
+  discrete Real alignmentSpecificForce_m_s2[3](each start = 0.0, each fixed = true);
+  discrete Boolean pseudoPositionCorrectionAccepted(start = false, fixed = true);
+  discrete Boolean zeroVelocityCorrectionAccepted(start = false, fixed = true);
 
 algorithm
   when sample(0.0, samplePeriod) then
@@ -353,7 +402,14 @@ algorithm
      gpsTimestampConsumed_s,
      magnetometerTimestampConsumed_s,
      barometerTimestampConsumed_s,
-     opticalFlowTimestampConsumed_s) :=
+     opticalFlowTimestampConsumed_s,
+     alignmentWait_s,
+     quietElapsed_s,
+     pseudoPositionHold_m,
+     alignmentSource,
+     alignmentSpecificForce_m_s2,
+     pseudoPositionCorrectionAccepted,
+     zeroVelocityCorrectionAccepted) :=
       Estimation.StrapdownINS.ESKF.step(
         pre(initialized),
         Estimation.StrapdownINS.ESKF.State(
@@ -402,7 +458,13 @@ algorithm
           covarianceInflateTimeConstant_s=covarianceInflateTimeConstant_s,
           aidingDivergentWindow_s=aidingDivergentWindow_s,
           aidingStaleTimeout_s=aidingStaleTimeout_s,
-          aidingReseedWindow_s=aidingReseedWindow_s),
+          aidingReseedWindow_s=aidingReseedWindow_s,
+          initialAlignmentWindow_s=initialAlignmentWindow_s,
+          initialAlignmentTimeout_s=initialAlignmentTimeout_s,
+          quietSpecificForceTolerance_m_s2=quietSpecificForceTolerance_m_s2,
+          quietAngularRateLimit_rad_s=quietAngularRateLimit_rad_s,
+          pseudoPositionVariance_m2=pseudoPositionVariance_m2,
+          zeroVelocityVariance_m2_s2=zeroVelocityVariance_m2_s2),
         pre(consecutiveRejectedCorrections),
         pre(rejectionElapsed_s),
         pre(mocapRejections),
@@ -419,7 +481,12 @@ algorithm
         pre(gpsTimestampConsumed_s),
         pre(magnetometerTimestampConsumed_s),
         pre(barometerTimestampConsumed_s),
-        pre(opticalFlowTimestampConsumed_s));
+        pre(opticalFlowTimestampConsumed_s),
+        pre(quietElapsed_s),
+        pre(alignmentWait_s),
+        pre(pseudoPositionHold_m),
+        pre(alignmentSource),
+        pre(alignmentSpecificForce_m_s2));
     (estimate.valid,
      estimate.timestamp_s,
      estimate.positionWorldEnu_m,
@@ -471,6 +538,9 @@ algorithm
         estimateValid);
     acceptedCorrectionCount := if reset then 0
       elseif correctionOutcome == Estimation.StrapdownINS.CorrectionAccepted
+          and correctionSource
+            <> Estimation.StrapdownINS.SourcePseudoPosition
+          and correctionSource <> Estimation.StrapdownINS.SourceZeroVelocity
         then pre(acceptedCorrectionCount) + 1
       else pre(acceptedCorrectionCount);
     reseedCount := if reset then 0
@@ -499,6 +569,11 @@ algorithm
     status.imuPayloadHeld := imuPayloadHeld;
     status.reseeded := reseeded;
     status.reseedCount := reseedCount;
+    status.alignmentSource := alignmentSource;
+    status.alignmentSpecificForceBodyFlu_m_s2 := alignmentSpecificForce_m_s2;
+    status.quietElapsed_s := quietElapsed_s;
+    status.pseudoPositionCorrectionAccepted := pseudoPositionCorrectionAccepted;
+    status.zeroVelocityCorrectionAccepted := zeroVelocityCorrectionAccepted;
     errorCovariance := stateCovariance;
     estimatedGyroscopeBias_rad_s := stateGyroscopeBias;
     estimatedAccelerometerBias_m_s2 := stateAccelerometerBias;
@@ -541,6 +616,12 @@ equation
       and aidingReseedWindow_s < Estimation.StrapdownINS.ESKF.FiniteMagnitudeLimit
       and aidingReseedWindow_s <= aidingDivergentWindow_s),
     "aidingReseedWindow_s, when enabled, must exceed aidingDivergentWindow_s");
+  assert(quietSpecificForceTolerance_m_s2 > 0.0
+    and quietSpecificForceTolerance_m_s2 < Estimation.StrapdownINS.ESKF.FiniteMagnitudeLimit,
+    "quietSpecificForceTolerance_m_s2 must be finite and strictly positive");
+  assert(quietAngularRateLimit_rad_s > 0.0
+    and quietAngularRateLimit_rad_s < Estimation.StrapdownINS.ESKF.FiniteMagnitudeLimit,
+    "quietAngularRateLimit_rad_s must be finite and strictly positive");
 
   annotation(Documentation(info = "<html>
     <p>This block is a concrete implementation of the stable estimator

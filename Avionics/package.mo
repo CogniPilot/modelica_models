@@ -249,6 +249,25 @@ package Avionics
       "Monotonic count of automatic re-seeds since the last reset. Like
        acceptedCorrectionCount it gives a consumer a well-defined edge
        across a rate change, since reseeded is a per-tick level";
+    Integer alignmentSource
+      "Estimation.StrapdownINS.Alignment* code of the initial attitude
+       alignment in force: which sample leveled the filter and whether a
+       heading was available. Recorded so a flight log shows what the
+       attitude started from";
+    Real alignmentSpecificForceBodyFlu_m_s2[3](each unit = "m/s2")
+      "The specific-force sample the initial alignment leveled on, zero
+       until an alignment has been performed";
+    Real quietElapsed_s(unit = "s")
+      "Unbroken time the IMU has reported a quasi-static vehicle: specific
+       force within tolerance of gravity and angular rate below the limit.
+       Zero while moving. Gates the initial alignment and the zero-velocity
+       update";
+    Boolean pseudoPositionCorrectionAccepted
+      "True on a tick the synthetic hold-position measurement moved the
+       state";
+    Boolean zeroVelocityCorrectionAccepted
+      "True on a tick the synthetic zero-velocity measurement moved the
+       state";
   end EstimatorStatus;
 
   connector ImuSampleInput = input Avionics.ImuSample;

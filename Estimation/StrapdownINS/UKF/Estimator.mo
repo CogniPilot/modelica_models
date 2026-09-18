@@ -302,6 +302,11 @@ algorithm
     // re-seed, so these report the constant "never" state honestly.
     status.reseeded := false;
     status.reseedCount := 0;
+    status.alignmentSource := Estimation.StrapdownINS.AlignmentNone;
+    status.alignmentSpecificForceBodyFlu_m_s2 := zeros(3);
+    status.quietElapsed_s := 0.0;
+    status.pseudoPositionCorrectionAccepted := false;
+    status.zeroVelocityCorrectionAccepted := false;
   end when;
 
 equation
