@@ -52,6 +52,10 @@ record Tuning
      vehicle still counts as quasi-static";
   Real quietAngularRateLimit_rad_s
     "Angular-rate magnitude below which the vehicle counts as quasi-static";
+  Real quietFilterTimeConstant_s
+    "Time constant of the first-order low-pass the quasi-static test and the
+     accelerometer alignment read the IMU through, so a noisy sensor still
+     shows a resting vehicle; non-positive reads the raw samples";
   Real pseudoPositionVariance_m2
     "Per-axis variance of the synthetic hold-position measurement fused while
      no anchor source is live; non-positive disables it";

@@ -213,7 +213,14 @@ model EstimatorHealthTests
         covarianceInflateTimeConstant_s=covarianceInflateTimeConstant_s,
         aidingDivergentWindow_s=aidingDivergentWindow_s,
         aidingStaleTimeout_s=aidingStaleTimeout_s,
-        aidingReseedWindow_s=0.0),
+        aidingReseedWindow_s=0.0,
+        initialAlignmentWindow_s=0.0,
+        initialAlignmentTimeout_s=0.0,
+        quietSpecificForceTolerance_m_s2=0.5,
+        quietAngularRateLimit_rad_s=0.1,
+        quietFilterTimeConstant_s=0.0,
+        pseudoPositionVariance_m2=0.0,
+        zeroVelocityVariance_m2_s2=0.0),
       rejections,
       rejectionElapsed_s,
       0,
@@ -230,7 +237,13 @@ model EstimatorHealthTests
       -1.0e30,
       -1.0e30,
       -1.0e30,
-      -1.0e30);
+      -1.0e30,
+      0.0,
+      0.0,
+      zeros(3),
+      0,
+      zeros(3),
+      zeros(3));
   end mocapTick;
 
   function gpsTick
@@ -444,7 +457,14 @@ model EstimatorHealthTests
         covarianceInflateTimeConstant_s=0.5,
         aidingDivergentWindow_s=aidingDivergentWindow_s,
         aidingStaleTimeout_s=0.5,
-        aidingReseedWindow_s=aidingReseedWindow_s),
+        aidingReseedWindow_s=aidingReseedWindow_s,
+        initialAlignmentWindow_s=0.0,
+        initialAlignmentTimeout_s=0.0,
+        quietSpecificForceTolerance_m_s2=0.5,
+        quietAngularRateLimit_rad_s=0.1,
+        quietFilterTimeConstant_s=0.0,
+        pseudoPositionVariance_m2=0.0,
+        zeroVelocityVariance_m2_s2=0.0),
       rejections,
       rejectionElapsed_s,
       0,
@@ -461,7 +481,13 @@ model EstimatorHealthTests
       timestamp_s - dt,
       -1.0e30,
       -1.0e30,
-      -1.0e30);
+      -1.0e30,
+      0.0,
+      0.0,
+      zeros(3),
+      0,
+      zeros(3),
+      zeros(3));
   end gpsTick;
 
   function run

@@ -49,7 +49,7 @@ block NavigationEstimator
     // fresh fix; on the log this re-anchored within about ten seconds of
     // each outage.
     aidingReseedWindow_s = 6.0,
-    initialAlignmentWindow_s = 0.5,
+    initialAlignmentWindow_s = 0.3,
     initialAlignmentTimeout_s = 5.0,
     pseudoPositionVariance_m2 = 100.0,
     zeroVelocityVariance_m2_s2 = 9.0e-2);
