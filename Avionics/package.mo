@@ -255,13 +255,13 @@ package Avionics
        heading was available. Recorded so a flight log shows what the
        attitude started from";
     Real alignmentSpecificForceBodyFlu_m_s2[3](each unit = "m/s2")
-      "The specific-force sample the initial alignment leveled on, zero
-       until an alignment has been performed";
+      "The low-pass specific force the quasi-static test reads and the
+       initial alignment levels on, zero until the first usable IMU sample";
     Real quietElapsed_s(unit = "s")
-      "Unbroken time the IMU has reported a quasi-static vehicle: specific
+      "Time the low-pass IMU has reported a quasi-static vehicle: specific
        force within tolerance of gravity and angular rate below the limit.
-       Zero while moving. Gates the initial alignment and the zero-velocity
-       update";
+       A tick that fails the test costs one tick and sustained motion drains
+       it to zero. Gates the initial alignment and the zero-velocity update";
     Boolean pseudoPositionCorrectionAccepted
       "True on a tick the synthetic hold-position measurement moved the
        state";

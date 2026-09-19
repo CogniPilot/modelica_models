@@ -38,6 +38,7 @@ function step
   input Real pseudoPositionHoldPrevious_m[3];
   input Integer alignmentSourcePrevious;
   input Real alignmentSpecificForcePrevious_m_s2[3];
+  input Real quietAngularRatePrevious_rad_s[3];
   output Real positionNext[3];
   output Real velocityNext[3];
   output Real quaternionNext[4];
@@ -112,7 +113,10 @@ function step
   output Integer alignmentSource
     "Estimation.StrapdownINS.Alignment* code of the alignment in force";
   output Real alignmentSpecificForce_m_s2[3]
-    "Specific-force sample the initial alignment leveled on";
+    "Low-pass specific force the quasi-static test reads and the initial
+     alignment levels on; the raw sample when no filter is configured";
+  output Real quietAngularRateNext_rad_s[3]
+    "Low-pass angular rate the quasi-static test reads";
   output Boolean pseudoPositionCorrectionAccepted;
   output Boolean zeroVelocityCorrectionAccepted;
 protected
@@ -148,6 +152,10 @@ protected
   Real specificForceMagnitude;
   Real angularRateMagnitude;
   Real gravityMagnitude;
+  Real sampleSpecificForce_m_s2[3];
+  Real sampleAngularRate_rad_s[3];
+  Real quietFilterGain;
+  Boolean quietFilterSeeded;
   Boolean imuQuiet;
   Boolean alignmentGateConfigured;
   Boolean alignmentReady;
@@ -263,10 +271,44 @@ algorithm
   // gates the initial alignment, so the filter never levels itself on a
   // sample taken while the airframe is being carried or is still settling,
   // and it gates the zero-velocity update below.
-  specificForceMagnitude := sqrt(imu.specificForceBodyFlu_m_s2
-    * imu.specificForceBodyFlu_m_s2);
-  angularRateMagnitude := sqrt(imu.angularVelocityBodyFlu_rad_s
-    * imu.angularVelocityBodyFlu_rad_s);
+  //
+  // The test reads the IMU through a first-order low-pass, seeded on the
+  // first usable sample, and the packet mean where the sample carries one:
+  // a sensor whose per-sample noise is several times the tolerance still
+  // shows a resting vehicle, and the alignment levels on the same filtered
+  // vector rather than on one noisy sample. Measured: the RDD2 simulation
+  // draws about 5 m/s2 of white noise per 800 Hz accelerometer sample, so
+  // a raw-sample test never held for the window and the vehicle took off
+  // on the alignment timeout, uninitialized.
+  sampleSpecificForce_m_s2 := if imu.integrationTime_s > 1.0e-6
+    then imu.deltaVelocityBodyFlu_m_s / imu.integrationTime_s
+    else imu.specificForceBodyFlu_m_s2;
+  sampleAngularRate_rad_s := if imu.integrationTime_s > 1.0e-6
+    then imu.deltaAngleBodyFlu_rad / imu.integrationTime_s
+    else imu.angularVelocityBodyFlu_rad_s;
+  quietFilterGain := if tuning.quietFilterTimeConstant_s > 0.0
+      and tuning.quietFilterTimeConstant_s < FiniteMagnitudeLimit
+    then min(1.0, dt / tuning.quietFilterTimeConstant_s) else 1.0;
+  quietFilterSeeded := alignmentSpecificForcePrevious_m_s2
+    * alignmentSpecificForcePrevious_m_s2 > 0.0;
+  if not imuUsable then
+    alignmentSpecificForce_m_s2 := alignmentSpecificForcePrevious_m_s2;
+    quietAngularRateNext_rad_s := quietAngularRatePrevious_rad_s;
+  elseif not quietFilterSeeded then
+    alignmentSpecificForce_m_s2 := sampleSpecificForce_m_s2;
+    quietAngularRateNext_rad_s := sampleAngularRate_rad_s;
+  else
+    alignmentSpecificForce_m_s2 := alignmentSpecificForcePrevious_m_s2
+      + quietFilterGain
+        * (sampleSpecificForce_m_s2 - alignmentSpecificForcePrevious_m_s2);
+    quietAngularRateNext_rad_s := quietAngularRatePrevious_rad_s
+      + quietFilterGain
+        * (sampleAngularRate_rad_s - quietAngularRatePrevious_rad_s);
+  end if;
+  specificForceMagnitude := sqrt(alignmentSpecificForce_m_s2
+    * alignmentSpecificForce_m_s2);
+  angularRateMagnitude := sqrt(quietAngularRateNext_rad_s
+    * quietAngularRateNext_rad_s);
   gravityMagnitude := sqrt(gravityWorldEnu_m_s2 * gravityWorldEnu_m_s2);
   imuQuiet := imuUsable
     and abs(specificForceMagnitude - gravityMagnitude)
@@ -275,8 +317,11 @@ algorithm
   // The window is a property of the inertial stream alone: a commanded
   // reset re-aligns from it but does not restart it, and a consumer that
   // holds reset asserted until the filter reports initialized must still
-  // see the gate open.
-  quietElapsedNext_s := if not imuQuiet then 0.0
+  // see the gate open. A tick that fails the test costs the window one
+  // tick rather than all of it, so an isolated noise excursion delays the
+  // gate instead of restarting it; sustained motion still drains it.
+  quietElapsedNext_s := if not imuQuiet
+    then max(0.0, quietElapsedPrevious_s - dt)
     else quietElapsedPrevious_s + dt;
   alignmentGateConfigured := tuning.initialAlignmentWindow_s > 0.0
     and tuning.initialAlignmentWindow_s < FiniteMagnitudeLimit;
@@ -580,7 +625,6 @@ algorithm
       accelerometerBiasBodyFlu_m_s2=previous.accelerometerBiasBodyFlu_m_s2,
       covariance=previous.covariance);
     alignmentSource := AlignmentNone;
-    alignmentSpecificForce_m_s2 := zeros(3);
   elseif not initializedPrevious or reset then
     // AFFIRMATIVE ADMISSION ON THE INITIALIZATION PATH.
     //
@@ -611,19 +655,19 @@ algorithm
     elseif imuUsable and magnetometerSeedUsable then
       (initializationQuaternion, alignmentAccepted) :=
         Estimation.StrapdownINS.initialAlignmentQuaternion(
-          imu.specificForceBodyFlu_m_s2,
+          alignmentSpecificForce_m_s2,
           magnetometer.magneticFieldBodyFlu_T,
           tuning.localMagneticFieldWorldEnu_T,
           tuning.initialState.quaternionWorldBody);
       alignmentSource := if alignmentAccepted
         then AlignmentAccelerometerMagnetometer else AlignmentFallback;
     elseif imuUsable and alignmentGateConfigured then
-      // No magnetometer: level on the specific force and leave the heading
-      // at zero. Only offered behind the quiet gate, so the sample is one
-      // taken at rest.
+      // No magnetometer: level on the filtered specific force and leave the
+      // heading at zero. Only offered behind the quiet gate, so the vector
+      // is one taken at rest.
       (initializationQuaternion, alignmentAccepted) :=
         Estimation.StrapdownINS.initialAlignmentQuaternion(
-          imu.specificForceBodyFlu_m_s2,
+          alignmentSpecificForce_m_s2,
           zeros(3),
           tuning.localMagneticFieldWorldEnu_T,
           tuning.initialState.quaternionWorldBody,
@@ -635,8 +679,6 @@ algorithm
       alignmentAccepted := false;
       alignmentSource := AlignmentFallback;
     end if;
-    alignmentSpecificForce_m_s2 := if imuUsable
-      then imu.specificForceBodyFlu_m_s2 else zeros(3);
     pseudoPositionHoldNext_m := initializationPosition;
     magnetometerCorrectionAccepted := magnetometerSeedUsable
       and alignmentAccepted

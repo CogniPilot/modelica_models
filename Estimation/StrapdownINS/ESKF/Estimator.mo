@@ -151,6 +151,12 @@ block Estimator
   parameter Real quietAngularRateLimit_rad_s(unit = "rad/s") = 0.1
     "Angular-rate magnitude below which the vehicle counts as quasi-static,
      about six degrees per second.";
+  parameter Real quietFilterTimeConstant_s(unit = "s") = 0.15
+    "Time constant of the first-order low-pass the quasi-static test and the
+     accelerometer alignment read the IMU through. A resting vehicle whose
+     sensor puts several m/s2 of noise on each sample still passes the test
+     once the filter has settled, about three time constants after the first
+     usable sample. Non-positive reads the raw samples.";
   parameter Real pseudoPositionVariance_m2(unit = "m2") = 0.0
     "Per-axis variance of the synthetic hold-position measurement fused on
      every tick that no anchor source is live and no real sensor was fused.
@@ -247,6 +253,7 @@ protected
   discrete Real pseudoPositionHold_m[3](each start = 0.0, each fixed = true);
   discrete Integer alignmentSource(start = 0, fixed = true);
   discrete Real alignmentSpecificForce_m_s2[3](each start = 0.0, each fixed = true);
+  discrete Real quietAngularRate_rad_s[3](each start = 0.0, each fixed = true);
   discrete Boolean pseudoPositionCorrectionAccepted(start = false, fixed = true);
   discrete Boolean zeroVelocityCorrectionAccepted(start = false, fixed = true);
 
@@ -408,6 +415,7 @@ algorithm
      pseudoPositionHold_m,
      alignmentSource,
      alignmentSpecificForce_m_s2,
+     quietAngularRate_rad_s,
      pseudoPositionCorrectionAccepted,
      zeroVelocityCorrectionAccepted) :=
       Estimation.StrapdownINS.ESKF.step(
@@ -463,6 +471,7 @@ algorithm
           initialAlignmentTimeout_s=initialAlignmentTimeout_s,
           quietSpecificForceTolerance_m_s2=quietSpecificForceTolerance_m_s2,
           quietAngularRateLimit_rad_s=quietAngularRateLimit_rad_s,
+          quietFilterTimeConstant_s=quietFilterTimeConstant_s,
           pseudoPositionVariance_m2=pseudoPositionVariance_m2,
           zeroVelocityVariance_m2_s2=zeroVelocityVariance_m2_s2),
         pre(consecutiveRejectedCorrections),
@@ -486,7 +495,8 @@ algorithm
         pre(alignmentWait_s),
         pre(pseudoPositionHold_m),
         pre(alignmentSource),
-        pre(alignmentSpecificForce_m_s2));
+        pre(alignmentSpecificForce_m_s2),
+        pre(quietAngularRate_rad_s));
     (estimate.valid,
      estimate.timestamp_s,
      estimate.positionWorldEnu_m,
@@ -622,6 +632,8 @@ equation
   assert(quietAngularRateLimit_rad_s > 0.0
     and quietAngularRateLimit_rad_s < Estimation.StrapdownINS.ESKF.FiniteMagnitudeLimit,
     "quietAngularRateLimit_rad_s must be finite and strictly positive");
+  assert(quietFilterTimeConstant_s < Estimation.StrapdownINS.ESKF.FiniteMagnitudeLimit,
+    "quietFilterTimeConstant_s must be finite");
 
   annotation(Documentation(info = "<html>
     <p>This block is a concrete implementation of the stable estimator
