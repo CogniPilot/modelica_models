@@ -5,6 +5,7 @@ model All "Complete Modelica assertion suite"
   Tests.LieGroupTests.Suite lieGroups;
   Tests.EstimationTests estimation;
   Tests.StrapdownESKFTests strapdownESKF;
+  Tests.CorrelatedGpsTests correlatedGps;
   Tests.StrapdownUKFTests strapdownUKF;
   Tests.StrapdownPreintegrationTests strapdownPreintegration;
   Tests.OpticalFlowPlaneTests opticalFlowPlane;

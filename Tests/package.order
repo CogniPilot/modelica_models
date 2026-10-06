@@ -8,6 +8,7 @@ JacobianRuleTests
 RetrodictJacobianTests
 EstimationTests
 StrapdownESKFTests
+CorrelatedGpsTests
 StrapdownUKFTests
 StrapdownPreintegrationTests
 PreintegrationHoldStudy

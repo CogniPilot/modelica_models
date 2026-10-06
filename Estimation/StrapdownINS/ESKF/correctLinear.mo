@@ -21,6 +21,10 @@ function correctLinear
      stays consistent because the Joseph form below is valid for an
      ARBITRARY gain. It exists for a measurement whose Jacobian is honestly
      non-zero on a state the sensor must not be trusted to correct.";
+  input Real measurementStateCrossCovariance[
+    TangentLength, size(residual, 1)] =
+    zeros(TangentLength, size(residual, 1))
+    "Cov(error before correction, observation noise); zero for independent noise";
   output Estimation.StrapdownINS.ESKF.State corrected;
   output Boolean accepted;
   output Integer rejectionReason
@@ -32,6 +36,7 @@ protected
   Integer measurementLength = size(residual, 1);
   Boolean residualFinite;
   Boolean measurementCovarianceUsable;
+  Boolean correlatedMeasurement;
   Boolean gatePassed;
   Real attitudeCorrection_rad;
   Real trustScale;
@@ -88,9 +93,22 @@ algorithm
     end for;
   end for;
 
-  crossCovariance := predicted.covariance * transpose(H);
+  correlatedMeasurement := false;
+  for i in 1:TangentLength loop
+    for j in 1:measurementLength loop
+      measurementCovarianceUsable := measurementCovarianceUsable
+        and abs(measurementStateCrossCovariance[i, j]) < FiniteMagnitudeLimit;
+      correlatedMeasurement := correlatedMeasurement
+        or measurementStateCrossCovariance[i, j] <> 0.0;
+    end for;
+  end for;
+
+  crossCovariance := predicted.covariance * transpose(H)
+    + measurementStateCrossCovariance;
   innovationCovariance := LinearAlgebra.symmetrize(
-    H * crossCovariance + measurementCovariance);
+    H * crossCovariance
+      + transpose(measurementStateCrossCovariance) * transpose(H)
+      + measurementCovariance);
   // One factorization serves both the gain solve S*K' = (P*H')' and the
   // whitened residual S^-1 * r needed for the innovation gate: append the
   // residual as one extra right-hand side.
@@ -228,6 +246,15 @@ algorithm
         predicted.covariance,
         gain,
         measurementCovariance));
+    if correlatedMeasurement then
+      // Cov((I-KH)e - K v) includes both cross terms when Cov(e,v) != 0.
+      // This generalized Joseph form remains valid for the effective gain
+      // after the attitude trust limit and consider projection above.
+      posteriorCovariance := LinearAlgebra.symmetrize(posteriorCovariance
+        - josephFactor * measurementStateCrossCovariance * transpose(gain)
+        - gain * transpose(measurementStateCrossCovariance)
+          * transpose(josephFactor));
+    end if;
     // The reset Jacobian is the block diagonal diag(J, identity(6)) with
     // literal zeros off the diagonal, so the conjugation is done blockwise in
     // conjugateReset rather than by forming the 15x15 matrix and multiplying

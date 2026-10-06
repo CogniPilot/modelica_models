@@ -10,6 +10,10 @@ function correctGps "Jointly correct GPS position and velocity"
   input Real specificForceMeasuredBodyFlu_m_s2[3] = zeros(3);
   input Real gravityWorldEnu_m_s2[3] = {0.0, 0.0, -9.81};
   input Real maximumAidingDelay_s(unit = "s") = 0.25;
+  input Real heldImuCovariance[6, 6] = zeros(6, 6)
+    "Covariance of the held packet mean, {gyroscope, accelerometer}";
+  input Real predictionInterval_s(unit = "s") = 0.0
+    "Interval over which this same packet just predicted the current state";
   output Estimation.StrapdownINS.ESKF.State corrected;
   output Boolean accepted;
   output Integer rejectionReason
@@ -24,6 +28,11 @@ protected
   Real delayedAccelerometerBias[3];
   Real delayedStateVector[16];
   Real currentToDelayed[TangentLength, TangentLength];
+  Real A[TangentLength, TangentLength];
+  Real forwardInput[TangentLength, 6];
+  Real backwardInput[TangentLength, 6];
+  Real observationInput[6, 6];
+  Real measurementStateCrossCovariance[TangentLength, 6];
   Boolean delayAccepted;
   Real residual[6];
   Real delayedH[6, TangentLength];
@@ -39,12 +48,12 @@ algorithm
   delayedQuaternion := delayedStateVector[7:10];
   delayedGyroscopeBias := delayedStateVector[11:13];
   delayedAccelerometerBias := delayedStateVector[14:16];
-  currentToDelayed := discreteTransition(continuousTransition(
+  A := continuousTransition(
     angularVelocityMeasuredBodyFlu_rad_s
       - predicted.gyroscopeBiasBodyFlu_rad_s,
     specificForceMeasuredBodyFlu_m_s2
-      - predicted.accelerometerBiasBodyFlu_m_s2),
-    -max(measurementAge_s, 0.0));
+      - predicted.accelerometerBiasBodyFlu_m_s2);
+  currentToDelayed := discreteTransition(A, -max(measurementAge_s, 0.0));
   delayAccepted := true;
   rotationWorldBody := LieGroups.SO3.Quat.to_DCM(
     delayedQuaternion);
@@ -64,6 +73,20 @@ algorithm
       zeros(3, 3)),
     cat(2, zeros(3, 3), transpose(rotationWorldBody)
       * measurement.velocityCovarianceWorld_m2_s2 * rotationWorldBody));
+  measurementStateCrossCovariance := zeros(TangentLength, 6);
+  if predictionInterval_s > 0.0 and measurementAge_s > 0.0 then
+    // Retrodiction reuses the noisy mean of the newest IMU packet. It is
+    // neither exact nor independent of the state that packet just predicted.
+    // Marginalize that same sample in both the observation covariance and
+    // the state/observation cross covariance rather than counting it twice.
+    forwardInput := heldInputJacobian(A, predictionInterval_s);
+    backwardInput := heldInputJacobian(A, -measurementAge_s);
+    observationInput := delayedH * backwardInput;
+    measurementCovariance := measurementCovariance
+      + observationInput * heldImuCovariance * transpose(observationInput);
+    measurementStateCrossCovariance := forwardInput * heldImuCovariance
+      * transpose(observationInput);
+  end if;
   if measurementAge_s < -1.0e-6
       or measurementAge_s > maximumAidingDelay_s then
     corrected := Estimation.StrapdownINS.ESKF.State(
@@ -92,6 +115,6 @@ algorithm
   else
     (corrected, accepted, rejectionReason, normalizedInnovationSquared) :=
       correctLinear(predicted, residual, H, measurementCovariance,
-        innovationGate);
+        innovationGate, zeros(3), measurementStateCrossCovariance);
   end if;
 end correctGps;

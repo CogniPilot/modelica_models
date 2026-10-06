@@ -15,6 +15,7 @@ continuousTransition
 noiseInputMatrix
 processNoiseMatrix
 discreteTransition
+heldInputJacobian
 discreteProcessCovariance
 predictNominal
 predictPreintegrated

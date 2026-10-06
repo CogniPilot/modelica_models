@@ -844,7 +844,15 @@ algorithm
           imuTimestampHeldNext_s - gps.timestamp_s,
           imuAngularVelocityHeldNext_rad_s,
           imuSpecificForceHeldNext_m_s2, gravityWorldEnu_m_s2,
-          tuning.maximumAidingDelay_s);
+          tuning.maximumAidingDelay_s,
+          if predictionAccepted and imu.integrationTime_s > 1.0e-6 then
+            cat(1,
+              cat(2, tuning.processNoise.gyroscope_rad2_s, zeros(3, 3)),
+              cat(2, zeros(3, 3), tuning.processNoise.accelerometer_m2_s3))
+              / imu.integrationTime_s
+          else zeros(6, 6),
+          if predictionAccepted and imu.integrationTime_s > 1.0e-6 then
+            imu.integrationTime_s else 0.0);
       gpsVelocityCorrectionAccepted := gpsPositionCorrectionAccepted;
       correctionAttempted := true;
       correctionAccepted := gpsPositionCorrectionAccepted;

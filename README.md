@@ -85,6 +85,8 @@ belongs in a reusable fixed-lag wrapper over a private estimator-backend contrac
 the wrapper buffers backend snapshots and IMU increments, corrects at the capture
 time, and replays prediction to the present. This keeps replay logic shared while
 allowing each backend to retain its own opaque state and uncertainty model.
+The current ESKF accounts for the [uncertainty and correlation of the held IMU
+packet](docs/delayed-gps-held-input.md) used by its delayed GPS approximation.
 
 The CUBS2 deployment boundary is intentionally narrower than the closed-loop
 test model. `Vehicles.Cubs2.OuterLoop` is the deployable Modelica controller;
