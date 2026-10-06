@@ -100,18 +100,28 @@ def run_rumoca_tests(repository: Path) -> None:
         # DAE and eFMI export can succeed even when the composed mission's
         # simulation event plan is invalid. Initialize the UKF missions here
         # so this compiler boundary fails before the long qualification runs.
-        for model_file, model, filename in (
-            ("Tests/package.mo", "Tests.LieGroupTests.SO2", "SO2.html"),
-            ("Tests/package.mo", "Tests.LieGroupTests.SE2", "SE2.html"),
+        # The held-GPS seed fixture runs across multiple estimator ticks to
+        # check covariance admission and prevent duplicate packet fusion.
+        for model_file, model, end_time, filename in (
+            ("Tests/package.mo", "Tests.LieGroupTests.SO2", "0.0", "SO2.html"),
+            ("Tests/package.mo", "Tests.LieGroupTests.SE2", "0.0", "SE2.html"),
             (
                 "Vehicles/Rdd2/Test/UkfWaypointMission.mo",
                 "Vehicles.Rdd2.Test.UkfWaypointMission",
+                "0.0",
                 "ukf-waypoint-init.html",
             ),
             (
                 "Vehicles/Rdd2/Test/UkfGlobalWaypointMission.mo",
                 "Vehicles.Rdd2.Test.UkfGlobalWaypointMission",
+                "0.0",
                 "ukf-global-waypoint-init.html",
+            ),
+            (
+                "Tests/package.mo",
+                "Tests.StrapdownEstimatorInterfaceTests",
+                "0.02",
+                "strapdown-interface.html",
             ),
         ):
             run_command(
@@ -124,7 +134,7 @@ def run_rumoca_tests(repository: Path) -> None:
                     "--source-root",
                     str(repository),
                     "--t-end",
-                    "0.0",
+                    end_time,
                     "--solver",
                     "rk-like",
                     "--output",

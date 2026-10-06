@@ -3,6 +3,8 @@ within Tests;
 model StrapdownEstimatorInterfaceTests
   "Both algorithms instantiate and execute through the common replaceable boundary"
   model Harness
+    parameter Boolean gpsEnabled = false;
+    parameter Real gpsPositionVariance_m2 = 1.0;
     replaceable block EstimatorModel = Estimation.StrapdownINS.ESKF.Estimator
       constrainedby Estimation.StrapdownINS.PartialEstimator;
     EstimatorModel estimator(samplePeriod=0.5);
@@ -37,15 +39,16 @@ model StrapdownEstimatorInterfaceTests
     estimator.mocap.quaternionWorldBody = {1.0, 0.0, 0.0, 0.0};
     estimator.mocap.positionCovarianceWorld_m2 = identity(3);
     estimator.mocap.attitudeCovarianceBody_rad2 = identity(3);
-    estimator.gps.valid = false;
+    estimator.gps.valid = gpsEnabled;
     estimator.gps.fresh = false;
-    estimator.gps.positionValid = false;
-    estimator.gps.velocityValid = false;
-    estimator.gps.timestamp_s = time;
+    estimator.gps.positionValid = gpsEnabled;
+    estimator.gps.velocityValid = gpsEnabled;
+    estimator.gps.timestamp_s = if gpsEnabled then 0.0 else time;
     estimator.gps.geodetic_deg_m = zeros(3);
     estimator.gps.positionWorldEnu_m = zeros(3);
     estimator.gps.velocityWorldEnu_m_s = zeros(3);
-    estimator.gps.positionCovarianceWorld_m2 = identity(3);
+    estimator.gps.positionCovarianceWorld_m2 =
+      gpsPositionVariance_m2 * identity(3);
     estimator.gps.velocityCovarianceWorld_m2_s2 = identity(3);
     estimator.magnetometer.valid = false;
     estimator.magnetometer.fresh = false;
@@ -74,6 +77,17 @@ model StrapdownEstimatorInterfaceTests
   Harness eskf;
   Harness ukf(
     redeclare block EstimatorModel = Estimation.StrapdownINS.UKF.Estimator);
+  Harness gpsSeed(gpsEnabled=true, gpsPositionVariance_m2=0.25,
+    estimator(samplePeriod=0.01,
+      initialVariances=Estimation.StrapdownINS.InitialVariances(
+        position_m2=fill(0.04, 3), velocity_m2_s2=fill(0.01, 3),
+        attitude_rad2=fill(0.01, 3), gyroscopeBias_rad2_s2=fill(0.01, 3),
+        accelerometerBias_m2_s4=fill(0.01, 3))));
+equation
+  assert(not gpsSeed.estimator.status.gpsPositionCorrectionAccepted,
+    "The position seed's held GPS packet was fused again after initialization");
+  assert(time <= 0.0 or gpsSeed.estimator.errorCovariance[1, 1] >= 0.25 - 1e-10,
+    "GPS-seeded position covariance understates the supplied measurement noise");
   annotation(experiment(StartTime=0.0, StopTime=0.02,
     Tolerance=1.0e-8, Interval=0.005));
 end StrapdownEstimatorInterfaceTests;

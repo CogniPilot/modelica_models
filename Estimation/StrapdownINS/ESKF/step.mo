@@ -689,7 +689,17 @@ algorithm
       tuning.initialVariances,
       tuning.initialState.velocityWorldEnu_m_s,
       tuning.initialState.gyroscopeBiasBodyFlu_rad_s,
-      tuning.initialState.accelerometerBiasBodyFlu_m_s2);
+      tuning.initialState.accelerometerBiasBodyFlu_m_s2,
+      if mocapSeedUsable then mocap.positionCovarianceWorld_m2
+      elseif gpsSeedUsable then gps.positionCovarianceWorld_m2
+      else zeros(3, 3));
+    // A seed is already an observation of the position. Consume that packet
+    // here so the same held noise is not fused again on the next IMU tick.
+    if mocapSeedUsable then
+      mocapTimestampConsumedNext_s := mocap.timestamp_s;
+    elseif gpsSeedUsable then
+      gpsTimestampConsumedNext_s := gps.timestamp_s;
+    end if;
   else
     prior := Estimation.StrapdownINS.ESKF.State(
       positionWorldEnu_m=previous.positionWorldEnu_m,

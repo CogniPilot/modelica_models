@@ -63,3 +63,13 @@ that do not supply a packet uncertainty model. Retrodiction still assumes a
 constant held input over the delay; this is not a replacement for a fixed-lag
 history and replay estimator when the vehicle motion changes substantially
 within that interval.
+
+Aiding-based startup also carries the uncertainty of the position sample used
+as its seed. The initializer rotates a finite positive-definite world covariance
+into the body-local tangent frame, then uses absolute row sums as a conservative
+diagonal majorant, retaining any larger configured variance floors. An absent
+or unusable covariance retains the configured policy. The selected seed packet
+is consumed during initialization, preventing its position noise from being
+counted as a second independent observation on the following IMU tick.
+`Tests.StrapdownEstimatorInterfaceTests` exercises this through the sampled
+estimator with one held GPS packet and multiple IMU ticks.

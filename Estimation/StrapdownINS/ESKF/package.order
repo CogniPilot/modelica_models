@@ -11,6 +11,7 @@ State
 VarianceLimits
 Tuning
 initialize
+seedPositionVariances
 continuousTransition
 noiseInputMatrix
 processNoiseMatrix

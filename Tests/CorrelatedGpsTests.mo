@@ -5,6 +5,7 @@ model CorrelatedGpsTests
   function run
     output Boolean passed;
   protected
+    constant Real pi = 2.0 * asin(1.0);
     Real A[15, 15];
     Real forwardInput[15, 6];
     Real backwardInput[15, 6];
@@ -17,7 +18,32 @@ model CorrelatedGpsTests
     Boolean accepted;
     Integer reason;
     Real nis;
+    Real seedVariances[3];
   algorithm
+    seedVariances := Estimation.StrapdownINS.ESKF.seedPositionVariances(
+      0.25 * identity(3), {1.0, 0.0, 0.0, 0.0}, fill(0.04, 3));
+    assert(max(abs(seedVariances - fill(0.25, 3))) < 1e-12,
+      "A noisy GPS seed retained an overconfident configured position prior");
+    seedVariances := Estimation.StrapdownINS.ESKF.seedPositionVariances(
+      diagonal({0.01, 0.09, 0.04}),
+      {cos(pi / 8), 0.0, 0.0, sin(pi / 8)},
+      {0.02, 0.02, 0.10});
+    assert(max(abs(seedVariances - {0.09, 0.09, 0.10})) < 1e-12,
+      "Seed covariance rotation, off-diagonal majorant or configured floor is wrong");
+    seedVariances := Estimation.StrapdownINS.ESKF.seedPositionVariances(
+      zeros(3, 3), {1.0, 0.0, 0.0, 0.0}, {0.02, 0.03, 0.04});
+    assert(max(abs(seedVariances - {0.02, 0.03, 0.04})) < 1e-12,
+      "An absent seed covariance changed the configured initialization policy");
+    prior := Estimation.StrapdownINS.ESKF.initialize(
+      zeros(3), {1.0, 0.0, 0.0, 0.0},
+      Estimation.StrapdownINS.InitialVariances(
+        position_m2=fill(0.04, 3), velocity_m2_s2=fill(0.01, 3),
+        attitude_rad2=fill(0.01, 3), gyroscopeBias_rad2_s2=fill(0.01, 3),
+        accelerometerBias_m2_s4=fill(0.01, 3)),
+      zeros(3), zeros(3), zeros(3), 0.25 * identity(3));
+    assert(abs(prior.covariance[1, 1] - 0.25) < 1e-12,
+      "Initializer discarded the uncertainty of the supplied aiding seed");
+
     A := Estimation.StrapdownINS.ESKF.continuousTransition(zeros(3), zeros(3));
     forwardInput := Estimation.StrapdownINS.ESKF.heldInputJacobian(A, 0.01);
     backwardInput := Estimation.StrapdownINS.ESKF.heldInputJacobian(A, -0.11);
