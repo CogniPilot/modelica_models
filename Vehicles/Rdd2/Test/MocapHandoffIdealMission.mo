@@ -19,8 +19,12 @@ model MocapHandoffIdealMission
     against the departing source's converged error, so the step falls to the
     measurement-noise class rather than to floating-point epsilon. Gating it at
     epsilon would be gating a claim that is false.</p>
-    <p>What the pair buys is discrimination. The offset mission's step must be
-    bounded by the survey offset; this one's must be bounded by noise alone. If
-    the offset row passed only because its bound was loose, this row fails.</p>
+    <p>What the pair buys is discrimination. Both runs must agree before
+    coverage. Their estimate-minus-truth errors must then differ by the
+    configured survey vector at entry and throughout coverage, within the
+    paired mocap noise budget. A missing, reversed, or doubled survey offset
+    fails this comparison even when an unrelated GPS correction produces a
+    larger single-tick step. Each mission also keeps its crossing-step bound
+    and phase-specific aiding and consistency checks.</p>
     </html>"));
 end MocapHandoffIdealMission;

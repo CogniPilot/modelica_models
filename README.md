@@ -87,6 +87,9 @@ time, and replays prediction to the present. This keeps replay logic shared whil
 allowing each backend to retain its own opaque state and uncertainty model.
 The current ESKF accounts for the [uncertainty and correlation of the held IMU
 packet](docs/delayed-gps-held-input.md) used by its delayed GPS approximation.
+The paired GPS-to-Mocap missions [measure the survey offset against an ideal
+control mission](docs/handoff-qualification.md) while retaining each source's
+flight and consistency limits.
 
 The CUBS2 deployment boundary is intentionally narrower than the closed-loop
 test model. `Vehicles.Cubs2.OuterLoop` is the deployable Modelica controller;

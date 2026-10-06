@@ -42,6 +42,12 @@ def main(arguments: Sequence[str] | None = None) -> int:
 
     try:
         repository = find_repository_root(Path.cwd())
+        if options.command in ("test", "ci"):
+            run_command(
+                [sys.executable, "-m", "unittest", "Vehicles.Rdd2.Test.test_waypoint_qualification"],
+                repository,
+                "Waypoint qualification negative controls",
+            )
         if options.command in ("test", "ci", "omc"):
             run_openmodelica_tests(repository)
         if options.command in ("test", "ci", "rumoca"):

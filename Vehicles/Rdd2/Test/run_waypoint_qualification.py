@@ -61,7 +61,7 @@ BOX_CORNERS = [
 # The handoff mission's own geometry, mirrored here because a scenario TOML
 # carries no parameters into this script. Every one of these is CHECKED against
 # the trace rather than trusted: `mocap_corrections_confined_to_coverage`
-# fails if the window moved, and the settle gate fails if the offset did.
+# fails if the window moved, and the paired comparison fails if the offset did.
 HANDOFF_COVERAGE_START_S = 15.0
 HANDOFF_COVERAGE_END_S = 32.0
 HANDOFF_SURVEY_OFFSET_M = (0.05, 0.03, 0.0)
@@ -82,6 +82,12 @@ SCENARIOS = {
         MODEL_DIR / "rumoca-scenario.waypoint-mocap-handoff-ideal.toml"
     ),
 }
+QUALIFICATION_SECTIONS = (
+    *SCENARIOS,
+    "handoff_comparison",
+    "baseline_comparison",
+    "algorithm_comparison",
+)
 TRACE_NAMES = [
     "time_s",
     "imuSamplePeriod_s",
@@ -1016,18 +1022,9 @@ def evaluate_handoff(
         <= step_bound_m,
         "exit_step_within_gain_limited_bound": metrics["max_estimate_step_at_exit_m"]
         <= step_bound_m,
-        # DISCRIMINATION, which is what makes the pair of missions worth two
-        # rows. With a survey error the entry crossing must be VISIBLE -- the
-        # frame disagreement has to show up somewhere -- and with a perfect
-        # survey it must not be, because then there is nothing to see beyond
-        # the noise ordinary flight already carries. One row cannot establish
-        # both: a loose bound would pass the offset row on noise alone, and the
-        # ideal row is what refuses that.
-        "survey_offset_is_visible_at_entry": (
-            metrics["max_estimate_step_at_entry_m"] > quiet_step_m
-            if offset_magnitude > 0.0
-            else True
-        ),
+        # Survey discrimination is checked against the paired ideal trace in
+        # handoff_comparison(). A 5.8 cm offset need not exceed the largest
+        # correction from a GPS observation with 50 cm position sigma.
         "ideal_handoff_hides_in_quiet_flight": (
             True
             if offset_magnitude > 0.0
@@ -1050,6 +1047,86 @@ def evaluate_handoff(
         <= metrics["mean_mocap_innovation_nis"]
         <= 1.30 * mocap_nis_degrees,
     }
+    return {"passed": all(checks.values()), "checks": checks, "metrics": metrics}
+
+
+def handoff_comparison(
+    surveyed: dict[str, list[float]], ideal: dict[str, list[float]]
+) -> dict[str, object]:
+    """Isolate the survey error using the otherwise identical control mission.
+
+    Compare estimate-minus-truth errors, so controller motion cancels. Before
+    coverage the two missions must agree; after entry their difference must
+    recover the configured survey vector, including its direction. Use a
+    three-sigma budget for a difference of two mocap observations, without
+    assuming the repeated, time-correlated estimator ticks are independent.
+    """
+    times = []
+    errors = []
+    for values in (surveyed, ideal):
+        ticks = native_sample_indices(
+            values, signal(values, "estimatorUpdatePeriod_s")[0]
+        )
+        times.append(np.asarray(signal(values, "time_s"))[ticks])
+        errors.append(
+            np.column_stack(
+                [
+                    np.asarray(signal(values, f"estimator.estimate.positionWorldEnu_m[{i}]"))[ticks]
+                    - np.asarray(signal(values, f"position_m[{i}]"))[ticks]
+                    for i in range(1, 4)
+                ]
+            )
+        )
+    aligned = times[0].shape == times[1].shape and np.allclose(
+        times[0], times[1], rtol=0.0, atol=1.0e-9
+    )
+    checks = {"matching_estimator_ticks": bool(aligned)}
+    if not aligned:
+        return {"passed": False, "checks": checks, "metrics": {}}
+
+    difference = errors[0] - errors[1]
+    finite = bool(np.isfinite(difference).all())
+    checks["finite_paired_navigation_errors"] = finite
+    if not finite:
+        return {"passed": False, "checks": checks, "metrics": {}}
+
+    time = times[0]
+    before = time < HANDOFF_COVERAGE_START_S
+    entry = (time >= HANDOFF_COVERAGE_START_S) & (
+        time < HANDOFF_COVERAGE_START_S + HANDOFF_CROSSING_WINDOW_S
+    )
+    settled = (time >= HANDOFF_COVERAGE_START_S + HANDOFF_CROSSING_WINDOW_S) & (
+        time < HANDOFF_COVERAGE_END_S
+    )
+    expected = np.asarray(HANDOFF_SURVEY_OFFSET_M)
+    tolerance = 3.0 * math.sqrt(2.0) * HANDOFF_MOCAP_SIGMA_M
+    metrics = {"paired_mocap_noise_budget_m": tolerance}
+    if before.any():
+        metrics["max_error_difference_before_coverage_m"] = float(
+            np.linalg.norm(difference[before], axis=1).max()
+        )
+    checks["same_navigation_before_coverage"] = bool(before.any()) and (
+        metrics["max_error_difference_before_coverage_m"] <= 1.0e-8
+    )
+    for name, mask, check in (
+        ("entry", entry, "survey_offset_is_visible_at_entry"),
+        ("settled", settled, "survey_offset_persists_in_coverage"),
+    ):
+        checks[check] = False
+        if mask.any():
+            recovered = difference[mask].mean(axis=0)
+            residual = float(np.linalg.norm(recovered - expected))
+            metrics.update(
+                {
+                    f"{name}_samples": int(mask.sum()),
+                    f"{name}_survey_residual_m": residual,
+                    **{
+                        f"{name}_recovered_offset_{axis}_m": float(value)
+                        for axis, value in zip(("east", "north", "up"), recovered)
+                    },
+                }
+            )
+            checks[check] = residual <= tolerance
     return {"passed": all(checks.values()), "checks": checks, "metrics": metrics}
 
 
@@ -1523,18 +1600,7 @@ def write_reports(report: dict[str, object], plot_paths: list[Path]) -> None:
         f"Diagnostic interpretation: **{report['diagnostic_interpretation']}**",
         "",
     ]
-    for mode in (
-        "truth",
-        "eskf_optical_flow",
-        "eskf_gps",
-        "ukf_optical_flow",
-        "ukf_gps",
-        "eskf_mocap",
-        "eskf_mocap_handoff",
-        "eskf_mocap_handoff_ideal",
-        "baseline_comparison",
-        "algorithm_comparison",
-    ):
+    for mode in QUALIFICATION_SECTIONS:
         section = report[mode]
         assert isinstance(section, dict)
         checks = section["checks"]
@@ -1639,6 +1705,9 @@ def main() -> None:
             traces["eskf_mocap_handoff_ideal"], (0.0, 0.0, 0.0)
         ),
     }
+    handoff_pair = handoff_comparison(
+        traces["eskf_mocap_handoff"], traces["eskf_mocap_handoff_ideal"]
+    )
     comparison = baseline_comparison(
         traces["truth"],
         {name: traces[name] for name in aided_reports},
@@ -1662,7 +1731,10 @@ def main() -> None:
         diagnostic_interpretation = "controller/plant/planning baseline failure"
     elif not all(bool(section["passed"]) for section in aided_reports.values()):
         diagnostic_interpretation = "estimator or aiding-path failure"
-    elif not all(bool(section["passed"]) for section in handoff_reports.values()):
+    elif (
+        not all(bool(section["passed"]) for section in handoff_reports.values())
+        or not handoff_pair["passed"]
+    ):
         diagnostic_interpretation = "aiding-source handoff failure"
     elif not comparison["passed"] or not estimator_comparison["passed"]:
         diagnostic_interpretation = "estimator-to-baseline trajectory mismatch"
@@ -1673,6 +1745,7 @@ def main() -> None:
         "passed": truth_report["passed"]
         and all(bool(section["passed"]) for section in aided_reports.values())
         and all(bool(section["passed"]) for section in handoff_reports.values())
+        and handoff_pair["passed"]
         and comparison["passed"]
         and estimator_comparison["passed"],
         "diagnostic_interpretation": diagnostic_interpretation,
@@ -1681,6 +1754,7 @@ def main() -> None:
         "truth": truth_report,
         **aided_reports,
         **handoff_reports,
+        "handoff_comparison": handoff_pair,
         "baseline_comparison": comparison,
         "algorithm_comparison": estimator_comparison,
         "provenance": {
@@ -1720,15 +1794,7 @@ def main() -> None:
     print(f"wrote {ARTIFACT_DIR / 'waypoint-report.json'}")
     if not report["passed"]:
         failures = []
-        for mode in (
-            "truth",
-            "eskf_optical_flow",
-            "eskf_gps",
-            "ukf_optical_flow",
-            "ukf_gps",
-            "baseline_comparison",
-            "algorithm_comparison",
-        ):
+        for mode in QUALIFICATION_SECTIONS:
             section = report[mode]
             assert isinstance(section, dict)
             failures.extend(
