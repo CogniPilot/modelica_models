@@ -696,9 +696,11 @@ algorithm
     // A seed is already an observation of the position. Consume that packet
     // here so the same held noise is not fused again on the next IMU tick.
     if mocapSeedUsable then
-      mocapTimestampConsumedNext_s := mocap.timestamp_s;
+      mocapTimestampConsumedNext_s := if abs(mocap.timestamp_s) < FiniteMagnitudeLimit
+        then mocap.timestamp_s else mocapTimestampConsumedPrevious_s;
     elseif gpsSeedUsable then
-      gpsTimestampConsumedNext_s := gps.timestamp_s;
+      gpsTimestampConsumedNext_s := if abs(gps.timestamp_s) < FiniteMagnitudeLimit
+        then gps.timestamp_s else gpsTimestampConsumedPrevious_s;
     end if;
   else
     prior := Estimation.StrapdownINS.ESKF.State(

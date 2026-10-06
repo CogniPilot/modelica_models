@@ -5,6 +5,7 @@ model StrapdownEstimatorInterfaceTests
   model Harness
     parameter Boolean gpsEnabled = false;
     parameter Real gpsPositionVariance_m2 = 1.0;
+    parameter Real gpsInvalidTimestampUntil_s = 0.0;
     replaceable block EstimatorModel = Estimation.StrapdownINS.ESKF.Estimator
       constrainedby Estimation.StrapdownINS.PartialEstimator;
     EstimatorModel estimator(samplePeriod=0.5);
@@ -43,7 +44,10 @@ model StrapdownEstimatorInterfaceTests
     estimator.gps.fresh = false;
     estimator.gps.positionValid = gpsEnabled;
     estimator.gps.velocityValid = gpsEnabled;
-    estimator.gps.timestamp_s = if gpsEnabled then 0.0 else time;
+    // Match the affirmative finite guard with an out-of-range timestamp
+    // rather than a constant-folded NaN expression.
+    estimator.gps.timestamp_s = if gpsEnabled then
+      (if time < gpsInvalidTimestampUntil_s then 1.0e31 else 0.0) else time;
     estimator.gps.geodetic_deg_m = zeros(3);
     estimator.gps.positionWorldEnu_m = zeros(3);
     estimator.gps.velocityWorldEnu_m_s = zeros(3);
@@ -83,11 +87,21 @@ model StrapdownEstimatorInterfaceTests
         position_m2=fill(0.04, 3), velocity_m2_s2=fill(0.01, 3),
         attitude_rad2=fill(0.01, 3), gyroscopeBias_rad2_s2=fill(0.01, 3),
         accelerometerBias_m2_s4=fill(0.01, 3))));
+  Harness invalidSeedTimestamp(gpsEnabled=true,
+    gpsInvalidTimestampUntil_s=0.01, estimator(samplePeriod=0.01));
+  discrete Boolean validPacketAccepted(start=false, fixed=true);
 equation
+  assert(time <= 0.015 or validPacketAccepted,
+    "An unusable seed timestamp blocked the subsequent valid GPS packet");
   assert(not gpsSeed.estimator.status.gpsPositionCorrectionAccepted,
     "The position seed's held GPS packet was fused again after initialization");
   assert(time <= 0.0 or gpsSeed.estimator.errorCovariance[1, 1] >= 0.25 - 1e-10,
     "GPS-seeded position covariance understates the supplied measurement noise");
+algorithm
+  when sample(0.0, 0.01) then
+    validPacketAccepted := pre(validPacketAccepted)
+      or invalidSeedTimestamp.estimator.status.gpsPositionCorrectionAccepted;
+  end when;
   annotation(experiment(StartTime=0.0, StopTime=0.02,
     Tolerance=1.0e-8, Interval=0.005));
 end StrapdownEstimatorInterfaceTests;
