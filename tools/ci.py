@@ -97,21 +97,36 @@ def run_rumoca_tests(repository: Path) -> None:
             repository,
             "Rumoca DAE lowering for Tests.All",
         )
-        for model, filename in (
-            ("Tests.LieGroupTests.SO2", "SO2.html"),
-            ("Tests.LieGroupTests.SE2", "SE2.html"),
+        # DAE and eFMI export can succeed even when the composed mission's
+        # simulation event plan is invalid. Initialize the UKF missions here
+        # so this compiler boundary fails before the long qualification runs.
+        for model_file, model, filename in (
+            ("Tests/package.mo", "Tests.LieGroupTests.SO2", "SO2.html"),
+            ("Tests/package.mo", "Tests.LieGroupTests.SE2", "SE2.html"),
+            (
+                "Vehicles/Rdd2/Test/UkfWaypointMission.mo",
+                "Vehicles.Rdd2.Test.UkfWaypointMission",
+                "ukf-waypoint-init.html",
+            ),
+            (
+                "Vehicles/Rdd2/Test/UkfGlobalWaypointMission.mo",
+                "Vehicles.Rdd2.Test.UkfGlobalWaypointMission",
+                "ukf-global-waypoint-init.html",
+            ),
         ):
             run_command(
                 [
                     rumoca,
                     "sim",
-                    "Tests/package.mo",
+                    model_file,
                     "--model",
                     model,
                     "--source-root",
                     str(repository),
                     "--t-end",
                     "0.0",
+                    "--solver",
+                    "rk-like",
                     "--output",
                     str(output / filename),
                 ],
@@ -242,32 +257,39 @@ def run_rumoca_tests(repository: Path) -> None:
 
 
 # Models that do not lower today for one identified upstream reason, recorded
-# with the exact number the reason predicts.
+# with the exact diagnostic and source location.
 #
 # This is not an ignore list. The entry fails the build if the model stops
 # lowering for a DIFFERENT reason, which is the case an ignore list hides, and
 # it says so plainly when the model starts lowering, which is the moment the
 # entry should be promoted into named_models above and this table shrink.
 #
-# The cause: Rumoca does not count the BOOLEAN components of a sub-block's
-# input connector among the unknowns, while the whole-record pass-through
-# equality still contributes their equations. A seventeen-line reproducer and
-# the bisection are in tools/rumoca-repros/connector-boolean-balance/. The fix
-# is upstream and in flight.
+# The 0.10.2 pin reaches canonical DAE construction, where a fast sampled
+# consumer cannot read a slower sampled producer. This ordinary discrete
+# model is incorrectly treated as a cross-clock read. The minimal reproducer
+# and the earlier Boolean balance boundary are in tools/rumoca-repros/.
+# Diagnostic identities and source locations deliberately belong to this pin:
+# changing the compiler or this assignment requires reviewing the boundary.
 PIN_DEPENDENT_MODELS = (
     (
         "Estimation/FusionHorizon/HorizonEstimator.mo",
         "Estimation.FusionHorizon.HorizonEstimator",
-        26,
-        "14 Booleans on the filter's six input connectors plus 12 on the "
-        "aiding buffer's five",
+        "identity 573 is not owned by clock identity 0",
+        "Estimation/FusionHorizon/HorizonEstimator.mo:259:5",
+        "filterPositionHeld_m := filter.estimate.positionWorldEnu_m",
     ),
 )
 
 
 def check_pin_dependent_lowering(repository: Path, rumoca: str, output: Path) -> None:
     print("==> Rumoca composed-model lowering (pin dependent)", flush=True)
-    for model_file, model_name, expected_excess, cause in PIN_DEPENDENT_MODELS:
+    for (
+        model_file,
+        model_name,
+        expected_error,
+        location,
+        assignment,
+    ) in PIN_DEPENDENT_MODELS:
         completed = subprocess.run(
             [
                 rumoca,
@@ -288,33 +310,27 @@ def check_pin_dependent_lowering(repository: Path, rumoca: str, output: Path) ->
         )
         if completed.returncode == 0:
             print(
-                f"    {model_name} now lowers. The connector Boolean balance "
+                f"    {model_name} now lowers. The recorded compiler "
                 "gap has closed: move this entry into named_models and delete "
                 "it from PIN_DEPENDENT_MODELS.",
                 flush=True,
             )
             continue
-        diagnostics = completed.stdout + completed.stderr
-        balance = re.search(
-            r"unbalanced model: (\d+) equations, (\d+) unknowns", diagnostics
+        diagnostics = re.sub(
+            r"\x1b\[[0-9;]*m", "", completed.stdout + completed.stderr
         )
-        if balance is None:
+        if not all(
+            marker in diagnostics
+            for marker in ("[ED020]", expected_error, location, assignment)
+        ):
             raise TaskError(
                 f"{model_name} failed to lower for a reason that is NOT the "
-                "recorded connector Boolean balance gap, so a new defect has "
+                "recorded multi-rate sampled-read gap, so a new defect has "
                 f"been introduced:\n{diagnostics}"
             )
-        excess = int(balance.group(1)) - int(balance.group(2))
-        if excess != expected_excess:
-            raise TaskError(
-                f"{model_name} is unbalanced by {excess} equations where the "
-                f"recorded connector Boolean gap predicts {expected_excess} "
-                f"({cause}). Either the boundary changed or a second cause has "
-                "appeared; neither may pass silently."
-            )
         print(
-            f"    {model_name} unbalanced by {expected_excess} as expected "
-            f"({cause})",
+            f"    {model_name} reaches the recorded multi-rate sampled-read "
+            f"boundary at {location} ({expected_error})",
             flush=True,
         )
 

@@ -1,5 +1,9 @@
 # Boolean connector components are not counted as sub-block unknowns
 
+This records the historical boundary on the 0.10.0 pin and earlier compilers.
+The current 0.10.2 pin reaches a later multi-rate sampled-read failure in the
+composed horizon; see [that reproducer](../multirate-sample/README.md).
+
 Rumoca reports a model unbalanced by exactly the number of BOOLEAN components
 on the input connectors of its sub-blocks. The whole-record pass-through
 equality contributes an equation per component, Boolean ones included, but the

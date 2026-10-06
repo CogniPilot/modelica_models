@@ -10,6 +10,8 @@ whole-mission computational cost under the same noise realization.
 from __future__ import annotations
 
 import base64
+from collections.abc import Iterator
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import csv
 import hashlib
 import html
@@ -231,6 +233,19 @@ def simulate(scenario: Path) -> dict[str, list[float]]:
     elapsed = values["_simulation_wall_time_s"][0]
     print(f"completed {scenario.name} in {elapsed:.3f} s", flush=True)
     return values
+
+
+def simulate_scenarios(
+    scenarios: dict[str, Path], workers: int
+) -> Iterator[tuple[str, dict[str, list[float]]]]:
+    """Yield completed missions while keeping each simulation in a fresh process."""
+    with ThreadPoolExecutor(max_workers=workers) as executor:
+        pending = {
+            executor.submit(simulate, scenario): mode
+            for mode, scenario in scenarios.items()
+        }
+        for future in as_completed(pending):
+            yield pending[future], future.result()
 
 
 def aiding_event_indices(
@@ -1550,6 +1565,9 @@ def write_reports(report: dict[str, object], plot_paths: list[Path]) -> None:
             "",
             f"Flight recommendation: **{report['recommended_for_flight']}**.",
             str(report["algorithm_comparison"]["recommendation_basis"]),
+            "",
+            f"Concurrent scenario workers: {report['simulation_workers']}. "
+            "Whole-simulation wall times include shared host contention.",
         ]
     )
     markdown = "\n".join(lines) + "\n"
@@ -1578,6 +1596,9 @@ def write_reports(report: dict[str, object], plot_paths: list[Path]) -> None:
 
 
 def main() -> None:
+    workers = int(os.environ.get("RDD2_SIM_WORKERS", "1"))
+    if workers < 1:
+        raise ValueError("RDD2_SIM_WORKERS must be at least 1")
     ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
     requested = {
         name.strip()
@@ -1586,14 +1607,21 @@ def main() -> None:
     }
     cached_runtimes = previous_runtimes()
     traces: dict[str, dict[str, list[float]]] = {}
+    scenarios: dict[str, Path] = {}
     for mode, scenario in SCENARIOS.items():
         trace_path = ARTIFACT_DIR / f"waypoint-{mode}.csv"
         if requested and mode not in requested:
             print(f"replaying {trace_path.name}", flush=True)
             traces[mode] = read_trace(trace_path, cached_runtimes.get(mode, 0.0))
         else:
-            traces[mode] = simulate(scenario)
-            write_trace(traces[mode], trace_path)
+            scenarios[mode] = scenario
+
+    # simulate() already owns a fresh spawned process for each mission. Only
+    # scheduling is concurrent here; plotting and report generation stay on
+    # the main thread, and each completed mission writes its own trace.
+    for mode, values in simulate_scenarios(scenarios, workers):
+        traces[mode] = values
+        write_trace(values, ARTIFACT_DIR / f"waypoint-{mode}.csv")
 
     truth_report = evaluate(traces["truth"], "truth")
     aided_reports = {
@@ -1648,6 +1676,7 @@ def main() -> None:
         and comparison["passed"]
         and estimator_comparison["passed"],
         "diagnostic_interpretation": diagnostic_interpretation,
+        "simulation_workers": workers,
         "recommended_for_flight": estimator_comparison["recommended_for_flight"],
         "truth": truth_report,
         **aided_reports,

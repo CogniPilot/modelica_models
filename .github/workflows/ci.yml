@@ -57,10 +57,12 @@ jobs:
         include:
           - vehicle: cubs2
             label: CUBS2
+            simulation_workers: 1
             figure: cubs2-qualification-summary.png
             report: qualification-report.html
           - vehicle: rdd2
             label: RDD2
+            simulation_workers: 4
             figure: rdd2-waypoint-summary.png
             report: waypoint-report.html
 
@@ -80,6 +82,8 @@ jobs:
         run: python -m tools.modelica_models_cli.nix_cache ensure .ci-cache/rumoca-runtime
       - id: qualify
         name: Run ${{ matrix.label }} qualification
+        env:
+          RDD2_SIM_WORKERS: ${{ matrix.simulation_workers }}
         run: nix run . -- qualify ${{ matrix.vehicle }}
       - id: verify-report
         name: Verify ${{ matrix.label }} qualification plots and report

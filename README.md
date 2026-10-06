@@ -371,6 +371,11 @@ smoke models with its simulation backend. The complete assertion model remains
 the OpenModelica simulation authority because Rumoca does not yet structurally
 lower every aggregate static assertion and array-valued dynamic equation.
 
+RDD2 waypoint qualification runs each scenario in a fresh process. CI runs
+four scenarios concurrently; local runs default to one. Set `RDD2_SIM_WORKERS`
+to choose the concurrency, for example `RDD2_SIM_WORKERS=4 nix run . -- qualify
+rdd2`. Every configured scenario and its original assertions remain required.
+
 ## Replaceable rotation representations
 
 `SE3.Generic` and `SE23.Generic` accept any package implementing
