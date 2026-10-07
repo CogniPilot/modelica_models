@@ -5,7 +5,7 @@
     flake-utils.url = "github:numtide/flake-utils";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     openmodelica.url = "git+https://github.com/jgoppert/OpenModelica?submodules=1&rev=a96aa1a682c463b0fd2d285b486c09a8b7fe496d";
-    rumoca.url = "github:CogniPilot/rumoca/f6d0d0d3506bc3ce4158a4a40b96ad8fc29f9159";
+    rumoca.url = "github:CogniPilot/rumoca/v0.10.2";
   };
 
   outputs =
@@ -32,7 +32,18 @@
             packages.numpy
           ]);
           rumocaCli = rumoca.packages.${system}.rumoca;
-          rumocaPythonPackage = rumoca.packages.${system}.rumoca-python;
+          rumocaUpstreamPythonPackage = rumoca.packages.${system}.rumoca-python;
+          # v0.10.2 ships a stale Python cargo-vendor hash. Correct the fetch
+          # metadata only; both bindings and CLI use the unmodified release.
+          rumocaBuildPkgs = import rumoca.inputs.nixpkgs { inherit system; };
+          rumocaPythonPackage = rumocaUpstreamPythonPackage.overrideAttrs (_: {
+            cargoDeps = rumocaBuildPkgs.rustPlatform.fetchCargoVendor {
+              src = rumocaUpstreamPythonPackage.src;
+              cargoRoot = ".";
+              name = "rumoca-0.10.2-cargo-vendor";
+              hash = "sha256-PJ/uMTgei38pRq/xqeNmLOkxPwm/QoBGQvNmWi78ySk=";
+            };
+          });
           rumocaRustToolchain =
             pkgs.lib.findFirst (input: pkgs.lib.hasPrefix "rust-nightly-" (input.name or ""))
               (throw "Rumoca Python package has no Rust toolchain build input")

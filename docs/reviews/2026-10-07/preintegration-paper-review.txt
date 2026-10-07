@@ -1,0 +1,152 @@
+Review: First-Order-Hold Magnus Preintegration on SE_n(3)
+with Computable Flow-Error Bounds
+7 October 2026
+
+Primary document: ACC_2027_FOH_Preintegration (1).pdf, 8 pages
+SHA-256: cd224a97f85a71df6b8a26848718f8a4b89edc67cb5292df9c1b64bb41e2b0bf
+Also compared: ACC_2027_FOH_Preintegration.pdf, 8 pages
+SHA-256: 19fa20c0d6a4ccbbd613d11620cdfafd45658d97a9d96310364fffcdebdf69fa
+The user-provided filename had a spelling error. The newer downloaded copy
+was used as primary. No PDF or manuscript source was edited.
+
+Main finding
+
+The retained FOH exponent, coning/sculling/scrolling split and finite-defect
+certificate appear mathematically consistent under the paper's affine-input,
+real-arithmetic assumptions. I found a substantive implementation error:
+preintegrateImuStep differentiated a midpoint approximation instead of the
+closed-form physical increments it actually composes. This was corrected in
+the Modelica source. The paper should distinguish its exponent sensitivities
+from the implementation's complete physical-increment and composition rules.
+
+Findings, in priority order
+
+1. Physical bias Jacobians need an implementation-level validation (pp. 4–5, 7).
+Equation (11) differentiates exponent coordinates. The paper correctly says
+that physical increments require differentiating the exponential and composing
+those sensitivities. The repository previously used midpoint-based velocity
+and position Jacobians and an incomplete attitude recursion. Consequently it
+did not implement that instruction consistently with its nominal step.
+
+The corrected recursion applies the closed-form increment derivative to the
+exponent sensitivities; transports the previous right attitude Jacobian by
+the full increment rotation; and propagates velocity sensitivity into position.
+Both FOH and ZOH use this rule. The test differentiates three composed steps,
+not merely a single exponent, with a nonidentity initial rotation, nonzero
+bias anchor, changing three-axis inputs, zero angular rate, and rates on both
+sides of the coefficient-series threshold. It checks all five bias blocks by
+central differences. The old recursion fails this regression. The tolerance
+is 2e-8 in the test's packed coordinates, not a universal unitless accuracy
+bound. Published validation should also give separate attitude, velocity and
+position errors with their units.
+
+Figure 3 obtains Jacobians by finite differences of each nominal method.
+That establishes a nominal-method sensitivity comparison against truth; it
+does not independently verify the analytic Jacobian recursion in deployed
+code. Add the composed-step analytic-versus-numerical check and pin the source
+revision used to generate it.
+
+2. State the order-limit assumption explicitly (pp. 3–4).
+The O(T^5) grading holds as T tends to zero with bounded generator coefficients
+N0 and N1, equivalently bounded physical input slopes. In endpoint notation,
+Delta omega and Delta a are O(T). Holding endpoint differences fixed while
+shrinking T makes N1 scale as 1/T and changes the order interpretation. This
+is a clarification of the asymptotic claim, not a counterexample for smooth
+inputs with bounded slopes.
+
+3. Keep the certificate's scope explicit (pp. 4–6).
+Theorem 3 bounds the retained exponential against the prescribed affine-held
+flow in real arithmetic. It does not certify interpolation error relative to
+an unknown continuous IMU signal, noise, quantization, floating-point rounding,
+or a complete composed flight trajectory. The paper acknowledges much of
+this in its experiments. Carry that qualification into the abstract/conclusion
+and into any description of an online certificate. The current Modelica code
+implements the retained step and its sensitivities; it does not evaluate the
+finite-defect certificate online.
+
+The certificate proof uses an ODE residual, Gronwall and an exponential tail;
+it need not assume convergence of the entire Magnus series. Separate this
+fact from the local Magnus-order argument. The r <= 1 condition is specific
+to the stated exponential-tail formula; failure is not proof of a large flow
+error, but requires a different tail bound or a smaller interval.
+
+4. Integration accuracy does not rank estimator stacks (pp. 5–7).
+Table I is an open-loop integration experiment over 10 seconds. It cannot
+establish that an entire ESKF/UKF, ArduPilot EKF3 or PX4 EKF2 performs better in
+GPS-aided, flow-aided or source-transition flight. The manuscript has no PX4
+column. A complete comparison needs identical measured inputs, independent
+truth, alignment/datum/latency accounting, actual fusion activity, coverage,
+source-loss behavior and reacquisition metrics. The accompanying estimation
+comparison addresses a controlled subset of that question; it is not a flight
+qualification or a universal ranking.
+
+5. Separate interpolation gains from bracket gains (pp. 5–7).
+Classical FOH and the proposed method agree to the displayed precision in
+several entries. The paper recognizes that most of the large 6–40-fold gains
+come from replacing a held-input approximation with FOH interpolation. Keep
+that attribution visible. Report an averaged-input exact held step, an FOH
+step without the commutator, and the complete FOH step on identical endpoints.
+State exactly which endpoint or mean each ZOH comparator holds. More digits
+or an explicit difference column would show the incremental bracket benefit
+without attributing all interpolation gains to the new representation.
+
+6. Narrow claims about classical methods (pp. 4, 7).
+A particular classical accumulator may omit a position channel, exact bias
+Jacobians or a computable bound; classical strapdown methods as a class do
+not lack all of these. Savage's position/scrolling work is already cited.
+Tie the claim to the tested implementation and the specific combination of
+properties, rather than saying no classical accumulator provides them.
+
+7. Add position-channel and unit-aware evidence (pp. 5–7).
+The explicit position/scrolling channel is a stated contribution. Include its
+nominal error and bias Jacobian error separately, alongside attitude and
+velocity. A mixed Frobenius norm combines metres, metres/second and radians;
+it can be useful after declaring a scaling, but should not be the only metric.
+
+8. Make reproduction immutable (pp. 5–8).
+Pin firmware and model commits, compiler release/build, sample timestamp
+semantics, FIFO/rate-reduction method, filters, noise/capture seeds and sensor
+parameters. A moving master URL with an access date does not fix an algorithm.
+Distinguish the continuous-signal truth reference from the affine-held flow
+reference used for the certificate. Specify solver tolerances/reference error
+so a certificate ratio near one can be interpreted. Ratios at the documented
+floating-point floor should not be treated as proof tests.
+
+9. Correct a definite typesetting error (p. 4).
+The definition of K prints ||N||_0 + T ||N1||. It should read
+K = ||N0|| + T ||N1||.
+
+10. Clarify dimensionless versus physical angular notation (p. 2).
+Proposition 1 exponentiates an already time-scaled algebra element. Distinguish
+its rotation magnitude from a physical angular-rate magnitude multiplied by
+T so units and the coefficient arguments are unambiguous.
+
+11. Use the newer PDF for circulation (p. 7).
+The older download shows a missing Figure 3 asset / filename in its place.
+The newer copy renders Figure 3. Main technical text is substantially the
+same; this rendering defect should not be reported against the newer copy.
+
+Checks performed
+
+- Read both PDFs and compared extracted text; inspected the relevant rendered
+  equation and figure pages.
+- Independently constructed the right-flow ODE Taylor coefficients in exact
+  rational arithmetic for 12 deterministic matrix cases of dimensions 2, 3
+  and 5. Grades zero through four of Y(T)-exp(P(T)) vanish exactly, and grade
+  five matches -[N1,[N0,N1]]/240-[N0,[N0,[N0,N1]]]/720. This is an independent
+  sanity check, not a general proof or a numerical certificate.
+- Added the composed finite-difference Modelica regression and verified that
+  the previous implementation fails it. The complete OpenModelica regression
+  suite passes with the correction.
+- Exported the corrected predictor using unmodified released Rumoca 0.10.2.
+  Whole-array coefficient assignments avoid an upstream indexed-write export
+  failure; fixed outer-product matrices avoid an unsupported export builtin.
+
+Implementation references
+
+Estimation/StrapdownINS/preintegrateImuStep.mo
+LieGroups/SE23/Quat/exp_mixed.mo
+LieGroups/SE23/Quat/mixed_increment_matrix_jacobian.mo
+Tests/StrapdownPreintegrationJacobianTests.mo
+Tests/HorizonPredictorTests.mo
+Tools for reproduction: tools/estimator_comparison/check_paper_series.py

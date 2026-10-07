@@ -71,16 +71,17 @@ package StrapdownINS
     https://docs.lib.purdue.edu/aaepubs/61</a>). The zero-order-hold closed
     form that <code>LieGroups.SE23.Quat.exp_mixed</code> evaluates and that
     <code>preintegrateImuStep</code> composes.</li>
-    <li>L.-Y. Lin, K. A. Pant, B. Perseghetti, and J. Goppert, \"An Exact Error
-    Theory for Mixed-Invariant Preintegration on SE_2(3): Proved Truncation
-    Residuals, a Sufficiency Bound for Deployed Coning Algorithms, and a
-    Delayed-Fusion Error-State Filter,\" manuscript in preparation, 2026. The
+    <li>H. Reynolds, M. K. Condie, B. Perseghetti, and J. Goppert,
+    \"First-Order-Hold Magnus Preintegration on SE_n(3) with Computable
+    Flow-Error Bounds,\" ACC 2027 manuscript, 2026. The
     first-order-hold results this package implements: the FOH preintegration
     theorem (the third-order truncated Magnus exponent and its O(T^5) residual,
     with no T^4 term), the bracket-decomposition proposition (the single Lie
     bracket splits into the classical coning, sculling, and scrolling
-    corrections), and the FOH bias-sensitivity proposition (one dt^2/12 cross
-    term appended per Jacobian channel).</li>
+    corrections), and the exponent bias sensitivities. Physical-increment
+    Jacobians apply the chain rule through the closed-form mixed exponential
+    and through composition. The current implementation does not evaluate the
+    manuscript's flow-error certificate.</li>
     <li>W. Magnus, \"On the exponential solution of differential equations for
     a linear operator,\" <i>Communications on Pure and Applied Mathematics</i>,
     vol. 7, no. 4, pp. 649-673, 1954. The expansion the first-order-hold

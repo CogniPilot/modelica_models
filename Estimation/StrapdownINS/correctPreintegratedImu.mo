@@ -10,8 +10,9 @@ function correctPreintegratedImu
   // 33(1):1-21, 2017, doi:10.1109/TRO.2016.2597321, Section VII-B;
   // predecessor Lupton and Sukkarieh, IEEE T-RO 28(1):61-76, 2012.  The
   // Jacobians themselves come from Estimation.StrapdownINS.preintegrateImuStep
-  // and are the closed-form recursions of Lin, Pant, Perseghetti and Goppert
-  // (IEEE L-CSS 2025) extended to the first-order hold.  References:
+  // and differentiate the retained held or FOH exponent through the mixed
+  // exponential and composition. They are exact derivatives of that nominal
+  // approximation, not of the continuous physical trajectory. References:
   // Estimation.StrapdownINS.
   input Avionics.ImuSample imu;
   input Real gyroscopeBiasBodyFlu_rad_s[3];

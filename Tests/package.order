@@ -11,7 +11,9 @@ StrapdownESKFTests
 CorrelatedGpsTests
 StrapdownUKFTests
 StrapdownPreintegrationTests
+StrapdownPreintegrationJacobianTests
 PreintegrationHoldStudy
+PreintegrationReplay
 RotorVibrationHoverStudy
 OpticalFlowPlaneTests
 SensorCorrectionTests

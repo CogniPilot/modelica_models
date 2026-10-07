@@ -11,14 +11,13 @@ protected
   constant Real eps = 1e-2;
 algorithm
   if theta_sq < eps then
-    C[1] := 0.5 - theta_sq / 24.0;
-    C[2] := 1.0/6.0 - theta_sq / 120.0;
-    C[3] := 1.0/24.0 - theta_sq / 720.0;
+    C := {0.5 - theta_sq / 24.0,
+      1.0/6.0 - theta_sq / 120.0, 1.0/24.0 - theta_sq / 720.0};
   else
     theta := sqrt(theta_sq);
-    C[1] := (1.0 - cos(theta)) / theta_sq;
-    C[2] := (theta - sin(theta)) / (theta_sq * theta);
-    C[3] := (theta_sq/2.0 + cos(theta) - 1.0) / (theta_sq * theta_sq);
+    C := {(1.0 - cos(theta)) / theta_sq,
+      (theta - sin(theta)) / (theta_sq * theta),
+      (theta_sq/2.0 + cos(theta) - 1.0) / (theta_sq * theta_sq)};
   end if;
   annotation(Documentation(info="<html>
     <p>C1 = (1-cos t)/t^2, C2 = (t-sin t)/t^3, C3 = (t^2/2 + cos t - 1)/t^4,

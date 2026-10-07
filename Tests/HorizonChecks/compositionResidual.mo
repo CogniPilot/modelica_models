@@ -78,12 +78,8 @@ algorithm
     LieGroups.SO3.Quat.product(
       LieGroups.SO3.Quat.inverse(accumulatedQuaternion),
       folded.deltaQuaternionBodyFlu));
-  // The Jacobians are NOT expected to agree exactly. The accumulating pass
-  // evaluates each interval's sensitivity at the midpoint of the running
-  // preintegral, and the per-tick pass evaluates it at the midpoint of its own
-  // interval, so the two linearize at different points. The disagreement is
-  // second order in dt per step and the test asserts that scaling rather than
-  // an exactness the mathematics does not claim.
+  // Each interval uses the derivative of its actual closed-form increment,
+  // so folding and accumulating must also agree in all five bias blocks.
   worstJacobian := max(abs(folded.deltaRotationGyroscopeBiasJacobian_s
     - accumulatedRotationJacobian_s));
   worstJacobian := max(worstJacobian,

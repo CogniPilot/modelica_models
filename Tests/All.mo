@@ -8,6 +8,7 @@ model All "Complete Modelica assertion suite"
   Tests.CorrelatedGpsTests correlatedGps;
   Tests.StrapdownUKFTests strapdownUKF;
   Tests.StrapdownPreintegrationTests strapdownPreintegration;
+  Tests.StrapdownPreintegrationJacobianTests strapdownPreintegrationJacobians;
   Tests.OpticalFlowPlaneTests opticalFlowPlane;
   Tests.SensorCorrectionTests sensorCorrections;
   Tests.EstimatorHealthTests estimatorHealth;
