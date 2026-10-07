@@ -13,7 +13,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from typing import NoReturn, Sequence
+from typing import Sequence
 
 
 OPENMODELICA_IMAGE = "openmodelica/openmodelica:v1.27.0-minimal"
@@ -44,7 +44,12 @@ def main(arguments: Sequence[str] | None = None) -> int:
         repository = find_repository_root(Path.cwd())
         if options.command in ("test", "ci"):
             run_command(
-                [sys.executable, "-m", "unittest", "Vehicles.Rdd2.Test.test_waypoint_qualification"],
+                [
+                    sys.executable,
+                    "-m",
+                    "unittest",
+                    "Vehicles.Rdd2.Test.test_waypoint_qualification",
+                ],
                 repository,
                 "Waypoint qualification negative controls",
             )
@@ -269,7 +274,51 @@ def run_rumoca_tests(repository: Path) -> None:
                 f"Rumoca {format_name} compile for {model_name}",
             )
 
+        check_ukf_native(repository, rumoca, output)
         check_pin_dependent_lowering(repository, rumoca, output)
+
+
+def check_ukf_native(repository: Path, rumoca: str, output: Path) -> None:
+    """Check generated prediction numerics, not just schema-valid export."""
+    compiler = program("MODELICA_MODELS_CC", None, "cc")
+    require_program(compiler, "C99 compiler for the UKF codegen regression")
+    export = output / "ukf-hover"
+    run_command(
+        [
+            rumoca,
+            "compile",
+            "Tests/UKFHoverCodegen.mo",
+            "--model",
+            "Tests.UKFHoverCodegen",
+            "--source-root",
+            str(repository),
+            "--target",
+            "galec-production",
+            "--output",
+            str(export),
+        ],
+        repository,
+        "Rumoca UKF hover code generation",
+    )
+    code = export / "Tests_UKFHoverCodegen" / "ProductionCode"
+    executable = output / "ukf-hover-test.exe"
+    run_command(
+        [
+            compiler,
+            "-std=c99",
+            "-O2",
+            "-I" + str(code),
+            str(repository / "tools/estimator_comparison/ukf_hover.c"),
+            str(code / "Tests_UKFHoverCodegen.c"),
+            str(code / "rumoca_galec_kernels.c"),
+            "-lm",
+            "-o",
+            str(executable),
+        ],
+        repository,
+        "Build UKF generated C hover regression",
+    )
+    run_command([str(executable)], repository, "UKF generated C hover regression")
 
 
 # Models that do not lower today for one identified upstream reason, recorded
@@ -332,9 +381,7 @@ def check_pin_dependent_lowering(repository: Path, rumoca: str, output: Path) ->
                 flush=True,
             )
             continue
-        diagnostics = re.sub(
-            r"\x1b\[[0-9;]*m", "", completed.stdout + completed.stderr
-        )
+        diagnostics = re.sub(r"\x1b\[[0-9;]*m", "", completed.stdout + completed.stderr)
         if not all(
             marker in diagnostics
             for marker in ("[ED020]", expected_error, location, assignment)
@@ -401,9 +448,7 @@ def run_omc_script(repository: Path, script: str) -> None:
     if executable_exists(omc):
         environment = os.environ.copy()
         default_library = Path.home() / ".openmodelica" / "libraries"
-        inherited_library = environment.get(
-            "OPENMODELICALIBRARY", str(default_library)
-        )
+        inherited_library = environment.get("OPENMODELICALIBRARY", str(default_library))
         environment["OPENMODELICALIBRARY"] = os.pathsep.join(
             (str(repository), inherited_library)
         )
@@ -441,7 +486,11 @@ def program(environment: str, packaged: str | None, fallback: str) -> str:
 
 def executable_exists(executable: str) -> bool:
     path = Path(executable)
-    return path.is_file() if path.parent != Path(".") else shutil.which(executable) is not None
+    return (
+        path.is_file()
+        if path.parent != Path(".")
+        else shutil.which(executable) is not None
+    )
 
 
 def require_program(executable: str, label: str) -> None:
@@ -508,7 +557,12 @@ def render_planning_plots(directory: Path) -> None:
     families = read_csv_columns(directory / "dubins_families_res.csv")
     figure, axes = plt.subplots(figsize=(10, 6.25), dpi=160, layout="constrained")
     for name in ("lsl", "rsr", "lsr", "rsl", "rlr", "lrl"):
-        axes.plot(families[f"{name}.x"], families[f"{name}.y"], linewidth=2, label=name.upper())
+        axes.plot(
+            families[f"{name}.x"],
+            families[f"{name}.y"],
+            linewidth=2,
+            label=name.upper(),
+        )
     configure_path_axes(axes, "All Six Dubins Path Families")
     axes.legend(loc="center left", bbox_to_anchor=(1.02, 0.5))
     figure.savefig(directory / "dubins_families.png")
@@ -527,12 +581,15 @@ def render_planning_plots(directory: Path) -> None:
     waypoint_distances = [0.0]
     for leg_length in leg_lengths:
         waypoint_distances.append(waypoint_distances[-1] + leg_length)
-    closed_flightplan = math.hypot(
-        trajectory[f"{legs[0]}.nominalX"][0]
-        - trajectory[f"{legs[-1]}.nominalX"][-1],
-        trajectory[f"{legs[0]}.nominalY"][0]
-        - trajectory[f"{legs[-1]}.nominalY"][-1],
-    ) < 1.0e-8
+    closed_flightplan = (
+        math.hypot(
+            trajectory[f"{legs[0]}.nominalX"][0]
+            - trajectory[f"{legs[-1]}.nominalX"][-1],
+            trajectory[f"{legs[0]}.nominalY"][0]
+            - trajectory[f"{legs[-1]}.nominalY"][-1],
+        )
+        < 1.0e-8
+    )
     figure, axes = plt.subplots(figsize=(10, 6.25), dpi=160, layout="constrained")
     for index, leg in enumerate(legs):
         axes.plot(
@@ -558,9 +615,7 @@ def render_planning_plots(directory: Path) -> None:
         )
         add_boundary_pose(axes, trajectory, leg, 0, waypoint_label)
     if not closed_flightplan:
-        add_boundary_pose(
-            axes, trajectory, legs[-1], -1, f"WP{len(legs) + 1}"
-        )
+        add_boundary_pose(axes, trajectory, legs[-1], -1, f"WP{len(legs) + 1}")
     configure_path_axes(
         axes, "Figure-Eight Flight Plan with Coincident Center Waypoints"
     )
@@ -613,8 +668,7 @@ def render_planning_plots(directory: Path) -> None:
             for value in trajectory[f"{leg}.nominalPathDistance"]
         ]
         bank_angle_degrees = [
-            math.degrees(value)
-            for value in trajectory[f"{leg}.coordinatedBankAngle"]
+            math.degrees(value) for value in trajectory[f"{leg}.coordinatedBankAngle"]
         ]
         axes.plot(
             mission_distance,
@@ -638,9 +692,7 @@ def render_planning_plots(directory: Path) -> None:
     plt.close(figure)
 
     examples = read_csv_columns(directory / "dubins_polynomial_examples_res.csv")
-    figure, axes = plt.subplots(
-        2, 2, figsize=(10, 8), dpi=160, layout="constrained"
-    )
+    figure, axes = plt.subplots(2, 2, figsize=(10, 8), dpi=160, layout="constrained")
     for case_index, axes_item in enumerate(axes.flat, start=1):
         prefix = f"case{case_index}"
         axes_item.plot(

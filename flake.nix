@@ -90,6 +90,9 @@
             doCheck = false;
             makeWrapperArgs = [
               "--set-default"
+              "MODELICA_MODELS_CC"
+              "${pkgs.stdenv.cc}/bin/cc"
+              "--set-default"
               "MODELICA_MODELS_RUMOCA"
               "${rumocaCli}/bin/rumoca"
               "--set-default"

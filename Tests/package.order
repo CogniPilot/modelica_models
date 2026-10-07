@@ -10,6 +10,7 @@ EstimationTests
 StrapdownESKFTests
 CorrelatedGpsTests
 StrapdownUKFTests
+UKFHoverCodegen
 StrapdownPreintegrationTests
 StrapdownPreintegrationJacobianTests
 PreintegrationHoldStudy

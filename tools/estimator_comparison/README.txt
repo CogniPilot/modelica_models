@@ -72,6 +72,10 @@ Validation
   python tools/ci.py omc
   python tools/ci.py rumoca
 
+The Rumoca checks now compile and execute a C99 UKF hover regression. Native
+use requires cc (or MODELICA_MODELS_CC); the Nix application supplies its pinned
+C compiler. Both raw and preintegrated prediction paths are exercised.
+
 The scoring checks use known vector norms, wrapped heading, quaternion sign
 invariance, invalid finite outputs, nonfinite failures and no extrapolation.
 The exact rational series check is independent of Modelica and checks twelve
@@ -92,13 +96,20 @@ The Modelica ESKF can accept at most one aiding source each tick. Continuous
 100 Hz flow starves magnetic corrections; lowering aiding rates exposes that
 scheduling effect. This comparison does not change the estimator dispatcher.
 
-The generated UKF does not sustain prediction in the reviewed replay. Its
-default initial bias variance is retained. A preliminary common-covariance
-run with RDD2's 1e-6 gyro-bias variance failed immediately because the float32
-Cholesky guard threshold is about 1.79e-6. Retaining the UKF's 1e-4 default
-does not resolve its later startup failure. Do not interpret frozen-output
-RMSE as a comparison of the theoretical merits of unscented and error-state
-filters. prediction_accepted is exported independently of the valid flag.
+The released compiler hoisted one indexed UKF error-vector call out of the
+mean reduction and repeated sigma point 2. Materializing the error before
+accumulation fixes both predictors without patching Rumoca. The native C hover
+regression in tools/ci.py catches this: the previous source translates 3.87 m
+on the first hover prediction, while the corrected source preserves hover.
+The corrected UKF was replayed across the full matrix. GPS, transition and
+lower-rate denied cases sustain prediction; high-rate denied cases still reject
+some predictions as covariance evolves. Those outputs remain scored.
+
+The UKF's default initial bias variance is retained. A preliminary common-
+covariance run with RDD2's 1e-6 gyro-bias variance failed immediately because
+the float32 Cholesky threshold is about 1.79e-6. Do not rank unscented-filter
+theory from a configuration that rejects prediction. prediction_accepted is
+exported independently of the valid flag, which stays true during rejection.
 
 The released Rumoca Python package needs a corrected Cargo dependency-fetch
 hash in flake.nix. The compiler and binding source remain the exact v0.10.2

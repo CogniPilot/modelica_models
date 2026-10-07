@@ -41,8 +41,10 @@ algorithm
   for iteration in 1:4 loop
     meanCorrection := zeros(TangentLength);
     for index in 2:SigmaCount loop
-      meanCorrection := meanCorrection + SigmaWeight
-        * localErrorVector(predictedMean, propagated[:, index]);
+      // Materialize the indexed call before accumulation. Rumoca 0.10.2
+      // otherwise hoists one call out of the reduction and repeats sigma 2.
+      deviation := localErrorVector(predictedMean, propagated[:, index]);
+      meanCorrection := meanCorrection + SigmaWeight * deviation;
     end for;
     predictedMean := injectVector(predictedMean, meanCorrection);
   end for;

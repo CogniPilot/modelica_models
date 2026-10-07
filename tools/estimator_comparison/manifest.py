@@ -25,6 +25,7 @@ def manifest(args):
             "**/*.mo",
             "tools/estimator_comparison/*.py",
             "tools/estimator_comparison/*.c",
+            "tools/ci.py",
             "flake.nix",
             "flake.lock",
         ]

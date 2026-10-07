@@ -11,20 +11,20 @@ from statistics import median
 import matplotlib
 
 matplotlib.use("Agg")
-matplotlib.rcParams["svg.fonttype"] = "none"
 import matplotlib.pyplot as plt
 import numpy as np
 
 from score import errors, read
 
+matplotlib.rcParams["svg.fonttype"] = "path"
 NAMES = {
     "modelica": "Modelica ESKF",
-    "ukf": "Modelica UKF (failed replay)",
+    "ukf": "Modelica UKF",
     "px4": "PX4 EKF2",
     "ekf3": "ArduPilot EKF3",
 }
 COLORS = {"modelica": "#2563eb", "ukf": "#737373", "px4": "#059669", "ekf3": "#c2410c"}
-TRACKING = ["modelica", "px4", "ekf3"]
+TRACKING = list(NAMES)
 KEYS = {
     "horizontal_position_rmse_m": "Horizontal RMSE (m)",
     "vertical_position_rmse_m": "Vertical RMSE (m)",
@@ -101,13 +101,13 @@ def render(args):
                         capsize=2,
                         linewidth=1,
                     )
-            ax.set_xticks(range(3), ["ESKF", "EKF2", "EKF3"])
+            ax.set_xticks(range(4), ["ESKF", "UKF", "EKF2", "EKF3"])
             ax.set_title(f"{case}: {profile}")
             ax.set_ylabel("Horizontal RMSE (m)")
             ax.grid(axis="y", alpha=0.2)
     fig.suptitle(
         "Same measured captures; pale = 0.25 rad/s, solid = 0.60 rad/s motion frequency\n"
-        "Median and min–max of three seeds; failed UKF replay is tabulated separately"
+        "Median and min–max of three seeds; high-rate denied UKF includes rejected predictions"
     )
     fig.savefig(output / "horizontal-comparison.svg")
     plt.close(fig)
@@ -228,7 +228,7 @@ def render(args):
         "Native active fractions do not prove individual measurement acceptance. Modelica accepted Hz "
         "counts per-step acceptances. Finite invalid rows remain in all accuracy metrics; a nonfinite "
         "row suppresses the accuracy metric for that window. Missing timestamps are exposed by "
-        "coverage and maximum output gap. The UKF's valid flag stays true despite its held state.</p>"
+        "coverage and maximum output gap. The UKF's valid flag stays true during rejected predictions.</p>"
     )
     parts.append(
         "<table><tr><th>Rates</th><th>Motion</th><th>Scenario</th><th>Estimator</th><th>GPS</th>"
@@ -275,22 +275,26 @@ figure{margin:25px 0}img{width:100%;height:auto}code{background:#eef2f6;padding:
 @media print{body{margin:0;font-size:11px}table{font-size:9px}figure,table{break-inside:avoid}}</style>
 <h1>GPS, GPS-denied, and GPS loss/recovery estimation</h1><p>7 October 2026 · 144 native/generated-code replays ·
 two trajectories · three noise seeds · two aiding-rate profiles · independent analytic truth.</p>
-<p><strong>Finding:</strong> in these controlled captures, native PX4 EKF2 gives the lowest horizontal/velocity errors in most configured cases,
-while ArduPilot EKF3 generally gives the best altitude tracking. The Modelica ESKF is competitive with GPS, but its
-single-correction priority chain starves magnetometer fusion at 100 Hz optical flow. At 25 Hz aiding it uses the
-magnetometer and GPS-denied horizontal error improves substantially. Neither comparison establishes a universal
-algorithm winner. The generated Modelica UKF fails to sustain prediction and is excluded from algorithm ranking.</p>
+<p><strong>Finding:</strong> native PX4 EKF2 has the lowest velocity error and usually the lowest GPS-denied horizontal
+error in these controlled captures. The Modelica ESKF and UKF are competitive with GPS and sometimes have lower
+horizontal error. Both Modelica filters' single-correction priority chains starve magnetic yaw updates at 100 Hz
+optical flow. At 25 Hz aiding, magnetic fusion resumes and GPS-denied performance improves substantially.
+Altitude performance depends on the profile; PX4 has larger vertical errors at the lower rates.
+These are as-configured stack results, not a universal algorithm ranking.</p>
 <p>For the faster trajectory, medians at 100/50/50 Hz: GPS-denied horizontal RMSE is approximately 0.10 m for EKF2,
-0.20 m for EKF3, and 2.58 m for ESKF. At 25/25/25 Hz it is approximately 0.10 m, 0.19 m and 0.38 m respectively.
-PX4 altitude RMSE worsens at the lower rates (about 0.63–0.82 m); there is no single best stack across all axes.</p>
+0.20 m for EKF3, 2.58 m for ESKF and 4.62 m for UKF. The high-rate denied UKF rejects some predictions, making its
+error a runtime/configuration failure metric. At 25/25/25 Hz the corresponding errors are approximately 0.10 m,
+0.19 m, 0.38 m and 0.45 m, with uninterrupted prediction. PX4 altitude RMSE worsens at the lower rates
+(about 0.63–0.82 m); there is no single best stack across all axes.</p>
 <h2>What was compared</h2>
 <table><tr><th>Stack</th><th>Executable implementation</th><th>Configuration and interpretation</th></tr>
 <tr><td>Modelica ESKF</td><td>Vehicles.Rdd2.NavigationEstimator, generated C99 by released Rumoca 0.10.2</td>
 <td>Actual 800 Hz FOH preintegration and analytic bias Jacobians, 100 Hz filter; RDD2 process noise/initial variances.
 Pseudo-position and zero-velocity corrections disabled to avoid a trajectory-dependent motion oracle.</td></tr>
 <tr><td>Modelica UKF</td><td>Estimation.StrapdownINS.UKF.Estimator, same compiler/preintegrator</td>
-<td>Declared UKF initial variances; RDD2 process noise. Replay freezes near startup. Prediction acceptance is recorded;
-finite frozen outputs are retained in the error tables, although valid stays true. These errors cannot rank UKF theory.</td></tr>
+<td>Declared UKF initial variances; RDD2 process noise. An explicit per-sigma intermediate avoids a released compiler
+reduction bug. Prediction is continuous for GPS, transition and lower-rate denied runs. High-rate denied runs
+still reject some predictions; all finite outputs remain scored, and prediction acceptance is reported separately.</td></tr>
 <tr><td>PX4 EKF2</td><td>Unmodified native EKF source at
 <a href="https://github.com/PX4/PX4-Autopilot/tree/f1c0a1f794edf8e5e974b6ed96df3f95eda0df39/src/modules/ekf2/EKF">f1c0a1f794ed</a></td>
 <td>GPS, flow, range, magnetometer and barometer enabled; barometer height reference, conditional range aid,
@@ -325,19 +329,26 @@ is used as reference. GPS-denied position is relative to the declared startup or
 <li>Scoring interpolates independent truth to each estimator's output timestamps, forbids extrapolation, includes
 finite invalid outputs, and reports validity/coverage. Horizontal and 3D errors are Euclidean RMSE, without dividing
 by axis count. Attitude uses quaternion geodesic distance and yaw uses wrapped heading error, not course.</li></ul>
+<p>Recorded wall times include capture I/O, DataFlash conversion, startup and logging; they do not compare filter CPU
+cost. This study measures neither worst-case execution time nor flight-computer resource budgets.</p>
 """
 
 OUTRO = """<h2>Implementation findings and next experiments</h2><ol>
-<li><strong>ESKF sensor scheduling:</strong> GPS → barometer → optical flow → magnetometer dispatch permits at most
+<li><strong>Modelica sensor scheduling:</strong> GPS → barometer → optical flow → magnetometer dispatch permits at most
 one correction per filter tick. High-rate flow uses remaining ticks and prevents magnetic yaw updates. The 25 Hz
-ablation restores 25 accepted mag corrections/s and reduces denied yaw error from about 30° to below 1°.
-This is an existing filter scheduling limitation, separate from the corrected preintegration derivative.</li>
-<li><strong>UKF numerical/runtime failure:</strong> matching RDD2's 1e−6 gyro-bias initial variance makes the float32
+ablation restores approximately 25 accepted mag corrections/s, reducing denied yaw RMSE from about 30° for ESKF
+and 56–60° for UKF to below 1°. This existing scheduling limitation is separate from preintegration accuracy.</li>
+<li><strong>UKF generated-code correction:</strong> Rumoca 0.10.2 hoisted an indexed function call out of the mean-error
+reduction and repeated sigma point 2 thirty times. A noiseless hover moved 3.87298 m on its first prediction.
+Materializing each error vector before accumulation preserves the loop and fixes raw/preintegrated prediction.
+The native C hover test now runs in CI; the previous source fails it. The old failed replay scores are retained
+as <a href="ukf-before-workaround-scores.json">negative evidence</a>, separate from the corrected tables here.</li>
+<li><strong>UKF covariance admission:</strong> matching RDD2's 1e−6 gyro-bias initial variance makes the float32
 Cholesky threshold reject the initial prior: 15 × epsilon × max diagonal ≈ 1.79e−6 exceeds that variance.
-With the UKF's declared 1e−4 initial bias variance, prediction still fails shortly after startup. This second
-failure requires a separate covariance/compiler investigation; its cause is not established here. No memory or
-undefined-behavior errors were detected in six sanitized common-covariance replays. The failed outputs are
-negative evidence about this executable configuration, not evidence that UKFs generally perform worse.</li>
+The comparison retains the declared UKF 1e−4 initial bias variance. After the compiler workaround, high-rate
+denied runs still reject some predictions as covariance evolves. This residual failure needs a separate
+conditioning investigation. The validity flag alone does not expose it. Do not rank unscented-filter theory
+using a configuration that rejects prediction.</li>
 <li><strong>GPS return:</strong> inspect all seeds, not only the median. High-rate ESKF has one delayed-recovery seed
 with a metre-scale correction jump. PX4 continues flow tracking through the outage and resumes GPS later; EKF3
 resumes GPS sooner but can produce a larger position correction. The tables separate recovery from source activation.</li>
@@ -352,6 +363,8 @@ test image formation or visual odometry.</li></ol>
 <a href="estimator-metrics.csv">All scored phases CSV</a> ·
 <a href="capture-manifest.json">Input/output and implementation hashes</a> ·
 <a href="preintegration-paper-review.txt">Paper review</a> ·
+<a href="rumoca-codegen-review.txt">Compiler compatibility findings</a> ·
+<a href="validation.txt">Validation evidence</a> ·
 <a href="../../../tools/estimator_comparison/README.txt">Reproduction instructions</a>.</p>
 <p>Modelica sources and replay generator/scorer are original project code. Native replay harness changes live
 in the separate estimator-comparison repository branch workspace/matched-sensor-replay. Its EKF3 Modelica
