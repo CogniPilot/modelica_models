@@ -1,0 +1,6 @@
+[submodule "validation-px4"]
+	path = tools/estimator_comparison/upstream/px4
+	url = https://github.com/PX4/PX4-Autopilot.git
+[submodule "validation-ardupilot"]
+	path = tools/estimator_comparison/upstream/ardupilot
+	url = https://github.com/ArduPilot/ardupilot.git

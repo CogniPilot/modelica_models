@@ -17,6 +17,16 @@ def hashes(root, paths):
     return {str(p.relative_to(root)): digest(p) for p in sorted(paths) if p.is_file()}
 
 
+def upstream_revision(repo, name):
+    path = f"tools/estimator_comparison/upstream/{name}"
+    entry = subprocess.check_output(
+        ["git", "-C", str(repo), "ls-files", "--stage", "--", path], text=True
+    ).split()
+    if len(entry) != 4 or entry[0] != "160000" or entry[2] != "0":
+        raise ValueError(f"Expected a pinned validation submodule at {path}")
+    return entry[1]
+
+
 def manifest(args):
     repo = Path(__file__).resolve().parents[2]
     sources = [
@@ -31,14 +41,15 @@ def manifest(args):
         ]
         for p in repo.glob(pattern)
         if not any(x in p.parts for x in ["artifacts", "dev", ".git"])
+        and not p.is_relative_to(repo / "tools/estimator_comparison/upstream")
     ]
     native = args.native_repo.resolve()
     result = dict(
         date="2026-10-07",
         rumoca_release="v0.10.2",
         rumoca_commit="276e82bd0fd48960ac201e782918d28bf19cf7ce",
-        px4_commit="f1c0a1f794edf8e5e974b6ed96df3f95eda0df39",
-        ardupilot_commit="1511f27194f1dcc3728270883047bdf022b3fd53",
+        px4_commit=upstream_revision(repo, "px4"),
+        ardupilot_commit=upstream_revision(repo, "ardupilot"),
         native_harness_commit=subprocess.check_output(
             ["git", "-C", str(native), "rev-parse", "HEAD"], text=True
         ).strip(),
