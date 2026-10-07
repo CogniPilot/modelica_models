@@ -12,14 +12,13 @@ protected
   Real probe[3, 1];
   Real rotationWorldBody[3, 3];
   Real covarianceBody_m2[3, 3];
-  Real rowBound;
 algorithm
   variances_m2 := configuredVariances_m2;
   covarianceFinite := true;
-  for i in 1:3 loop
-    for j in 1:3 loop
+  for row in 1:3 loop
+    for column in 1:3 loop
       covarianceFinite := covarianceFinite
-        and abs(covarianceWorld_m2[i, j]) < FiniteMagnitudeLimit;
+        and abs(covarianceWorld_m2[row, column]) < FiniteMagnitudeLimit;
     end for;
   end for;
   if covarianceFinite then
@@ -30,15 +29,12 @@ algorithm
         LieGroups.SO3.Quat.normalize(quaternionWorldBody));
       covarianceBody_m2 := transpose(rotationWorldBody)
         * LinearAlgebra.symmetrize(covarianceWorld_m2) * rotationWorldBody;
-      for i in 1:3 loop
+      for row in 1:3 loop
         // The initializer stores diagonal tangent variances. Absolute row
         // sums give a diagonal majorant of the full rotated covariance,
         // retaining configured floors and bounding off-diagonal terms.
-        rowBound := 0.0;
-        for j in 1:3 loop
-          rowBound := rowBound + abs(covarianceBody_m2[i, j]);
-        end for;
-        variances_m2[i] := max(configuredVariances_m2[i], rowBound);
+        variances_m2[row] := max(configuredVariances_m2[row],
+          sum(abs(covarianceBody_m2[row, :])));
       end for;
     end if;
   end if;

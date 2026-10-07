@@ -2,11 +2,11 @@ within Estimation.StrapdownINS.UKF;
 
 function predictPreintegrated
   "Unscented propagation through one closed-form IMU preintegration packet"
-  input Estimation.StrapdownINS.UKF.State previous;
+  input State previous;
   input Avionics.ImuSample imu;
   input Real gravityWorldEnu_m_s2[3];
   input Estimation.StrapdownINS.ProcessNoise processNoise;
-  output Estimation.StrapdownINS.UKF.State predicted;
+  output State predicted;
   output Boolean success;
 protected
   Real previousNominal[16];
@@ -30,41 +30,32 @@ protected
 algorithm
   previousNominal := stateVector(previous);
   (sigma, success) := sigmaTangents(previous.covariance);
-  for index in 1:SigmaCount loop
-    sigmaState[:, index] := injectVector(
-      previousNominal, sigma[:, index]);
-    propagated[:, index] := predictPreintegratedNominalVector(
-      sigmaState[:, index], imu, gravityWorldEnu_m_s2);
+  for sigmaIndex in 1:SigmaCount loop
+    sigmaState[:, sigmaIndex] := injectVector(
+      previousNominal, sigma[:, sigmaIndex]);
+    propagated[:, sigmaIndex] := predictPreintegratedNominalVector(
+      sigmaState[:, sigmaIndex], imu, gravityWorldEnu_m_s2);
   end for;
 
   predictedMean := propagated[:, 1];
   for iteration in 1:4 loop
     meanCorrection := zeros(TangentLength);
-    for index in 2:SigmaCount loop
+    for sigmaIndex in 2:SigmaCount loop
       // Materialize the indexed call before accumulation. Rumoca 0.10.2
       // otherwise hoists one call out of the reduction and repeats sigma 2.
-      deviation := localErrorVector(predictedMean, propagated[:, index]);
+      deviation := localErrorVector(predictedMean, propagated[:, sigmaIndex]);
       meanCorrection := meanCorrection + SigmaWeight * deviation;
     end for;
     predictedMean := injectVector(predictedMean, meanCorrection);
   end for;
 
   deviation := localErrorVector(predictedMean, propagated[:, 1]);
-  covariance := zeros(TangentLength, TangentLength);
-  for row in 1:TangentLength loop
-    for column in 1:TangentLength loop
-      covariance[row, column] := CentralCovarianceWeight
-        * deviation[row] * deviation[column];
-    end for;
-  end for;
-  for index in 2:SigmaCount loop
-    deviation := localErrorVector(predictedMean, propagated[:, index]);
-    for row in 1:TangentLength loop
-      for column in 1:TangentLength loop
-        covariance[row, column] := covariance[row, column]
-          + SigmaWeight * deviation[row] * deviation[column];
-      end for;
-    end for;
+  covariance := transpose({CentralCovarianceWeight * deviation})
+    * {deviation};
+  for sigmaIndex in 2:SigmaCount loop
+    deviation := localErrorVector(predictedMean, propagated[:, sigmaIndex]);
+    covariance := covariance
+      + transpose({SigmaWeight * deviation}) * {deviation};
   end for;
 
   (deltaPositionBodyFlu_m,
@@ -86,7 +77,7 @@ algorithm
     Estimation.StrapdownINS.ESKF.processNoiseMatrix(processNoise);
   discreteNoise := Estimation.StrapdownINS.ESKF.discreteProcessCovariance(
     A, G, continuousNoise, imu.integrationTime_s);
-  predicted := Estimation.StrapdownINS.UKF.State(
+  predicted := State(
     positionWorldEnu_m=predictedMean[1:3],
     velocityWorldEnu_m_s=predictedMean[4:6],
     quaternionWorldBody=predictedMean[7:10],

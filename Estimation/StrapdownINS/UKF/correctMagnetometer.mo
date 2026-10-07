@@ -2,7 +2,7 @@ within Estimation.StrapdownINS.UKF;
 
 function correctMagnetometer
   "Unscented yaw-only correction from raw magnetic field"
-  input Estimation.StrapdownINS.UKF.State predicted;
+  input State predicted;
   input Avionics.MagnetometerSample measurement;
   input Real magneticFieldWorldEnu_T[3];
   input Real innovationGate = 0.0;
@@ -11,7 +11,7 @@ function correctMagnetometer
   input Real specificForceMeasuredBodyFlu_m_s2[3] = zeros(3);
   input Real gravityWorldEnu_m_s2[3] = {0.0, 0.0, -9.81};
   input Real maximumAidingDelay_s(unit = "s") = 0.25;
-  output Estimation.StrapdownINS.UKF.State corrected;
+  output State corrected;
   output Boolean accepted;
   output Integer rejectionReason;
   output Real normalizedInnovationSquared;
@@ -44,8 +44,8 @@ algorithm
     Estimation.StrapdownINS.magnetometerYawObservation(
       delayedSigmaState[7:10], measurement.magneticFieldBodyFlu_T,
       measurement.covarianceBody_T2, magneticFieldWorldEnu_T);
-  for index in 1:SigmaCount loop
-    sigmaState := injectVector(nominal, sigma[:, index]);
+  for sigmaIndex in 1:SigmaCount loop
+    sigmaState := injectVector(nominal, sigma[:, sigmaIndex]);
     delayedSigmaState := predictNominalVector(sigmaState,
       angularVelocityMeasuredBodyFlu_rad_s,
       specificForceMeasuredBodyFlu_m_s2, gravityWorldEnu_m_s2,
@@ -53,36 +53,27 @@ algorithm
     delayedEuler := LieGroups.SO3.EulerB321.from_Quat(
       delayedSigmaState[7:10]);
     sigmaHeading := delayedEuler[1];
-    sigmaMeasurement[1, index] := referenceHeading
+    sigmaMeasurement[1, sigmaIndex] := referenceHeading
       + MathUtilities.wrapAngle(sigmaHeading - referenceHeading);
   end for;
   measured[1] := referenceHeading
     + MathUtilities.wrapAngle(measuredHeading - referenceHeading);
   measurementCovariance[1, 1] := measuredHeadingVariance;
+  corrected := State(
+    positionWorldEnu_m=predicted.positionWorldEnu_m,
+    velocityWorldEnu_m_s=predicted.velocityWorldEnu_m_s,
+    quaternionWorldBody=predicted.quaternionWorldBody,
+    gyroscopeBiasBodyFlu_rad_s=predicted.gyroscopeBiasBodyFlu_rad_s,
+    accelerometerBiasBodyFlu_m_s2=predicted.accelerometerBiasBodyFlu_m_s2,
+    covariance=predicted.covariance);
+  accepted := false;
+  normalizedInnovationSquared := 0.0;
   if measurementAge_s < -1.0e-6
       or measurementAge_s > maximumAidingDelay_s then
-    corrected := Estimation.StrapdownINS.UKF.State(
-      positionWorldEnu_m=predicted.positionWorldEnu_m,
-      velocityWorldEnu_m_s=predicted.velocityWorldEnu_m_s,
-      quaternionWorldBody=predicted.quaternionWorldBody,
-      gyroscopeBiasBodyFlu_rad_s=predicted.gyroscopeBiasBodyFlu_rad_s,
-      accelerometerBiasBodyFlu_m_s2=predicted.accelerometerBiasBodyFlu_m_s2,
-      covariance=predicted.covariance);
-    accepted := false;
     rejectionReason := Estimation.StrapdownINS.CorrectionRejectedTimestamp;
-    normalizedInnovationSquared := 0.0;
   elseif not sigmaUsable or not measurementUsable then
-    corrected := Estimation.StrapdownINS.UKF.State(
-      positionWorldEnu_m=predicted.positionWorldEnu_m,
-      velocityWorldEnu_m_s=predicted.velocityWorldEnu_m_s,
-      quaternionWorldBody=predicted.quaternionWorldBody,
-      gyroscopeBiasBodyFlu_rad_s=predicted.gyroscopeBiasBodyFlu_rad_s,
-      accelerometerBiasBodyFlu_m_s2=predicted.accelerometerBiasBodyFlu_m_s2,
-      covariance=predicted.covariance);
-    accepted := false;
     rejectionReason :=
       Estimation.StrapdownINS.CorrectionRejectedCovarianceUnusable;
-    normalizedInnovationSquared := 0.0;
   else
     (corrected, accepted, rejectionReason, normalizedInnovationSquared) :=
       correctUnscented(predicted, sigmaMeasurement,

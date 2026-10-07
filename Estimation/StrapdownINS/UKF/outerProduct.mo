@@ -5,9 +5,5 @@ function outerProduct "Fixed-size tangent outer product"
   input Real right[TangentLength];
   output Real product[TangentLength, TangentLength];
 algorithm
-  for row in 1:TangentLength loop
-    for column in 1:TangentLength loop
-      product[row, column] := left[row] * right[column];
-    end for;
-  end for;
+  product := transpose({left}) * {right};
 end outerProduct;

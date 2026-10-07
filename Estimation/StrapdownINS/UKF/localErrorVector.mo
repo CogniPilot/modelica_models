@@ -2,9 +2,9 @@ within Estimation.StrapdownINS.UKF;
 
 function localErrorVector
   "Body-local tangent carrying one flattened nominal state to another"
-  input Estimation.StrapdownINS.UKF.NominalVector reference;
-  input Estimation.StrapdownINS.UKF.NominalVector target;
-  output Estimation.StrapdownINS.UKF.TangentVector error;
+  input NominalVector reference;
+  input NominalVector target;
+  output TangentVector error;
 protected
   Real groupError[10];
 algorithm

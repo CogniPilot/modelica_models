@@ -1,0 +1,67 @@
+Estimator implementation readability review — 2026-10-07
+
+Baseline: 0a8cbd0384c46359c2939454825dc2f6130ba353
+Compiler: released Rumoca 0.10.2; generated float32 C compiled with GCC 15.3.0 -O2.
+Independent Modelica check: OpenModelica unstable 2026-07-21, Modelica 3.6.
+
+Changes
+
+ESKF covariance reset and reseeding now expose their matrix blocks directly.
+Barometer and optical-flow covariance additions use outer-product expressions.
+The UKF covariance and cross-covariance accumulations retain their sequential
+sigma-point order while expressing each contribution as a matrix operation.
+Sigma-point assembly is one horizontal concatenation.
+
+ESKF prediction admission reuses the existing shared imuSampleFinite function.
+Sensor correction functions establish rejection defaults once, then select the
+reason or invoke the correction. Unused delayed-state fields and guards that
+were always true are removed. Local package names replace redundant fully
+qualified names. Loop variables describe axes, components, rows, columns,
+sigma points and contraction terms. Historical implementation narratives are
+removed from the ESKF equations; their original text remains in the baseline
+commit. No new code comments are introduced.
+
+ESKF loop count: 33 -> 21. UKF loop count: 50 -> 29.
+ESKF nonblank lines excluding line comments: 3113 -> 2929.
+UKF nonblank lines excluding line comments: 1649 -> 1549.
+ESKF step: 1121 -> 747 lines. correctLinear: 289 -> 187 lines.
+
+The existing independent root packages and fully qualified public class names
+are retained. Sensor dispatch, timestamps, gates, tuning and recovery policies
+are unchanged. Compiler-required explicit state constructors, indexed
+localErrorVector temporaries and the no-inline gain-projector boundary remain.
+
+Verification
+
+Modelica library structure check passed.
+Tests.All assertions passed under OpenModelica, including estimator health,
+hardening, sensor correction, correlated-GPS and preintegration regressions.
+Native assertion builds use -O0 to avoid expensive optimization of the test
+harness; generated flight-code replays and hover tests use -O2.
+The standalone log-linear, position-loop, manual-guidance and horizon scripts,
+including their expected refusals, and vehicle-boundary translations passed.
+
+The complete tools/ci.py rumoca command passed: Tests.All DAE lowering,
+simulation initialization and interface checks, production exports, generated
+C UKF hover for raw and preintegrated prediction, and the existing explicit
+pin-dependent composed-model diagnostic check.
+
+All 72 production replay CSVs are byte-identical to the baseline captures:
+ESKF and UKF; GPS, GPS-denied and GPS loss/return; two motion frequencies;
+three random seeds; and both sensor-rate profiles. Every output contains
+6001 rows, all values are finite, and generated runtime status is zero.
+Positions, velocities, quaternions, validity and fusion flags match exactly.
+The corresponding CSV SHA-256 fingerprints are recorded in
+estimator-readability-replays.csv. The existing capture-manifest.json records
+the underlying matched-comparison captures.
+
+Production replay builds use tools/estimator_comparison/build.py. Build outputs,
+replays and detailed compiler logs are under
+$HOME/scratch/modelica_models/readability. The replay command is:
+  modelica_replay IMU.csv MODEL_INPUT.csv OUTPUT.csv gps|denied|transition
+or ukf_replay with the same arguments. Compare OUTPUT.csv byte-for-byte with
+the corresponding baseline CSV; fingerprints cover the whole file.
+
+These checks establish behavior preservation for the existing assertions and
+captures. They do not prove equivalence for every possible input, nor establish
+any new accuracy advantage over PX4 or ArduPilot.

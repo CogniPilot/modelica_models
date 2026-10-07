@@ -2,7 +2,7 @@ within Estimation.StrapdownINS.ESKF;
 
 function opticalFlowRangeJacobian
   "Nadir ray-to-plane range and Jacobian in the ESKF right-error tangent"
-  input Estimation.StrapdownINS.ESKF.State predicted;
+  input State predicted;
   input Real planeNormalWorldEnu[3] = {0.0, 0.0, 1.0};
   input Real planeOffset_m = 0.0;
   output Real predictedRange_m;

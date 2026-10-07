@@ -2,7 +2,7 @@ within Estimation.StrapdownINS.ESKF;
 
 function retrodict
   "Retrodict the nominal state with one held IMU sample"
-  input Estimation.StrapdownINS.ESKF.State current;
+  input State current;
   input Real angularVelocityMeasuredBodyFlu_rad_s[3];
   input Real specificForceMeasuredBodyFlu_m_s2[3];
   input Real gravityWorldEnu_m_s2[3];

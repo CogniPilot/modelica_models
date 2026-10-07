@@ -2,7 +2,7 @@ within Estimation.StrapdownINS.ESKF;
 
 function correctOpticalFlow
   "Convert co-timed flow and range to body velocity, then correct the state"
-  input Estimation.StrapdownINS.ESKF.State predicted;
+  input State predicted;
   input Avionics.OpticalFlowSample measurement;
   input Real innovationGate = 0.0
     "Per-degree-of-freedom NIS gate; non-positive disables";
@@ -13,7 +13,7 @@ function correctOpticalFlow
   input Real maximumAidingDelay_s(unit = "s") = 0.25;
   input Real minimumQuality = 0.2;
   input Real minimumGroundDistance_m(unit = "m") = 0.2;
-  output Estimation.StrapdownINS.ESKF.State corrected;
+  output State corrected;
   output Boolean accepted;
   output Integer rejectionReason
     "Estimation.StrapdownINS.Correction* outcome code";
@@ -24,11 +24,9 @@ protected
   Real delayedQuaternion[4];
   Real delayedStateVector[16];
   Real currentToDelayed[TangentLength, TangentLength];
-  Boolean delayAccepted;
   Real predictedVelocityBody[3];
   Real velocityCross[3, 3];
   Real velocityH[2, TangentLength];
-  Real delayedH[2, TangentLength];
   Real compensatedFlow_rad[2];
   Real measuredVelocityBody_m_s[2];
   Real residual[2];
@@ -81,7 +79,6 @@ algorithm
     specificForceMeasuredBodyFlu_m_s2
       - predicted.accelerometerBiasBodyFlu_m_s2),
     -max(measurementAge_s, 0.0));
-  delayAccepted := true;
   rotationWorldBody := LieGroups.SO3.Quat.to_DCM(
     delayedQuaternion);
   predictedVelocityBody := transpose(rotationWorldBody)
@@ -107,8 +104,7 @@ algorithm
   velocityH[1:2, 4:6] :=
     [1.0, 0.0, 0.0; 0.0, 1.0, 0.0];
   velocityH[1:2, 7:9] := velocityCross[1:2, :];
-  delayedH := velocityH;
-  H := delayedH * currentToDelayed;
+  H := velocityH * currentToDelayed;
   flowCovariance_rad2 := measurement.integratedLineOfSightCovariance_rad2
     + measurement.integratedGyroscopeCovariance_rad2[1:2, 1:2];
   measurementCovariance := (safeGroundDistance_m
@@ -118,53 +114,29 @@ algorithm
   velocityRangeDerivative_s := {
     compensatedFlow_rad[2] / safeIntegrationTime_s,
     -compensatedFlow_rad[1] / safeIntegrationTime_s};
-  for row in 1:2 loop
-    for column in 1:2 loop
-      measurementCovariance[row, column] :=
-        measurementCovariance[row, column]
-        + max(measurement.groundDistanceVariance_m2, 0.0)
-          * velocityRangeDerivative_s[row]
-          * velocityRangeDerivative_s[column];
-    end for;
-  end for;
+  measurementCovariance := measurementCovariance
+    + max(measurement.groundDistanceVariance_m2, 0.0)
+      * transpose({velocityRangeDerivative_s}) * {velocityRangeDerivative_s};
+  corrected := State(
+    positionWorldEnu_m=predicted.positionWorldEnu_m,
+    velocityWorldEnu_m_s=predicted.velocityWorldEnu_m_s,
+    quaternionWorldBody=predicted.quaternionWorldBody,
+    gyroscopeBiasBodyFlu_rad_s=predicted.gyroscopeBiasBodyFlu_rad_s,
+    accelerometerBiasBodyFlu_m_s2=predicted.accelerometerBiasBodyFlu_m_s2,
+    covariance=predicted.covariance);
+  accepted := false;
+  normalizedInnovationSquared := 0.0;
   if not measurementFinite then
-    corrected := Estimation.StrapdownINS.ESKF.State(
-      positionWorldEnu_m=predicted.positionWorldEnu_m,
-      velocityWorldEnu_m_s=predicted.velocityWorldEnu_m_s,
-      quaternionWorldBody=predicted.quaternionWorldBody,
-      gyroscopeBiasBodyFlu_rad_s=predicted.gyroscopeBiasBodyFlu_rad_s,
-      accelerometerBiasBodyFlu_m_s2=predicted.accelerometerBiasBodyFlu_m_s2,
-      covariance=predicted.covariance);
-    accepted := false;
     rejectionReason := CorrectionRejectedNotFinite;
-    normalizedInnovationSquared := 0.0;
   elseif measurementAge_s < -1.0e-6
       or measurementAge_s > maximumAidingDelay_s then
-    corrected := Estimation.StrapdownINS.ESKF.State(
-      positionWorldEnu_m=predicted.positionWorldEnu_m,
-      velocityWorldEnu_m_s=predicted.velocityWorldEnu_m_s,
-      quaternionWorldBody=predicted.quaternionWorldBody,
-      gyroscopeBiasBodyFlu_rad_s=predicted.gyroscopeBiasBodyFlu_rad_s,
-      accelerometerBiasBodyFlu_m_s2=predicted.accelerometerBiasBodyFlu_m_s2,
-      covariance=predicted.covariance);
-    accepted := false;
     rejectionReason := CorrectionRejectedTimestamp;
-    normalizedInnovationSquared := 0.0;
-  elseif not delayAccepted or not covarianceUsable
+  elseif not covarianceUsable
       or measurement.integrationTime_s <= 0.0
       or measurement.groundDistance_m < minimumGroundDistance_m
       or measurement.groundDistanceVariance_m2 < 0.0
       or measurement.quality < minimumQuality then
-    corrected := Estimation.StrapdownINS.ESKF.State(
-      positionWorldEnu_m=predicted.positionWorldEnu_m,
-      velocityWorldEnu_m_s=predicted.velocityWorldEnu_m_s,
-      quaternionWorldBody=predicted.quaternionWorldBody,
-      gyroscopeBiasBodyFlu_rad_s=predicted.gyroscopeBiasBodyFlu_rad_s,
-      accelerometerBiasBodyFlu_m_s2=predicted.accelerometerBiasBodyFlu_m_s2,
-      covariance=predicted.covariance);
-    accepted := false;
     rejectionReason := CorrectionRejectedCovarianceUnusable;
-    normalizedInnovationSquared := 0.0;
   else
     (corrected, accepted, rejectionReason, normalizedInnovationSquared) :=
       correctLinear(predicted, residual, H, measurementCovariance,

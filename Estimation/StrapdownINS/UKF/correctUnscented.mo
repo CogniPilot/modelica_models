@@ -2,14 +2,14 @@ within Estimation.StrapdownINS.UKF;
 
 function correctUnscented
   "Unscented measurement correction in local navigation coordinates"
-  input Estimation.StrapdownINS.UKF.State predicted;
+  input State predicted;
   input Real sigmaMeasurement[:, SigmaCount]
     "Measurement function evaluated at sigma states from predicted covariance";
   input Real measurement[size(sigmaMeasurement, 1)];
   input Real measurementCovariance[size(sigmaMeasurement, 1),
     size(sigmaMeasurement, 1)];
   input Real innovationGate = 0.0;
-  output Estimation.StrapdownINS.UKF.State corrected;
+  output State corrected;
   output Boolean accepted;
   output Integer rejectionReason;
   output Real normalizedInnovationSquared;
@@ -39,46 +39,29 @@ protected
 algorithm
   nominal := stateVector(predicted);
   (sigma, sigmaFactorized) := sigmaTangents(predicted.covariance);
-  for index in 1:SigmaCount loop
-    sigmaState[:, index] := injectVector(
-      nominal, sigma[:, index]);
+  for sigmaIndex in 1:SigmaCount loop
+    sigmaState[:, sigmaIndex] := injectVector(
+      nominal, sigma[:, sigmaIndex]);
   end for;
 
   measurementMean := zeros(measurementLength);
-  for index in 2:SigmaCount loop
+  for sigmaIndex in 2:SigmaCount loop
     measurementMean := measurementMean
-      + SigmaWeight * sigmaMeasurement[:, index];
+      + SigmaWeight * sigmaMeasurement[:, sigmaIndex];
   end for;
   residual := measurement - measurementMean;
   measurementDeviation := sigmaMeasurement[:, 1] - measurementMean;
-  innovationCovariance := measurementCovariance;
-  for row in 1:measurementLength loop
-    for column in 1:measurementLength loop
-      innovationCovariance[row, column] :=
-        innovationCovariance[row, column]
-        + CentralCovarianceWeight * measurementDeviation[row]
-          * measurementDeviation[column];
-    end for;
-  end for;
+  innovationCovariance := measurementCovariance
+    + transpose({CentralCovarianceWeight * measurementDeviation})
+      * {measurementDeviation};
   crossCovariance := zeros(TangentLength, measurementLength);
-  for index in 2:SigmaCount loop
-    stateDeviation := localErrorVector(nominal, sigmaState[:, index]);
-    measurementDeviation := sigmaMeasurement[:, index] - measurementMean;
-    for row in 1:TangentLength loop
-      for column in 1:measurementLength loop
-        crossCovariance[row, column] := crossCovariance[row, column]
-          + SigmaWeight * stateDeviation[row]
-            * measurementDeviation[column];
-      end for;
-    end for;
-    for row in 1:measurementLength loop
-      for column in 1:measurementLength loop
-        innovationCovariance[row, column] :=
-          innovationCovariance[row, column]
-          + SigmaWeight * measurementDeviation[row]
-            * measurementDeviation[column];
-      end for;
-    end for;
+  for sigmaIndex in 2:SigmaCount loop
+    stateDeviation := localErrorVector(nominal, sigmaState[:, sigmaIndex]);
+    measurementDeviation := sigmaMeasurement[:, sigmaIndex] - measurementMean;
+    crossCovariance := crossCovariance
+      + transpose({SigmaWeight * stateDeviation}) * {measurementDeviation};
+    innovationCovariance := innovationCovariance
+      + transpose({SigmaWeight * measurementDeviation}) * {measurementDeviation};
   end for;
   innovationCovariance := LinearAlgebra.symmetrize(innovationCovariance);
   augmentedRhs := zeros(measurementLength, TangentLength + 1);
@@ -117,8 +100,7 @@ algorithm
   if accepted then
     gain := transpose(augmentedSolution[:, 1:TangentLength]);
     correction := gain * residual;
-    attitudeCorrection := sqrt(correction[7] * correction[7]
-      + correction[8] * correction[8] + correction[9] * correction[9]);
+    attitudeCorrection := sqrt(correction[7:9] * correction[7:9]);
     trustScale := if attitudeCorrection
         > Estimation.StrapdownINS.ESKF.MaxAttitudeCorrection_rad then
       Estimation.StrapdownINS.ESKF.MaxAttitudeCorrection_rad
@@ -145,7 +127,7 @@ algorithm
     correctedNominal := nominal;
     correctedCovariance := predicted.covariance;
   end if;
-  corrected := Estimation.StrapdownINS.UKF.State(
+  corrected := State(
     positionWorldEnu_m=correctedNominal[1:3],
     velocityWorldEnu_m_s=correctedNominal[4:6],
     quaternionWorldBody=correctedNominal[7:10],

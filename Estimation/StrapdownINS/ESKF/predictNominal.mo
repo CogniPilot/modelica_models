@@ -2,12 +2,12 @@ within Estimation.StrapdownINS.ESKF;
 
 function predictNominal
   "Propagate the nominal state with the existing mixed SE_2(3) exponential"
-  input Estimation.StrapdownINS.ESKF.NominalState previous;
+  input NominalState previous;
   input Real angularVelocityMeasuredBodyFlu_rad_s[3];
   input Real specificForceMeasuredBodyFlu_m_s2[3];
   input Real gravityWorldEnu_m_s2[3];
   input Real dt(unit = "s");
-  output Estimation.StrapdownINS.ESKF.NominalState predicted;
+  output NominalState predicted;
 protected
   Real correctedAngularVelocity[3];
   Real correctedSpecificForce[3];
@@ -33,7 +33,7 @@ algorithm
     leftIncrement,
     rightIncrement,
     [0.0, dt; 0.0, 0.0]);
-  predicted := Estimation.StrapdownINS.ESKF.NominalState(
+  predicted := NominalState(
     positionWorldEnu_m=predictedExtendedPose[1:3],
     velocityWorldEnu_m_s=predictedExtendedPose[4:6],
     quaternionWorldBody=LieGroups.SO3.Quat.normalize(

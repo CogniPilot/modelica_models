@@ -2,11 +2,11 @@ within Estimation.StrapdownINS.ESKF;
 
 record Tuning
   "Fixed filter tuning held constant across every estimator tick"
-  Estimation.StrapdownINS.ESKF.NominalState initialState
+  NominalState initialState
     "Nominal state used when no aiding source can seed initialization";
   Estimation.StrapdownINS.InitialVariances initialVariances;
   Estimation.StrapdownINS.ProcessNoise processNoise;
-  Estimation.StrapdownINS.ESKF.VarianceLimits varianceLimits;
+  VarianceLimits varianceLimits;
   Real innovationGate
     "Per-degree-of-freedom NIS gate; non-positive disables";
   Real localMagneticFieldWorldEnu_T[3];

@@ -18,8 +18,8 @@ block Estimator
     each start = 0.0, each fixed = true)
     "Accelerometer bias estimate, mirrored each estimator tick";
 
-  parameter Estimation.StrapdownINS.ESKF.VarianceLimits varianceLimits =
-    Estimation.StrapdownINS.ESKF.VarianceLimits(
+  parameter VarianceLimits varianceLimits =
+    VarianceLimits(
       position_m2=fill(1.0e4, 3),
       velocity_m2_s2=fill(4.0e2, 3),
       attitude_rad2=fill(10.0, 3),
@@ -262,7 +262,7 @@ algorithm
     barometerBiasTimestampConsumed_s := if not reset
         and barometer.valid
         and abs(barometer.timestamp_s)
-          < Estimation.StrapdownINS.ESKF.FiniteMagnitudeLimit
+          < FiniteMagnitudeLimit
         and barometer.timestamp_s
           > pre(barometerBiasTimestampConsumed_s) + 1.0e-9
       then barometer.timestamp_s
@@ -271,7 +271,7 @@ algorithm
     terrainTimestampConsumed_s := if not reset
         and opticalFlow.valid
         and abs(opticalFlow.timestamp_s)
-          < Estimation.StrapdownINS.ESKF.FiniteMagnitudeLimit
+          < FiniteMagnitudeLimit
         and opticalFlow.timestamp_s
           > pre(terrainTimestampConsumed_s) + 1.0e-9
       then opticalFlow.timestamp_s
@@ -295,7 +295,7 @@ algorithm
     // pressure observation to update both altitude and its datum.
     if not reset and not pre(barometerBiasInitialized) and barometer.valid
         and abs(barometer.timestamp_s)
-          < Estimation.StrapdownINS.ESKF.FiniteMagnitudeLimit
+          < FiniteMagnitudeLimit
         and barometer.timestamp_s
           > pre(barometerBiasTimestampConsumed_s) + 1.0e-9
         and barometer.variance_m2 > 0.0
@@ -345,7 +345,7 @@ algorithm
       + auxiliaryObservationVariance_m2;
     if not reset and opticalFlow.valid
         and abs(opticalFlow.timestamp_s)
-          < Estimation.StrapdownINS.ESKF.FiniteMagnitudeLimit
+          < FiniteMagnitudeLimit
         and opticalFlow.timestamp_s
           > pre(terrainTimestampConsumed_s) + 1.0e-9
         and opticalFlow.quality >= minimumOpticalFlowQuality
@@ -418,9 +418,9 @@ algorithm
      quietAngularRate_rad_s,
      pseudoPositionCorrectionAccepted,
      zeroVelocityCorrectionAccepted) :=
-      Estimation.StrapdownINS.ESKF.step(
+      step(
         pre(initialized),
-        Estimation.StrapdownINS.ESKF.State(
+        State(
           positionWorldEnu_m=pre(statePosition),
           velocityWorldEnu_m_s=pre(stateVelocity),
           quaternionWorldBody=pre(stateQuaternion),
@@ -443,8 +443,8 @@ algorithm
         opticalFlow,
         gravityWorldEnu_m_s2,
         samplePeriod,
-        Estimation.StrapdownINS.ESKF.Tuning(
-          initialState=Estimation.StrapdownINS.ESKF.NominalState(
+        Tuning(
+          initialState=NominalState(
             positionWorldEnu_m=initialPositionWorldEnu_m,
             velocityWorldEnu_m_s=initialVelocityWorldEnu_m_s,
             quaternionWorldBody=initialQuaternionWorldBody,
@@ -507,8 +507,8 @@ algorithm
      estimate.eulerRpy_rad,
      estimate.angularVelocityBodyFlu_rad_s,
      estimate.angularVelocityWorldEnu_rad_s) :=
-      Estimation.StrapdownINS.ESKF.navigationEstimate(
-        Estimation.StrapdownINS.ESKF.State(
+      navigationEstimate(
+        State(
           positionWorldEnu_m=statePosition,
           velocityWorldEnu_m_s=stateVelocity,
           quaternionWorldBody=stateQuaternion,
@@ -607,32 +607,32 @@ equation
   // it is false -- the same predicate-exhaustion defect this whole change
   // exists to remove, and it must not reappear in the tuning surface.
   assert(covarianceInflateWindow_s > 0.0
-    and covarianceInflateWindow_s < Estimation.StrapdownINS.ESKF.FiniteMagnitudeLimit,
+    and covarianceInflateWindow_s < FiniteMagnitudeLimit,
     "covarianceInflateWindow_s must be finite and strictly positive");
   assert(covarianceInflateTimeConstant_s > 0.0
-    and covarianceInflateTimeConstant_s < Estimation.StrapdownINS.ESKF.FiniteMagnitudeLimit,
+    and covarianceInflateTimeConstant_s < FiniteMagnitudeLimit,
     "covarianceInflateTimeConstant_s must be finite and strictly positive");
   assert(aidingStaleTimeout_s > 0.0
-    and aidingStaleTimeout_s < Estimation.StrapdownINS.ESKF.FiniteMagnitudeLimit,
+    and aidingStaleTimeout_s < FiniteMagnitudeLimit,
     "aidingStaleTimeout_s must be finite and strictly positive");
   assert(aidingDivergentWindow_s > covarianceInflateWindow_s
-    and aidingDivergentWindow_s < Estimation.StrapdownINS.ESKF.FiniteMagnitudeLimit,
+    and aidingDivergentWindow_s < FiniteMagnitudeLimit,
     "aidingDivergentWindow_s must be finite and exceed covarianceInflateWindow_s");
   // The re-seed is opt-in, so a non-positive window is a legitimate
   // configuration and is not asserted against. A finite POSITIVE window that
   // fails to exceed the divergent window is a configuration error, not a
   // disable, so it is caught loudly here rather than silently ignored.
   assert(not (aidingReseedWindow_s > 0.0
-      and aidingReseedWindow_s < Estimation.StrapdownINS.ESKF.FiniteMagnitudeLimit
+      and aidingReseedWindow_s < FiniteMagnitudeLimit
       and aidingReseedWindow_s <= aidingDivergentWindow_s),
     "aidingReseedWindow_s, when enabled, must exceed aidingDivergentWindow_s");
   assert(quietSpecificForceTolerance_m_s2 > 0.0
-    and quietSpecificForceTolerance_m_s2 < Estimation.StrapdownINS.ESKF.FiniteMagnitudeLimit,
+    and quietSpecificForceTolerance_m_s2 < FiniteMagnitudeLimit,
     "quietSpecificForceTolerance_m_s2 must be finite and strictly positive");
   assert(quietAngularRateLimit_rad_s > 0.0
-    and quietAngularRateLimit_rad_s < Estimation.StrapdownINS.ESKF.FiniteMagnitudeLimit,
+    and quietAngularRateLimit_rad_s < FiniteMagnitudeLimit,
     "quietAngularRateLimit_rad_s must be finite and strictly positive");
-  assert(quietFilterTimeConstant_s < Estimation.StrapdownINS.ESKF.FiniteMagnitudeLimit,
+  assert(quietFilterTimeConstant_s < FiniteMagnitudeLimit,
     "quietFilterTimeConstant_s must be finite");
 
   annotation(Documentation(info = "<html>

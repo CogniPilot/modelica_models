@@ -2,11 +2,11 @@ within Estimation.StrapdownINS.ESKF;
 
 function correctZeroVelocity
   "Fuse a synthetic measurement that the vehicle is not moving"
-  input Estimation.StrapdownINS.ESKF.State predicted;
+  input State predicted;
   input Real variance_m2_s2(unit = "m2/s2")
     "Per-axis measurement variance of the zero-velocity observation";
   input Real innovationGate = 0.0;
-  output Estimation.StrapdownINS.ESKF.State corrected;
+  output State corrected;
   output Boolean accepted;
   output Integer rejectionReason;
   output Real normalizedInnovationSquared;
