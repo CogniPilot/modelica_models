@@ -355,7 +355,7 @@ def report(args):
         estimator_configuration=configuration,
         paired_comparisons=paired,
         limitations=[
-            "Two independent noise seeds, two frequencies, two heights; finite synthetic domain.",
+            f"{len(plan['seeds'])} independent noise seeds, {len(plan['speeds'])} frequencies, {len(plan['heights_m'])} heights; finite synthetic domain. Conditions sharing a seed reuse its noise draw.",
             "Same physical noise and delivered packets, with stack-specific effective Q/R, priors, height, terrain and magnetic policies.",
             "NEES is a common 15D marginal at each filter's own state epoch. Temporal samples are correlated; no independent chi-square confidence claim.",
             "Native scalar NIS is conditional on observed candidates/updates with incomplete coverage. ESKF NIS is unavailable in this campaign.",

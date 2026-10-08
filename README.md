@@ -129,7 +129,14 @@ rejects replacing vector fusion with the existing heading-only update after
 The [stationary-IMU follow-up](docs/reviews/2026-10-08/stationary-readiness/README.txt)
 adds 96 development replays of the existing optional rest model. Joint-horizon
 ESKF leads both native filters on horizontal and velocity RMS in all 24
-conditions; denied yaw and vertical losses remain. Fresh validation is pending.
+conditions; denied yaw and vertical losses remain.
+The [fresh sixteen-condition validation](docs/reviews/2026-10-08/stationary-validation/README.txt)
+completes 480 state replays and 96 native covariance checks. Stationary joint-horizon
+ESKF has lower velocity RMS than both native filters in all 48 flight pairs,
+and lower horizontal RMS in every GPS and loss/return condition. Denied horizontal
+wins fall to 12/16 against each native stack; vertical and yaw gaps remain.
+All five RMS components, NEES, native NIS, delay variants and losses are retained;
+this does not establish superiority across all scenarios or change defaults.
 
 Sensor `timestamp_s` is capture time. `valid` may remain true while a usable
 sample is held; `fresh` pulses for one estimator tick when a new sample arrives,

@@ -156,7 +156,22 @@ def report(args):
     capture_path = args.references / "captures.json"
     captures = json.loads(capture_path.read_text())
     reference_summary = json.loads(args.reference_summary.read_text())
-    plan = json.loads(args.reference_declaration.read_text())["held_out_plan"]
+    parent_declaration = json.loads(args.reference_declaration.read_text())
+    plan = parent_declaration["held_out_plan"]
+    stage = getattr(args, "stage", "development")
+    development_summary = getattr(args, "development_summary", None)
+    if stage == "validation" and (
+        development_summary is None
+        or digest(development_summary)
+        != parent_declaration.get("candidate_development_summary_sha256")
+        or declaration.get("parent_declaration_sha256")
+        != digest(args.reference_declaration)
+        or declaration["build_sha256"]
+        != parent_declaration.get("candidate_build_sha256")
+    ):
+        raise ValueError(
+            "Validation requires the declared development selection, parent and frozen build"
+        )
     conditions = {
         key[0]: value
         for key, value in indexed(campaign["conditions"], ("condition",)).items()
@@ -260,6 +275,11 @@ def report(args):
     (args.output / "ancillary.json").write_text(json.dumps(ancillary, indent=2) + "\n")
     result = dict(
         complete=True,
+        campaign_stage=stage,
+        reference_declaration_sha256=digest(args.reference_declaration),
+        development_summary_sha256=digest(development_summary)
+        if development_summary
+        else None,
         captures=len(expected),
         candidate_replays=12 * len(expected),
         invalid_rows=[
@@ -288,7 +308,20 @@ def report(args):
         },
         comparison_sha256=digest(args.output / "comparison.csv"),
         pairs_sha256=digest(args.output / "pairs.csv"),
-        scope="All declared development captures, windows, metrics and losses retained. Same physical captures and packet delivery, frozen native readiness and common-15 covariance evidence. Native effective Q/R remain stack-specific. New per-sensor NIS is not measured by this report. Total CPU includes warmup and host effects. Existing development captures are not untouched validation or a universal superiority proof.",
+        scope=(
+            "All declared "
+            + stage
+            + " captures, windows, metrics and losses retained. "
+            "Same physical captures and packet delivery, frozen native readiness and common-15 covariance evidence. "
+            "Native effective Q/R remain stack-specific. New per-sensor NIS is not measured by this report. "
+            "Total CPU includes warmup and host effects. "
+            + (
+                "Predeclared validation of the frozen development selection; shared noise draws across motion/height conditions are not independent trials. Once inspected, these captures are development evidence for future candidates. "
+                if stage == "validation"
+                else "Existing development captures are not untouched validation. "
+            )
+            + "No universal superiority proof."
+        ),
     )
     (args.output / "summary.json").write_text(
         json.dumps(result, indent=2, allow_nan=False) + "\n"
@@ -307,6 +340,10 @@ if __name__ == "__main__":
         "output",
     ):
         parser.add_argument("--" + option, type=Path, required=True)
+    parser.add_argument(
+        "--stage", choices=("development", "validation"), default="development"
+    )
+    parser.add_argument("--development-summary", type=Path)
     parser.add_argument("--flag", default="-DSTATIONARY_IMU_MODEL")
     parser.add_argument("--label", default="stationary_")
     report(parser.parse_args())

@@ -1,0 +1,56 @@
+{
+  "created_utc": "2026-10-08T10:09:21.377710+00:00",
+  "warmup_s": 120,
+  "held_out_plan": {
+    "seeds": [
+      20271011,
+      20271012,
+      20271013,
+      20271014
+    ],
+    "speeds": [
+      0.35,
+      1.05
+    ],
+    "heights_m": [
+      1.5,
+      5.0
+    ],
+    "gps_fix_after_s": 21,
+    "filters": [
+      "horizon",
+      "retrodiction",
+      "horizon_joint",
+      "retrodiction_joint",
+      "px4",
+      "ekf3"
+    ],
+    "scenarios": [
+      "gps",
+      "denied",
+      "transition"
+    ],
+    "selection": "Fresh fixed factorial declared before generation; four independent sensor seeds, new motions/heights, retain all 16 conditions and every failure. No parameter tuning or replacement of failed seeds. Stationary candidate and original controls are frozen before using these observations."
+  },
+  "purpose": "Independent validation of the existing stationary IMU option selected from the previous development campaign. Actual native PX4 EKF2 and ArduPilot EKF3 plus four original and four stationary ESKF variants on identical packets/noise.",
+  "source_snapshot_sha256": "4da4a23f07b8fc370b8095e093dbcadd4e640890c3a716ae98c16d1ab3240f01",
+  "candidate_build_sha256": "5fb02c6be930328d8de9df9e32413e5d23588290c5d68a22d5ec784f559423ce",
+  "candidate_development_summary_sha256": "1ecbff658546d9159871371ebf67e7717f96270d3f8d15e70ca2e2af8819df7e",
+  "original_build_sha256": "1802512f64f21868b49efce7b7576d5c16a17be5f34c661c39d72a99390ad6e9",
+  "planned_state_replays": 480,
+  "planned_native_covariance_replays": 96,
+  "planned_joint_covariance_checks": 96,
+  "noise_profile": "common-native-floors-v1",
+  "noise_reference_sha256": "43a83e162f38e1dca7a1382bcb154bc965cdd0e70dfa8fddfe5f946234693429",
+  "native_releases": {
+    "px4": "v1.17.0",
+    "ardupilot": "Copter-4.7.1"
+  },
+  "selection_rule": "Stationary-plus-joint fusion horizon is the selected candidate; retain all variants to measure horizon/retrodiction and pressure effects. Report every position/velocity/attitude RMS component, common-15 NEES, native NIS, covariance failure, timing and GPS recovery. Do not treat gains on a subset as all-metric superiority or change defaults from this declaration alone.",
+  "limitations": [
+    "Four independent sensor noise seeds, deterministic fixed IMU biases and common initial truth; not a Monte Carlo distribution of prior errors.",
+    "Internal native effective Q/R, magnetic/terrain/height policies remain stack-specific.",
+    "Existing synthetic independent camera model; no real-flight sensor disturbances or rest detector qualification.",
+    "Any additional magnetic algorithm uses development captures only and is not selected by these new observations."
+  ]
+}

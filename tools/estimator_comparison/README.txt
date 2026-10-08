@@ -50,7 +50,17 @@ frozen captures, delivery, binaries and generated objects before joining all
 96 candidate replays to the original controls/native results. It retains every
 RMS window and loss, common-15 consistency, full-16 pressure checks and timing.
 The optional stationary model improves denied horizontal/yaw accuracy, with
-other component regressions. Fresh validation is pending; defaults are unchanged.
+other component regressions. Defaults are unchanged. The frozen stationary
+selection's fresh sixteen-condition validation is now complete in
+docs/reviews/2026-10-08/stationary-validation. All 480 state replays and 96
+native covariance replays qualify. Velocity RMS is lower than both native
+filters in all 48 flight pairs, while denied horizontal wins fall to 12/16
+and vertical/yaw losses remain. report_eskf_ablation.py --stage validation
+requires the bound development selection, parent declaration and frozen build.
+plot_readiness_campaign.py --prefix stationary_ --metric METRIC plots all
+five RMS components, retaining every declared point and invalid-row checks.
+Four independent sensor seeds are reused across frequencies and heights;
+sixteen conditions are not sixteen independent noise trials.
 The magnetic nullspace follow-up in docs/reviews/2026-10-08/magnetic-gauge
 retains nine GNC/Lean identities and rejects a projected Jacobian after all
 24 development cases worsen heading. Geometric identities alone do not prove

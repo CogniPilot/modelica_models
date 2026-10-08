@@ -1,0 +1,154 @@
+{
+  "complete": true,
+  "declared_conditions": 16,
+  "declared_state_replays": 288,
+  "declared_native_covariance_replays": 96,
+  "source_snapshot_sha256": "4da4a23f07b8fc370b8095e093dbcadd4e640890c3a716ae98c16d1ab3240f01",
+  "capture_manifest_sha256": "9dbb78f7ada2d03911d60e465a26f81df0846a1aff677cf6d8e14f491d7bce83",
+  "results": [
+    {
+      "name": "20271011-0.35-5m",
+      "complete": true,
+      "readiness_qualified": true,
+      "native_covariance_valid": true,
+      "pilot_sha256": "bb643acb52235814b529f551652eea2cdb72780b37c7252d7a625f2059ce5f90",
+      "covariance_sha256": "6a802c4ec2792a59b7a7c7d61bb629e29edec16e5d2abe2f101e358f059caf0b",
+      "stationary_sha256": "491f61494c856af41682b0c1f39c193be4f6e0b7f00898fb356df2d10fbe7d8e"
+    },
+    {
+      "name": "20271011-0.35-1.5m",
+      "complete": true,
+      "readiness_qualified": true,
+      "native_covariance_valid": true,
+      "pilot_sha256": "0f9b50f3a1db6f6990db4b1790cc60515b60a1bc260b35570a0ed88b49b8d041",
+      "covariance_sha256": "e70655c7796236d67d4a02ebb76a61f2c6d3b227e904ad8c1932e2d6ac05e706",
+      "stationary_sha256": "43df3d3769f72082e4878fb167351c9016fc7d4857dc6b5df493981b801a23ea"
+    },
+    {
+      "name": "20271011-1.05-1.5m",
+      "complete": true,
+      "readiness_qualified": true,
+      "native_covariance_valid": true,
+      "pilot_sha256": "625a2a74e5ccd128e79e1d50c3aee14306d2d2593f216b256265813b37870178",
+      "covariance_sha256": "3bc5628cbc743da8a3ca240909b2f6ed6c13316879384aee1deef59d82011e55",
+      "stationary_sha256": "2f8b41b10c42d768199a5d601cc3ea8f5ad6db8c33bdbd530fc892a10b96f8e4"
+    },
+    {
+      "name": "20271011-1.05-5m",
+      "complete": true,
+      "readiness_qualified": true,
+      "native_covariance_valid": true,
+      "pilot_sha256": "82b9aee917ed28b4af50a933240c7102196617d41a2bc071bae25365611e16b5",
+      "covariance_sha256": "6a26c55b2fd77c8f93d68db116487a13b6b4e8c0da0028f09978ffe3cfd209ba",
+      "stationary_sha256": "b61994926fadd55f0929e9aed750f275c348f6598a7a27aa8d6b3534a4356ea0"
+    },
+    {
+      "name": "20271012-0.35-1.5m",
+      "complete": true,
+      "readiness_qualified": true,
+      "native_covariance_valid": true,
+      "pilot_sha256": "0c575701d21604073236357930ad0cf052287b019996000174d3c5aaba246217",
+      "covariance_sha256": "d4973d7eae0c797e1df92adbce0d49e27c6741639ff56f1edcb00ec41d973561",
+      "stationary_sha256": "be0c9096e5d0e20f5e678730f436c5d8fd2563e91b968788b08d8bc96b17e5e0"
+    },
+    {
+      "name": "20271012-0.35-5m",
+      "complete": true,
+      "readiness_qualified": true,
+      "native_covariance_valid": true,
+      "pilot_sha256": "12e1c670b68480ab8045095e415ce73c2cb4a2bd91490e2e3042b8e538d3ab1d",
+      "covariance_sha256": "12851bf80c2ff4efb89878577b6a555ec27e7df7f6d8a2f2ed1863402ac877b1",
+      "stationary_sha256": "cb4bbe45c58780dc2cc71f988722bb2d267c1fc24b6e5cb8682c76bd92ca8215"
+    },
+    {
+      "name": "20271012-1.05-5m",
+      "complete": true,
+      "readiness_qualified": true,
+      "native_covariance_valid": true,
+      "pilot_sha256": "97cda3b4ba2a3ce0d116119585fbb554003d48d89284ae9376f75b9def7fd0e3",
+      "covariance_sha256": "657609a628f2dae2d8d4100a52e93c49f053c738029f5458d13374f30ad2a7bf",
+      "stationary_sha256": "607878631f643a1cd0d80de6935e12d753b175fe21cedb8352ef6b4a29f4e97a"
+    },
+    {
+      "name": "20271012-1.05-1.5m",
+      "complete": true,
+      "readiness_qualified": true,
+      "native_covariance_valid": true,
+      "pilot_sha256": "abd2dedff749e07ba7e4dbdb22e1c939bf6b0092d7094f3453632bb6eb208b51",
+      "covariance_sha256": "540a256b620ed07024e6f2cbb7ac25f42908a18cfd7e0f0247f953422cc7eacf",
+      "stationary_sha256": "cfa904d95eddfe2dec792000c2ed71824dc82ef4eca094a8b062330056d76e6d"
+    },
+    {
+      "name": "20271013-0.35-5m",
+      "complete": true,
+      "readiness_qualified": true,
+      "native_covariance_valid": true,
+      "pilot_sha256": "3efad005964eb880e2e996aa7386bad9541374fbfdafac6e793b43c54328dab9",
+      "covariance_sha256": "0cff99be0310866f3baec7be9156db853529869fbef48bf2d10bb0a9632f5e85",
+      "stationary_sha256": "eb63eb122de1b92057ebaf115e1f63ff7f52fbc269d51f21534d57539a115d4c"
+    },
+    {
+      "name": "20271013-0.35-1.5m",
+      "complete": true,
+      "readiness_qualified": true,
+      "native_covariance_valid": true,
+      "pilot_sha256": "086d45f27eb46089b8067cdb32339682e0e72fff2a8358270ff112b39a787fce",
+      "covariance_sha256": "0867078612d9f2861029df8589e882d91a774869df6c4d422a66f87e7c3f67ad",
+      "stationary_sha256": "dd781c2036d1b623c9b2fd6844e27340905e3d52e5fe894f94891395a380bd3f"
+    },
+    {
+      "name": "20271013-1.05-1.5m",
+      "complete": true,
+      "readiness_qualified": true,
+      "native_covariance_valid": true,
+      "pilot_sha256": "0d5995511fc506c36863e8a70a9ccfccff99d90a5ff622a7ae630801d60155cf",
+      "covariance_sha256": "5c4a9e6733cf0a231a5da2b12ac25569176b37b230b81ab3c92bea06c610de86",
+      "stationary_sha256": "994b04bedd2f0f79cfc37d78f1b8e7ce5c26226360b581ffb9de7f53326a8431"
+    },
+    {
+      "name": "20271013-1.05-5m",
+      "complete": true,
+      "readiness_qualified": true,
+      "native_covariance_valid": true,
+      "pilot_sha256": "3b783c184fdae5f9061350eea872754c0a10d0d88849670018b56966e37ee6d6",
+      "covariance_sha256": "9aba876118f532e276892edda20cd6101dc07acd2924ab2d7d665c5ef4359ae4",
+      "stationary_sha256": "da9bfc985b7c7e84d318dcd0675611e8c7ae2443434f2a8f06c621b780a5fba5"
+    },
+    {
+      "name": "20271014-0.35-1.5m",
+      "complete": true,
+      "readiness_qualified": true,
+      "native_covariance_valid": true,
+      "pilot_sha256": "7eb95c5162ca8f890c7d414896ca1c55e480bc00f4b8f7b78d155a0013818df4",
+      "covariance_sha256": "7c4bbc3cbb968a85002d8aafdbfc051a4b65d0301d3cab3fd5e31a3c97fe9907",
+      "stationary_sha256": "1802d12ad49e703259070b8619cc477639c4898ba086c31c28b39e4f2540c11b"
+    },
+    {
+      "name": "20271014-0.35-5m",
+      "complete": true,
+      "readiness_qualified": true,
+      "native_covariance_valid": true,
+      "pilot_sha256": "4d3ee6b0c618e9c8e1a112f1ff066b662b5ec2ced974904ad818ee2295adf5d9",
+      "covariance_sha256": "c2f755ab0c878341cfd283c3127aa32da67fef663267f4f49a84f90262792ea7",
+      "stationary_sha256": "937d4557475ac5c189513445f4d2a504e5203225baae2e42b6126b31e1774e10"
+    },
+    {
+      "name": "20271014-1.05-5m",
+      "complete": true,
+      "readiness_qualified": true,
+      "native_covariance_valid": true,
+      "pilot_sha256": "a4c3de8047cfc1364e82fb9ee05597eaacf106bd226bc388dbdd0fdea0c701a9",
+      "covariance_sha256": "abaa5a778d6b224a6eb0c8beec5488f96b70db055510512b65d196f38f9bef21",
+      "stationary_sha256": "e31a30eeb7c7a69e6afa60a047428488313d22f639e1b77b3838e7c8bafe42fa"
+    },
+    {
+      "name": "20271014-1.05-1.5m",
+      "complete": true,
+      "readiness_qualified": true,
+      "native_covariance_valid": true,
+      "pilot_sha256": "c0e4e975bd1f052cf6a9fd5205d0bad571f2ff4d795bb8a86f1c09155551cbf6",
+      "covariance_sha256": "c9399c9e8c668d33621156d402e517c5f7548c2d72f12cc429b131ee7b505185",
+      "stationary_sha256": "22f22b5549d616e05be056c54ed3be209fa091c309a95578fcec1cd3b2133311"
+    }
+  ]
+}
