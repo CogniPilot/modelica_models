@@ -104,6 +104,13 @@ floors and checks actual scalar observation variances. ESKF retains its position
 RMS lead on the valid reference cases; EKF3's GPS and transition covariances fail
 under this experimental configuration and are excluded from win counts.
 
+A [native covariance operation trace](docs/reviews/2026-10-08/ekf3-covariance-stages/README.txt)
+isolates EKF3's first failure to a GPS velocity update with suppressed bias
+gains and a simplified covariance correction. Read-only observers preserve
+every published state and full covariance snapshot. ESKF's existing Joseph
+update passes the recorded gain witness; the earlier bad-IMU trigger and the
+broader comparison remain open.
+
 Sensor `timestamp_s` is capture time. `valid` may remain true while a usable
 sample is held; `fresh` pulses for one estimator tick when a new sample arrives,
 preventing a slow sensor value from being fused repeatedly. Latency compensation

@@ -58,6 +58,15 @@ conditions are rejected. diagnose_native_covariance.py accepts physical
 --start-s/--end-s windows. Read the dated common-sensor-noise review before
 using the experimental configuration; two EKF3 covariance cases fail.
 
+The follow-up in docs/reviews/2026-10-08/ekf3-covariance-stages isolates their
+first invalid covariance to a native constrained-gain GPS velocity correction.
+instrument_ekf3_covariance_stages.py adds read-only operation snapshots to an
+owned clean pinned source copy. replay_ekf3_covariance_stages.py requires frozen
+capture, noise/arrival, published-state and full-covariance logging parity;
+diagnose_ekf3_covariance_stages.py reconstructs scalar updates and labels offline
+Joseph counterfactuals separately. The durable raw witness can be checked
+without external native sources. The native bad-IMU trigger still needs tracing.
+
 Read docs/reviews/2026-10-07/native-configuration-audit.txt before interpreting
 the native rankings. A later 24-replay audit reproduced the previous native
 outputs but found a persistent ArduPilot takeoff flag, different active magnetic

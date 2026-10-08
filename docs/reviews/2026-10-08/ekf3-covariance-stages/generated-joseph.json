@@ -1,0 +1,67 @@
+{
+  "cases": [
+    {
+      "scenario": "gps",
+      "publication_s": 123.7,
+      "fusion_s": 123.5,
+      "common_input_min_eigenvalue": 2.8968623360985984e-09,
+      "generated_output_max_asymmetry": 2.3283064365386963e-10,
+      "generated_symmetric_output_cholesky_valid": true,
+      "symmetry_arithmetic": "float32: 0.5 * (A + A.T)",
+      "generated_symmetric_output_min_eigenvalue": 2.8968711588431e-09,
+      "maximum_absolute_error_vs_float_input_double_oracle": 1.921938806020984e-09,
+      "maximum_absolute_error_vs_unrounded_native_joseph": 3.2122196985673312e-09
+    },
+    {
+      "scenario": "gps",
+      "publication_s": 123.8,
+      "fusion_s": 123.6,
+      "common_input_min_eigenvalue": 2.8967542296371928e-09,
+      "generated_output_max_asymmetry": 4.656612873077393e-10,
+      "generated_symmetric_output_cholesky_valid": true,
+      "symmetry_arithmetic": "float32: 0.5 * (A + A.T)",
+      "generated_symmetric_output_min_eigenvalue": 2.896782420088139e-09,
+      "maximum_absolute_error_vs_float_input_double_oracle": 1.424422559070937e-09,
+      "maximum_absolute_error_vs_unrounded_native_joseph": 2.0657803904977623e-09
+    },
+    {
+      "scenario": "transition",
+      "publication_s": 123.7,
+      "fusion_s": 123.5,
+      "common_input_min_eigenvalue": 2.8968623360985984e-09,
+      "generated_output_max_asymmetry": 2.3283064365386963e-10,
+      "generated_symmetric_output_cholesky_valid": true,
+      "symmetry_arithmetic": "float32: 0.5 * (A + A.T)",
+      "generated_symmetric_output_min_eigenvalue": 2.8968711588431e-09,
+      "maximum_absolute_error_vs_float_input_double_oracle": 1.921938806020984e-09,
+      "maximum_absolute_error_vs_unrounded_native_joseph": 3.2122196985673312e-09
+    },
+    {
+      "scenario": "transition",
+      "publication_s": 123.8,
+      "fusion_s": 123.6,
+      "common_input_min_eigenvalue": 2.8967542296371928e-09,
+      "generated_output_max_asymmetry": 4.656612873077393e-10,
+      "generated_symmetric_output_cholesky_valid": true,
+      "symmetry_arithmetic": "float32: 0.5 * (A + A.T)",
+      "generated_symmetric_output_min_eigenvalue": 2.896782420088139e-09,
+      "maximum_absolute_error_vs_float_input_double_oracle": 1.424422559070937e-09,
+      "maximum_absolute_error_vs_unrounded_native_joseph": 2.0657803904977623e-09
+    }
+  ],
+  "rumoca": "0.10.2",
+  "compiler": "GCC 15.2.0 -O2",
+  "wrapper_sha256": "36b6b4db06be29f714aeaf8bdb4c4d6611cb71129d6d7daf792ea9ffc1823e66",
+  "library_sha256": "37fc7411cc6d3d598e955a6edb34cee8780a9cb8fea555ad58f858a2d7fc8d73",
+  "generated_source_sha256": {
+    "rumoca_galec_kernels.c": "558d27b61e5617b2b2abb842f418ac280fc89c1d8cee912343d4e5e38c27e968",
+    "Tests_BarometerConsiderReplay.c": "24412b5d5a8888b0fe67e0956b09016f30236506b7adb2a224770537b1d1cb86",
+    "Tests_BarometerConsiderReplay.h": "50d9f6bbd252541f8f8eec687045c1dfdfad16f529158fff29fc32fcba2a7e4b",
+    "rumoca_galec_kernels.h": "3065c1696a99e00e2460f40fc25abb4576db80d42cc72fc1cc3ac2ae92d8ca47"
+  },
+  "production_modelica_sha256": {
+    "LinearAlgebra/josephUpdate.mo": "b4df71cf179acef4f6213971b36ccfd7e50c9cbf44f51a6308bd70ddd6fb6d2a",
+    "LinearAlgebra/transformCovariance.mo": "ae95743d3482a4fa1c26dc8570df1952d9ae44f57bb32eac089d0265cddd18b0"
+  },
+  "scope": "Existing generated production Joseph function applied to the recorded native constrained-gain witness in the common 15D tangent. Float output is explicitly symmetrized as in correctLinear, never eigenvalue-clipped or regularized. This checks covariance algebra only, not a native firmware repair, a full ESKF replay of that gain policy, Lie-reset behavior, or overall estimator superiority."
+}
