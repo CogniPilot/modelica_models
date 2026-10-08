@@ -1,0 +1,24 @@
+[31mEGT017[0m
+
+  [31m[0m dynamic index `Binary { op: Add, lhs: Binary { op: Mul, lhs: Binary { op:
+  [31m│[0m Sub, lhs: Ref(Local(RefPart { name:
+  [31m│[0m Ident(Identifier("rumoca_loop_2_0_0_0"), Span { source: SourceId(0),
+  [31m│[0m start: BytePos(0), end: BytePos(0) }), subscripts: [], span: Span
+  [31m│[0m { source: SourceId(0), start: BytePos(0), end: BytePos(0) } })), rhs:
+  [31m│[0m Integer(1) }, rhs: Ref(Local(RefPart { name: Ident(Identifier("columns"),
+  [31m│[0m Span { source: SourceId(0), start: BytePos(0), end: BytePos(0) }),
+  [31m│[0m subscripts: [], span: Span { source: SourceId(8245379420308514607), start:
+  [31m│[0m BytePos(395), end: BytePos(402) } })) }, rhs: Ref(Local(RefPart { name:
+  [31m│[0m Ident(Identifier("rumoca_loop_2_0_1_1"), Span { source: SourceId(0),
+  [31m│[0m start: BytePos(0), end: BytePos(0) }), subscripts: [], span: Span
+  [31m│[0m { source: SourceId(0), start: BytePos(0), end: BytePos(0) } })) }` lacks
+  [31m│[0m proven bounds within 1:4; not yet supported by the Rumoca GALEC projection
+  [31m│[0m [unsupported-feature:dynamic-array-index]
+    ╭─[[36;1;4m/home/jgoppert/git/modelica_models/SLAM/Simulation/landmarkGrid.mo:12:7[0m]
+ [2m11[0m │     for column in 1:columns loop
+ [2m12[0m │       landmarksWorld_m[(row - 1) * columns + column, :] := centerWorld_m
+    · [31;1m      ────────┬───────[0m
+    ·               [31;1m╰── [31;1munsupported GALEC projection feature `dynamic-array-index`[0m[0m
+ [2m13[0m │         + {(column - 0.5 * (columns + 1)) * spacing_m,
+    ╰────
+

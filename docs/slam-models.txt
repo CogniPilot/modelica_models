@@ -18,6 +18,7 @@ SLAM.Fusion           Independent visual aiding for the right-injected ESKF
 SLAM.Mapping          Anchored landmarks, catalogs and spatial indexing
 SLAM.LoopClosure      Keyframes, visual words, retrieval and verification
 SLAM.PoseGraph        Measured factors, optimizer, gauge bounds and atomic commit
+SLAM.Simulation       Fixed landmark scenes and synthetic RGB-D observations
 SLAM.Examples         Application simulation, sensor and evaluation examples
 LinearAlgebra         Shared numerical helpers, including the existing SPD6Solve
 
@@ -67,6 +68,12 @@ Use a fresh directory and Python with NumPy installed. The runner exports the
 actual Modelica sources with Rumoca 0.10.2, compiles the exports, hashes sources
 and generated artifacts, and runs coordinate, camera-Jacobian and correction
 checks. It refuses a source change during qualification.
+
+The runner also qualifies SLAM.Simulation.LandmarkCamera, which supplies
+landmark-level observations without image processing. A fixed scene can be
+generated or initialized from a captured CV map. See
+docs/synthetic-landmark-camera.txt for FOV/range configuration, visibility,
+stable identities, explicit error inputs and map initialization semantics.
 
 These first cases assume a FIXED KNOWN MAP and independent new camera noise.
 Do not feed uncertain live SLAM landmarks or IMU/GPS-correlated external poses

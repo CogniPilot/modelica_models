@@ -1,0 +1,83 @@
+Landmark-level SLAM development without computer vision
+8 October 2026
+
+SLAM.Simulation.LandmarkCamera is a pure Modelica RGB-D observation model.
+It projects a supplied fixed world landmark set from the true camera pose;
+it does not render images, run a feature detector or estimate vehicle pose.
+SLAM.Simulation.landmarkGrid supplies a simple default scene. An arbitrary
+landmark cloud can instead be supplied through landmarksWorld_m.
+
+Geometry
+--------
+Set horizontal and vertical fieldOfView_rad, imageSize_pixels and depthRange_m.
+The default intrinsics follow the centered rectilinear pinhole formula
+  fx = imageWidth / (2 tan(horizontalFov/2))
+  fy = imageHeight / (2 tan(verticalFov/2)).
+Measured camera intrinsics can override that approximation. rotationBodyCamera
+maps optical-camera vectors into body FLU, and cameraPositionBody_m supplies
+the lever arm. Vehicle position and quaternion map that body into world ENU.
+The default optical axis points downward for a level vehicle. FOV is in radians;
+the depth limits apply along the optical axis, not to Euclidean slant range.
+Rotation inputs must describe rigid rotations and the quaternion must be unit.
+
+At each cameraRate_Hz sample, a landmark produces {pixel u, pixel v, depth_m}
+only if it is in front of the camera, within the configured depth interval and
+inside the image. Both ideal and noisy measurements must remain in those
+bounds. Pixel bounds are half-open [0,width) and [0,height); depth bounds are
+inclusive. The visible mask is authoritative: absent observations contain zeros
+and must not be fused as measurements. landmarkIds gives stable row identities.
+The scene input must be held fixed between explicit scenario/map revisions.
+
+measurementError supplies an explicit additive error array, allowing common
+noise samples and full correlations to be shared across loose/tight replays.
+The simulator does not silently generate random noise or infer its covariance.
+The experiment owns the noise generator, declared covariance and timestamps.
+detected provides per-landmark dropout/occlusion decisions; available disables
+the entire camera. Occlusion, lens distortion, motion blur, rolling shutter,
+association ambiguity and real sensor noise are not inferred from the scene.
+
+Example component declaration inside a flight experiment:
+
+  SLAM.Simulation.LandmarkCamera camera(
+    landmarkCount=4,
+    landmarksWorld_m=SLAM.Simulation.landmarkGrid(2, 2, 2.0),
+    positionWorld_m=truthPositionWorld_m,
+    quaternionWorldBody=truthQuaternionWorldBody,
+    fieldOfView_rad={1.4, 1.0}, depthRange_m={0.2, 8.0});
+
+Use only visible observations and the corresponding rows/columns of their
+full covariance in either fusion path. The existing fixed-map correction
+functions do not consume the visibility mask automatically. Their all-visible
+baseline replay remains a separate qualification; an invisible zero payload
+must never be passed as if it were a valid pixel/depth observation.
+
+Seeding from the real CV pipeline
+--------------------------------
+Run the existing front end to initialize landmarks, retain their identities,
+and transform the accepted cloud into one explicit world frame using the
+captured calibration and initialization pose. SLAM.Mapping.RGBDProjectLandmarks
+already exposes worldPoint and landmarkEnabled for this projection. Freeze the
+accepted rows as a scene snapshot and supply that snapshot to LandmarkCamera;
+runtime development can then proceed without image processing. Preserve the
+initialization pose, extrinsics, world-frame revision and valid-row identities.
+The new camera's local row IDs require an external mapping back to original
+feature IDs if the accepted cloud is compacted or reordered.
+
+A reconstructed cloud can define synthetic scene geometry, but that does not
+make its coordinates independent real-world ground truth. For uncertain-map
+filter development, keep simulated truth, estimator map initialization and
+their covariance/cross-covariance separate. Feeding the current estimator map
+back into the sensor's truth scene would hide map errors. Shared IMU/GPS data
+and retained-keyframe correlations still need the joint navigation treatment.
+The camera model does not convert those uncertainties into a known-map filter.
+
+Local qualification
+-------------------
+Tests.SyntheticLandmarkReplay instantiates the actual public camera block with
+a supplied four-point scene and its default twelve-point scene. The existing
+tools/estimator_comparison/qualify_visual.py runner now also exports, compiles
+and independently checks that entrypoint with Rumoca 0.10.2. It exercises
+random pose/extrinsic geometry, additive noise, visibility, fixed grid ordering,
+stable IDs, camera outage, missed detection and invalid observations.
+See docs/slam-models.txt for the command and the synthetic-landmarks review
+directory for the exact source/artifact identities and retained failures.

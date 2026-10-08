@@ -1,0 +1,63 @@
+{
+  "complete": true,
+  "passed": false,
+  "cases": 256,
+  "visibility_matches_independent_oracle": true,
+  "maximum_projection_error": 8.263931886176579e-05,
+  "default_scene_passed": true,
+  "maximum_default_scene_projection_error": 0.0,
+  "negative_controls": {
+    "visible": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "camera_outage": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "missed_detection": [
+      1,
+      1,
+      0,
+      1
+    ],
+    "behind_camera": [
+      1,
+      0,
+      1,
+      1
+    ],
+    "too_far": [
+      1,
+      0,
+      1,
+      1
+    ],
+    "outside_image": [
+      1,
+      0,
+      1,
+      1
+    ],
+    "invalid_calibration": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "invalid_noise": [
+      1,
+      0,
+      1,
+      1
+    ]
+  },
+  "invisible_observations_zero": true,
+  "runtime_error_rows": 1,
+  "executable_sha256": "c73f656eb5dea215f16055402d3febcc63003fded47a4ce06aae0184f68fe201",
+  "scope": "Generated Modelica scene projection, explicit additive errors, visibility and fixed grid; not image processing or uncertain-map estimation."
+}

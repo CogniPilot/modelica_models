@@ -31,6 +31,7 @@ def qualify(args):
         *repository.glob("LieGroups/**/*.mo"),
         *repository.glob("LinearAlgebra/**/*.mo"),
         *repository.glob("SLAM/Fusion/*.mo"),
+        *repository.glob("SLAM/Simulation/*.mo"),
     ]
     sources += [
         repository / path
@@ -42,12 +43,15 @@ def qualify(args):
             "Tests/VisualTangentReplay.mo",
             "Tests/VisualLandmarkReplay.mo",
             "Tests/VisualCouplingReplay.mo",
+            "Tests/SyntheticLandmarkReplay.mo",
             "tools/estimator_comparison/visual_tangent.c",
             "tools/estimator_comparison/visual_landmark.c",
             "tools/estimator_comparison/visual_coupling.c",
+            "tools/estimator_comparison/visual_synthetic.c",
             "tools/estimator_comparison/check_visual_tangent.py",
             "tools/estimator_comparison/check_visual_landmark.py",
             "tools/estimator_comparison/check_visual_coupling.py",
+            "tools/estimator_comparison/check_visual_synthetic.py",
             "tools/estimator_comparison/qualify_visual.py",
         )
     ]
@@ -74,6 +78,7 @@ def qualify(args):
         ("tangent", "VisualTangentReplay"),
         ("landmark", "VisualLandmarkReplay"),
         ("coupling", "VisualCouplingReplay"),
+        ("synthetic", "SyntheticLandmarkReplay"),
     ):
         export = work / f"{kind}-export"
         execute(
@@ -141,7 +146,7 @@ def qualify(args):
     receipt.update(
         complete=True,
         passed=all(value["passed"] for value in receipt["results"].values()),
-        scope="Generated visual primitives and linearized sufficient-statistic comparison; not end-to-end SLAM.",
+        scope="Generated visual primitives, synthetic landmark camera and linearized sufficient-statistic comparison; not end-to-end SLAM.",
     )
     receipt_path.write_text(json.dumps(receipt, indent=2) + "\n")
     print(
