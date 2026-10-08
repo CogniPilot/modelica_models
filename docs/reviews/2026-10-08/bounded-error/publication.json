@@ -1,0 +1,11 @@
+{
+  "gnc_repository": "https://github.com/CogniPilot/gnc_lean",
+  "gnc_commit": "1a96a32666e47d0662b56c17dcd6a4a4fbb7e888",
+  "gnc_base": "0c01537b94677d38c0547a72c1dc12a7e87db234",
+  "branch": "eskf-sampled-error-bounds",
+  "proof_copies_byte_identical": true,
+  "theorems": 38,
+  "scope": "Conditional bounds; native estimator superiority not established",
+  "modelica_baseline": "7762caec7527a6f31e578f4ecea53cffac004ba9",
+  "gnc_pull_request": "https://github.com/CogniPilot/gnc_lean/pull/2"
+}
