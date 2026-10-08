@@ -26,7 +26,7 @@ block AidingBuffer
     annotation(Evaluate = true);
   parameter Real gpsPeriod_s(unit = "s", min = 1.0e-9) = 0.1
     annotation(Evaluate = true);
-  parameter Real magnetometerPeriod_s(unit = "s", min = 1.0e-9) = 0.05
+  parameter Real magnetometerPeriod_s(unit = "s", min = 1.0e-9) = 0.02
     annotation(Evaluate = true);
   parameter Real barometerPeriod_s(unit = "s", min = 1.0e-9) = 0.02
     annotation(Evaluate = true);

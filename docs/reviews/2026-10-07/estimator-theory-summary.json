@@ -1,0 +1,170 @@
+{
+  "comparisons": {
+    "horizon-dense": {
+      "flight": {
+        "cases": 12,
+        "wins": {
+          "horizontal_position_rmse_m": 12,
+          "vertical_position_rmse_m": 0,
+          "velocity_3d_rmse_m_s": 12,
+          "attitude_rmse_deg": 11,
+          "yaw_rmse_deg": 10
+        }
+      },
+      "outage_window": {
+        "cases": 4,
+        "wins": {
+          "horizontal_position_rmse_m": 4,
+          "vertical_position_rmse_m": 0,
+          "velocity_3d_rmse_m_s": 4,
+          "attitude_rmse_deg": 4,
+          "yaw_rmse_deg": 4
+        }
+      },
+      "after_return": {
+        "cases": 4,
+        "wins": {
+          "horizontal_position_rmse_m": 4,
+          "vertical_position_rmse_m": 0,
+          "velocity_3d_rmse_m_s": 4,
+          "attitude_rmse_deg": 4,
+          "yaw_rmse_deg": 4
+        }
+      }
+    },
+    "retrodiction-dense": {
+      "flight": {
+        "cases": 12,
+        "wins": {
+          "horizontal_position_rmse_m": 12,
+          "vertical_position_rmse_m": 0,
+          "velocity_3d_rmse_m_s": 12,
+          "attitude_rmse_deg": 11,
+          "yaw_rmse_deg": 10
+        }
+      },
+      "outage_window": {
+        "cases": 4,
+        "wins": {
+          "horizontal_position_rmse_m": 3,
+          "vertical_position_rmse_m": 0,
+          "velocity_3d_rmse_m_s": 4,
+          "attitude_rmse_deg": 4,
+          "yaw_rmse_deg": 2
+        }
+      },
+      "after_return": {
+        "cases": 4,
+        "wins": {
+          "horizontal_position_rmse_m": 4,
+          "vertical_position_rmse_m": 0,
+          "velocity_3d_rmse_m_s": 4,
+          "attitude_rmse_deg": 4,
+          "yaw_rmse_deg": 4
+        }
+      }
+    },
+    "horizon-root": {
+      "flight": {
+        "cases": 12,
+        "wins": {
+          "horizontal_position_rmse_m": 12,
+          "vertical_position_rmse_m": 0,
+          "velocity_3d_rmse_m_s": 12,
+          "attitude_rmse_deg": 11,
+          "yaw_rmse_deg": 10
+        }
+      },
+      "outage_window": {
+        "cases": 4,
+        "wins": {
+          "horizontal_position_rmse_m": 4,
+          "vertical_position_rmse_m": 0,
+          "velocity_3d_rmse_m_s": 4,
+          "attitude_rmse_deg": 4,
+          "yaw_rmse_deg": 4
+        }
+      },
+      "after_return": {
+        "cases": 4,
+        "wins": {
+          "horizontal_position_rmse_m": 4,
+          "vertical_position_rmse_m": 0,
+          "velocity_3d_rmse_m_s": 4,
+          "attitude_rmse_deg": 4,
+          "yaw_rmse_deg": 4
+        }
+      }
+    },
+    "retrodiction-root": {
+      "flight": {
+        "cases": 12,
+        "wins": {
+          "horizontal_position_rmse_m": 12,
+          "vertical_position_rmse_m": 0,
+          "velocity_3d_rmse_m_s": 12,
+          "attitude_rmse_deg": 10,
+          "yaw_rmse_deg": 10
+        }
+      },
+      "outage_window": {
+        "cases": 4,
+        "wins": {
+          "horizontal_position_rmse_m": 3,
+          "vertical_position_rmse_m": 0,
+          "velocity_3d_rmse_m_s": 4,
+          "attitude_rmse_deg": 4,
+          "yaw_rmse_deg": 2
+        }
+      },
+      "after_return": {
+        "cases": 4,
+        "wins": {
+          "horizontal_position_rmse_m": 4,
+          "vertical_position_rmse_m": 0,
+          "velocity_3d_rmse_m_s": 4,
+          "attitude_rmse_deg": 4,
+          "yaw_rmse_deg": 4
+        }
+      }
+    }
+  },
+  "controls": {
+    "horizon-dense": {
+      "identical": 24,
+      "cases": 24,
+      "median_filter_cpu_ratio": 1.1013544883593833,
+      "median_total_cpu_ratio": 1.0783843859700242,
+      "state_bytes": [
+        168720
+      ]
+    },
+    "retrodiction-dense": {
+      "identical": 24,
+      "cases": 24,
+      "median_filter_cpu_ratio": 0.9768890050844006,
+      "median_total_cpu_ratio": 1.0097486606775894,
+      "state_bytes": [
+        124940
+      ]
+    },
+    "horizon-root": {
+      "identical": 24,
+      "cases": 24,
+      "median_filter_cpu_ratio": 1.0394150422641195,
+      "median_total_cpu_ratio": 1.0490964848423558,
+      "state_bytes": [
+        168720
+      ]
+    },
+    "retrodiction-root": {
+      "identical": 24,
+      "cases": 24,
+      "median_filter_cpu_ratio": 1.0488539680124023,
+      "median_total_cpu_ratio": 1.0491978583283856,
+      "state_bytes": [
+        124940
+      ]
+    }
+  }
+}

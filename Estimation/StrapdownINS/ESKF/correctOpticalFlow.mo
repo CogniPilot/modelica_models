@@ -1,7 +1,7 @@
 within Estimation.StrapdownINS.ESKF;
 
 function correctOpticalFlow
-  "Convert co-timed flow and range to body velocity, then correct the state"
+  "Fuse image angular rates with co-timed range uncertainty"
   input State predicted;
   input Avionics.OpticalFlowSample measurement;
   input Real innovationGate = 0.0
@@ -13,6 +13,7 @@ function correctOpticalFlow
   input Real maximumAidingDelay_s(unit = "s") = 0.25;
   input Real minimumQuality = 0.2;
   input Real minimumGroundDistance_m(unit = "m") = 0.2;
+  input Boolean useSemiDirectBias = false;
   output State corrected;
   output Boolean accepted;
   output Integer rejectionReason
@@ -26,14 +27,14 @@ protected
   Real currentToDelayed[TangentLength, TangentLength];
   Real predictedVelocityBody[3];
   Real velocityCross[3, 3];
-  Real velocityH[2, TangentLength];
+  Real flowProjection[2, 3];
+  Real flowH[2, TangentLength];
   Real compensatedFlow_rad[2];
-  Real measuredVelocityBody_m_s[2];
+  Real predictedFlow_rad_s[2];
   Real residual[2];
   Real H[2, TangentLength];
   Real flowCovariance_rad2[2, 2];
   Real measurementCovariance[2, 2];
-  Real velocityRangeDerivative_s[2];
   Real safeIntegrationTime_s;
   Real safeGroundDistance_m;
   Boolean measurementFinite;
@@ -83,47 +84,25 @@ algorithm
     delayedQuaternion);
   predictedVelocityBody := transpose(rotationWorldBody)
     * delayedVelocity;
-  // The sensor reports right-handed scene rotations about camera x/y and a
-  // co-timed distance along the nadir ray. After gyro compensation, their
-  // direct body-FLU velocity observation is
-  //   v_forward = range * flow_y / dt,
-  //   v_left    = -range * flow_x / dt.
-  // This is the flight-stack interface: terrain remains a separately filtered
-  // range state and is not needed to manufacture a velocity observation.
   compensatedFlow_rad := measurement.integratedLineOfSight_rad
     + measurement.integratedGyroscopeBodyFlu_rad[1:2];
   safeIntegrationTime_s := max(abs(measurement.integrationTime_s), 1.0e-9);
   safeGroundDistance_m := max(measurement.groundDistance_m,
     minimumGroundDistance_m);
-  measuredVelocityBody_m_s := safeGroundDistance_m
-    / safeIntegrationTime_s
-      * {compensatedFlow_rad[2], -compensatedFlow_rad[1]};
-  residual := measuredVelocityBody_m_s - predictedVelocityBody[1:2];
+  flowProjection := [0.0, -1.0, 0.0; 1.0, 0.0, 0.0];
+  predictedFlow_rad_s := flowProjection * predictedVelocityBody
+    / safeGroundDistance_m;
+  residual := compensatedFlow_rad / safeIntegrationTime_s - predictedFlow_rad_s;
   velocityCross := LieGroups.SO3.Quat.wedge(predictedVelocityBody);
-  velocityH := zeros(2, TangentLength);
-  velocityH[1:2, 4:6] :=
-    [1.0, 0.0, 0.0; 0.0, 1.0, 0.0];
-  velocityH[1:2, 7:9] := velocityCross[1:2, :];
-  H := velocityH * currentToDelayed;
+  flowH := flowProjection * cat(2, zeros(3, 3), identity(3),
+    velocityCross, zeros(3, 6)) / safeGroundDistance_m;
+  H := flowH * currentToDelayed;
   flowCovariance_rad2 := measurement.integratedLineOfSightCovariance_rad2
     + measurement.integratedGyroscopeCovariance_rad2[1:2, 1:2];
-  measurementCovariance := (safeGroundDistance_m
-      / safeIntegrationTime_s)^2 * [
-    flowCovariance_rad2[2, 2], -flowCovariance_rad2[2, 1];
-    -flowCovariance_rad2[1, 2], flowCovariance_rad2[1, 1]];
-  velocityRangeDerivative_s := {
-    compensatedFlow_rad[2] / safeIntegrationTime_s,
-    -compensatedFlow_rad[1] / safeIntegrationTime_s};
-  measurementCovariance := measurementCovariance
-    + max(measurement.groundDistanceVariance_m2, 0.0)
-      * transpose({velocityRangeDerivative_s}) * {velocityRangeDerivative_s};
-  corrected := State(
-    positionWorldEnu_m=predicted.positionWorldEnu_m,
-    velocityWorldEnu_m_s=predicted.velocityWorldEnu_m_s,
-    quaternionWorldBody=predicted.quaternionWorldBody,
-    gyroscopeBiasBodyFlu_rad_s=predicted.gyroscopeBiasBodyFlu_rad_s,
-    accelerometerBiasBodyFlu_m_s2=predicted.accelerometerBiasBodyFlu_m_s2,
-    covariance=predicted.covariance);
+  measurementCovariance := flowCovariance_rad2 / safeIntegrationTime_s^2
+    + max(measurement.groundDistanceVariance_m2, 0.0) / safeGroundDistance_m^2
+      * transpose({predictedFlow_rad_s}) * {predictedFlow_rad_s};
+  corrected := copyState(predicted);
   accepted := false;
   normalizedInnovationSquared := 0.0;
   if not measurementFinite then
@@ -140,6 +119,7 @@ algorithm
   else
     (corrected, accepted, rejectionReason, normalizedInnovationSquared) :=
       correctLinear(predicted, residual, H, measurementCovariance,
-        innovationGate);
+        innovationGate, zeros(3), zeros(TangentLength, size(residual, 1)),
+        false, useSemiDirectBias);
   end if;
 end correctOpticalFlow;

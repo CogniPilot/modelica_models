@@ -112,7 +112,8 @@ model EstimatorHealthTests
         quaternionWorldBody=quaternion,
         gyroscopeBiasBodyFlu_rad_s=gyroscopeBias,
         accelerometerBiasBodyFlu_m_s2=accelerometerBias,
-        covariance=covariance),
+        covariance=covariance,
+        useSquareRootCovariance=false, covarianceRoot=zeros(15, 15)),
       false,
       Avionics.ImuSample(
         valid=true,
@@ -356,7 +357,8 @@ model EstimatorHealthTests
         quaternionWorldBody=quaternion,
         gyroscopeBiasBodyFlu_rad_s=gyroscopeBias,
         accelerometerBiasBodyFlu_m_s2=accelerometerBias,
-        covariance=covariance),
+        covariance=covariance,
+        useSquareRootCovariance=false, covarianceRoot=zeros(15, 15)),
       false,
       Avionics.ImuSample(
         valid=true,

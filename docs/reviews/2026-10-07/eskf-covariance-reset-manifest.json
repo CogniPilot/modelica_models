@@ -1,0 +1,70 @@
+{
+  "head": "e7b5912acf872c81ca2bd9c4fbb46f6491d90c6b",
+  "compiler": "Rumoca 0.10.2; GCC 15.3.0",
+  "source_sha256": {
+    "LinearAlgebra/covarianceRoot.mo": "683b987b0eac79f250e66e3971aa7e331fc8c45c74adb5221353d0f595418d09",
+    "LinearAlgebra/package.order": "51249e5063a24a5d44fe074d7db03cba2328af947eb250266a49051edb8715c1",
+    "Tests/CovarianceRootTests.mo": "0c2428a6889f74728914e7b7eec081b88bba49188a2bf1209e44a58796a21ca7",
+    "Tests/CovarianceRootReplay.mo": "3f30a56fffc4b956059a24c1a0d073e0e3d21c01b04098f9ef4826719d029a85",
+    "Tests/package.order": "c45cc73ddd882464ece45d021943154c68c3c9aa6d5d33aed00650889aa6bef2",
+    "Tests/All.mo": "af233b634afcca9e4336dac1934968fd5c969bf815ccee1cfc1cd10fa720662d",
+    "tools/ci.py": "bc25f4c58723972df567bcc7078856178a604e2e928896b0e0970e6656909c2f",
+    "tools/estimator_comparison/covariance_root.c": "c1e3eaa43ba775b64a706d0ab4147e81e9d2194ea78b46e2058f6f001a419cf3",
+    "tools/estimator_comparison/check_covariance_root.py": "9e0f00f09496c20422df9299ecd741d8d594e8ee8d91a064e0743970b7a56ba2",
+    "tools/estimator_comparison/fixtures/ill_conditioned_reset.json": "b588a91f016ed92aadb2e1ef542ab193b9feee92c35d90a19a095e50d03359e6",
+    "tools/estimator_comparison/README.txt": "380031e1164db2e0650470cfe28aac16c24e754519e057a0a76bc50eeef3a797"
+  },
+  "generated_sha256": {
+    "root-export/Tests_CovarianceRootReplay/ProductionCode/Tests_CovarianceRootReplay.c": "53a2c28a26cd65b5a66afd9a265b2aa5e5392ed266bb2b9bdb594822b05f7000",
+    "root-export/Tests_CovarianceRootReplay/ProductionCode/Tests_CovarianceRootReplay.h": "13d774a23a29bd94badc3aed4eddf435aad36752afe7967fffbb65f92862eb5e",
+    "root-export/Tests_CovarianceRootReplay/ProductionCode/rumoca_galec_kernels.c": "558d27b61e5617b2b2abb842f418ac280fc89c1d8cee912343d4e5e38c27e968",
+    "root-export/Tests_CovarianceRootReplay/ProductionCode/rumoca_galec_kernels.h": "3065c1696a99e00e2460f40fc25abb4576db80d42cc72fc1cc3ac2ae92d8ca47"
+  },
+  "binary_sha256": {
+    "traced-retrodiction": "af0a7e82b7644c718439a2b06c223fa9d6110c3dc083ea5a2e3b26209b9c9136",
+    "traced-reset": "9ab40256bb945c3c03b8d9b6515c3930df0d19665069fa7416e462b3832cff51",
+    "double-retrodiction": "42246ef6cb23209db3dfaa4dda909e290ab7a82c8c2369450232790b6aaeb6c9",
+    "compensated-retrodiction": "a941a8e97693bb004736acce4c2ca2aaa56d3af5f8daa0b572b8766301b67be8",
+    "ci/covariance-root-kernel.so": "6edde216c1952563b6889b91983310ba23d34101824451f577142d974ee13d5d"
+  },
+  "artifact_sha256": {
+    "eskf-covariance-reset.json": "f0adc2b78c7f24160c405d97923d2b78a953533a0044ecd0fa2e7e9339f79d08",
+    "eskf-covariance-reset.txt": "efceab679351c088140048a813327dffdd5863b5a1f83346a6e2d34832d460c1",
+    "eskf-covariance-root-20271007.json": "8b6242b7333093127119bdcb2d553aeda64742c47feef7916d2d8d8fd00a6119",
+    "eskf-covariance-root-20271008.json": "24c61b0f99a3c5531d8196cd7f61b7a7cbc3b5d9a3144e6cfba104219334f983",
+    "eskf-covariance-root-omc.txt": "7877298f2e589f747f430389e43bba01b908a0195ba5b1d7eeea1be080b564a5"
+  },
+  "reference_sha256": {
+    "native-exposure.json": "284959c86e77535fc054b3162c7703f5454f2864c0f3b2a7d23827cef8babb5d",
+    "native-exposure-validation.json": "9473d6e876fa9971ebd5189b68654a0b65ac49ea2c01f6e92b425255ee563d81"
+  },
+  "diagnostic_generated_source_sha256": {
+    "traced-estimator.c": "b294ae33f6ff54b1e63543224d2196599c94505cae144170e297bebde20e5940",
+    "traced-reset.c": "ef9d81331e9d1520fabdddf04c737aeeafb1fee2b66ce6cf9ef9738a707df8bd",
+    "double-estimator.c": "21fe5cb416b6d69c01006201767ca470d4f881b565b68d9120e719161159fb5f",
+    "compensated-estimator.c": "712836d98e2a44fe3a3cd6e407c5c968065c829061cbe960f5ed0769d782604c"
+  },
+  "validation": {
+    "generated_numerical_cases": 412,
+    "python_unit_tests": 21,
+    "openmodelica_assertion_simulation": true,
+    "tests_all_dae_lowering": true,
+    "structure": true,
+    "ruff": true,
+    "clang_format": true,
+    "diff_check": true,
+    "full_ci": false
+  },
+  "limits": [
+    "The current ESKF still stores a full covariance and both legacy replay failures remain unresolved.",
+    "The traced first failure is floating-point congruence error; this does not prove every later failure has the same cause.",
+    "The QR primitive is validated separately. It is not yet connected to estimator prediction, constrained-gain corrections, correlated observations, bias/reset handling, or fusion-horizon covariance reporting.",
+    "No matched estimator rankings change in this stage. Native source policies, range timing, measurement noise floors and target qualification remain open.",
+    "Different state coordinates have different units. The raw covariance condition number alone is not an accuracy claim. The positive-definite reference congruence on identical inputs isolates arithmetic at the first reset."
+  ],
+  "status": "Broad goal remains active. Numerical primitive validated; current estimator replay failures remain open.",
+  "storage": "Owned bounded temporary outputs used because $HOME/scratch is read-only in this session. Durable evidence and numerical fixture are in the repository.",
+  "committed": false,
+  "pushed": false,
+  "existing_filter_algebra_sources_unchanged": 348
+}

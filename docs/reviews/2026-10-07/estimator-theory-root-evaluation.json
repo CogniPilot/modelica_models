@@ -1,0 +1,25 @@
+{
+  "before_constant_root": [
+    [
+      2.449489742783178,
+      0.0,
+      0.0
+    ],
+    [
+      3.265986323710904,
+      1.537072015329874,
+      0.0
+    ],
+    [
+      1.224744871391589,
+      3.319500953698169,
+      5.01013112508592
+    ]
+  ],
+  "before_constant_squared_covariance_error": 137.59006052029792,
+  "after_constant_squared_covariance_error": 1.538278765180973e-29,
+  "after_runtime_squared_covariance_error": 1.715772468855701e-29,
+  "source_sha256": "9ef93aa6f73d8990cff20f26a7634654a2674ea3f9bc326a12ea33dbd1cfa927",
+  "note": "Before values observed in original OpenModelica initialization source and RootProbe CSV. The same covariance-root function was correct at runtime. After values are read from the fresh RootProbe CSV at t=0; runtime columns depend on time, preventing constant evaluation.",
+  "implementation": "Explicit array comprehension copy, original fast loop structure retained"
+}

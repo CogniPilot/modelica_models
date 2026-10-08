@@ -1,0 +1,64 @@
+ESKF covariance reset numerical review — 7 October 2026
+
+The first held-out GPS-denied legacy retrodiction covariance failure is isolated
+at 37.62 s in the barometer correction's SE_2(3) tangent-space reset.
+The instrumented generated replay reproduces the frozen state output byte for byte.
+The prior covariance and Joseph posterior are positive definite. conjugateReset
+makes the covariance indefinite, and subsequent predictions carry the damage.
+
+Exact first-reset inputs and generated output are retained in:
+tools/estimator_comparison/fixtures/ill_conditioned_reset.json
+
+Minimum eigenvalue before reset:      9.6426624433e-10
+Minimum eigenvalue after reset:      -3.8835072943e-09
+Same congruence evaluated in float64: 9.6223573354e-10
+Float64 result rounded to float32:   9.6427742171e-10
+Largest absolute generated error:    4.9288852097e-04
+Prior correlation condition number:  1.6891439306e+08
+Mixed state units mean that the raw covariance condition number alone is not
+an accuracy measure. Comparing the congruence on identical inputs isolates the
+arithmetic failure at this reset. Other later failures have not all been traced.
+
+Complete failing replay probes, flight covariance 13–59.7 s
+Height   unchanged reset   float64 accumulation   compensated float32
+ 2 m        477 failures       715 failures           237 failures
+ 4 m        408 failures       343 failures           453 failures
+
+These candidates change generated C only, for a controlled numerical probe.
+Neither fixes either entire replay; neither is promoted into Modelica. Accuracy
+results and every failed sample remain included in the accompanying JSON.
+No diagonal jitter, variance floor or scoring exclusion conceals a failure.
+
+New primitive
+LinearAlgebra.covarianceRoot returns lower triangular L from rectangular factor
+columns A, with L*L' = A*A' to working precision. Scaled Givens rotations avoid
+forming the full covariance during triangularization and do not add noise.
+The source uses two clear loops and vector row expressions.
+Tests.CovarianceRootTests covers rectangular, rank-deficient and zero inputs.
+Tests.CovarianceRootReplay exports dynamic inputs through Rumoca 0.10.2.
+
+412 generated float32 numerical cases passed, including two independent seeds,
+anisotropic factors, scales 1e-25 and 1e20, rank-deficient/zero factors, and the
+captured reset. Independent reference: NumPy float64 QR, normalized covariance
+reconstruction, triangular/sign invariants and whitening in every direction.
+Maximum normalized covariance error: 1.0051042404e-06
+Maximum normalized root error:       5.2494106806e-07
+Maximum relative NEES error over directions: 2.8179150177e-04 (0.0282%).
+The captured arbitrary-vector NEES errors are 1.02e-09 and 5.41e-08.
+
+Verification
+OpenModelica top-level assertion simulation passed (27 equations/variables).
+Rumoca Tests.All DAE lowering passed with the new tests included.
+The fresh Rumoca export and actual tools/ci.py build/numerical gate passed for
+both seeds. Twenty-one existing Python unit tests, package structure, Ruff,
+clang-format and git diff --check passed. Full CI and flight qualification were
+not run. No estimator accuracy or general superiority claim follows from this
+primitive check.
+
+Remaining work
+The current ESKF still stores full P. It must carry a covariance root through
+prediction, Joseph corrections including constrained gains, correlated noise,
+bias and tangent resets, and fusion-horizon diagnostics before this constitutes
+an end-to-end numerical fix. Full matched GPS/denied/loss-return regressions and
+target CPU/RAM measurements must then assess the tradeoff. Native range timing,
+measurement noise floors and source policies remain separate comparison gaps.

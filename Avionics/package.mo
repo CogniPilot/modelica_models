@@ -175,11 +175,8 @@ package Avionics
        counting them twice would ask for a second recomposition that has
        nothing to recompose.
 
-       Both shipped filters satisfy the contract by construction rather than
-       by arithmetic, because each fuses at most one source per tick from a
-       priority chain, so their per-tick outcome is a single value. A filter
-       that fused several sources in one tick would have to coalesce them here
-       and must not increment per measurement: at a delayed fusion horizon
+       A filter fusing several sources in one tick coalesces their acceptance
+       flags here and must not increment per measurement: at a delayed fusion horizon
        every ripe measurement is an accepted correction, and the aiding set of
        a small multirotor offers well over a hundred a second against a
        recomposition budget of single digits.
@@ -195,7 +192,10 @@ package Avionics
        here and not reconstructed downstream";
     Integer correctionSource
       "Aiding source the outcome above refers to: 0 none, 1 mocap, 2 GPS,
-       3 optical flow, 4 magnetometer, 5 barometer";
+       3 optical flow, 4 magnetometer, 5 barometer. With multiple corrections,
+       ESKF reports the first attempted source in priority order mocap, GPS,
+       optical flow, barometer, magnetometer. Per-source acceptance flags
+       describe the other corrections independently";
     Real normalizedInnovationSquared
       "NIS of this tick's attempted aiding correction; zero if none was attempted";
     Integer recoveryStage

@@ -1,0 +1,11 @@
+{
+  "trials": 120,
+  "seed": 20261007,
+  "maximum_reset_jacobian_error": 1.0648913140176575e-09,
+  "maximum_group_action_error": 3.552713678800501e-15,
+  "maximum_dynamics_coordinate_transform_error": 9.683737118047344e-10,
+  "prototype_only": true,
+  "production_implemented": false,
+  "performance_evaluated": false,
+  "note": "Independent physical retraction, semidirect group multiplication, finite-difference reset and body-to-world dynamics checks; bias ordering is accelerometer then gyroscope for reuse of translation-first SE3 helpers."
+}

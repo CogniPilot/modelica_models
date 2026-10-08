@@ -1,0 +1,24 @@
+{
+  "ardupilot_input_schemas": 17,
+  "ardupilot_output_schemas": 17,
+  "dal_and_output_message_ids_match": true,
+  "px4_stub_field_types_match": [
+    "estimator_aid_source1d",
+    "estimator_aid_source2d",
+    "estimator_aid_source3d"
+  ],
+  "px4_commit": "f1c0a1f794edf8e5e974b6ed96df3f95eda0df39",
+  "ardupilot_commit": "1511f27194f1dcc3728270883047bdf022b3fd53",
+  "native_harness_commit": "3dbaeb98d21c418c895ac5b4402f056c3eba68d3",
+  "scope": "Native pinned estimator cores through external replay adapters; not the partial Modelica ports or complete flight firmware",
+  "limitations": [
+    "Synthetic body-velocity/range flow interface; no real image angular noise, texture loss, or gyro/image correlation",
+    "Native active flags are not accepted-measurement counters",
+    "Native filters receive the common declared stationary flight phase; ESKF has no equivalent explicit at-rest input",
+    "PX4 health interval shortened to one second; startup local origin is explicitly initialized",
+    "ArduPilot source configuration fuses horizontal GPS/flow velocity and barometric height; vertical GPS velocity is disabled",
+    "Zero configured transport latency; no delayed arrival, jitter, magnetic disturbance, or range dropout campaign",
+    "Noise tuning and startup priors remain stack-specific; this is an as-configured comparison",
+    "Native adapters do not honor missing/invalid GPS velocity flags yet; all reviewed captures have valid three-axis GPS velocity. Fix or reject those inputs before an invalid-velocity campaign."
+  ]
+}

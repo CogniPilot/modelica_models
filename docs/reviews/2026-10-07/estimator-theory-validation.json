@@ -1,0 +1,99 @@
+{
+  "corrected_joint_covariance_cases": 8,
+  "independent_gaussian_correction_cases": 2880,
+  "covariance_root_reference_cases": 412,
+  "root_bitwise_cases": 1000,
+  "root_identical_float32_components": 225000,
+  "openmodelica_models": [
+    "Tests.CorrelatedGpsTests",
+    "Tests.MagneticVectorTests",
+    "Tests.CovarianceRootTests",
+    "Tests.SensorCorrectionTests"
+  ],
+  "raw_prediction_cases": 640,
+  "openmodelica_aggregate": {
+    "model": "Tests.All",
+    "passed": true,
+    "cflags": "-O0",
+    "default_optimized_build_completed": false
+  },
+  "python_tests": 28,
+  "fresh_eskf_flight_cases": 96,
+  "byte_identical_flight_outputs": 96,
+  "fresh_native_flight_cases": 0,
+  "formal_modules": 10,
+  "formal_project_declarations": 1308,
+  "formal_full_release_build": false,
+  "checks": {
+    "ruff": {
+      "command": [
+        "/nix/store/a2jxv2y5qmc8asf9v3znic5pi4hf2nvx-ruff-0.15.14/bin/ruff",
+        "check",
+        "tools/ci.py",
+        "tools/estimator_comparison/check_correction_covariance.py",
+        "tools/estimator_comparison/check_estimator_theory.py",
+        "tools/estimator_comparison/compare_covariance_guard.py",
+        "tools/estimator_comparison/report_estimator_theory.py",
+        "tools/estimator_comparison/check_raw_prediction.py"
+      ],
+      "output": "All checks passed!\n",
+      "exit_code": 0
+    },
+    "format": {
+      "command": [
+        "/nix/store/a2jxv2y5qmc8asf9v3znic5pi4hf2nvx-ruff-0.15.14/bin/ruff",
+        "format",
+        "--check",
+        "tools/ci.py",
+        "tools/estimator_comparison/check_correction_covariance.py",
+        "tools/estimator_comparison/check_estimator_theory.py",
+        "tools/estimator_comparison/compare_covariance_guard.py",
+        "tools/estimator_comparison/report_estimator_theory.py",
+        "tools/estimator_comparison/check_raw_prediction.py"
+      ],
+      "output": "6 files already formatted\n",
+      "exit_code": 0
+    },
+    "diff": {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "output": "",
+      "exit_code": 0
+    }
+  },
+  "rejected_candidates": {
+    "global_pivot": {
+      "cases": 96,
+      "identical": 64,
+      "reason": "False rejection of valid mixed-unit GPS covariances; all 96 results retained."
+    },
+    "scalar_loop": {
+      "cases": 7,
+      "identical": 7,
+      "root_filter_cpu_ratios": [
+        45.76849421598729,
+        45.711765825096855,
+        44.62762716961539
+      ],
+      "reason": "Numerically identical but large root-flight CPU regression; stopped after detecting regression and retained every completed case."
+    }
+  },
+  "limitations": [
+    "Targeted estimation-module check, not a full GNC release build.",
+    "Other dependencies reuse the existing checked GNC/mathlib cache.",
+    "Exact-real mathematical identities; no Modelica-to-Lean refinement proof or universal firmware-performance theorem.",
+    "Two seeds and two heights; an ingestion/measurement-contract probe, not a full held-out campaign.",
+    "Flow exposure, gyro independence, packet covariance, aiding rate and magnetic transport delay differ from historical captures; do not attribute the entire historical change to one factor.",
+    "Legacy versus explicit mappings below share the same new capture and delivery trace.",
+    "Camera gyro is an independent unbiased calibrated synthetic sensor; not navigation-IMU truth subtraction.",
+    "No image texture, rolling shutter, magnetic disturbances or vibration model.",
+    "EKF3 range processing still assumes a 25 ms delay and applies its own median filter; the supplied range is co-timed with the flow midpoint.",
+    "Native height/magnetic policies, priors and measurement noise floors remain stack-specific.",
+    "Serialization/API checks establish delivered inputs; they do not count every accepted EKF3 measurement.",
+    "FOH shared-endpoint noise and inter-packet image/gyro correlations remain approximate.",
+    "Native cores reused at their audited pins; no full CI, fresh firmware build, flight or general superiority claim."
+  ]
+}

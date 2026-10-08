@@ -19,9 +19,6 @@ protected
   Real equivalentAngularVelocity_rad_s[3];
   Real equivalentSpecificForce_m_s2[3];
   Real A[TangentLength, TangentLength];
-  Real G[TangentLength, ProcessNoiseLength];
-  Estimation.StrapdownINS.ProcessNoiseCovariance continuousNoise;
-  Covariance discreteNoise;
 algorithm
   dt := imu.integrationTime_s;
   (deltaPositionBodyFlu_m,
@@ -66,11 +63,7 @@ algorithm
       * deltaVelocityBodyFlu_m_s / dt;
   A := continuousTransition(
     equivalentAngularVelocity_rad_s, equivalentSpecificForce_m_s2);
-  G := noiseInputMatrix();
-  continuousNoise := processNoiseMatrix(processNoise);
-  discreteNoise := discreteProcessCovariance(
-    A, G, continuousNoise, dt);
-
+  predicted := predictCovariance(previous, transition, A, processNoise, dt);
   predicted := State(
     positionWorldEnu_m=previous.positionWorldEnu_m
       + previous.velocityWorldEnu_m_s * dt
@@ -85,7 +78,7 @@ algorithm
     gyroscopeBiasBodyFlu_rad_s=previous.gyroscopeBiasBodyFlu_rad_s,
     accelerometerBiasBodyFlu_m_s2=
       previous.accelerometerBiasBodyFlu_m_s2,
-    covariance=LinearAlgebra.symmetrize(
-      transition * previous.covariance * transpose(transition)
-        + discreteNoise));
+    covariance=predicted.covariance,
+    covarianceRoot=predicted.covarianceRoot,
+    useSquareRootCovariance=previous.useSquareRootCovariance);
 end predictPreintegrated;

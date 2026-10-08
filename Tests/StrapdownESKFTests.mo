@@ -10,6 +10,7 @@ model StrapdownESKFTests
     Estimation.StrapdownINS.ProcessNoise processNoise;
     Estimation.StrapdownINS.ESKF.State initialized;
     Estimation.StrapdownINS.ESKF.State hoverPrediction;
+    Estimation.StrapdownINS.ESKF.State hoverRootPrediction;
     Estimation.StrapdownINS.ESKF.State gpsPositionCorrection;
     Estimation.StrapdownINS.ESKF.State gpsVelocityCorrection;
     Estimation.StrapdownINS.ESKF.State mocapCorrection;
@@ -98,6 +99,16 @@ model StrapdownESKFTests
       {0.0, 0.0, -9.81},
       0.01,
       processNoise);
+    hoverRootPrediction := Estimation.StrapdownINS.ESKF.predict(
+      Estimation.StrapdownINS.ESKF.initialize(
+        zeros(3), {1.0, 0.0, 0.0, 0.0}, initialVariances,
+        useSquareRootCovariance=true),
+      zeros(3), {0.0, 0.0, 9.81}, {0.0, 0.0, -9.81}, 0.01, processNoise);
+    assert(min({hoverPrediction.covariance[axis, axis]
+        - initialized.covariance[axis, axis] for axis in 1:9}) >= 0.0
+      and Tests.Assertions.maxAbsMatrix(hoverRootPrediction.covariance
+        - hoverPrediction.covariance) < tolerance,
+      "Raw prediction lost prior uncertainty or disagrees between covariance representations");
     A := Estimation.StrapdownINS.ESKF.continuousTransition(
       zeros(3), {0.0, 0.0, 9.81});
     hoverTransition :=

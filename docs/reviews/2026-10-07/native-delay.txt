@@ -1,0 +1,304 @@
+Native delayed-flight comparison, 7 October 2026
+==============================================
+
+This stage adds native PX4 EKF2 and ArduPilot EKF3 to the ESKF delayed-arrival
+comparison. It uses the actual pinned native cores, not the partial Modelica
+ports. Upstream files remain validation submodules; external adapters remain
+in their separately licensed repository. No native core source was changed or
+copied into modelica_models. A modified external PX4 adapter is materialized
+only in the owned probe directory for compilation.
+
+The full objective of beating both native estimators across GPS, GPS denial
+and GPS loss/return is still unachieved. The tables below retain regressions
+and show where improvement is needed.
+
+Open native-delay.html for the interactive four-estimator comparison and
+native-delay.csv for all seed/window rows. The native score files retain raw
+output hashes, common-epoch state hashes, source pins, binary hashes, adapter
+logs, sent-packet counts and common transport digests. The ESKF evidence is
+unchanged from eskf-delay-{original,held-out}.json. Geometry options remain
+disabled in this comparison.
+
+Shared experiment
+-----------------
+
+Original motion: .6 rad/s, seeds 7/19/41. Held-out motion: .85 rad/s, seeds
+101/307/911. Two flow/mag/baro profiles: 100/50/50 Hz and 25/25/25 Hz. IMU is
+800 Hz, GPS 10 Hz, and scoring is 100 Hz. The stationary startup ends at 13 s;
+GPS denial removes measurements with original timestamps 25 <= t < 40 s.
+Scenarios are GPS throughout, denied throughout, and GPS loss then return.
+
+Delays in GPS/flow/mag/baro order:
+  zero       0 /  0 /  0 /  0 ms, no jitter
+  nominal  110 / 30 / 20 / 20 ms, plus positive 0–10 ms seeded jitter
+  stress   160 / 60 / 50 / 70 ms, plus positive 0–20 ms seeded jitter
+
+transport_trace.c executes the same transport.h kernel as the ESKF driver.
+Original measurement timestamps and the associated flow gyroscope samples
+travel with each packet. Native release times come from this shared trace;
+changing measurement timestamps to simulate delay is explicitly avoided.
+For every case, delivered counts and raw-payload FNV digests equal the recorded
+ESKF reference. Both native adapters select the original sensor packet by its
+measurement timestamp. The ArduPilot writer additionally checks that each
+scheduled packet is written once, with no conversion drop or duplication.
+Partial GPS velocity is refused rather than silently represented as valid.
+
+Both native cores publish their current output predictions, not their delayed
+fusion states. PX4's getQuaternion/getVelocity and getPosition read its output
+predictor. ArduPilot's XKF1 getters and XKQ read outputDataNew. Core definitions:
+https://github.com/PX4/PX4-Autopilot/blob/f1c0a1f794edf8e5e974b6ed96df3f95eda0df39/src/modules/ekf2/EKF/estimator_interface.h
+https://github.com/PX4/PX4-Autopilot/blob/f1c0a1f794edf8e5e974b6ed96df3f95eda0df39/src/modules/ekf2/EKF/estimator_interface.cpp
+https://github.com/ArduPilot/ardupilot/blob/1511f27194f1dcc3728270883047bdf022b3fd53/libraries/AP_NavEKF3/AP_NavEKF3_Outputs.cpp
+https://github.com/ArduPilot/ardupilot/blob/1511f27194f1dcc3728270883047bdf022b3fd53/libraries/AP_NavEKF3/AP_NavEKF3_Logging.cpp
+
+Native output clocks can be offset from the ESKF reporting grid by several
+milliseconds. Native position/velocity are linearly interpolated at exactly
+13.00, 13.01, ..., 59.99 s. Quaternions use sign-continuous normalized linear
+interpolation. Status flags hold the preceding native sample. Interpolation
+uses bracketing outputs, so this is offline accuracy scoring, not a causal
+output algorithm for deployment. Extrapolation, missing report intervals and
+invalid quaternions are refused. Invalid finite states remain scored.
+
+Native timing configuration
+---------------------------
+
+PX4 receives original measurement timestamps through its native sample API.
+Additional mag/baro/flow/range delays are zero because these timestamps already
+name the measurements. Its maximum fusion delay is configured to 200 ms.
+Its own half-update sample alignment, downsampling and output observer remain
+unchanged. Gyro compensation for delayed flow uses the gyro at measurement
+time, replacing the old adapter's arrival-time gyro.
+
+ArduPilot receives GPS arrival time plus exact per-packet driver lag through
+its DAL interface. Supplied vertical GPS velocity is now enabled in both the
+DAL flags and EK3_SRC1_VELZ=3; the earlier adapter disabled it. Flow gyroscope
+compensation uses the original measurement's gyro rather than averaging the
+arrival interval. Flow/height delay parameters use the declared mean arrival
+age: base delay + half the positive jitter bound + 5 ms of mean quantization
+when jitter is enabled. In the zero profile their additional delays are zero.
+These fixed native settings do not remove per-packet jitter. GPS driver lag
+is exact before native float/integer-millisecond quantization.
+
+The native EKF3 core reconstructs magnetic time as current IMU time minus its
+fixed 60 ms delay and half a filter interval. It also uses fixed-flow delay,
+half a flow interval and half a filter interval. This API behavior is retained,
+not patched to accept ESKF's exact timestamps. Range sampling/median delay and
+native sensor-rate limits also remain in force. This difference is part of
+the configured-stack result; it prevents an isolated comparison of Kalman
+update mathematics under identical internal measurement epochs.
+
+EK3_BCN_DELAY=200 reserves a 200 ms IMU horizon through the pinned core's
+buffer-sizing calculation, which includes that parameter even with no beacon
+measurements. No beacon source/data is enabled or supplied. This is an explicit
+benchmark buffer reservation, not a flight-setting recommendation. Replay logs
+confirm that the parameter was accepted. The native timing equations and
+buffer sizing are in AP_NavEKF3_Measurements.cpp and AP_NavEKF3_core.cpp:
+https://github.com/ArduPilot/ardupilot/blob/1511f27194f1dcc3728270883047bdf022b3fd53/libraries/AP_NavEKF3/AP_NavEKF3_Measurements.cpp
+https://github.com/ArduPilot/ardupilot/blob/1511f27194f1dcc3728270883047bdf022b3fd53/libraries/AP_NavEKF3/AP_NavEKF3.h#L490
+https://github.com/ArduPilot/ardupilot/blob/1511f27194f1dcc3728270883047bdf022b3fd53/libraries/AP_NavEKF3/AP_NavEKF3_core.cpp
+
+Remaining matching limits
+-------------------------
+
+The common packet data are matched; complete estimator configurations and
+internal information are not identical. Native filters receive a declared
+stationary/disarmed phase then an armed/in-air phase at 13 s. ESKF has no
+corresponding explicit at-rest input. Quiet alignment is not equivalent to
+native stationary constraints. Priors, process and measurement noise floors,
+origin initialization and source policies remain stack-specific. EKF3 uses
+barometric height, while ESKF/PX4 can also fuse GPS height. All three now receive
+three-axis GPS velocity. This is a configured-stack comparison with documented
+controls, not proof that one Kalman formulation is intrinsically better.
+
+Synthetic body velocity/range is converted to angular flow with known frame
+and sign mappings. The suite does not simulate raw-image texture loss, coupled
+gyro/image noise, magnetic disturbances, moving starts, dropout or vibration.
+GPS-denied horizontal truth is relative to the declared startup origin; no
+available sensor supplies independent absolute horizontal position during denial.
+
+Native active flags describe source policy, not individual accepted updates.
+The transition result therefore names first_gps_source_active_after_return_s;
+it must not be read as first accepted returned GPS fix. Accepted-epoch logging
+needs separate native instrumentation. Recovery to .25 m for one second can
+be zero simply because the state already meets that bound before GPS returns.
+
+Existing audited native library/binary builds are reused from read-only scratch
+storage. The PX4 static library was built against the pinned validation
+submodule; the AP Replay source checkout and PX4 submodule are clean at their
+recorded pins. The native cores were not freshly rebuilt in this session.
+Input, adapter, library and executable hashes are retained in the manifest.
+Native CPU and memory measurements comparable to the ESKF component timers
+are not implemented; whole-Replay serialization cost must not be ranked against
+ESKF numerical-component CPU time. The ESKF mode efficiency results remain
+separately linked.
+
+Reproduction
+------------
+
+Use the project Nix environment. Put all large outputs in $HOME/scratch.
+The --work directory must be owned by this run; the script removes only the
+ArduPilot replay-run child it creates after each successful replay. Failed
+replay evidence is left for diagnosis. Existing output JSON files are refused.
+
+  comparison_root="$HOME/scratch/modelica_models/estimator-comparison"
+  harness="$HOME/scratch/estimator-comparison/matched-sensor-replay/harness"
+  validation="$HOME/scratch/modelica_models/validation-sources/tools/estimator_comparison/upstream"
+  cc -O2 -pipe tools/estimator_comparison/transport_trace.c -lm \
+    -o "$comparison_root/transport_trace"
+  python tools/estimator_comparison/native_delay.py \
+    --harness "$harness" --px4-source "$validation/px4" \
+    --px4-library "$comparison_root/native-px4/libekf2.a" \
+    --ap-source "$validation/ardupilot" \
+    --ap-replay "$comparison_root/native-ardupilot/sitl/tool/Replay" \
+    --transport-trace "$comparison_root/transport_trace" \
+    --eskf-scores docs/reviews/2026-10-07/eskf-delay-original.json \
+    --captures "$comparison_root/data" \
+    --work "$comparison_root/native-delay-original" \
+    --output "$comparison_root/native-delay-original.json" \
+    --frequencies .6 --seeds 7 19 41
+
+Repeat with held-out captures, .85 rad/s and seeds 101/307/911, and the held-out
+ESKF score file. Build the native library/Replay using the existing README's
+submodule commands first. Place completed score files alongside ESKF evidence
+and run report_native_delay.py with --directory and --output.
+
+Results
+-------
+Horizontal position RMSE in meters, median of three seed-specific values.
+Each row lists retrodiction / buffered ESKF / native PX4 / native ArduPilot.
+GPS and denied use 13–60 s; transition uses the 25–40 s GPS outage.
+
+original
+  100/50/50 Hz zero     gps          0.0368 /   0.0363 /   0.0394 /   0.0963
+  100/50/50 Hz zero     denied       0.4934 /   0.5574 /   0.0892 /   0.1936
+  100/50/50 Hz zero     transition   0.0572 /   0.0675 /   0.0355 /   0.1546
+  100/50/50 Hz nominal  gps          0.0457 /   0.0364 /   0.0394 /   0.1170
+  100/50/50 Hz nominal  denied      14.5937 /   0.5792 /   0.0969 /   0.2204
+  100/50/50 Hz nominal  transition   0.0559 /   0.0669 /   0.0354 /   0.1737
+  100/50/50 Hz stress   gps          0.0545 /   0.0364 /   0.0394 /   0.0919
+  100/50/50 Hz stress   denied       1.8755 /   0.5134 /   0.0929 /   0.1870
+  100/50/50 Hz stress   transition   0.0754 /   0.0670 /   0.0355 /   0.1391
+  25/25/25 Hz  zero     gps          0.0385 /   0.0403 /   0.0498 /   0.1119
+  25/25/25 Hz  zero     denied       0.4654 /   0.4540 /   0.1064 /   0.1964
+  25/25/25 Hz  zero     transition   0.0401 /   0.0402 /   0.0513 /   0.1505
+  25/25/25 Hz  nominal  gps          0.0458 /   0.0403 /   0.0497 /   0.1306
+  25/25/25 Hz  nominal  denied       0.3765 /   0.4254 /   0.1068 /   0.1917
+  25/25/25 Hz  nominal  transition   0.0351 /   0.0402 /   0.0513 /   0.1456
+  25/25/25 Hz  stress   gps          0.0521 /   0.0403 /   0.0498 /   0.1203
+  25/25/25 Hz  stress   denied       0.3781 /   0.4541 /   0.1068 /   0.1735
+  25/25/25 Hz  stress   transition   0.0448 /   0.0402 /   0.0513 /   0.1394
+
+held-out
+  100/50/50 Hz zero     gps          0.0387 /   0.0390 /   0.0446 /   0.1269
+  100/50/50 Hz zero     denied       0.7693 /   0.4987 /   0.0941 /   0.2157
+  100/50/50 Hz zero     transition   0.0302 /   0.0874 /   0.0629 /   0.2019
+  100/50/50 Hz nominal  gps          0.0464 /   0.0390 /   0.0446 /   0.1594
+  100/50/50 Hz nominal  denied      10.9354 /   0.5323 /   0.0965 /   0.2705
+  100/50/50 Hz nominal  transition   0.0484 /   0.0874 /   0.0629 /   0.2652
+  100/50/50 Hz stress   gps          0.0543 /   0.0390 /   0.0446 /   0.1451
+  100/50/50 Hz stress   denied      30.0275 /   0.4560 /   0.0919 /   0.2203
+  100/50/50 Hz stress   transition   0.0547 /   0.0878 /   0.0630 /   0.2088
+  25/25/25 Hz  zero     gps          0.0405 /   0.0416 /   0.0566 /   0.1450
+  25/25/25 Hz  zero     denied       0.1199 /   0.0911 /   0.0997 /   0.2505
+  25/25/25 Hz  zero     transition   0.0419 /   0.0424 /   0.0885 /   0.2093
+  25/25/25 Hz  nominal  gps          0.0464 /   0.0416 /   0.0566 /   0.1604
+  25/25/25 Hz  nominal  denied       0.1532 /   0.1202 /   0.0992 /   0.2235
+  25/25/25 Hz  nominal  transition   0.0642 /   0.0424 /   0.0884 /   0.2264
+  25/25/25 Hz  stress   gps          0.0523 /   0.0416 /   0.0566 /   0.1612
+  25/25/25 Hz  stress   denied       0.2627 /   0.1031 /   0.1005 /   0.2150
+  25/25/25 Hz  stress   transition   0.0684 /   0.0424 /   0.0884 /   0.2117
+
+Nominal-delay, high-rate detail
+------------------------------
+Columns: horizontal position (m), vertical position (m), velocity (m/s), yaw (deg).
+Transition rows again use only the outage window.
+
+original
+  gps        retrodiction      0.0457     0.0517     0.0357     0.6360
+  gps        horizon           0.0364     0.0655     0.0469     0.7245
+  gps        px4               0.0394     0.1685     0.0167     0.2729
+  gps        ekf3              0.1170     0.0603     0.0626     0.6388
+  denied     retrodiction     14.5937   659.9785    28.2333     4.1163
+  denied     horizon           0.5792     0.0730     0.1231     2.9579
+  denied     px4               0.0969     0.1154     0.0155     0.2162
+  denied     ekf3              0.2204     0.0662     0.0796     0.3142
+  transition retrodiction      0.0559     0.0505     0.0519     0.7608
+  transition horizon           0.0669     0.0726     0.0586     0.9356
+  transition px4               0.0354     0.1802     0.0157     0.2444
+  transition ekf3              0.1737     0.0478     0.0866     0.4196
+
+held-out
+  gps        retrodiction      0.0464     0.0483     0.0352     0.3415
+  gps        horizon           0.0390     0.0404     0.0471     0.3145
+  gps        px4               0.0446     0.1773     0.0171     0.2296
+  gps        ekf3              0.1594     0.0481     0.0895     0.4190
+  denied     retrodiction     10.9354   603.6787    25.5114     3.4956
+  denied     horizon           0.5323     0.0484     0.0498     0.4236
+  denied     px4               0.0965     0.0694     0.0197     0.2115
+  denied     ekf3              0.2705     0.0509     0.1147     0.2203
+  transition retrodiction      0.0484     0.0537     0.0480     0.4028
+  transition horizon           0.0874     0.0484     0.0490     0.5488
+  transition px4               0.0629     0.1761     0.0173     0.1512
+  transition ekf3              0.2652     0.0593     0.1237     0.1681
+
+Interpretation and improvement priority
+---------------------------------------
+
+Buffered ESKF is competitive in GPS horizontal position. Under nominal delays,
+high-rate original/held-out horizontal RMSE is .0364/.0390 m, versus PX4
+.0394/.0446 m and ArduPilot .1170/.1594 m. This does not mean ESKF wins GPS:
+PX4 velocity is .0167/.0171 m/s versus buffered ESKF .0469/.0471 m/s, and PX4
+yaw is .2729/.2296 deg versus .7245/.3145 deg. Error axes must stay separate.
+
+GPS-denied startup remains the largest ESKF gap. With nominal delays and high
+rates, buffered ESKF horizontal RMSE is .5792/.5323 m, PX4 .0969/.0965 m and
+ArduPilot .2204/.2705 m. Original yaw is 2.9579 deg versus PX4 .2162 deg and
+ArduPilot .3142 deg. The horizon removes the retrodiction divergence cases but
+does not remove initialization, bias and magnetic/flow coupling weaknesses.
+
+Transition results depend on rate and metric. Original nominal high-rate
+outage horizontal RMSE is .0669 m for buffered ESKF, .0354 m PX4 and .1737 m
+ArduPilot. Held-out values are .0874, .0629 and .2652 m. Some lower-rate ESKF
+outage position results beat PX4; velocity/heading can still favor native PX4.
+No single overall winner follows from these configured stacks.
+
+The next improvement work should first close the explicit startup-information
+gap: provide ESKF the same declared stationary phase as native filters, with
+independent stationary constraints rather than a fallback starved by live
+flow. The existing zero-velocity fallback does not execute while aiding is
+attempted; merely setting its variance cannot match native at-rest behavior.
+This test should precede attributing denied-start performance to Lie-group
+error theory alone. Keep known-at-rest information separate from an IMU
+magnitude gate, which cannot prove stationarity.
+
+Then compare the optional geometric alignment and symmetric magnetic output
+inside the buffered horizon, including fusion-epoch covariance consistency.
+Neither option currently has a complete horizon-plus-geometry campaign. A
+full bias-aware equivariant filter requires consistent propagation, noise,
+outputs, correction and reset, not only a replacement retraction. Larger
+heading/bias errors, exciting motion, disturbances and real angular flow/range
+correlation remain necessary. Production defaults must not be chosen from one
+favorable seed or horizontal position metric.
+
+Validation and outstanding work
+-------------------------------
+
+- 216 native replays completed across 108 shared cases; paired ESKF modes add
+  216 existing replays to the four-estimator comparison.
+- Every native trace matches ESKF arrival counts and payload digests; all
+  ArduPilot adapter packet-write counts match the trace.
+- Every native scoring window has all expected common 100 Hz rows, finite
+  states and no extrapolation or missing interpolation intervals.
+- Three independent resampling tests passed: known linear motion and quaternion
+  signs, refused extrapolation/missing interval, and refused zero quaternion.
+- 576 interactive report selections passed with all four estimators present.
+- Python lint/format and diff checks passed. No Modelica algorithm was changed
+  in this native comparison stage; earlier Modelica checks remain linked.
+
+Native accepted-update tracing, comparable numerical CPU/memory instrumentation,
+fully matched startup information, horizon covariance scoring and additional
+motion/disturbance families remain incomplete. Rumoca still blocks composed
+HorizonEstimator export and flight timing remains unqualified. Full local/remote
+CI and mission qualification were not rerun. Changes remain uncommitted because
+.git is read-only in this session. The full estimator-performance objective
+remains active and unachieved.

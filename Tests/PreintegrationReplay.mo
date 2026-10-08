@@ -8,6 +8,7 @@ block PreintegrationReplay
   input Real accelBias[3];
   input Boolean clear;
   parameter Real samplePeriod = 0.00125;
+  parameter Boolean useFirstOrderHold = true;
   output Real position[3](each start=0, each fixed=true);
   output Real velocity[3](each start=0, each fixed=true);
   output Real quaternion[4](start={1,0,0,0}, each fixed=true);
@@ -31,7 +32,7 @@ algorithm
        if clear then zeros(3,3) else pre(velocityAccel),
        if clear then zeros(3,3) else pre(positionGyro),
        if clear then zeros(3,3) else pre(positionAccel),
-       rate,force,gyroBias,accelBias,samplePeriod,true,
+       rate,force,gyroBias,accelBias,samplePeriod,useFirstOrderHold,
        pre(previousRate),pre(previousForce));
     previousRate := rate;
     previousForce := force;

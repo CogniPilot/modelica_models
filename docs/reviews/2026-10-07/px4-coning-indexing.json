@@ -1,0 +1,292 @@
+{
+  "integrator_sha256": "521860308297408926273a5df9d038d446f1221ea76304e509b93a7c045c82dc",
+  "executable_sha256": "4d3d18a8d8022bf8db5d3721be14314d098cf3d7dd468644cdad7e38efb4eff2",
+  "reference": "Double-precision RK4 quaternion ODE for a linear angular-rate ramp",
+  "px4": "Compiled supplied upstream IntegratorConing header with upstream matrix types",
+  "ardupilot": "Transcribed backend recurrence; not a compiled full sensor backend",
+  "priming": "One warm-up interval then packet reset, preserving previous increment",
+  "limitations": [
+    "Finite linear-rate cases; no sensor noise, filtering, clipping, or timestamp jitter",
+    "This probes sensor integration, not the complete EKF2/EKF3 estimators",
+    "Published frozen EKF2 flight replays bypass this sensor integrator",
+    "Does not establish a sculling indexing defect"
+  ],
+  "cases": [
+    {
+      "dt_s": 0.00124999997,
+      "intervals": 2,
+      "px4_angle_rad": [
+        0.000756249938,
+        -0.000490624865,
+        0.000246875425
+      ],
+      "ardupilot_recurrence_angle_rad": [
+        0.000756249879,
+        -0.000490624341,
+        0.000246876676
+      ],
+      "reference_angle_rad": [
+        0.0007562498514898836,
+        -0.0004906243374073535,
+        0.0002468766868577068
+      ],
+      "px4_error_rad": 1.3704462313656993e-09,
+      "ardupilot_recurrence_error_rad": 2.979267383843083e-11,
+      "reference_refinement_difference_rad": 8.185546896626418e-19,
+      "ardupilot_recurrence_closer": true
+    },
+    {
+      "dt_s": 0.00124999997,
+      "intervals": 4,
+      "px4_angle_rad": [
+        0.00152499927,
+        -0.000962496328,
+        0.000487509707
+      ],
+      "ardupilot_recurrence_angle_rad": [
+        0.00152499881,
+        -0.000962494756,
+        0.00048751352
+      ],
+      "reference_angle_rad": [
+        0.0015249989210760586,
+        -0.0009624947694341865,
+        0.00048751353024955273
+      ],
+      "px4_error_rad": 4.143442102165555e-09,
+      "ardupilot_recurrence_error_rad": 1.1235400070366453e-10,
+      "reference_refinement_difference_rad": 1.6117824032161586e-18,
+      "ardupilot_recurrence_closer": true
+    },
+    {
+      "dt_s": 0.00124999997,
+      "intervals": 8,
+      "px4_angle_rad": [
+        0.00309999217,
+        -0.0018499617,
+        0.000950099435
+      ],
+      "ardupilot_recurrence_angle_rad": [
+        0.00309999147,
+        -0.00184995821,
+        0.000950108282
+      ],
+      "reference_angle_rad": [
+        0.003099991588032008,
+        -0.0018499582914850011,
+        0.0009501083112090032
+      ],
+      "px4_error_rad": 9.52595126531522e-09,
+      "ardupilot_recurrence_error_rad": 1.4637119293180288e-10,
+      "reference_refinement_difference_rad": 1.6740306246781548e-17,
+      "ardupilot_recurrence_closer": true
+    },
+    {
+      "dt_s": 0.00249999994,
+      "intervals": 2,
+      "px4_angle_rad": [
+        0.00152499974,
+        -0.000962498714,
+        0.000487503363
+      ],
+      "ardupilot_recurrence_angle_rad": [
+        0.00152499892,
+        -0.000962494756,
+        0.000487513491
+      ],
+      "reference_angle_rad": [
+        0.0015249989210760586,
+        -0.0009624947694341865,
+        0.00048751353024955273
+      ],
+      "px4_error_rad": 1.0936324764108008e-08,
+      "ardupilot_recurrence_error_rad": 4.149894769791523e-11,
+      "reference_refinement_difference_rad": 1.6117824032161586e-18,
+      "ardupilot_recurrence_closer": true
+    },
+    {
+      "dt_s": 0.00249999994,
+      "intervals": 4,
+      "px4_angle_rad": [
+        0.0030999938,
+        -0.00184997008,
+        0.000950077898
+      ],
+      "ardupilot_recurrence_angle_rad": [
+        0.00309999147,
+        -0.00184995832,
+        0.000950108282
+      ],
+      "reference_angle_rad": [
+        0.003099991588032008,
+        -0.0018499582914850011,
+        0.0009501083112090032
+      ],
+      "px4_error_rad": 3.2692891737289726e-08,
+      "ardupilot_recurrence_error_rad": 1.2489125626525172e-10,
+      "reference_refinement_difference_rad": 1.6740306246781548e-17,
+      "ardupilot_recurrence_closer": true
+    },
+    {
+      "dt_s": 0.00249999994,
+      "intervals": 8,
+      "px4_angle_rad": [
+        0.00639993884,
+        -0.00339969387,
+        0.00180079555
+      ],
+      "ardupilot_recurrence_angle_rad": [
+        0.00639993325,
+        -0.00339966617,
+        0.00180086656
+      ],
+      "reference_angle_rad": [
+        0.006399933111409676,
+        -0.003399666565848835,
+        0.0018008666116728657
+      ],
+      "px4_error_rad": 7.634195942216172e-08,
+      "ardupilot_recurrence_error_rad": 4.225797713918744e-10,
+      "reference_refinement_difference_rad": 2.1183878855627844e-17,
+      "ardupilot_recurrence_closer": true
+    },
+    {
+      "dt_s": 0.00499999989,
+      "intervals": 2,
+      "px4_angle_rad": [
+        0.00309999776,
+        -0.00184998952,
+        0.000950027024
+      ],
+      "ardupilot_recurrence_angle_rad": [
+        0.00309999147,
+        -0.00184995821,
+        0.000950108282
+      ],
+      "reference_angle_rad": [
+        0.0030999915944319536,
+        -0.001849958294884754,
+        0.0009501083130096506
+      ],
+      "px4_error_rad": 8.729791029252658e-08,
+      "ardupilot_recurrence_error_rad": 1.5378664091566848e-10,
+      "reference_refinement_difference_rad": 2.810573257811611e-18,
+      "ardupilot_recurrence_closer": true
+    },
+    {
+      "dt_s": 0.00499999989,
+      "intervals": 4,
+      "px4_angle_rad": [
+        0.00639995188,
+        -0.00339976023,
+        0.00180062291
+      ],
+      "ardupilot_recurrence_angle_rad": [
+        0.00639993325,
+        -0.00339966593,
+        0.00180086645
+      ],
+      "reference_angle_rad": [
+        0.006399933125009308,
+        -0.0033996665714468477,
+        0.0018008666148780533
+      ],
+      "px4_error_rad": 2.6175511808063924e-07,
+      "ardupilot_recurrence_error_rad": 6.739892464118231e-10,
+      "reference_refinement_difference_rad": 4.6349611171926565e-17,
+      "ardupilot_recurrence_closer": true
+    },
+    {
+      "dt_s": 0.00499999989,
+      "intervals": 8,
+      "px4_angle_rad": [
+        0.0135995103,
+        -0.00559755182,
+        0.00320636458
+      ],
+      "ardupilot_recurrence_angle_rad": [
+        0.0135994703,
+        -0.00559732318,
+        0.00320692989
+      ],
+      "reference_angle_rad": [
+        0.013599464452975359,
+        -0.005597332186536853,
+        0.0032069327511419716
+      ],
+      "px4_error_rad": 6.108676242621999e-07,
+      "ardupilot_recurrence_error_rad": 1.111267459316187e-08,
+      "reference_refinement_difference_rad": 2.2767213025282562e-17,
+      "ardupilot_recurrence_closer": true
+    },
+    {
+      "dt_s": 0.00999999978,
+      "intervals": 2,
+      "px4_angle_rad": [
+        0.00639998307,
+        -0.00339991646,
+        0.00180021662
+      ],
+      "ardupilot_recurrence_angle_rad": [
+        0.00639993325,
+        -0.0033996664,
+        0.00180086656
+      ],
+      "reference_angle_rad": [
+        0.006399933125009308,
+        -0.0033996665714468477,
+        0.0018008666148780533
+      ],
+      "px4_error_rad": 6.981633996332606e-07,
+      "ardupilot_recurrence_error_rad": 2.191535886998221e-10,
+      "reference_refinement_difference_rad": 4.6349611171926565e-17,
+      "ardupilot_recurrence_closer": true
+    },
+    {
+      "dt_s": 0.00999999978,
+      "intervals": 4,
+      "px4_angle_rad": [
+        0.0135996165,
+        -0.00559808314,
+        0.00320498296
+      ],
+      "ardupilot_recurrence_angle_rad": [
+        0.0135994684,
+        -0.00559732597,
+        0.00320693082
+      ],
+      "reference_angle_rad": [
+        0.013599464452975359,
+        -0.005597332186536853,
+        0.0032069327511419716
+      ],
+      "px4_error_rad": 2.0949307622986816e-06,
+      "ardupilot_recurrence_error_rad": 7.612729029526132e-09,
+      "reference_refinement_difference_rad": 2.2767213025282562e-17,
+      "ardupilot_recurrence_closer": true
+    },
+    {
+      "dt_s": 0.00999999978,
+      "intervals": 8,
+      "px4_angle_rad": [
+        0.0303960834,
+        -0.00638041645,
+        0.00485091656
+      ],
+      "ardupilot_recurrence_angle_rad": [
+        0.0303957425,
+        -0.00637848349,
+        0.00485539623
+      ],
+      "reference_angle_rad": [
+        0.030395672381560147,
+        -0.006378632274745662,
+        0.004855449734705429
+      ],
+      "px4_error_rad": 4.888955962782944e-06,
+      "ardupilot_recurrence_error_rad": 1.7296314535878196e-07,
+      "reference_refinement_difference_rad": 5.819085879030068e-17,
+      "ardupilot_recurrence_closer": true
+    }
+  ]
+}

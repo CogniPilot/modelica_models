@@ -1,7 +1,7 @@
 within Estimation.StrapdownINS.ESKF;
 
 function step
-  "One sampled prediction and at most one aiding correction"
+  "Predict, select absolute aiding, and fuse independent flow, height and heading"
   input Boolean initializedPrevious;
   input State previous;
   input Boolean reset;
@@ -39,6 +39,7 @@ function step
   input Integer alignmentSourcePrevious;
   input Real alignmentSpecificForcePrevious_m_s2[3];
   input Real quietAngularRatePrevious_rad_s[3];
+  input Boolean vehicleAtRest = false;
   output Real positionNext[3];
   output Real velocityNext[3];
   output Real quaternionNext[4];
@@ -119,6 +120,8 @@ function step
     "Low-pass angular rate the quasi-static test reads";
   output Boolean pseudoPositionCorrectionAccepted;
   output Boolean zeroVelocityCorrectionAccepted;
+  output Boolean stationaryImuCorrectionAccepted;
+  output Covariance covarianceRootNext;
 protected
   State prior;
   State working;
@@ -126,6 +129,10 @@ protected
   Real initializationQuaternion[4];
   Boolean correctionAttempted;
   Boolean correctionAccepted;
+  Boolean absoluteAidingAttempted;
+  Boolean opticalFlowAttempted;
+  Integer aidingOutcome;
+  Real aidingNis;
   Boolean aidingLive;
   Boolean inflateCovarianceNow;
   Boolean aidingDivergent;
@@ -163,6 +170,9 @@ protected
   Boolean alignmentPending;
   Boolean pseudoPositionConfigured;
   Boolean zeroVelocityConfigured;
+  Real alignmentNoiseWeight;
+  Real alignmentSpecificForceCovariance[3, 3];
+  Covariance heldDynamics;
 algorithm
   predictionAccepted := false;
   mocapCorrectionAccepted := false;
@@ -173,12 +183,17 @@ algorithm
   opticalFlowCorrectionAccepted := false;
   correctionAttempted := false;
   correctionAccepted := false;
+  absoluteAidingAttempted := false;
+  opticalFlowAttempted := false;
+  aidingOutcome := CorrectionNotAttempted;
+  aidingNis := 0.0;
   correctionOutcome := CorrectionNotAttempted;
   correctionSource := SourceNone;
   normalizedInnovationSquared := 0.0;
   reseeded := false;
   pseudoPositionCorrectionAccepted := false;
   zeroVelocityCorrectionAccepted := false;
+  stationaryImuCorrectionAccepted := false;
   alignmentSource := alignmentSourcePrevious;
   alignmentSpecificForce_m_s2 := alignmentSpecificForcePrevious_m_s2;
   pseudoPositionHoldNext_m := pseudoPositionHoldPrevious_m;
@@ -400,13 +415,7 @@ algorithm
   alignmentPending := (not initializedPrevious or reset)
     and not alignmentReady;
   if alignmentPending then
-    working := State(
-      positionWorldEnu_m=previous.positionWorldEnu_m,
-      velocityWorldEnu_m_s=previous.velocityWorldEnu_m_s,
-      quaternionWorldBody=previous.quaternionWorldBody,
-      gyroscopeBiasBodyFlu_rad_s=previous.gyroscopeBiasBodyFlu_rad_s,
-      accelerometerBiasBodyFlu_m_s2=previous.accelerometerBiasBodyFlu_m_s2,
-      covariance=previous.covariance);
+    working := copyState(previous);
     alignmentSource := AlignmentNone;
   elseif not initializedPrevious or reset then
     initializationPosition := if mocapSeedUsable then
@@ -459,7 +468,31 @@ algorithm
       tuning.initialState.accelerometerBiasBodyFlu_m_s2,
       if mocapSeedUsable then mocap.positionCovarianceWorld_m2
       elseif gpsSeedUsable then gps.positionCovarianceWorld_m2
-      else zeros(3, 3));
+      else zeros(3, 3), tuning.useSquareRootCovariance);
+    if tuning.useGeometricAlignment and alignmentGateConfigured
+        and imuQuiet and not alignmentTimedOut and alignmentAccepted
+        and (alignmentSource == AlignmentAccelerometer
+          or alignmentSource == AlignmentAccelerometerMagnetometer) then
+      alignmentNoiseWeight := (1.0 - quietFilterGain)
+        ^ (2.0 * max(alignmentWaitNext_s / dt - 1.0, 0.0));
+      alignmentSpecificForceCovariance := tuning.processNoise.accelerometer_m2_s3
+        / dt * (alignmentNoiseWeight + (1.0 - alignmentNoiseWeight)
+          * quietFilterGain / (2.0 - quietFilterGain));
+      working := conditionAlignment(working, alignmentSpecificForce_m_s2,
+        alignmentSpecificForceCovariance, gravityWorldEnu_m_s2,
+        tuning.innovationGate, tuning.useSemiDirectBias);
+      if magnetometerSeedUsable then
+        (working, magnetometerCorrectionAccepted, aidingOutcome, aidingNis) :=
+          correctMagnetometer(working, magnetometer,
+            tuning.localMagneticFieldWorldEnu_T, tuning.innovationGate,
+            imuTimestampHeldNext_s - magnetometer.timestamp_s,
+            imuAngularVelocityHeldNext_rad_s,
+            imuSpecificForceHeldNext_m_s2, gravityWorldEnu_m_s2,
+            tuning.maximumAidingDelay_s, tuning.useEquivariantMagnetometer,
+            tuning.useSemiDirectBias);
+        magnetometerTimestampConsumedNext_s := magnetometer.timestamp_s;
+      end if;
+    end if;
     // A seed is already an observation of the position. Consume that packet
     // here so the same held noise is not fused again on the next IMU tick.
     if mocapSeedUsable then
@@ -470,56 +503,38 @@ algorithm
         then gps.timestamp_s else gpsTimestampConsumedPrevious_s;
     end if;
   else
-    prior := State(
-      positionWorldEnu_m=previous.positionWorldEnu_m,
-      velocityWorldEnu_m_s=previous.velocityWorldEnu_m_s,
-      quaternionWorldBody=previous.quaternionWorldBody,
-      gyroscopeBiasBodyFlu_rad_s=previous.gyroscopeBiasBodyFlu_rad_s,
-      accelerometerBiasBodyFlu_m_s2=previous.accelerometerBiasBodyFlu_m_s2,
-      // STAGE 1 of the recovery ladder is applied here, to the covariance
-      // carried into this tick, so the freshly widened uncertainty is
-      // already in force for this tick's own gate test rather than one
-      // tick later. Nothing else about the state is touched.
-      covariance=if inflateCovarianceNow then
-          inflateCovariance(previous.covariance, tuning.varianceLimits,
-            dt, tuning.covarianceInflateTimeConstant_s)
-        else
-          previous.covariance);
+    prior := if inflateCovarianceNow then
+      inflateStateCovariance(previous, tuning.varianceLimits,
+        dt, tuning.covarianceInflateTimeConstant_s) else copyState(previous);
     if imuUsable then
-      working := predictPreintegrated(
-        prior, imu, gravityWorldEnu_m_s2, tuning.processNoise);
+      if vehicleAtRest and tuning.useStationaryImu then
+        working := predictStationary(
+          prior, imu.integrationTime_s, tuning.processNoise);
+        (working, stationaryImuCorrectionAccepted, aidingOutcome, aidingNis) :=
+          correctStationaryImu(working, imu, gravityWorldEnu_m_s2,
+            tuning.processNoise, tuning.innovationGate, tuning.useSemiDirectBias);
+      else
+        working := predictPreintegrated(
+          prior, imu, gravityWorldEnu_m_s2, tuning.processNoise);
+      end if;
       predictionAccepted := true;
     elseif not imuPayloadFinite then
-      working := State(
-        positionWorldEnu_m=prior.positionWorldEnu_m,
-        velocityWorldEnu_m_s=prior.velocityWorldEnu_m_s,
-        quaternionWorldBody=prior.quaternionWorldBody,
-        gyroscopeBiasBodyFlu_rad_s=prior.gyroscopeBiasBodyFlu_rad_s,
-        accelerometerBiasBodyFlu_m_s2=
-          prior.accelerometerBiasBodyFlu_m_s2,
-        covariance=holdCovariance(
-          prior.covariance, dt, tuning.processNoise));
+      if prior.useSquareRootCovariance then
+        heldDynamics := continuousTransition(zeros(3), zeros(3));
+        working := predictCovariance(prior, discreteTransition(heldDynamics, dt),
+          heldDynamics, tuning.processNoise, dt);
+      else
+        working := withDenseCovariance(prior,
+          holdCovariance(prior.covariance, dt, tuning.processNoise));
+      end if;
     else
       // A valid held packet means the high-rate preintegrator is still
       // accumulating the next delta-angle/delta-velocity observation. It is
       // neither a new prediction nor an IMU dropout, so do not propagate the
       // nominal state or add process noise a second time.
-      working := State(
-        positionWorldEnu_m=prior.positionWorldEnu_m,
-        velocityWorldEnu_m_s=prior.velocityWorldEnu_m_s,
-        quaternionWorldBody=prior.quaternionWorldBody,
-        gyroscopeBiasBodyFlu_rad_s=prior.gyroscopeBiasBodyFlu_rad_s,
-        accelerometerBiasBodyFlu_m_s2=
-          prior.accelerometerBiasBodyFlu_m_s2,
-        covariance=prior.covariance);
+      working := copyState(prior);
     end if;
-    working := State(
-      positionWorldEnu_m=working.positionWorldEnu_m,
-      velocityWorldEnu_m_s=working.velocityWorldEnu_m_s,
-      quaternionWorldBody=working.quaternionWorldBody,
-      gyroscopeBiasBodyFlu_rad_s=working.gyroscopeBiasBodyFlu_rad_s,
-      accelerometerBiasBodyFlu_m_s2=working.accelerometerBiasBodyFlu_m_s2,
-      covariance=limitCovariance(working.covariance, tuning.varianceLimits));
+    working := limitStateCovariance(working, tuning.varianceLimits);
 
     if reseedNow then
       reseedSource := anchorPresent;
@@ -540,6 +555,12 @@ algorithm
       reseeded := true;
     end if;
 
+    absoluteAidingAttempted := not reseedNow and
+      ((mocapNew and (not anchorExclusive or anchorPresent == SourceMocap))
+        or (gpsNew and (gps.positionValid or gps.velocityValid)
+          and (not anchorExclusive or anchorPresent == SourceGps)));
+    opticalFlowAttempted := not reseedNow and opticalFlowNew
+      and (not anchorExclusive or anchorPresent == SourceOpticalFlow);
     if reseedNow then
       // A re-seed happened this tick: the state is already on the anchor
       // sample with the restored prior, so no correction is attempted.
@@ -552,7 +573,8 @@ algorithm
           imuTimestampHeldNext_s - mocap.timestamp_s,
           imuAngularVelocityHeldNext_rad_s,
           imuSpecificForceHeldNext_m_s2, gravityWorldEnu_m_s2,
-          tuning.maximumAidingDelay_s);
+          tuning.maximumAidingDelay_s,
+          tuning.useSemiDirectBias);
       correctionAttempted := true;
       correctionAccepted := mocapCorrectionAccepted;
       correctionSource := SourceMocap;
@@ -574,7 +596,8 @@ algorithm
               / imu.integrationTime_s
           else zeros(6, 6),
           if predictionAccepted and imu.integrationTime_s > 1.0e-6 then
-            imu.integrationTime_s else 0.0);
+            imu.integrationTime_s else 0.0,
+          tuning.useSemiDirectBias);
       gpsVelocityCorrectionAccepted := gpsPositionCorrectionAccepted;
       correctionAttempted := true;
       correctionAccepted := gpsPositionCorrectionAccepted;
@@ -588,7 +611,8 @@ algorithm
           imuTimestampHeldNext_s - gps.timestamp_s,
           imuAngularVelocityHeldNext_rad_s,
           imuSpecificForceHeldNext_m_s2, gravityWorldEnu_m_s2,
-          tuning.maximumAidingDelay_s);
+          tuning.maximumAidingDelay_s,
+          tuning.useSemiDirectBias);
       correctionAttempted := true;
       correctionAccepted := gpsPositionCorrectionAccepted;
       correctionSource := SourceGps;
@@ -601,59 +625,89 @@ algorithm
           imuTimestampHeldNext_s - gps.timestamp_s,
           imuAngularVelocityHeldNext_rad_s,
           imuSpecificForceHeldNext_m_s2, gravityWorldEnu_m_s2,
-          tuning.maximumAidingDelay_s);
+          tuning.maximumAidingDelay_s,
+          tuning.useSemiDirectBias);
       correctionAttempted := true;
       correctionAccepted := gpsVelocityCorrectionAccepted;
       correctionSource := SourceGps;
       gpsTimestampConsumedNext_s := gps.timestamp_s;
-    elseif barometerNew then
-      (working, barometerCorrectionAccepted, correctionOutcome,
-       normalizedInnovationSquared) :=
-        correctBarometer(working, barometer,
-          tuning.barometerBias_m, tuning.barometerBiasVariance_m2,
-          tuning.innovationGate,
-          imuTimestampHeldNext_s - barometer.timestamp_s,
-          imuAngularVelocityHeldNext_rad_s,
-          imuSpecificForceHeldNext_m_s2, gravityWorldEnu_m_s2,
-          tuning.maximumAidingDelay_s);
-      correctionAttempted := true;
-      correctionAccepted := barometerCorrectionAccepted;
-      correctionSource := SourceBarometer;
-      barometerTimestampConsumedNext_s := barometer.timestamp_s;
-    elseif opticalFlowNew
-        and (not anchorExclusive or anchorPresent == SourceOpticalFlow) then
-      (working, opticalFlowCorrectionAccepted, correctionOutcome,
-       normalizedInnovationSquared) :=
+    end if;
+
+    if opticalFlowAttempted then
+      (working, opticalFlowCorrectionAccepted, aidingOutcome, aidingNis) :=
         correctOpticalFlow(working, opticalFlow, tuning.innovationGate,
           imuTimestampHeldNext_s - opticalFlow.timestamp_s,
           imuAngularVelocityHeldNext_rad_s,
           imuSpecificForceHeldNext_m_s2, gravityWorldEnu_m_s2,
           tuning.maximumAidingDelay_s,
           tuning.minimumOpticalFlowQuality,
-          tuning.minimumOpticalFlowGroundDistance_m);
-      correctionAttempted := true;
-      correctionAccepted := opticalFlowCorrectionAccepted;
-      correctionSource := SourceOpticalFlow;
+          tuning.minimumOpticalFlowGroundDistance_m,
+          tuning.useSemiDirectBias);
+      if not absoluteAidingAttempted then
+        correctionAccepted := opticalFlowCorrectionAccepted;
+        correctionSource := SourceOpticalFlow;
+        correctionOutcome := aidingOutcome;
+        normalizedInnovationSquared := aidingNis;
+      end if;
       opticalFlowTimestampConsumedNext_s := opticalFlow.timestamp_s;
-    elseif magnetometerNew then
-      (working, magnetometerCorrectionAccepted, correctionOutcome,
-       normalizedInnovationSquared) :=
+    end if;
+    if not reseedNow and barometerNew then
+      (working, barometerCorrectionAccepted, aidingOutcome, aidingNis) :=
+        correctBarometer(working, barometer,
+          tuning.barometerBias_m, tuning.barometerBiasVariance_m2,
+          tuning.innovationGate,
+          imuTimestampHeldNext_s - barometer.timestamp_s,
+          imuAngularVelocityHeldNext_rad_s,
+          imuSpecificForceHeldNext_m_s2, gravityWorldEnu_m_s2,
+          tuning.maximumAidingDelay_s,
+          tuning.useSemiDirectBias);
+      if not absoluteAidingAttempted and not opticalFlowAttempted then
+        correctionAccepted := barometerCorrectionAccepted;
+        correctionSource := SourceBarometer;
+        correctionOutcome := aidingOutcome;
+        normalizedInnovationSquared := aidingNis;
+      end if;
+      barometerTimestampConsumedNext_s := barometer.timestamp_s;
+    end if;
+    if not reseedNow and magnetometerNew then
+      (working, magnetometerCorrectionAccepted, aidingOutcome, aidingNis) :=
         correctMagnetometer(working, magnetometer,
           tuning.localMagneticFieldWorldEnu_T, tuning.innovationGate,
           imuTimestampHeldNext_s - magnetometer.timestamp_s,
           imuAngularVelocityHeldNext_rad_s,
           imuSpecificForceHeldNext_m_s2, gravityWorldEnu_m_s2,
-          tuning.maximumAidingDelay_s);
-      correctionAttempted := true;
-      correctionAccepted := magnetometerCorrectionAccepted;
-      correctionSource := SourceMagnetometer;
+          tuning.maximumAidingDelay_s, tuning.useEquivariantMagnetometer,
+          tuning.useSemiDirectBias);
+      if not absoluteAidingAttempted and not opticalFlowAttempted
+          and not barometerNew then
+        correctionAccepted := magnetometerCorrectionAccepted;
+        correctionSource := SourceMagnetometer;
+        correctionOutcome := aidingOutcome;
+        normalizedInnovationSquared := aidingNis;
+      end if;
       magnetometerTimestampConsumedNext_s := magnetometer.timestamp_s;
     end if;
+    correctionAttempted := not reseedNow and (absoluteAidingAttempted
+      or opticalFlowAttempted or barometerNew or magnetometerNew);
     pseudoPositionConfigured := tuning.pseudoPositionVariance_m2 > 0.0
       and tuning.pseudoPositionVariance_m2 < FiniteMagnitudeLimit;
     zeroVelocityConfigured := tuning.zeroVelocityVariance_m2_s2 > 0.0
       and tuning.zeroVelocityVariance_m2_s2 < FiniteMagnitudeLimit;
-    if not correctionAttempted
+    if vehicleAtRest and imuUsable and not reseedNow
+        and tuning.stationaryVelocityVariance_m2_s2 > 0.0
+        and tuning.stationaryVelocityVariance_m2_s2 < FiniteMagnitudeLimit then
+      (working, zeroVelocityCorrectionAccepted, aidingOutcome, aidingNis) :=
+        correctZeroVelocity(working,
+          tuning.stationaryVelocityVariance_m2_s2, 0.0,
+          tuning.useSemiDirectBias);
+      if not correctionAttempted then
+        correctionAccepted := zeroVelocityCorrectionAccepted;
+        correctionSource := SourceZeroVelocity;
+        correctionOutcome := aidingOutcome;
+        normalizedInnovationSquared := aidingNis;
+      end if;
+    end if;
+    if not correctionAttempted and not zeroVelocityCorrectionAccepted
         and (not aidingLive or (ladderConfigured
           and rejectionElapsedPrevious_s
             >= tuning.aidingDivergentWindow_s)) then
@@ -661,14 +715,15 @@ algorithm
         (working, zeroVelocityCorrectionAccepted, correctionOutcome,
          normalizedInnovationSquared) :=
           correctZeroVelocity(working, tuning.zeroVelocityVariance_m2_s2,
-            0.0);
+            0.0, tuning.useSemiDirectBias);
         correctionAccepted := zeroVelocityCorrectionAccepted;
         correctionSource := SourceZeroVelocity;
       elseif pseudoPositionConfigured then
         (working, pseudoPositionCorrectionAccepted, correctionOutcome,
          normalizedInnovationSquared) :=
           correctPseudoPosition(working, pseudoPositionHoldPrevious_m,
-            tuning.pseudoPositionVariance_m2, 0.0);
+            tuning.pseudoPositionVariance_m2, 0.0,
+            tuning.useSemiDirectBias);
         correctionAccepted := pseudoPositionCorrectionAccepted;
         correctionSource := SourcePseudoPosition;
       end if;
@@ -715,8 +770,9 @@ algorithm
         (if correctionAccepted then 0 else gpsRejectionsPrevious + 1)
       else gpsRejectionsPrevious;
     opticalFlowRejectionsNext :=
-      if correctionSource == SourceOpticalFlow then
-        (if correctionAccepted then 0 else opticalFlowRejectionsPrevious + 1)
+      if opticalFlowAttempted then
+        (if opticalFlowCorrectionAccepted then 0
+          else opticalFlowRejectionsPrevious + 1)
       else opticalFlowRejectionsPrevious;
 
     // STAGE 3 telemetry and clock reset. The re-seed is a deliberate
@@ -741,6 +797,7 @@ algorithm
   gyroscopeBiasNext := working.gyroscopeBiasBodyFlu_rad_s;
   accelerometerBiasNext := working.accelerometerBiasBodyFlu_m_s2;
   covarianceNext := working.covariance;
+  covarianceRootNext := working.covarianceRoot;
   initializedNext := not alignmentPending;
   estimateValid := initializedNext
     and nominalStateFinite(positionNext, velocityNext, quaternionNext);

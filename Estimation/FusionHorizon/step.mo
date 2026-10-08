@@ -124,26 +124,23 @@ protected
   Integer bufferLength;
   Boolean fusionBoundary;
   Integer adoptedCount;
-  Integer epochRingCount;
   Boolean reanchor;
   Real gyroscopeBiasMoveMagnitude_rad_s;
   Real accelerometerBiasMoveMagnitude_m_s2;
   Real predictorDivergence_rad;
   Estimation.FusionHorizon.Delta tickDelta;
   Estimation.FusionHorizon.Delta liveDelta;
-  Estimation.FusionHorizon.Delta windowDelta;
   Estimation.FusionHorizon.Delta openingDelta;
-  Estimation.FusionHorizon.Delta foldedWindow;
   Real grownRow[DeltaLength];
   Real carriedRow[DeltaLength];
   Real grownFreshRow[DeltaLength];
   Real foldedRow[DeltaLength];
+  Real windowRow[DeltaLength];
+  Real tickRow[DeltaLength];
   Boolean adopting;
   Boolean rebuilding;
   Boolean completing;
-  Estimation.FusionHorizon.Delta movedWindow;
   Real identityRow[DeltaLength];
-  Estimation.FusionHorizon.Pose predictedNext;
   Real gyroscopeBiasMove_rad_s[3];
   Real accelerometerBiasMove_m_s2[3];
 algorithm
@@ -187,6 +184,7 @@ algorithm
     else Estimation.FusionHorizon.unpackDelta(previousLiveRow);
   liveDelta := Estimation.FusionHorizon.composeDelta(openingDelta, tickDelta);
   liveRow := Estimation.FusionHorizon.packDelta(liveDelta);
+  tickRow := Estimation.FusionHorizon.packDelta(tickDelta);
   // The very first tick has no completed window behind it. Adopting one there
   // would put an empty entry at the head of the buffer and advance the fusion
   // instant by a window that covers no time, which is exactly the kind of
@@ -311,10 +309,6 @@ algorithm
        else 0.0));
   end for;
 
-  // The fusion instant advances by exactly one release window per release and
-  // by nothing otherwise, so it is carried rather than read off a clock: the
-  // code generator has no runtime coordinate, and a carried epoch says the
-  // same thing with one addition.
   // The first tick closes the interval that ENDED at time zero, so the epoch
   // base is one tick before it. Getting this wrong shifts every fusion instant
   // by a sample and nothing downstream would notice.
@@ -323,7 +317,7 @@ algorithm
   // behind wall time by the whole flight so far, and a consumer that aligns
   // aiding by timestamp would then reject everything it was handed.
   nextPacketTimestamp_s := if reset or not seeded then tickIndex * dt - dt
-    elseif released then packetTimestamp_s + dt * deltasPerFusion
+    elseif released then (tickIndex - horizonWindows * deltasPerFusion - 1) * dt
     else packetTimestamp_s;
   bufferedDeltaCount := nextRingCount * deltasPerFusion
     + deltasPerFusion - nextFusionCountdown + 1;
@@ -402,26 +396,20 @@ algorithm
     // The epoch invariant is unchanged and is the reason this is correct: the
     // product stands for the ring BEFORE this tick moved it, which is the ring
     // the horizon pose belongs to.
-    epochRingCount := if reset then 0 else ringCount;
     foldedRow := Estimation.FusionHorizon.composeRows(
       if reset then identityRow else windowProductRow,
       if reset then identityRow else previousLiveRow);
-    foldedWindow := Estimation.FusionHorizon.unpackDelta(foldedRow);
-    windowDelta := Estimation.FusionHorizon.composeDelta(
-      foldedWindow, tickDelta);
-    movedWindow := Estimation.FusionHorizon.rebiasDelta(
-      windowDelta, gyroscopeBiasMove_rad_s, accelerometerBiasMove_m_s2);
-    predictedNext := Estimation.FusionHorizon.composePose(
-      horizonPose, movedWindow, gravityWorldEnu_m_s2);
+    windowRow := Estimation.FusionHorizon.composeRows(foldedRow, tickRow);
+    predictedVector := Estimation.FusionHorizon.predictPose(
+      cat(1, horizonPose.positionWorldEnu_m, horizonPose.velocityWorldEnu_m_s,
+        horizonPose.quaternionWorldBody), windowRow,
+      gyroscopeBiasMove_rad_s, accelerometerBiasMove_m_s2, gravityWorldEnu_m_s2);
   else
-    // Nothing moved the horizon, so composing the newest factor onto the
-    // previous answer is the same element by associativity. This is the common
-    // case and it is one group composition per tick.
-    predictedNext := Estimation.FusionHorizon.composePose(
-      predicted, tickDelta, gravityWorldEnu_m_s2);
+    predictedVector := Estimation.FusionHorizon.predictPose(
+      cat(1, predicted.positionWorldEnu_m, predicted.velocityWorldEnu_m_s,
+        predicted.quaternionWorldBody), tickRow, zeros(3), zeros(3),
+      gravityWorldEnu_m_s2, false);
   end if;
-  predictedVector := cat(1, predictedNext.positionWorldEnu_m,
-    predictedNext.velocityWorldEnu_m_s, predictedNext.quaternionWorldBody);
   // Seeded from the tick after power-on AND from the tick after a reset. It
   // used to be cleared by the reset itself, which left the block in its
   // first-tick state for one tick too many: the epoch was re-anchored twice,

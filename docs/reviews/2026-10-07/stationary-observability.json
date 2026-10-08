@@ -1,0 +1,16 @@
+{
+  "seed": 20271007,
+  "finite_cases": 96,
+  "orientations": 24,
+  "coordinates": "position, velocity, local right attitude, gyro bias, accelerometer bias",
+  "transformation": "R' = Exp(alpha * unit(field_world)) R; ba' = measured_force + R'^T gravity",
+  "tangent": "N_theta = R^T unit(field_world); N_ba = -skew(-R^T gravity) N_theta; other blocks zero",
+  "maxima": {
+    "acceleration": 5.773159728050814e-15,
+    "magnetic_vector": 1.084731438893638e-20,
+    "dynamics_nullspace": 0.0,
+    "observation_nullspace": 0.0
+  },
+  "scope": "Ideal stationary IMU, known constant magnetic field, position/velocity and gravity observations with unknown constant accelerometer bias. Zero-velocity optical flow and barometric height add no information in this direction. No explicit slant-range/terrain attitude constraint is modeled.",
+  "interpretation": "Finite numerical examples verify an independently constructed equivalence and tangent nullspace, not the current filter's consistency or the root cause of seed 41. Maneuvering can break the ambiguity because the alternative bias would need to vary."
+}

@@ -1,4 +1,14 @@
-| `foldBuffer.mo` | function | the re-base kernel: a fixed-length branch-free walk of the ring plus one trailing row |# Delayed fusion horizon with an estimator-agnostic SE_2(3) output predictor
+# Delayed fusion horizon with an estimator-agnostic SE_2(3) output predictor
+
+Current validation update (7 October 2026): the generated-component comparison
+in [eskf-delay.html](reviews/2026-10-07/eskf-delay.html) implements a buffered
+200 ms horizon and forward prediction alongside the retrodiction baseline.
+The vehicle default remains retrodiction: composed export is blocked by the
+Rumoca 0.10.2 sampled-read diagnostic, and flight-target timing has not been
+requalified. The packed-array predictor refactor changes generated code cost;
+older timing figures below describe the earlier implementation. Current host
+measurements do not replace flight-target timing evidence. Sections below retain
+the original design-time context.
 
 Status: design of record for `Estimation.FusionHorizon`.
 
@@ -631,7 +641,7 @@ New package `Estimation/FusionHorizon/`:
 | `composeDelta.mo` | function | Lemma 5: delta (x) delta, with the time block and the Jacobian chain rule |
 | `rebiasDelta.mo` | function | Prop. 8: the first-order bias move |
 | `composePose.mo` | function | Theorem 6: `L X R` |
-| `foldBuffer.mo` | function | the re-base kernel |
+| `foldBuffer.mo` | function | the re-base kernel: a fixed-length branch-free walk of the ring plus one trailing row |
 | `readRow.mo` | function | select one ring row without a dynamic index |
 | `storeRow.mo` | function | store one row, branch-free and fixed-length |
 | `jacobianBlock.mo` | function | read one 3x3 Jacobian out of a row |

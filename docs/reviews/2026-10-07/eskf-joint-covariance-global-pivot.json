@@ -1,0 +1,110 @@
+{
+  "cases": [
+    {
+      "representation": "dense",
+      "case": "indefinite_noise",
+      "accepted": false,
+      "expected_accepted": false,
+      "reason": 5,
+      "prior_preserved": true,
+      "minimum_joint_eigenvalue": -0.5,
+      "minimum_innovation_eigenvalue": 0.5,
+      "minimum_posterior_eigenvalue": 1.0,
+      "library_sha256": "b8c14f9890b965ce3c33506870b5d3d7ecd416373e4c81cfad36f3b9aa2adc39",
+      "passed": true
+    },
+    {
+      "representation": "dense",
+      "case": "impossible_cross_covariance",
+      "accepted": false,
+      "expected_accepted": false,
+      "reason": 5,
+      "prior_preserved": true,
+      "minimum_joint_eigenvalue": -1.0,
+      "minimum_innovation_eigenvalue": 2.0,
+      "minimum_posterior_eigenvalue": 1.0,
+      "library_sha256": "b8c14f9890b965ce3c33506870b5d3d7ecd416373e4c81cfad36f3b9aa2adc39",
+      "passed": true
+    },
+    {
+      "representation": "dense",
+      "case": "valid_correlated",
+      "accepted": true,
+      "expected_accepted": true,
+      "reason": 1,
+      "prior_preserved": false,
+      "minimum_joint_eigenvalue": 0.25,
+      "minimum_innovation_eigenvalue": 2.0,
+      "minimum_posterior_eigenvalue": 0.1250000149011612,
+      "library_sha256": "b8c14f9890b965ce3c33506870b5d3d7ecd416373e4c81cfad36f3b9aa2adc39",
+      "passed": true
+    },
+    {
+      "representation": "dense",
+      "case": "ill_scaled_valid_correlated",
+      "accepted": false,
+      "expected_accepted": true,
+      "reason": 5,
+      "prior_preserved": true,
+      "minimum_joint_eigenvalue": 9.899999930951253e-09,
+      "minimum_innovation_eigenvalue": 1.0,
+      "minimum_posterior_eigenvalue": 9.99999993922529e-09,
+      "library_sha256": "b8c14f9890b965ce3c33506870b5d3d7ecd416373e4c81cfad36f3b9aa2adc39",
+      "passed": false
+    },
+    {
+      "representation": "root",
+      "case": "indefinite_noise",
+      "accepted": false,
+      "expected_accepted": false,
+      "reason": 4,
+      "prior_preserved": true,
+      "minimum_joint_eigenvalue": -0.5,
+      "minimum_innovation_eigenvalue": 0.5,
+      "minimum_posterior_eigenvalue": 1.0,
+      "library_sha256": "4f24325f9ef78b0fe712172d67ee030f15f87718d316f4353de2841c3c8ffce2",
+      "passed": true
+    },
+    {
+      "representation": "root",
+      "case": "impossible_cross_covariance",
+      "accepted": false,
+      "expected_accepted": false,
+      "reason": 4,
+      "prior_preserved": true,
+      "minimum_joint_eigenvalue": -1.0,
+      "minimum_innovation_eigenvalue": 2.0,
+      "minimum_posterior_eigenvalue": 1.0,
+      "library_sha256": "4f24325f9ef78b0fe712172d67ee030f15f87718d316f4353de2841c3c8ffce2",
+      "passed": true
+    },
+    {
+      "representation": "root",
+      "case": "valid_correlated",
+      "accepted": true,
+      "expected_accepted": true,
+      "reason": 1,
+      "prior_preserved": false,
+      "minimum_joint_eigenvalue": 0.25,
+      "minimum_innovation_eigenvalue": 2.0,
+      "minimum_posterior_eigenvalue": 0.12499997764825821,
+      "library_sha256": "4f24325f9ef78b0fe712172d67ee030f15f87718d316f4353de2841c3c8ffce2",
+      "passed": true
+    },
+    {
+      "representation": "root",
+      "case": "ill_scaled_valid_correlated",
+      "accepted": true,
+      "expected_accepted": true,
+      "reason": 1,
+      "prior_preserved": false,
+      "minimum_joint_eigenvalue": 9.899999930951253e-09,
+      "minimum_innovation_eigenvalue": 1.0,
+      "minimum_posterior_eigenvalue": 9.89980275534208e-09,
+      "library_sha256": "4f24325f9ef78b0fe712172d67ee030f15f87718d316f4353de2841c3c8ffce2",
+      "passed": true
+    }
+  ],
+  "passed": false,
+  "note": "Every innovation is positive definite. Invalid cases violate the joint covariance requirement despite positive measurement diagonals."
+}

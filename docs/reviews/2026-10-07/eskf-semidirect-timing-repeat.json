@@ -1,0 +1,3785 @@
+{
+  "note": "Sequential interleaved option-off/on runs of the same generated export, nominal arrival profile, high-rate aiding, one fixed seed per motion set, three repeats. CLOCK_THREAD_CPUTIME_ID includes timer overhead and numerical kernels; excludes CSV, transport simulation and adapter copies. Host-only observations, not flight WCET or native CPU comparisons.",
+  "records": [
+    {
+      "dataset": "original",
+      "tag": "0.6_7",
+      "scenario": "gps",
+      "mode": "retrodiction",
+      "option": "off",
+      "repeat": 0,
+      "output_sha256": "f7f2ed03d806dd8346a6c611d2e33a50f625ab8f46a42dddee7c349e3ad6edfa",
+      "binary_sha256": "a60a50675da70c2b1e1ccb1820405dd674726bbdb2ec1cd1aa819fc5f7db774c",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 6001,
+          "total_ns": 453522930,
+          "maximum_ns": 211120
+        },
+        "preintegration": {
+          "calls": 48000,
+          "total_ns": 99608189,
+          "maximum_ns": 15000
+        },
+        "predictor": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "queues": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "state_bytes": 62104,
+        "buffer_bytes": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          599,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "e22cb5dd503b00e3",
+          "961bfe6223659e53",
+          "32079ac7ba1e73b1",
+          "32079ac7ba1e73b1"
+        ]
+      }
+    },
+    {
+      "dataset": "original",
+      "tag": "0.6_7",
+      "scenario": "gps",
+      "mode": "retrodiction",
+      "option": "on",
+      "repeat": 0,
+      "output_sha256": "e69631427b7ee217d3e4b7d4594e117dc6aa4a42e799b9eaaeab854248d647ae",
+      "binary_sha256": "015aff4c9f45548085511c548a7a47d8726cc56d75fe4fd55556edd6b4b4440c",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 6001,
+          "total_ns": 519305779,
+          "maximum_ns": 227210
+        },
+        "preintegration": {
+          "calls": 48000,
+          "total_ns": 97686040,
+          "maximum_ns": 22690
+        },
+        "predictor": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "queues": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "state_bytes": 62104,
+        "buffer_bytes": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          599,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "e22cb5dd503b00e3",
+          "961bfe6223659e53",
+          "32079ac7ba1e73b1",
+          "32079ac7ba1e73b1"
+        ]
+      }
+    },
+    {
+      "dataset": "original",
+      "tag": "0.6_7",
+      "scenario": "gps",
+      "mode": "retrodiction",
+      "option": "on",
+      "repeat": 1,
+      "output_sha256": "e69631427b7ee217d3e4b7d4594e117dc6aa4a42e799b9eaaeab854248d647ae",
+      "binary_sha256": "015aff4c9f45548085511c548a7a47d8726cc56d75fe4fd55556edd6b4b4440c",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 6001,
+          "total_ns": 525700069,
+          "maximum_ns": 221840
+        },
+        "preintegration": {
+          "calls": 48000,
+          "total_ns": 98946830,
+          "maximum_ns": 18560
+        },
+        "predictor": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "queues": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "state_bytes": 62104,
+        "buffer_bytes": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          599,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "e22cb5dd503b00e3",
+          "961bfe6223659e53",
+          "32079ac7ba1e73b1",
+          "32079ac7ba1e73b1"
+        ]
+      }
+    },
+    {
+      "dataset": "original",
+      "tag": "0.6_7",
+      "scenario": "gps",
+      "mode": "retrodiction",
+      "option": "off",
+      "repeat": 1,
+      "output_sha256": "f7f2ed03d806dd8346a6c611d2e33a50f625ab8f46a42dddee7c349e3ad6edfa",
+      "binary_sha256": "a60a50675da70c2b1e1ccb1820405dd674726bbdb2ec1cd1aa819fc5f7db774c",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 6001,
+          "total_ns": 446061220,
+          "maximum_ns": 204790
+        },
+        "preintegration": {
+          "calls": 48000,
+          "total_ns": 97275060,
+          "maximum_ns": 20680
+        },
+        "predictor": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "queues": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "state_bytes": 62104,
+        "buffer_bytes": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          599,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "e22cb5dd503b00e3",
+          "961bfe6223659e53",
+          "32079ac7ba1e73b1",
+          "32079ac7ba1e73b1"
+        ]
+      }
+    },
+    {
+      "dataset": "original",
+      "tag": "0.6_7",
+      "scenario": "gps",
+      "mode": "retrodiction",
+      "option": "off",
+      "repeat": 2,
+      "output_sha256": "f7f2ed03d806dd8346a6c611d2e33a50f625ab8f46a42dddee7c349e3ad6edfa",
+      "binary_sha256": "a60a50675da70c2b1e1ccb1820405dd674726bbdb2ec1cd1aa819fc5f7db774c",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 6001,
+          "total_ns": 444662170,
+          "maximum_ns": 201210
+        },
+        "preintegration": {
+          "calls": 48000,
+          "total_ns": 97035130,
+          "maximum_ns": 6290
+        },
+        "predictor": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "queues": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "state_bytes": 62104,
+        "buffer_bytes": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          599,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "e22cb5dd503b00e3",
+          "961bfe6223659e53",
+          "32079ac7ba1e73b1",
+          "32079ac7ba1e73b1"
+        ]
+      }
+    },
+    {
+      "dataset": "original",
+      "tag": "0.6_7",
+      "scenario": "gps",
+      "mode": "retrodiction",
+      "option": "on",
+      "repeat": 2,
+      "output_sha256": "e69631427b7ee217d3e4b7d4594e117dc6aa4a42e799b9eaaeab854248d647ae",
+      "binary_sha256": "015aff4c9f45548085511c548a7a47d8726cc56d75fe4fd55556edd6b4b4440c",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 6001,
+          "total_ns": 521086300,
+          "maximum_ns": 233080
+        },
+        "preintegration": {
+          "calls": 48000,
+          "total_ns": 97254400,
+          "maximum_ns": 10540
+        },
+        "predictor": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "queues": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "state_bytes": 62104,
+        "buffer_bytes": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          599,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "e22cb5dd503b00e3",
+          "961bfe6223659e53",
+          "32079ac7ba1e73b1",
+          "32079ac7ba1e73b1"
+        ]
+      }
+    },
+    {
+      "dataset": "original",
+      "tag": "0.6_7",
+      "scenario": "gps",
+      "mode": "horizon",
+      "option": "off",
+      "repeat": 0,
+      "output_sha256": "1f7e820d87df8c6b0e4fc309c61436e0e7c1ea7d7ed4b40d2f4aaad4f9751a66",
+      "binary_sha256": "2cf64738c7199337697e99490503fde7f6e7ca8ee04e842be60d0069a66a299e",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 5980,
+          "total_ns": 470234869,
+          "maximum_ns": 195860
+        },
+        "preintegration": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "predictor": {
+          "calls": 48001,
+          "total_ns": 298141710,
+          "maximum_ns": 40600
+        },
+        "queues": {
+          "calls": 6001,
+          "total_ns": 33642430,
+          "maximum_ns": 18090
+        },
+        "state_bytes": 105884,
+        "buffer_bytes": 10488,
+        "fusion_horizon_s": 0.200000003,
+        "worst_residual_age_s": 0.00875091553,
+        "late": 0,
+        "overflow": 0,
+        "stale": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          599,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "e22cb5dd503b00e3",
+          "961bfe6223659e53",
+          "32079ac7ba1e73b1",
+          "32079ac7ba1e73b1"
+        ]
+      }
+    },
+    {
+      "dataset": "original",
+      "tag": "0.6_7",
+      "scenario": "gps",
+      "mode": "horizon",
+      "option": "on",
+      "repeat": 0,
+      "output_sha256": "e8e4633ae0edc57e3e305b08189a38754fcf8b9d00e3597e2d880e5c266c7765",
+      "binary_sha256": "44b0a6569707dcbb5c630a002a93d31eee199cfed3e31a10292dd516a1720da3",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 5980,
+          "total_ns": 545614769,
+          "maximum_ns": 321060
+        },
+        "preintegration": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "predictor": {
+          "calls": 48001,
+          "total_ns": 323005760,
+          "maximum_ns": 18970
+        },
+        "queues": {
+          "calls": 6001,
+          "total_ns": 33482800,
+          "maximum_ns": 21720
+        },
+        "state_bytes": 105884,
+        "buffer_bytes": 10488,
+        "fusion_horizon_s": 0.200000003,
+        "worst_residual_age_s": 0.00875091553,
+        "late": 0,
+        "overflow": 0,
+        "stale": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          599,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "e22cb5dd503b00e3",
+          "961bfe6223659e53",
+          "32079ac7ba1e73b1",
+          "32079ac7ba1e73b1"
+        ]
+      }
+    },
+    {
+      "dataset": "original",
+      "tag": "0.6_7",
+      "scenario": "gps",
+      "mode": "horizon",
+      "option": "on",
+      "repeat": 1,
+      "output_sha256": "e8e4633ae0edc57e3e305b08189a38754fcf8b9d00e3597e2d880e5c266c7765",
+      "binary_sha256": "44b0a6569707dcbb5c630a002a93d31eee199cfed3e31a10292dd516a1720da3",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 5980,
+          "total_ns": 552725750,
+          "maximum_ns": 292590
+        },
+        "preintegration": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "predictor": {
+          "calls": 48001,
+          "total_ns": 301828970,
+          "maximum_ns": 19240
+        },
+        "queues": {
+          "calls": 6001,
+          "total_ns": 33980370,
+          "maximum_ns": 13210
+        },
+        "state_bytes": 105884,
+        "buffer_bytes": 10488,
+        "fusion_horizon_s": 0.200000003,
+        "worst_residual_age_s": 0.00875091553,
+        "late": 0,
+        "overflow": 0,
+        "stale": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          599,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "e22cb5dd503b00e3",
+          "961bfe6223659e53",
+          "32079ac7ba1e73b1",
+          "32079ac7ba1e73b1"
+        ]
+      }
+    },
+    {
+      "dataset": "original",
+      "tag": "0.6_7",
+      "scenario": "gps",
+      "mode": "horizon",
+      "option": "off",
+      "repeat": 1,
+      "output_sha256": "1f7e820d87df8c6b0e4fc309c61436e0e7c1ea7d7ed4b40d2f4aaad4f9751a66",
+      "binary_sha256": "2cf64738c7199337697e99490503fde7f6e7ca8ee04e842be60d0069a66a299e",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 5980,
+          "total_ns": 469474709,
+          "maximum_ns": 254790
+        },
+        "preintegration": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "predictor": {
+          "calls": 48001,
+          "total_ns": 297446750,
+          "maximum_ns": 27990
+        },
+        "queues": {
+          "calls": 6001,
+          "total_ns": 33740010,
+          "maximum_ns": 16030
+        },
+        "state_bytes": 105884,
+        "buffer_bytes": 10488,
+        "fusion_horizon_s": 0.200000003,
+        "worst_residual_age_s": 0.00875091553,
+        "late": 0,
+        "overflow": 0,
+        "stale": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          599,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "e22cb5dd503b00e3",
+          "961bfe6223659e53",
+          "32079ac7ba1e73b1",
+          "32079ac7ba1e73b1"
+        ]
+      }
+    },
+    {
+      "dataset": "original",
+      "tag": "0.6_7",
+      "scenario": "gps",
+      "mode": "horizon",
+      "option": "off",
+      "repeat": 2,
+      "output_sha256": "1f7e820d87df8c6b0e4fc309c61436e0e7c1ea7d7ed4b40d2f4aaad4f9751a66",
+      "binary_sha256": "2cf64738c7199337697e99490503fde7f6e7ca8ee04e842be60d0069a66a299e",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 5980,
+          "total_ns": 467596970,
+          "maximum_ns": 271830
+        },
+        "preintegration": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "predictor": {
+          "calls": 48001,
+          "total_ns": 325027520,
+          "maximum_ns": 33520
+        },
+        "queues": {
+          "calls": 6001,
+          "total_ns": 33057330,
+          "maximum_ns": 19180
+        },
+        "state_bytes": 105884,
+        "buffer_bytes": 10488,
+        "fusion_horizon_s": 0.200000003,
+        "worst_residual_age_s": 0.00875091553,
+        "late": 0,
+        "overflow": 0,
+        "stale": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          599,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "e22cb5dd503b00e3",
+          "961bfe6223659e53",
+          "32079ac7ba1e73b1",
+          "32079ac7ba1e73b1"
+        ]
+      }
+    },
+    {
+      "dataset": "original",
+      "tag": "0.6_7",
+      "scenario": "gps",
+      "mode": "horizon",
+      "option": "on",
+      "repeat": 2,
+      "output_sha256": "e8e4633ae0edc57e3e305b08189a38754fcf8b9d00e3597e2d880e5c266c7765",
+      "binary_sha256": "44b0a6569707dcbb5c630a002a93d31eee199cfed3e31a10292dd516a1720da3",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 5980,
+          "total_ns": 543813169,
+          "maximum_ns": 327900
+        },
+        "preintegration": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "predictor": {
+          "calls": 48001,
+          "total_ns": 296363360,
+          "maximum_ns": 22550
+        },
+        "queues": {
+          "calls": 6001,
+          "total_ns": 33350880,
+          "maximum_ns": 13160
+        },
+        "state_bytes": 105884,
+        "buffer_bytes": 10488,
+        "fusion_horizon_s": 0.200000003,
+        "worst_residual_age_s": 0.00875091553,
+        "late": 0,
+        "overflow": 0,
+        "stale": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          599,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "e22cb5dd503b00e3",
+          "961bfe6223659e53",
+          "32079ac7ba1e73b1",
+          "32079ac7ba1e73b1"
+        ]
+      }
+    },
+    {
+      "dataset": "original",
+      "tag": "0.6_7",
+      "scenario": "denied",
+      "mode": "retrodiction",
+      "option": "off",
+      "repeat": 0,
+      "output_sha256": "6829cf64792aaedee0867401af284ee2cc48817cfd447d2f1af44b4fc6acb79d",
+      "binary_sha256": "a60a50675da70c2b1e1ccb1820405dd674726bbdb2ec1cd1aa819fc5f7db774c",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 6001,
+          "total_ns": 452834869,
+          "maximum_ns": 182860
+        },
+        "preintegration": {
+          "calls": 48000,
+          "total_ns": 104339600,
+          "maximum_ns": 20550
+        },
+        "predictor": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "queues": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "state_bytes": 62104,
+        "buffer_bytes": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          0,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "cbf29ce484222325",
+          "961bfe6223659e53",
+          "32079ac7ba1e73b1",
+          "32079ac7ba1e73b1"
+        ]
+      }
+    },
+    {
+      "dataset": "original",
+      "tag": "0.6_7",
+      "scenario": "denied",
+      "mode": "retrodiction",
+      "option": "on",
+      "repeat": 0,
+      "output_sha256": "0ae9da084e0aaf439bc8f6756b74401cb9bd10456fa1554c0738e67702369b76",
+      "binary_sha256": "015aff4c9f45548085511c548a7a47d8726cc56d75fe4fd55556edd6b4b4440c",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 6001,
+          "total_ns": 502432790,
+          "maximum_ns": 196460
+        },
+        "preintegration": {
+          "calls": 48000,
+          "total_ns": 97910700,
+          "maximum_ns": 17870
+        },
+        "predictor": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "queues": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "state_bytes": 62104,
+        "buffer_bytes": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          0,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "cbf29ce484222325",
+          "961bfe6223659e53",
+          "32079ac7ba1e73b1",
+          "32079ac7ba1e73b1"
+        ]
+      }
+    },
+    {
+      "dataset": "original",
+      "tag": "0.6_7",
+      "scenario": "denied",
+      "mode": "retrodiction",
+      "option": "on",
+      "repeat": 1,
+      "output_sha256": "0ae9da084e0aaf439bc8f6756b74401cb9bd10456fa1554c0738e67702369b76",
+      "binary_sha256": "015aff4c9f45548085511c548a7a47d8726cc56d75fe4fd55556edd6b4b4440c",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 6001,
+          "total_ns": 516068019,
+          "maximum_ns": 256390
+        },
+        "preintegration": {
+          "calls": 48000,
+          "total_ns": 100803240,
+          "maximum_ns": 20430
+        },
+        "predictor": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "queues": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "state_bytes": 62104,
+        "buffer_bytes": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          0,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "cbf29ce484222325",
+          "961bfe6223659e53",
+          "32079ac7ba1e73b1",
+          "32079ac7ba1e73b1"
+        ]
+      }
+    },
+    {
+      "dataset": "original",
+      "tag": "0.6_7",
+      "scenario": "denied",
+      "mode": "retrodiction",
+      "option": "off",
+      "repeat": 1,
+      "output_sha256": "6829cf64792aaedee0867401af284ee2cc48817cfd447d2f1af44b4fc6acb79d",
+      "binary_sha256": "a60a50675da70c2b1e1ccb1820405dd674726bbdb2ec1cd1aa819fc5f7db774c",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 6001,
+          "total_ns": 436234630,
+          "maximum_ns": 173830
+        },
+        "preintegration": {
+          "calls": 48000,
+          "total_ns": 100210470,
+          "maximum_ns": 13810
+        },
+        "predictor": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "queues": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "state_bytes": 62104,
+        "buffer_bytes": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          0,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "cbf29ce484222325",
+          "961bfe6223659e53",
+          "32079ac7ba1e73b1",
+          "32079ac7ba1e73b1"
+        ]
+      }
+    },
+    {
+      "dataset": "original",
+      "tag": "0.6_7",
+      "scenario": "denied",
+      "mode": "retrodiction",
+      "option": "off",
+      "repeat": 2,
+      "output_sha256": "6829cf64792aaedee0867401af284ee2cc48817cfd447d2f1af44b4fc6acb79d",
+      "binary_sha256": "a60a50675da70c2b1e1ccb1820405dd674726bbdb2ec1cd1aa819fc5f7db774c",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 6001,
+          "total_ns": 443364699,
+          "maximum_ns": 177750
+        },
+        "preintegration": {
+          "calls": 48000,
+          "total_ns": 101454080,
+          "maximum_ns": 21870
+        },
+        "predictor": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "queues": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "state_bytes": 62104,
+        "buffer_bytes": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          0,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "cbf29ce484222325",
+          "961bfe6223659e53",
+          "32079ac7ba1e73b1",
+          "32079ac7ba1e73b1"
+        ]
+      }
+    },
+    {
+      "dataset": "original",
+      "tag": "0.6_7",
+      "scenario": "denied",
+      "mode": "retrodiction",
+      "option": "on",
+      "repeat": 2,
+      "output_sha256": "0ae9da084e0aaf439bc8f6756b74401cb9bd10456fa1554c0738e67702369b76",
+      "binary_sha256": "015aff4c9f45548085511c548a7a47d8726cc56d75fe4fd55556edd6b4b4440c",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 6001,
+          "total_ns": 503410699,
+          "maximum_ns": 236720
+        },
+        "preintegration": {
+          "calls": 48000,
+          "total_ns": 98370650,
+          "maximum_ns": 13570
+        },
+        "predictor": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "queues": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "state_bytes": 62104,
+        "buffer_bytes": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          0,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "cbf29ce484222325",
+          "961bfe6223659e53",
+          "32079ac7ba1e73b1",
+          "32079ac7ba1e73b1"
+        ]
+      }
+    },
+    {
+      "dataset": "original",
+      "tag": "0.6_7",
+      "scenario": "denied",
+      "mode": "horizon",
+      "option": "off",
+      "repeat": 0,
+      "output_sha256": "caef36bd4ab1bf8250e95b9a92e9944576d5047ed883f6bc279bc1f307e3305d",
+      "binary_sha256": "2cf64738c7199337697e99490503fde7f6e7ca8ee04e842be60d0069a66a299e",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 5980,
+          "total_ns": 441404240,
+          "maximum_ns": 167750
+        },
+        "preintegration": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "predictor": {
+          "calls": 48001,
+          "total_ns": 310247670,
+          "maximum_ns": 28620
+        },
+        "queues": {
+          "calls": 6001,
+          "total_ns": 34763230,
+          "maximum_ns": 13180
+        },
+        "state_bytes": 105884,
+        "buffer_bytes": 10488,
+        "fusion_horizon_s": 0.200000003,
+        "worst_residual_age_s": 0.00875091553,
+        "late": 0,
+        "overflow": 0,
+        "stale": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          0,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "cbf29ce484222325",
+          "961bfe6223659e53",
+          "32079ac7ba1e73b1",
+          "32079ac7ba1e73b1"
+        ]
+      }
+    },
+    {
+      "dataset": "original",
+      "tag": "0.6_7",
+      "scenario": "denied",
+      "mode": "horizon",
+      "option": "on",
+      "repeat": 0,
+      "output_sha256": "464a64eb473e280eb2293d4b9d1293d0554bf0d497b733e79a924d43f06494f7",
+      "binary_sha256": "44b0a6569707dcbb5c630a002a93d31eee199cfed3e31a10292dd516a1720da3",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 5980,
+          "total_ns": 518659060,
+          "maximum_ns": 211410
+        },
+        "preintegration": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "predictor": {
+          "calls": 48001,
+          "total_ns": 311344320,
+          "maximum_ns": 23880
+        },
+        "queues": {
+          "calls": 6001,
+          "total_ns": 34842520,
+          "maximum_ns": 14260
+        },
+        "state_bytes": 105884,
+        "buffer_bytes": 10488,
+        "fusion_horizon_s": 0.200000003,
+        "worst_residual_age_s": 0.00875091553,
+        "late": 0,
+        "overflow": 0,
+        "stale": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          0,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "cbf29ce484222325",
+          "961bfe6223659e53",
+          "32079ac7ba1e73b1",
+          "32079ac7ba1e73b1"
+        ]
+      }
+    },
+    {
+      "dataset": "original",
+      "tag": "0.6_7",
+      "scenario": "denied",
+      "mode": "horizon",
+      "option": "on",
+      "repeat": 1,
+      "output_sha256": "464a64eb473e280eb2293d4b9d1293d0554bf0d497b733e79a924d43f06494f7",
+      "binary_sha256": "44b0a6569707dcbb5c630a002a93d31eee199cfed3e31a10292dd516a1720da3",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 5980,
+          "total_ns": 514486230,
+          "maximum_ns": 211820
+        },
+        "preintegration": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "predictor": {
+          "calls": 48001,
+          "total_ns": 335613019,
+          "maximum_ns": 31500
+        },
+        "queues": {
+          "calls": 6001,
+          "total_ns": 34474930,
+          "maximum_ns": 26610
+        },
+        "state_bytes": 105884,
+        "buffer_bytes": 10488,
+        "fusion_horizon_s": 0.200000003,
+        "worst_residual_age_s": 0.00875091553,
+        "late": 0,
+        "overflow": 0,
+        "stale": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          0,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "cbf29ce484222325",
+          "961bfe6223659e53",
+          "32079ac7ba1e73b1",
+          "32079ac7ba1e73b1"
+        ]
+      }
+    },
+    {
+      "dataset": "original",
+      "tag": "0.6_7",
+      "scenario": "denied",
+      "mode": "horizon",
+      "option": "off",
+      "repeat": 1,
+      "output_sha256": "caef36bd4ab1bf8250e95b9a92e9944576d5047ed883f6bc279bc1f307e3305d",
+      "binary_sha256": "2cf64738c7199337697e99490503fde7f6e7ca8ee04e842be60d0069a66a299e",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 5980,
+          "total_ns": 436173390,
+          "maximum_ns": 189110
+        },
+        "preintegration": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "predictor": {
+          "calls": 48001,
+          "total_ns": 305293679,
+          "maximum_ns": 199980
+        },
+        "queues": {
+          "calls": 6001,
+          "total_ns": 34282160,
+          "maximum_ns": 24760
+        },
+        "state_bytes": 105884,
+        "buffer_bytes": 10488,
+        "fusion_horizon_s": 0.200000003,
+        "worst_residual_age_s": 0.00875091553,
+        "late": 0,
+        "overflow": 0,
+        "stale": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          0,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "cbf29ce484222325",
+          "961bfe6223659e53",
+          "32079ac7ba1e73b1",
+          "32079ac7ba1e73b1"
+        ]
+      }
+    },
+    {
+      "dataset": "original",
+      "tag": "0.6_7",
+      "scenario": "denied",
+      "mode": "horizon",
+      "option": "off",
+      "repeat": 2,
+      "output_sha256": "caef36bd4ab1bf8250e95b9a92e9944576d5047ed883f6bc279bc1f307e3305d",
+      "binary_sha256": "2cf64738c7199337697e99490503fde7f6e7ca8ee04e842be60d0069a66a299e",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 5980,
+          "total_ns": 436746519,
+          "maximum_ns": 169730
+        },
+        "preintegration": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "predictor": {
+          "calls": 48001,
+          "total_ns": 304188990,
+          "maximum_ns": 27220
+        },
+        "queues": {
+          "calls": 6001,
+          "total_ns": 34317560,
+          "maximum_ns": 19630
+        },
+        "state_bytes": 105884,
+        "buffer_bytes": 10488,
+        "fusion_horizon_s": 0.200000003,
+        "worst_residual_age_s": 0.00875091553,
+        "late": 0,
+        "overflow": 0,
+        "stale": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          0,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "cbf29ce484222325",
+          "961bfe6223659e53",
+          "32079ac7ba1e73b1",
+          "32079ac7ba1e73b1"
+        ]
+      }
+    },
+    {
+      "dataset": "original",
+      "tag": "0.6_7",
+      "scenario": "denied",
+      "mode": "horizon",
+      "option": "on",
+      "repeat": 2,
+      "output_sha256": "464a64eb473e280eb2293d4b9d1293d0554bf0d497b733e79a924d43f06494f7",
+      "binary_sha256": "44b0a6569707dcbb5c630a002a93d31eee199cfed3e31a10292dd516a1720da3",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 5980,
+          "total_ns": 518288320,
+          "maximum_ns": 221110
+        },
+        "preintegration": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "predictor": {
+          "calls": 48001,
+          "total_ns": 310365399,
+          "maximum_ns": 34850
+        },
+        "queues": {
+          "calls": 6001,
+          "total_ns": 35111110,
+          "maximum_ns": 12900
+        },
+        "state_bytes": 105884,
+        "buffer_bytes": 10488,
+        "fusion_horizon_s": 0.200000003,
+        "worst_residual_age_s": 0.00875091553,
+        "late": 0,
+        "overflow": 0,
+        "stale": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          0,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "cbf29ce484222325",
+          "961bfe6223659e53",
+          "32079ac7ba1e73b1",
+          "32079ac7ba1e73b1"
+        ]
+      }
+    },
+    {
+      "dataset": "original",
+      "tag": "0.6_7",
+      "scenario": "transition",
+      "mode": "retrodiction",
+      "option": "off",
+      "repeat": 0,
+      "output_sha256": "7b508883fbbc3d98d7ca6895917a4c08d933ea85870dcf08bea6455e06e8dec9",
+      "binary_sha256": "a60a50675da70c2b1e1ccb1820405dd674726bbdb2ec1cd1aa819fc5f7db774c",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 6001,
+          "total_ns": 448446459,
+          "maximum_ns": 214770
+        },
+        "preintegration": {
+          "calls": 48000,
+          "total_ns": 99033940,
+          "maximum_ns": 15040
+        },
+        "predictor": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "queues": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "state_bytes": 62104,
+        "buffer_bytes": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          449,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "c8a957ee118e61ae",
+          "961bfe6223659e53",
+          "32079ac7ba1e73b1",
+          "32079ac7ba1e73b1"
+        ]
+      }
+    },
+    {
+      "dataset": "original",
+      "tag": "0.6_7",
+      "scenario": "transition",
+      "mode": "retrodiction",
+      "option": "on",
+      "repeat": 0,
+      "output_sha256": "f0939dafbf078e9162d4af62c24aafdb51fb1a019c3a6e66922b70d069de36dd",
+      "binary_sha256": "015aff4c9f45548085511c548a7a47d8726cc56d75fe4fd55556edd6b4b4440c",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 6001,
+          "total_ns": 521692019,
+          "maximum_ns": 224070
+        },
+        "preintegration": {
+          "calls": 48000,
+          "total_ns": 98630130,
+          "maximum_ns": 20120
+        },
+        "predictor": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "queues": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "state_bytes": 62104,
+        "buffer_bytes": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          449,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "c8a957ee118e61ae",
+          "961bfe6223659e53",
+          "32079ac7ba1e73b1",
+          "32079ac7ba1e73b1"
+        ]
+      }
+    },
+    {
+      "dataset": "original",
+      "tag": "0.6_7",
+      "scenario": "transition",
+      "mode": "retrodiction",
+      "option": "on",
+      "repeat": 1,
+      "output_sha256": "f0939dafbf078e9162d4af62c24aafdb51fb1a019c3a6e66922b70d069de36dd",
+      "binary_sha256": "015aff4c9f45548085511c548a7a47d8726cc56d75fe4fd55556edd6b4b4440c",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 6001,
+          "total_ns": 528785390,
+          "maximum_ns": 221880
+        },
+        "preintegration": {
+          "calls": 48000,
+          "total_ns": 99907590,
+          "maximum_ns": 14810
+        },
+        "predictor": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "queues": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "state_bytes": 62104,
+        "buffer_bytes": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          449,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "c8a957ee118e61ae",
+          "961bfe6223659e53",
+          "32079ac7ba1e73b1",
+          "32079ac7ba1e73b1"
+        ]
+      }
+    },
+    {
+      "dataset": "original",
+      "tag": "0.6_7",
+      "scenario": "transition",
+      "mode": "retrodiction",
+      "option": "off",
+      "repeat": 1,
+      "output_sha256": "7b508883fbbc3d98d7ca6895917a4c08d933ea85870dcf08bea6455e06e8dec9",
+      "binary_sha256": "a60a50675da70c2b1e1ccb1820405dd674726bbdb2ec1cd1aa819fc5f7db774c",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 6001,
+          "total_ns": 457378300,
+          "maximum_ns": 211680
+        },
+        "preintegration": {
+          "calls": 48000,
+          "total_ns": 100396850,
+          "maximum_ns": 16250
+        },
+        "predictor": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "queues": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "state_bytes": 62104,
+        "buffer_bytes": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          449,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "c8a957ee118e61ae",
+          "961bfe6223659e53",
+          "32079ac7ba1e73b1",
+          "32079ac7ba1e73b1"
+        ]
+      }
+    },
+    {
+      "dataset": "original",
+      "tag": "0.6_7",
+      "scenario": "transition",
+      "mode": "retrodiction",
+      "option": "off",
+      "repeat": 2,
+      "output_sha256": "7b508883fbbc3d98d7ca6895917a4c08d933ea85870dcf08bea6455e06e8dec9",
+      "binary_sha256": "a60a50675da70c2b1e1ccb1820405dd674726bbdb2ec1cd1aa819fc5f7db774c",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 6001,
+          "total_ns": 462307500,
+          "maximum_ns": 301760
+        },
+        "preintegration": {
+          "calls": 48000,
+          "total_ns": 102180150,
+          "maximum_ns": 11660
+        },
+        "predictor": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "queues": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "state_bytes": 62104,
+        "buffer_bytes": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          449,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "c8a957ee118e61ae",
+          "961bfe6223659e53",
+          "32079ac7ba1e73b1",
+          "32079ac7ba1e73b1"
+        ]
+      }
+    },
+    {
+      "dataset": "original",
+      "tag": "0.6_7",
+      "scenario": "transition",
+      "mode": "retrodiction",
+      "option": "on",
+      "repeat": 2,
+      "output_sha256": "f0939dafbf078e9162d4af62c24aafdb51fb1a019c3a6e66922b70d069de36dd",
+      "binary_sha256": "015aff4c9f45548085511c548a7a47d8726cc56d75fe4fd55556edd6b4b4440c",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 6001,
+          "total_ns": 571057890,
+          "maximum_ns": 327950
+        },
+        "preintegration": {
+          "calls": 48000,
+          "total_ns": 109020900,
+          "maximum_ns": 25140
+        },
+        "predictor": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "queues": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "state_bytes": 62104,
+        "buffer_bytes": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          449,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "c8a957ee118e61ae",
+          "961bfe6223659e53",
+          "32079ac7ba1e73b1",
+          "32079ac7ba1e73b1"
+        ]
+      }
+    },
+    {
+      "dataset": "original",
+      "tag": "0.6_7",
+      "scenario": "transition",
+      "mode": "horizon",
+      "option": "off",
+      "repeat": 0,
+      "output_sha256": "6559e0d0515e351339d1569543151a673bc1f9124e4d78b993229ed56eeec744",
+      "binary_sha256": "2cf64738c7199337697e99490503fde7f6e7ca8ee04e842be60d0069a66a299e",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 5980,
+          "total_ns": 489097929,
+          "maximum_ns": 291610
+        },
+        "preintegration": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "predictor": {
+          "calls": 48001,
+          "total_ns": 323025070,
+          "maximum_ns": 28970
+        },
+        "queues": {
+          "calls": 6001,
+          "total_ns": 36998410,
+          "maximum_ns": 18400
+        },
+        "state_bytes": 105884,
+        "buffer_bytes": 10488,
+        "fusion_horizon_s": 0.200000003,
+        "worst_residual_age_s": 0.00875091553,
+        "late": 0,
+        "overflow": 0,
+        "stale": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          449,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "c8a957ee118e61ae",
+          "961bfe6223659e53",
+          "32079ac7ba1e73b1",
+          "32079ac7ba1e73b1"
+        ]
+      }
+    },
+    {
+      "dataset": "original",
+      "tag": "0.6_7",
+      "scenario": "transition",
+      "mode": "horizon",
+      "option": "on",
+      "repeat": 0,
+      "output_sha256": "2544e46e5cac02d576312a89c796bca8fea9c396b67c5c59732ebdc0eaebd8ff",
+      "binary_sha256": "44b0a6569707dcbb5c630a002a93d31eee199cfed3e31a10292dd516a1720da3",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 5980,
+          "total_ns": 559968040,
+          "maximum_ns": 314150
+        },
+        "preintegration": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "predictor": {
+          "calls": 48001,
+          "total_ns": 314795230,
+          "maximum_ns": 32170
+        },
+        "queues": {
+          "calls": 6001,
+          "total_ns": 36285490,
+          "maximum_ns": 49640
+        },
+        "state_bytes": 105884,
+        "buffer_bytes": 10488,
+        "fusion_horizon_s": 0.200000003,
+        "worst_residual_age_s": 0.00875091553,
+        "late": 0,
+        "overflow": 0,
+        "stale": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          449,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "c8a957ee118e61ae",
+          "961bfe6223659e53",
+          "32079ac7ba1e73b1",
+          "32079ac7ba1e73b1"
+        ]
+      }
+    },
+    {
+      "dataset": "original",
+      "tag": "0.6_7",
+      "scenario": "transition",
+      "mode": "horizon",
+      "option": "on",
+      "repeat": 1,
+      "output_sha256": "2544e46e5cac02d576312a89c796bca8fea9c396b67c5c59732ebdc0eaebd8ff",
+      "binary_sha256": "44b0a6569707dcbb5c630a002a93d31eee199cfed3e31a10292dd516a1720da3",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 5980,
+          "total_ns": 599292230,
+          "maximum_ns": 332790
+        },
+        "preintegration": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "predictor": {
+          "calls": 48001,
+          "total_ns": 346117959,
+          "maximum_ns": 27200
+        },
+        "queues": {
+          "calls": 6001,
+          "total_ns": 39884790,
+          "maximum_ns": 30100
+        },
+        "state_bytes": 105884,
+        "buffer_bytes": 10488,
+        "fusion_horizon_s": 0.200000003,
+        "worst_residual_age_s": 0.00875091553,
+        "late": 0,
+        "overflow": 0,
+        "stale": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          449,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "c8a957ee118e61ae",
+          "961bfe6223659e53",
+          "32079ac7ba1e73b1",
+          "32079ac7ba1e73b1"
+        ]
+      }
+    },
+    {
+      "dataset": "original",
+      "tag": "0.6_7",
+      "scenario": "transition",
+      "mode": "horizon",
+      "option": "off",
+      "repeat": 1,
+      "output_sha256": "6559e0d0515e351339d1569543151a673bc1f9124e4d78b993229ed56eeec744",
+      "binary_sha256": "2cf64738c7199337697e99490503fde7f6e7ca8ee04e842be60d0069a66a299e",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 5980,
+          "total_ns": 510463869,
+          "maximum_ns": 287750
+        },
+        "preintegration": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "predictor": {
+          "calls": 48001,
+          "total_ns": 339912450,
+          "maximum_ns": 30340
+        },
+        "queues": {
+          "calls": 6001,
+          "total_ns": 39366319,
+          "maximum_ns": 17040
+        },
+        "state_bytes": 105884,
+        "buffer_bytes": 10488,
+        "fusion_horizon_s": 0.200000003,
+        "worst_residual_age_s": 0.00875091553,
+        "late": 0,
+        "overflow": 0,
+        "stale": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          449,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "c8a957ee118e61ae",
+          "961bfe6223659e53",
+          "32079ac7ba1e73b1",
+          "32079ac7ba1e73b1"
+        ]
+      }
+    },
+    {
+      "dataset": "original",
+      "tag": "0.6_7",
+      "scenario": "transition",
+      "mode": "horizon",
+      "option": "off",
+      "repeat": 2,
+      "output_sha256": "6559e0d0515e351339d1569543151a673bc1f9124e4d78b993229ed56eeec744",
+      "binary_sha256": "2cf64738c7199337697e99490503fde7f6e7ca8ee04e842be60d0069a66a299e",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 5980,
+          "total_ns": 480251569,
+          "maximum_ns": 266720
+        },
+        "preintegration": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "predictor": {
+          "calls": 48001,
+          "total_ns": 314349940,
+          "maximum_ns": 34440
+        },
+        "queues": {
+          "calls": 6001,
+          "total_ns": 36203640,
+          "maximum_ns": 22620
+        },
+        "state_bytes": 105884,
+        "buffer_bytes": 10488,
+        "fusion_horizon_s": 0.200000003,
+        "worst_residual_age_s": 0.00875091553,
+        "late": 0,
+        "overflow": 0,
+        "stale": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          449,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "c8a957ee118e61ae",
+          "961bfe6223659e53",
+          "32079ac7ba1e73b1",
+          "32079ac7ba1e73b1"
+        ]
+      }
+    },
+    {
+      "dataset": "original",
+      "tag": "0.6_7",
+      "scenario": "transition",
+      "mode": "horizon",
+      "option": "on",
+      "repeat": 2,
+      "output_sha256": "2544e46e5cac02d576312a89c796bca8fea9c396b67c5c59732ebdc0eaebd8ff",
+      "binary_sha256": "44b0a6569707dcbb5c630a002a93d31eee199cfed3e31a10292dd516a1720da3",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 5980,
+          "total_ns": 623790710,
+          "maximum_ns": 450780
+        },
+        "preintegration": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "predictor": {
+          "calls": 48001,
+          "total_ns": 365335280,
+          "maximum_ns": 49370
+        },
+        "queues": {
+          "calls": 6001,
+          "total_ns": 41579000,
+          "maximum_ns": 25870
+        },
+        "state_bytes": 105884,
+        "buffer_bytes": 10488,
+        "fusion_horizon_s": 0.200000003,
+        "worst_residual_age_s": 0.00875091553,
+        "late": 0,
+        "overflow": 0,
+        "stale": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          449,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "c8a957ee118e61ae",
+          "961bfe6223659e53",
+          "32079ac7ba1e73b1",
+          "32079ac7ba1e73b1"
+        ]
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_101",
+      "scenario": "gps",
+      "mode": "retrodiction",
+      "option": "off",
+      "repeat": 0,
+      "output_sha256": "3bb8bd60c59dcc20331632b03d1c338ea6de3cd19be62171e0a72947734bd326",
+      "binary_sha256": "a60a50675da70c2b1e1ccb1820405dd674726bbdb2ec1cd1aa819fc5f7db774c",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 6001,
+          "total_ns": 479195229,
+          "maximum_ns": 209120
+        },
+        "preintegration": {
+          "calls": 48000,
+          "total_ns": 104430290,
+          "maximum_ns": 31090
+        },
+        "predictor": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "queues": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "state_bytes": 62104,
+        "buffer_bytes": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          599,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "45fe2e69d20e6a65",
+          "6a567c691aff57b7",
+          "fc1b64c60e8b82c8",
+          "fc1b64c60e8b82c8"
+        ]
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_101",
+      "scenario": "gps",
+      "mode": "retrodiction",
+      "option": "on",
+      "repeat": 0,
+      "output_sha256": "e7865e2682711a4f040f591369193c52be639de99688ae0d621276806473f991",
+      "binary_sha256": "015aff4c9f45548085511c548a7a47d8726cc56d75fe4fd55556edd6b4b4440c",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 6001,
+          "total_ns": 576469330,
+          "maximum_ns": 230720
+        },
+        "preintegration": {
+          "calls": 48000,
+          "total_ns": 108056149,
+          "maximum_ns": 17430
+        },
+        "predictor": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "queues": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "state_bytes": 62104,
+        "buffer_bytes": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          599,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "45fe2e69d20e6a65",
+          "6a567c691aff57b7",
+          "fc1b64c60e8b82c8",
+          "fc1b64c60e8b82c8"
+        ]
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_101",
+      "scenario": "gps",
+      "mode": "retrodiction",
+      "option": "on",
+      "repeat": 1,
+      "output_sha256": "e7865e2682711a4f040f591369193c52be639de99688ae0d621276806473f991",
+      "binary_sha256": "015aff4c9f45548085511c548a7a47d8726cc56d75fe4fd55556edd6b4b4440c",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 6001,
+          "total_ns": 570338389,
+          "maximum_ns": 226060
+        },
+        "preintegration": {
+          "calls": 48000,
+          "total_ns": 107059010,
+          "maximum_ns": 20560
+        },
+        "predictor": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "queues": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "state_bytes": 62104,
+        "buffer_bytes": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          599,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "45fe2e69d20e6a65",
+          "6a567c691aff57b7",
+          "fc1b64c60e8b82c8",
+          "fc1b64c60e8b82c8"
+        ]
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_101",
+      "scenario": "gps",
+      "mode": "retrodiction",
+      "option": "off",
+      "repeat": 1,
+      "output_sha256": "3bb8bd60c59dcc20331632b03d1c338ea6de3cd19be62171e0a72947734bd326",
+      "binary_sha256": "a60a50675da70c2b1e1ccb1820405dd674726bbdb2ec1cd1aa819fc5f7db774c",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 6001,
+          "total_ns": 472698880,
+          "maximum_ns": 208320
+        },
+        "preintegration": {
+          "calls": 48000,
+          "total_ns": 102781560,
+          "maximum_ns": 23840
+        },
+        "predictor": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "queues": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "state_bytes": 62104,
+        "buffer_bytes": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          599,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "45fe2e69d20e6a65",
+          "6a567c691aff57b7",
+          "fc1b64c60e8b82c8",
+          "fc1b64c60e8b82c8"
+        ]
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_101",
+      "scenario": "gps",
+      "mode": "retrodiction",
+      "option": "off",
+      "repeat": 2,
+      "output_sha256": "3bb8bd60c59dcc20331632b03d1c338ea6de3cd19be62171e0a72947734bd326",
+      "binary_sha256": "a60a50675da70c2b1e1ccb1820405dd674726bbdb2ec1cd1aa819fc5f7db774c",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 6001,
+          "total_ns": 460827090,
+          "maximum_ns": 201970
+        },
+        "preintegration": {
+          "calls": 48000,
+          "total_ns": 100867780,
+          "maximum_ns": 13680
+        },
+        "predictor": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "queues": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "state_bytes": 62104,
+        "buffer_bytes": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          599,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "45fe2e69d20e6a65",
+          "6a567c691aff57b7",
+          "fc1b64c60e8b82c8",
+          "fc1b64c60e8b82c8"
+        ]
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_101",
+      "scenario": "gps",
+      "mode": "retrodiction",
+      "option": "on",
+      "repeat": 2,
+      "output_sha256": "e7865e2682711a4f040f591369193c52be639de99688ae0d621276806473f991",
+      "binary_sha256": "015aff4c9f45548085511c548a7a47d8726cc56d75fe4fd55556edd6b4b4440c",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 6001,
+          "total_ns": 539472749,
+          "maximum_ns": 228410
+        },
+        "preintegration": {
+          "calls": 48000,
+          "total_ns": 100696740,
+          "maximum_ns": 14060
+        },
+        "predictor": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "queues": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "state_bytes": 62104,
+        "buffer_bytes": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          599,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "45fe2e69d20e6a65",
+          "6a567c691aff57b7",
+          "fc1b64c60e8b82c8",
+          "fc1b64c60e8b82c8"
+        ]
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_101",
+      "scenario": "gps",
+      "mode": "horizon",
+      "option": "off",
+      "repeat": 0,
+      "output_sha256": "6120392477c6b62636721e5e77188d8cd0a2bbf4c753867b737b20879125f482",
+      "binary_sha256": "2cf64738c7199337697e99490503fde7f6e7ca8ee04e842be60d0069a66a299e",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 5980,
+          "total_ns": 501351890,
+          "maximum_ns": 273040
+        },
+        "preintegration": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "predictor": {
+          "calls": 48001,
+          "total_ns": 324755639,
+          "maximum_ns": 28010
+        },
+        "queues": {
+          "calls": 6001,
+          "total_ns": 37849820,
+          "maximum_ns": 22230
+        },
+        "state_bytes": 105884,
+        "buffer_bytes": 10488,
+        "fusion_horizon_s": 0.200000003,
+        "worst_residual_age_s": 0.00875091553,
+        "late": 0,
+        "overflow": 0,
+        "stale": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          599,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "45fe2e69d20e6a65",
+          "6a567c691aff57b7",
+          "fc1b64c60e8b82c8",
+          "fc1b64c60e8b82c8"
+        ]
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_101",
+      "scenario": "gps",
+      "mode": "horizon",
+      "option": "on",
+      "repeat": 0,
+      "output_sha256": "b03170a8276304df78110588a6dd1d7520d2ef57318099649fd34a7590e4c09f",
+      "binary_sha256": "44b0a6569707dcbb5c630a002a93d31eee199cfed3e31a10292dd516a1720da3",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 5980,
+          "total_ns": 566835569,
+          "maximum_ns": 327230
+        },
+        "preintegration": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "predictor": {
+          "calls": 48001,
+          "total_ns": 310648320,
+          "maximum_ns": 30300
+        },
+        "queues": {
+          "calls": 6001,
+          "total_ns": 35558910,
+          "maximum_ns": 24700
+        },
+        "state_bytes": 105884,
+        "buffer_bytes": 10488,
+        "fusion_horizon_s": 0.200000003,
+        "worst_residual_age_s": 0.00875091553,
+        "late": 0,
+        "overflow": 0,
+        "stale": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          599,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "45fe2e69d20e6a65",
+          "6a567c691aff57b7",
+          "fc1b64c60e8b82c8",
+          "fc1b64c60e8b82c8"
+        ]
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_101",
+      "scenario": "gps",
+      "mode": "horizon",
+      "option": "on",
+      "repeat": 1,
+      "output_sha256": "b03170a8276304df78110588a6dd1d7520d2ef57318099649fd34a7590e4c09f",
+      "binary_sha256": "44b0a6569707dcbb5c630a002a93d31eee199cfed3e31a10292dd516a1720da3",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 5980,
+          "total_ns": 554491880,
+          "maximum_ns": 312940
+        },
+        "preintegration": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "predictor": {
+          "calls": 48001,
+          "total_ns": 301350729,
+          "maximum_ns": 28930
+        },
+        "queues": {
+          "calls": 6001,
+          "total_ns": 34238510,
+          "maximum_ns": 12710
+        },
+        "state_bytes": 105884,
+        "buffer_bytes": 10488,
+        "fusion_horizon_s": 0.200000003,
+        "worst_residual_age_s": 0.00875091553,
+        "late": 0,
+        "overflow": 0,
+        "stale": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          599,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "45fe2e69d20e6a65",
+          "6a567c691aff57b7",
+          "fc1b64c60e8b82c8",
+          "fc1b64c60e8b82c8"
+        ]
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_101",
+      "scenario": "gps",
+      "mode": "horizon",
+      "option": "off",
+      "repeat": 1,
+      "output_sha256": "6120392477c6b62636721e5e77188d8cd0a2bbf4c753867b737b20879125f482",
+      "binary_sha256": "2cf64738c7199337697e99490503fde7f6e7ca8ee04e842be60d0069a66a299e",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 5980,
+          "total_ns": 474819899,
+          "maximum_ns": 264160
+        },
+        "preintegration": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "predictor": {
+          "calls": 48001,
+          "total_ns": 301158470,
+          "maximum_ns": 21290
+        },
+        "queues": {
+          "calls": 6001,
+          "total_ns": 33840020,
+          "maximum_ns": 12200
+        },
+        "state_bytes": 105884,
+        "buffer_bytes": 10488,
+        "fusion_horizon_s": 0.200000003,
+        "worst_residual_age_s": 0.00875091553,
+        "late": 0,
+        "overflow": 0,
+        "stale": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          599,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "45fe2e69d20e6a65",
+          "6a567c691aff57b7",
+          "fc1b64c60e8b82c8",
+          "fc1b64c60e8b82c8"
+        ]
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_101",
+      "scenario": "gps",
+      "mode": "horizon",
+      "option": "off",
+      "repeat": 2,
+      "output_sha256": "6120392477c6b62636721e5e77188d8cd0a2bbf4c753867b737b20879125f482",
+      "binary_sha256": "2cf64738c7199337697e99490503fde7f6e7ca8ee04e842be60d0069a66a299e",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 5980,
+          "total_ns": 480820519,
+          "maximum_ns": 258620
+        },
+        "preintegration": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "predictor": {
+          "calls": 48001,
+          "total_ns": 306486590,
+          "maximum_ns": 21200
+        },
+        "queues": {
+          "calls": 6001,
+          "total_ns": 34894690,
+          "maximum_ns": 14770
+        },
+        "state_bytes": 105884,
+        "buffer_bytes": 10488,
+        "fusion_horizon_s": 0.200000003,
+        "worst_residual_age_s": 0.00875091553,
+        "late": 0,
+        "overflow": 0,
+        "stale": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          599,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "45fe2e69d20e6a65",
+          "6a567c691aff57b7",
+          "fc1b64c60e8b82c8",
+          "fc1b64c60e8b82c8"
+        ]
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_101",
+      "scenario": "gps",
+      "mode": "horizon",
+      "option": "on",
+      "repeat": 2,
+      "output_sha256": "b03170a8276304df78110588a6dd1d7520d2ef57318099649fd34a7590e4c09f",
+      "binary_sha256": "44b0a6569707dcbb5c630a002a93d31eee199cfed3e31a10292dd516a1720da3",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 5980,
+          "total_ns": 559336239,
+          "maximum_ns": 313420
+        },
+        "preintegration": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "predictor": {
+          "calls": 48001,
+          "total_ns": 308001980,
+          "maximum_ns": 20750
+        },
+        "queues": {
+          "calls": 6001,
+          "total_ns": 35182990,
+          "maximum_ns": 28590
+        },
+        "state_bytes": 105884,
+        "buffer_bytes": 10488,
+        "fusion_horizon_s": 0.200000003,
+        "worst_residual_age_s": 0.00875091553,
+        "late": 0,
+        "overflow": 0,
+        "stale": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          599,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "45fe2e69d20e6a65",
+          "6a567c691aff57b7",
+          "fc1b64c60e8b82c8",
+          "fc1b64c60e8b82c8"
+        ]
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_101",
+      "scenario": "denied",
+      "mode": "retrodiction",
+      "option": "off",
+      "repeat": 0,
+      "output_sha256": "7291fe28795fa7e3815a147f6a29295d693bf4741cb7c28338a1385727c276c0",
+      "binary_sha256": "a60a50675da70c2b1e1ccb1820405dd674726bbdb2ec1cd1aa819fc5f7db774c",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 6001,
+          "total_ns": 507540049,
+          "maximum_ns": 262140
+        },
+        "preintegration": {
+          "calls": 48000,
+          "total_ns": 116667900,
+          "maximum_ns": 19550
+        },
+        "predictor": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "queues": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "state_bytes": 62104,
+        "buffer_bytes": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          0,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "cbf29ce484222325",
+          "6a567c691aff57b7",
+          "fc1b64c60e8b82c8",
+          "fc1b64c60e8b82c8"
+        ]
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_101",
+      "scenario": "denied",
+      "mode": "retrodiction",
+      "option": "on",
+      "repeat": 0,
+      "output_sha256": "c5c18ab1d143a91f26db317787d7e09a17ff79936dedaec864f256d411087e13",
+      "binary_sha256": "015aff4c9f45548085511c548a7a47d8726cc56d75fe4fd55556edd6b4b4440c",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 6001,
+          "total_ns": 504708949,
+          "maximum_ns": 230280
+        },
+        "preintegration": {
+          "calls": 48000,
+          "total_ns": 99124920,
+          "maximum_ns": 16460
+        },
+        "predictor": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "queues": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "state_bytes": 62104,
+        "buffer_bytes": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          0,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "cbf29ce484222325",
+          "6a567c691aff57b7",
+          "fc1b64c60e8b82c8",
+          "fc1b64c60e8b82c8"
+        ]
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_101",
+      "scenario": "denied",
+      "mode": "retrodiction",
+      "option": "on",
+      "repeat": 1,
+      "output_sha256": "c5c18ab1d143a91f26db317787d7e09a17ff79936dedaec864f256d411087e13",
+      "binary_sha256": "015aff4c9f45548085511c548a7a47d8726cc56d75fe4fd55556edd6b4b4440c",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 6001,
+          "total_ns": 500314779,
+          "maximum_ns": 209160
+        },
+        "preintegration": {
+          "calls": 48000,
+          "total_ns": 98151640,
+          "maximum_ns": 14700
+        },
+        "predictor": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "queues": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "state_bytes": 62104,
+        "buffer_bytes": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          0,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "cbf29ce484222325",
+          "6a567c691aff57b7",
+          "fc1b64c60e8b82c8",
+          "fc1b64c60e8b82c8"
+        ]
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_101",
+      "scenario": "denied",
+      "mode": "retrodiction",
+      "option": "off",
+      "repeat": 1,
+      "output_sha256": "7291fe28795fa7e3815a147f6a29295d693bf4741cb7c28338a1385727c276c0",
+      "binary_sha256": "a60a50675da70c2b1e1ccb1820405dd674726bbdb2ec1cd1aa819fc5f7db774c",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 6001,
+          "total_ns": 432943019,
+          "maximum_ns": 170290
+        },
+        "preintegration": {
+          "calls": 48000,
+          "total_ns": 99729910,
+          "maximum_ns": 11960
+        },
+        "predictor": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "queues": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "state_bytes": 62104,
+        "buffer_bytes": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          0,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "cbf29ce484222325",
+          "6a567c691aff57b7",
+          "fc1b64c60e8b82c8",
+          "fc1b64c60e8b82c8"
+        ]
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_101",
+      "scenario": "denied",
+      "mode": "retrodiction",
+      "option": "off",
+      "repeat": 2,
+      "output_sha256": "7291fe28795fa7e3815a147f6a29295d693bf4741cb7c28338a1385727c276c0",
+      "binary_sha256": "a60a50675da70c2b1e1ccb1820405dd674726bbdb2ec1cd1aa819fc5f7db774c",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 6001,
+          "total_ns": 436695820,
+          "maximum_ns": 173260
+        },
+        "preintegration": {
+          "calls": 48000,
+          "total_ns": 99614470,
+          "maximum_ns": 27210
+        },
+        "predictor": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "queues": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "state_bytes": 62104,
+        "buffer_bytes": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          0,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "cbf29ce484222325",
+          "6a567c691aff57b7",
+          "fc1b64c60e8b82c8",
+          "fc1b64c60e8b82c8"
+        ]
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_101",
+      "scenario": "denied",
+      "mode": "retrodiction",
+      "option": "on",
+      "repeat": 2,
+      "output_sha256": "c5c18ab1d143a91f26db317787d7e09a17ff79936dedaec864f256d411087e13",
+      "binary_sha256": "015aff4c9f45548085511c548a7a47d8726cc56d75fe4fd55556edd6b4b4440c",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 6001,
+          "total_ns": 513095839,
+          "maximum_ns": 211250
+        },
+        "preintegration": {
+          "calls": 48000,
+          "total_ns": 100164610,
+          "maximum_ns": 14700
+        },
+        "predictor": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "queues": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "state_bytes": 62104,
+        "buffer_bytes": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          0,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "cbf29ce484222325",
+          "6a567c691aff57b7",
+          "fc1b64c60e8b82c8",
+          "fc1b64c60e8b82c8"
+        ]
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_101",
+      "scenario": "denied",
+      "mode": "horizon",
+      "option": "off",
+      "repeat": 0,
+      "output_sha256": "ba05f357e6b401814d80f5e822938369c1d6cb9d825227290d4b736bcd9cd1f1",
+      "binary_sha256": "2cf64738c7199337697e99490503fde7f6e7ca8ee04e842be60d0069a66a299e",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 5980,
+          "total_ns": 443408979,
+          "maximum_ns": 184960
+        },
+        "preintegration": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "predictor": {
+          "calls": 48001,
+          "total_ns": 311150780,
+          "maximum_ns": 25150
+        },
+        "queues": {
+          "calls": 6001,
+          "total_ns": 34490490,
+          "maximum_ns": 16580
+        },
+        "state_bytes": 105884,
+        "buffer_bytes": 10488,
+        "fusion_horizon_s": 0.200000003,
+        "worst_residual_age_s": 0.00875091553,
+        "late": 0,
+        "overflow": 0,
+        "stale": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          0,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "cbf29ce484222325",
+          "6a567c691aff57b7",
+          "fc1b64c60e8b82c8",
+          "fc1b64c60e8b82c8"
+        ]
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_101",
+      "scenario": "denied",
+      "mode": "horizon",
+      "option": "on",
+      "repeat": 0,
+      "output_sha256": "e3fbf43e276a0187f0148902b00db6e2dfc91755a0221dda2b3684a3deefe505",
+      "binary_sha256": "44b0a6569707dcbb5c630a002a93d31eee199cfed3e31a10292dd516a1720da3",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 5980,
+          "total_ns": 507487759,
+          "maximum_ns": 307720
+        },
+        "preintegration": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "predictor": {
+          "calls": 48001,
+          "total_ns": 300550420,
+          "maximum_ns": 27230
+        },
+        "queues": {
+          "calls": 6001,
+          "total_ns": 33529900,
+          "maximum_ns": 15210
+        },
+        "state_bytes": 105884,
+        "buffer_bytes": 10488,
+        "fusion_horizon_s": 0.200000003,
+        "worst_residual_age_s": 0.00875091553,
+        "late": 0,
+        "overflow": 0,
+        "stale": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          0,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "cbf29ce484222325",
+          "6a567c691aff57b7",
+          "fc1b64c60e8b82c8",
+          "fc1b64c60e8b82c8"
+        ]
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_101",
+      "scenario": "denied",
+      "mode": "horizon",
+      "option": "on",
+      "repeat": 1,
+      "output_sha256": "e3fbf43e276a0187f0148902b00db6e2dfc91755a0221dda2b3684a3deefe505",
+      "binary_sha256": "44b0a6569707dcbb5c630a002a93d31eee199cfed3e31a10292dd516a1720da3",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 5980,
+          "total_ns": 506662100,
+          "maximum_ns": 206590
+        },
+        "preintegration": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "predictor": {
+          "calls": 48001,
+          "total_ns": 301532299,
+          "maximum_ns": 31440
+        },
+        "queues": {
+          "calls": 6001,
+          "total_ns": 33708850,
+          "maximum_ns": 14100
+        },
+        "state_bytes": 105884,
+        "buffer_bytes": 10488,
+        "fusion_horizon_s": 0.200000003,
+        "worst_residual_age_s": 0.00875091553,
+        "late": 0,
+        "overflow": 0,
+        "stale": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          0,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "cbf29ce484222325",
+          "6a567c691aff57b7",
+          "fc1b64c60e8b82c8",
+          "fc1b64c60e8b82c8"
+        ]
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_101",
+      "scenario": "denied",
+      "mode": "horizon",
+      "option": "off",
+      "repeat": 1,
+      "output_sha256": "ba05f357e6b401814d80f5e822938369c1d6cb9d825227290d4b736bcd9cd1f1",
+      "binary_sha256": "2cf64738c7199337697e99490503fde7f6e7ca8ee04e842be60d0069a66a299e",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 5980,
+          "total_ns": 432536930,
+          "maximum_ns": 171460
+        },
+        "preintegration": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "predictor": {
+          "calls": 48001,
+          "total_ns": 300533159,
+          "maximum_ns": 26010
+        },
+        "queues": {
+          "calls": 6001,
+          "total_ns": 33110190,
+          "maximum_ns": 17780
+        },
+        "state_bytes": 105884,
+        "buffer_bytes": 10488,
+        "fusion_horizon_s": 0.200000003,
+        "worst_residual_age_s": 0.00875091553,
+        "late": 0,
+        "overflow": 0,
+        "stale": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          0,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "cbf29ce484222325",
+          "6a567c691aff57b7",
+          "fc1b64c60e8b82c8",
+          "fc1b64c60e8b82c8"
+        ]
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_101",
+      "scenario": "denied",
+      "mode": "horizon",
+      "option": "off",
+      "repeat": 2,
+      "output_sha256": "ba05f357e6b401814d80f5e822938369c1d6cb9d825227290d4b736bcd9cd1f1",
+      "binary_sha256": "2cf64738c7199337697e99490503fde7f6e7ca8ee04e842be60d0069a66a299e",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 5980,
+          "total_ns": 435617200,
+          "maximum_ns": 200970
+        },
+        "preintegration": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "predictor": {
+          "calls": 48001,
+          "total_ns": 304586720,
+          "maximum_ns": 24610
+        },
+        "queues": {
+          "calls": 6001,
+          "total_ns": 33702620,
+          "maximum_ns": 18240
+        },
+        "state_bytes": 105884,
+        "buffer_bytes": 10488,
+        "fusion_horizon_s": 0.200000003,
+        "worst_residual_age_s": 0.00875091553,
+        "late": 0,
+        "overflow": 0,
+        "stale": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          0,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "cbf29ce484222325",
+          "6a567c691aff57b7",
+          "fc1b64c60e8b82c8",
+          "fc1b64c60e8b82c8"
+        ]
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_101",
+      "scenario": "denied",
+      "mode": "horizon",
+      "option": "on",
+      "repeat": 2,
+      "output_sha256": "e3fbf43e276a0187f0148902b00db6e2dfc91755a0221dda2b3684a3deefe505",
+      "binary_sha256": "44b0a6569707dcbb5c630a002a93d31eee199cfed3e31a10292dd516a1720da3",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 5980,
+          "total_ns": 508967349,
+          "maximum_ns": 206910
+        },
+        "preintegration": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "predictor": {
+          "calls": 48001,
+          "total_ns": 302693630,
+          "maximum_ns": 33010
+        },
+        "queues": {
+          "calls": 6001,
+          "total_ns": 33490590,
+          "maximum_ns": 13220
+        },
+        "state_bytes": 105884,
+        "buffer_bytes": 10488,
+        "fusion_horizon_s": 0.200000003,
+        "worst_residual_age_s": 0.00875091553,
+        "late": 0,
+        "overflow": 0,
+        "stale": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          0,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "cbf29ce484222325",
+          "6a567c691aff57b7",
+          "fc1b64c60e8b82c8",
+          "fc1b64c60e8b82c8"
+        ]
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_101",
+      "scenario": "transition",
+      "mode": "retrodiction",
+      "option": "off",
+      "repeat": 0,
+      "output_sha256": "c0eb69b8e87cfb1ed067c65cf1854f79814311f06b574a46122fd80c4734ca1d",
+      "binary_sha256": "a60a50675da70c2b1e1ccb1820405dd674726bbdb2ec1cd1aa819fc5f7db774c",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 6001,
+          "total_ns": 447678449,
+          "maximum_ns": 204480
+        },
+        "preintegration": {
+          "calls": 48000,
+          "total_ns": 98817280,
+          "maximum_ns": 22410
+        },
+        "predictor": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "queues": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "state_bytes": 62104,
+        "buffer_bytes": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          449,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "e7f14fd68d342baf",
+          "6a567c691aff57b7",
+          "fc1b64c60e8b82c8",
+          "fc1b64c60e8b82c8"
+        ]
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_101",
+      "scenario": "transition",
+      "mode": "retrodiction",
+      "option": "on",
+      "repeat": 0,
+      "output_sha256": "c9b3ebb9f2bb7e551ddb51ab1c5e2a9f6cde3fae273bb93858b10e4da0856950",
+      "binary_sha256": "015aff4c9f45548085511c548a7a47d8726cc56d75fe4fd55556edd6b4b4440c",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 6001,
+          "total_ns": 519504839,
+          "maximum_ns": 228370
+        },
+        "preintegration": {
+          "calls": 48000,
+          "total_ns": 97834650,
+          "maximum_ns": 22880
+        },
+        "predictor": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "queues": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "state_bytes": 62104,
+        "buffer_bytes": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          449,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "e7f14fd68d342baf",
+          "6a567c691aff57b7",
+          "fc1b64c60e8b82c8",
+          "fc1b64c60e8b82c8"
+        ]
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_101",
+      "scenario": "transition",
+      "mode": "retrodiction",
+      "option": "on",
+      "repeat": 1,
+      "output_sha256": "c9b3ebb9f2bb7e551ddb51ab1c5e2a9f6cde3fae273bb93858b10e4da0856950",
+      "binary_sha256": "015aff4c9f45548085511c548a7a47d8726cc56d75fe4fd55556edd6b4b4440c",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 6001,
+          "total_ns": 526040849,
+          "maximum_ns": 232680
+        },
+        "preintegration": {
+          "calls": 48000,
+          "total_ns": 98420920,
+          "maximum_ns": 14180
+        },
+        "predictor": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "queues": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "state_bytes": 62104,
+        "buffer_bytes": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          449,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "e7f14fd68d342baf",
+          "6a567c691aff57b7",
+          "fc1b64c60e8b82c8",
+          "fc1b64c60e8b82c8"
+        ]
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_101",
+      "scenario": "transition",
+      "mode": "retrodiction",
+      "option": "off",
+      "repeat": 1,
+      "output_sha256": "c0eb69b8e87cfb1ed067c65cf1854f79814311f06b574a46122fd80c4734ca1d",
+      "binary_sha256": "a60a50675da70c2b1e1ccb1820405dd674726bbdb2ec1cd1aa819fc5f7db774c",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 6001,
+          "total_ns": 439399650,
+          "maximum_ns": 206160
+        },
+        "preintegration": {
+          "calls": 48000,
+          "total_ns": 97020120,
+          "maximum_ns": 19460
+        },
+        "predictor": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "queues": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "state_bytes": 62104,
+        "buffer_bytes": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          449,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "e7f14fd68d342baf",
+          "6a567c691aff57b7",
+          "fc1b64c60e8b82c8",
+          "fc1b64c60e8b82c8"
+        ]
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_101",
+      "scenario": "transition",
+      "mode": "retrodiction",
+      "option": "off",
+      "repeat": 2,
+      "output_sha256": "c0eb69b8e87cfb1ed067c65cf1854f79814311f06b574a46122fd80c4734ca1d",
+      "binary_sha256": "a60a50675da70c2b1e1ccb1820405dd674726bbdb2ec1cd1aa819fc5f7db774c",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 6001,
+          "total_ns": 447128080,
+          "maximum_ns": 201780
+        },
+        "preintegration": {
+          "calls": 48000,
+          "total_ns": 98335319,
+          "maximum_ns": 17270
+        },
+        "predictor": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "queues": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "state_bytes": 62104,
+        "buffer_bytes": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          449,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "e7f14fd68d342baf",
+          "6a567c691aff57b7",
+          "fc1b64c60e8b82c8",
+          "fc1b64c60e8b82c8"
+        ]
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_101",
+      "scenario": "transition",
+      "mode": "retrodiction",
+      "option": "on",
+      "repeat": 2,
+      "output_sha256": "c9b3ebb9f2bb7e551ddb51ab1c5e2a9f6cde3fae273bb93858b10e4da0856950",
+      "binary_sha256": "015aff4c9f45548085511c548a7a47d8726cc56d75fe4fd55556edd6b4b4440c",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 6001,
+          "total_ns": 513145499,
+          "maximum_ns": 234730
+        },
+        "preintegration": {
+          "calls": 48000,
+          "total_ns": 96642290,
+          "maximum_ns": 6840
+        },
+        "predictor": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "queues": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "state_bytes": 62104,
+        "buffer_bytes": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          449,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "e7f14fd68d342baf",
+          "6a567c691aff57b7",
+          "fc1b64c60e8b82c8",
+          "fc1b64c60e8b82c8"
+        ]
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_101",
+      "scenario": "transition",
+      "mode": "horizon",
+      "option": "off",
+      "repeat": 0,
+      "output_sha256": "77776a46aaab7fa2ba0ddbb4bd54274373b58ccdf59212ea98e94ab1042613a4",
+      "binary_sha256": "2cf64738c7199337697e99490503fde7f6e7ca8ee04e842be60d0069a66a299e",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 5980,
+          "total_ns": 468219130,
+          "maximum_ns": 286260
+        },
+        "preintegration": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "predictor": {
+          "calls": 48001,
+          "total_ns": 306059089,
+          "maximum_ns": 28340
+        },
+        "queues": {
+          "calls": 6001,
+          "total_ns": 33963590,
+          "maximum_ns": 16300
+        },
+        "state_bytes": 105884,
+        "buffer_bytes": 10488,
+        "fusion_horizon_s": 0.200000003,
+        "worst_residual_age_s": 0.00875091553,
+        "late": 0,
+        "overflow": 0,
+        "stale": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          449,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "e7f14fd68d342baf",
+          "6a567c691aff57b7",
+          "fc1b64c60e8b82c8",
+          "fc1b64c60e8b82c8"
+        ]
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_101",
+      "scenario": "transition",
+      "mode": "horizon",
+      "option": "on",
+      "repeat": 0,
+      "output_sha256": "3156903b1c1316054c5d1fb83ca693e7cc8437facef9e9bb07d4a4275a894e9e",
+      "binary_sha256": "44b0a6569707dcbb5c630a002a93d31eee199cfed3e31a10292dd516a1720da3",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 5980,
+          "total_ns": 538490969,
+          "maximum_ns": 328040
+        },
+        "preintegration": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "predictor": {
+          "calls": 48001,
+          "total_ns": 297546140,
+          "maximum_ns": 20580
+        },
+        "queues": {
+          "calls": 6001,
+          "total_ns": 33145250,
+          "maximum_ns": 12850
+        },
+        "state_bytes": 105884,
+        "buffer_bytes": 10488,
+        "fusion_horizon_s": 0.200000003,
+        "worst_residual_age_s": 0.00875091553,
+        "late": 0,
+        "overflow": 0,
+        "stale": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          449,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "e7f14fd68d342baf",
+          "6a567c691aff57b7",
+          "fc1b64c60e8b82c8",
+          "fc1b64c60e8b82c8"
+        ]
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_101",
+      "scenario": "transition",
+      "mode": "horizon",
+      "option": "on",
+      "repeat": 1,
+      "output_sha256": "3156903b1c1316054c5d1fb83ca693e7cc8437facef9e9bb07d4a4275a894e9e",
+      "binary_sha256": "44b0a6569707dcbb5c630a002a93d31eee199cfed3e31a10292dd516a1720da3",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 5980,
+          "total_ns": 547501880,
+          "maximum_ns": 330590
+        },
+        "preintegration": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "predictor": {
+          "calls": 48001,
+          "total_ns": 305632479,
+          "maximum_ns": 28230
+        },
+        "queues": {
+          "calls": 6001,
+          "total_ns": 34693720,
+          "maximum_ns": 24520
+        },
+        "state_bytes": 105884,
+        "buffer_bytes": 10488,
+        "fusion_horizon_s": 0.200000003,
+        "worst_residual_age_s": 0.00875091553,
+        "late": 0,
+        "overflow": 0,
+        "stale": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          449,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "e7f14fd68d342baf",
+          "6a567c691aff57b7",
+          "fc1b64c60e8b82c8",
+          "fc1b64c60e8b82c8"
+        ]
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_101",
+      "scenario": "transition",
+      "mode": "horizon",
+      "option": "off",
+      "repeat": 1,
+      "output_sha256": "77776a46aaab7fa2ba0ddbb4bd54274373b58ccdf59212ea98e94ab1042613a4",
+      "binary_sha256": "2cf64738c7199337697e99490503fde7f6e7ca8ee04e842be60d0069a66a299e",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 5980,
+          "total_ns": 473432739,
+          "maximum_ns": 273920
+        },
+        "preintegration": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "predictor": {
+          "calls": 48001,
+          "total_ns": 310207690,
+          "maximum_ns": 32660
+        },
+        "queues": {
+          "calls": 6001,
+          "total_ns": 34670240,
+          "maximum_ns": 16300
+        },
+        "state_bytes": 105884,
+        "buffer_bytes": 10488,
+        "fusion_horizon_s": 0.200000003,
+        "worst_residual_age_s": 0.00875091553,
+        "late": 0,
+        "overflow": 0,
+        "stale": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          449,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "e7f14fd68d342baf",
+          "6a567c691aff57b7",
+          "fc1b64c60e8b82c8",
+          "fc1b64c60e8b82c8"
+        ]
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_101",
+      "scenario": "transition",
+      "mode": "horizon",
+      "option": "off",
+      "repeat": 2,
+      "output_sha256": "77776a46aaab7fa2ba0ddbb4bd54274373b58ccdf59212ea98e94ab1042613a4",
+      "binary_sha256": "2cf64738c7199337697e99490503fde7f6e7ca8ee04e842be60d0069a66a299e",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 5980,
+          "total_ns": 465386169,
+          "maximum_ns": 251770
+        },
+        "preintegration": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "predictor": {
+          "calls": 48001,
+          "total_ns": 301994380,
+          "maximum_ns": 25740
+        },
+        "queues": {
+          "calls": 6001,
+          "total_ns": 33802370,
+          "maximum_ns": 11600
+        },
+        "state_bytes": 105884,
+        "buffer_bytes": 10488,
+        "fusion_horizon_s": 0.200000003,
+        "worst_residual_age_s": 0.00875091553,
+        "late": 0,
+        "overflow": 0,
+        "stale": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          449,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "e7f14fd68d342baf",
+          "6a567c691aff57b7",
+          "fc1b64c60e8b82c8",
+          "fc1b64c60e8b82c8"
+        ]
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_101",
+      "scenario": "transition",
+      "mode": "horizon",
+      "option": "on",
+      "repeat": 2,
+      "output_sha256": "3156903b1c1316054c5d1fb83ca693e7cc8437facef9e9bb07d4a4275a894e9e",
+      "binary_sha256": "44b0a6569707dcbb5c630a002a93d31eee199cfed3e31a10292dd516a1720da3",
+      "timing": {
+        "clock": "CLOCK_THREAD_CPUTIME_ID",
+        "imu_ticks": 48001,
+        "stationary_until_s": 13,
+        "filter": {
+          "calls": 5980,
+          "total_ns": 533580130,
+          "maximum_ns": 281660
+        },
+        "preintegration": {
+          "calls": 0,
+          "total_ns": 0,
+          "maximum_ns": 0
+        },
+        "predictor": {
+          "calls": 48001,
+          "total_ns": 295474749,
+          "maximum_ns": 26790
+        },
+        "queues": {
+          "calls": 6001,
+          "total_ns": 33323320,
+          "maximum_ns": 11990
+        },
+        "state_bytes": 105884,
+        "buffer_bytes": 10488,
+        "fusion_horizon_s": 0.200000003,
+        "worst_residual_age_s": 0.00875091553,
+        "late": 0,
+        "overflow": 0,
+        "stale": 0,
+        "transport_bytes": 107544,
+        "transport_delivered": [
+          449,
+          5997,
+          2999,
+          2999
+        ],
+        "transport_digest": [
+          "e7f14fd68d342baf",
+          "6a567c691aff57b7",
+          "fc1b64c60e8b82c8",
+          "fc1b64c60e8b82c8"
+        ]
+      }
+    }
+  ]
+}

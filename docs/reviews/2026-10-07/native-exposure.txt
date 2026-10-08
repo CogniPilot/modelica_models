@@ -1,0 +1,79 @@
+Native/ESKF explicit optical-flow exposure probe — 7 October 2026
+
+96 fresh replays: seeds 7/101, 2/4 m climbs, GPS/denied/loss-return, four estimators,
+legacy reconstruction versus explicit exposure mappings on the SAME new captures.
+Eight additional historical controls reproduce original outputs byte for byte.
+Pinned native cores are unchanged. This is a two-seed measurement-contract probe.
+
+Common physical packet
+100 ms exposure at 10 Hz; timestamp is its midpoint, availability starts at exposure end.
+Image motion includes true camera rotation plus frozen image translation noise.
+The camera gyro has independent unbiased calibrated noise; its noise is not constructed into the image and cancelled.
+Flow, magnetic and barometric delivery rates are 10 Hz, below EKF3's ingestion cap.
+Transport delays GPS/flow/mag/baro are 110/30/60/20 ms, with zero jitter.
+60 ms magnetic transport represents EKF3's fixed magnetic delay; each native core retains its half-step convention.
+ESKF receives integrated FLU image/gyro angles, exposure duration, midpoint and packet variances.
+PX4 receives rate-valued image/gyro components and midpoint timestamps.
+EKF3 receives rate-valued DAL components; its fixed 100 ms exposure and configured transport delay define the epoch.
+The canonical-to-native mappings are verified after actual serialization/API conversion.
+
+Explicit exposure results: median across two seeds, published-state flight RMSE 13–60 s
+height scenario   estimator        horiz m   vert m   vel m/s   att deg   yaw deg
+   2 m gps        horizon         0.0254    0.0621    0.0098    0.1560    0.1454
+   2 m gps        retrodiction    0.0256    0.0585    0.0110    0.1413    0.1284
+   2 m gps        px4             0.0613    0.1567    0.0244    0.2457    0.2205
+   2 m gps        ekf3            0.0842    0.0542    0.0402    0.3889    0.3642
+   2 m denied     horizon         0.0367    0.0674    0.0176    0.2327    0.2148
+   2 m denied     retrodiction    0.0483    0.0629    0.0229    0.2616    0.2422
+   2 m denied     px4             0.0943    0.0608    0.0283    0.4642    0.4482
+   2 m denied     ekf3            0.0858    0.0530    0.0323    0.4131    0.3897
+   2 m transition horizon         0.0329    0.0636    0.0094    0.1497    0.1384
+   2 m transition retrodiction    0.0334    0.0600    0.0110    0.1436    0.1310
+   2 m transition px4             0.0778    0.1697    0.0277    0.2594    0.2326
+   2 m transition ekf3            0.0766    0.0514    0.0400    0.4154    0.3930
+   4 m gps        horizon         0.0236    0.0620    0.0102    0.1751    0.1640
+   4 m gps        retrodiction    0.0245    0.0584    0.0119    0.1788    0.1657
+   4 m gps        px4             0.0658    0.1569    0.0267    0.2525    0.2274
+   4 m gps        ekf3            0.0965    0.0513    0.0434    0.6717    0.6598
+   4 m denied     horizon         0.0389    0.0670    0.0173    0.2349    0.2170
+   4 m denied     retrodiction    0.0498    0.0623    0.0275    0.3262    0.3035
+   4 m denied     px4             0.1556    0.0618    0.0351    0.5408    0.5270
+   4 m denied     ekf3            0.0727    0.0531    0.0389    0.5998    0.5878
+   4 m transition horizon         0.0311    0.0635    0.0099    0.1697    0.1581
+   4 m transition retrodiction    0.0320    0.0599    0.0125    0.1895    0.1770
+   4 m transition px4             0.1013    0.1720    0.0324    0.2613    0.2336
+   4 m transition ekf3            0.0965    0.0513    0.0434    0.6717    0.6598
+
+Explicit versus legacy mapping on identical new captures
+Median paired percent change across 12 conditions; negative means smaller error.
+estimator        horiz%    vert%     vel%     att%     yaw%
+horizon          -77.92    -1.56   -82.29   -46.05   -45.32
+retrodiction     -74.63    -1.15   -76.25   -45.03   -47.69
+px4              -32.09     2.74   -28.31     0.37     0.20
+ekf3              -6.87    -0.03    -0.65     0.12     0.13
+
+ESKF mean 15D NEES, median across 12 conditions (descriptive correlated samples)
+method          mapping     before takeoff    flight
+horizon        legacy              11.912          80.067
+horizon        explicit            12.279           8.348
+retrodiction   legacy              12.560  INVALID (2/12)
+retrodiction   explicit            13.096          12.610
+
+Covariance failures: 2 replay cases; all accuracy results remain included.
+seed 101, 2 m, denied, retrodiction, legacy, flight: 477 non-PD samples; first epoch 37.620000 s. NEES unavailable.
+seed 101, 4 m, denied, retrodiction, legacy, flight: 408 non-PD samples; first epoch 45.920000 s. NEES unavailable.
+
+Remaining comparison gaps
+Two seeds and two heights; an ingestion/measurement-contract probe, not a full held-out campaign.
+Flow exposure, gyro independence, packet covariance, aiding rate and magnetic transport delay differ from historical captures; do not attribute the entire historical change to one factor.
+Legacy versus explicit mappings below share the same new capture and delivery trace.
+Camera gyro is an independent unbiased calibrated synthetic sensor; not navigation-IMU truth subtraction.
+No image texture, rolling shutter, magnetic disturbances or vibration model.
+EKF3 range processing still assumes a 25 ms delay and applies its own median filter; the supplied range is co-timed with the flow midpoint.
+Native height/magnetic policies, priors and measurement noise floors remain stack-specific.
+Serialization/API checks establish delivered inputs; they do not count every accepted EKF3 measurement.
+FOH shared-endpoint noise and inter-packet image/gyro correlations remain approximate.
+Native cores reused at their audited pins; no full CI, fresh firmware build, flight or general superiority claim.
+
+Required next steps: separate range sampling/latency, actual accepted EKF3 epochs and supported source policies;
+then run the complete seed/rate/delay/disturbance matrix before another algorithm-superiority claim.

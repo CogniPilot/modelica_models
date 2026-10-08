@@ -1,0 +1,26 @@
+[
+  {
+    "method": "horizon",
+    "hold": "foh",
+    "stationary_flag_without_rest_identical": true,
+    "output_sha256": "c8e8af24a74e8f1f277420e244dae7e85b58af9382572408a90efb28e59eaa64"
+  },
+  {
+    "method": "horizon",
+    "hold": "zoh",
+    "stationary_flag_without_rest_identical": true,
+    "output_sha256": "a67ccf17ba841ff9ccabe41b85c478df6e3e9af9c7009dd06d684c883e8f1c54"
+  },
+  {
+    "method": "retrodiction",
+    "hold": "foh",
+    "stationary_flag_without_rest_identical": true,
+    "output_sha256": "6f2cf639c5df78b2d8ed7adb7408203221fe3f1587753bb533b5fc7ece3e661e"
+  },
+  {
+    "method": "retrodiction",
+    "hold": "zoh",
+    "stationary_flag_without_rest_identical": true,
+    "output_sha256": "194c85c07fe9abca98f8c9ba3899e53c8cdd3d55011f224604bdcb6222670f0e"
+  }
+]

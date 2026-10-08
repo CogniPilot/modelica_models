@@ -1,6 +1,7 @@
 within Tests;
 model All "Complete Modelica assertion suite"
   Tests.LinearAlgebraTests linearAlgebra;
+  Tests.CovarianceRootTests covarianceRoot;
   Tests.LieGroupsTests lieGroupsSmoke;
   Tests.LieGroupTests.Suite lieGroups;
   Tests.EstimationTests estimation;
@@ -11,6 +12,12 @@ model All "Complete Modelica assertion suite"
   Tests.StrapdownPreintegrationJacobianTests strapdownPreintegrationJacobians;
   Tests.OpticalFlowPlaneTests opticalFlowPlane;
   Tests.SensorCorrectionTests sensorCorrections;
+  Tests.HeadingConsiderTests headingConsider;
+  Tests.MagneticVectorTests magneticVector;
+  Tests.AlignmentCovarianceTests alignmentCovariance;
+  Tests.MultisensorAidingTests multisensorAiding;
+  Tests.StationaryAidingTests stationaryAiding;
+  Tests.AidingQueueTests aidingQueue;
   Tests.EstimatorHealthTests estimatorHealth;
   Tests.EstimatorHardeningTests estimatorHardening;
   Tests.VerificationTests verification;

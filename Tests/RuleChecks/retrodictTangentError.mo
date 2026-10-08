@@ -28,7 +28,8 @@ algorithm
         + perturbation[10:12],
       accelerometerBiasBodyFlu_m_s2 = current.accelerometerBiasBodyFlu_m_s2
         + perturbation[13:15],
-      covariance = zeros(15, 15)),
+      covariance = zeros(15, 15),
+        useSquareRootCovariance=false, covarianceRoot=zeros(15, 15)),
     angularVelocityMeasuredBodyFlu_rad_s,
     specificForceMeasuredBodyFlu_m_s2, gravityWorldEnu_m_s2, age_s);
   tangentError := cat(1,

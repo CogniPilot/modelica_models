@@ -1,0 +1,40 @@
+true
+true
+"Check of Vehicles.Rdd2.NavigationEstimator completed successfully.
+Class Vehicles.Rdd2.NavigationEstimator has 1292 equation(s) and 1292 variable(s).
+46 of these are trivial equation(s)."
+"Notification: Automatically loaded package Vehicles default due to usage.
+Notification: Automatically loaded package Estimation (default) due to usage.
+Notification: Automatically loaded package Avionics (default) due to usage.
+Notification: Automatically loaded package LieGroups (default) due to usage.
+Notification: Automatically loaded package MathUtilities (default) due to usage.
+Notification: Automatically loaded package LinearAlgebra (default) due to usage.
+"
+"Check of Tests.SquareRootCorrectionReplay completed successfully.
+Class Tests.SquareRootCorrectionReplay has 1510 equation(s) and 1510 variable(s).
+0 of these are trivial equation(s)."
+""
+"Check of Estimation.StrapdownINS.UKF.Estimator completed successfully.
+Class Estimation.StrapdownINS.UKF.Estimator has 577 equation(s) and 577 variable(s).
+46 of these are trivial equation(s)."
+""
+"Check of Tests.EstimatorHealthTests completed successfully.
+Class Tests.EstimatorHealthTests has 0 equation(s) and 0 variable(s).
+0 of these are trivial equation(s)."
+""
+"/tmp/modelica-eskf-square-root-study"
+record SimulationResult
+    resultFile = "/tmp/modelica-eskf-square-root-study/Tests.CovarianceRootTests_res.csv",
+    simulationOptions = "startTime = 0.0, stopTime = 0.001, numberOfIntervals = 1, tolerance = 1e-6, method = 'dassl', fileNamePrefix = 'Tests.CovarianceRootTests', options = '', outputFormat = 'csv', variableFilter = '.*', cflags = '', simflags = ''",
+    messages = "LOG_SUCCESS       | info    | The initialization finished successfully without homotopy method.
+LOG_SUCCESS       | info    | The simulation finished successfully.
+",
+    timeFrontend = 0.0031916,
+    timeBackend = 0.0041337100000000005,
+    timeSimCode = 9.402400000000001e-4,
+    timeTemplates = 0.002855769,
+    timeCompile = 0.5145815199999999,
+    timeSimulation = 0.013896709,
+    timeTotal = 0.539720958
+end SimulationResult;
+""

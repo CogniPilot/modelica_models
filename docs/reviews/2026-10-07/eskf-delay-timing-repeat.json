@@ -1,0 +1,3086 @@
+{
+  "label": "ESKF delayed fusion comparison",
+  "host": "Linux-6.18.39-x86_64-with-glibc2.42",
+  "timing_note": "Per-component thread CPU time includes timer overhead; excludes CSV, transport simulation, and adapter copies. Host measurements are not flight-target WCET.",
+  "horizon_note": "Generated components are scheduled explicitly; the composed Modelica block remains blocked by the Rumoca 0.10.2 sampled-read diagnostic. Queue work runs on sensor arrival or fusion release, rather than every IMU tick. Horizon rebases publish one IMU tick after a filter correction.",
+  "replay_sha256": {
+    "retrodiction": "02dc08914e5fdc7fe50832327449a86f10e33af38ed08a7cb4af7b2074935fec",
+    "horizon": "ac9cc75ae2d15b4fbcb7b90660ca10fbe3943f15d3c0d8a3b45e87a3133acb38"
+  },
+  "input_sha256": {
+    "0.6_7": {
+      "imu.csv": "46573ef7c5c8c10ea5d9762d381c03e46ca1246a14dc63651cb7dfd37a90055b",
+      "modelica_input.csv": "b79060fc8c40437f604890940600d3ab6a602358fe3f0a4fed1cab598ad4c1db",
+      "truth.csv": "33d28654acba349e570cb65fb05603219bc5f8b3d00f73369925c45db9ee52c2"
+    },
+    "lower_0.6_7": {
+      "imu.csv": "46573ef7c5c8c10ea5d9762d381c03e46ca1246a14dc63651cb7dfd37a90055b",
+      "modelica_input.csv": "6aef04c6681771eaa39e76c334ab80ee688b09ea364e273e26774afec5c002b4",
+      "truth.csv": "33d28654acba349e570cb65fb05603219bc5f8b3d00f73369925c45db9ee52c2"
+    }
+  },
+  "scores": [
+    {
+      "name": "retrodiction",
+      "tag": "0.6_7",
+      "frequency": 0.6,
+      "seed": 7,
+      "profile": "100/50/50 Hz",
+      "scenario": "gps",
+      "delay_profile": "nominal",
+      "delays_ms": [
+        110,
+        30,
+        20,
+        20,
+        10
+      ],
+      "output_sha256": "062b51da5a39ee704c1c1e7589b1ef7ebb47351b0daad351f26a5eeed7859c67",
+      "timing": [
+        {
+          "clock": "CLOCK_THREAD_CPUTIME_ID",
+          "imu_ticks": 48001,
+          "filter": {
+            "calls": 6001,
+            "total_ns": 248253650,
+            "maximum_ns": 119860
+          },
+          "preintegration": {
+            "calls": 48000,
+            "total_ns": 96623260,
+            "maximum_ns": 6370
+          },
+          "predictor": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "queues": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "state_bytes": 34080,
+          "buffer_bytes": 0,
+          "transport_bytes": 107544,
+          "transport_delivered": [
+            599,
+            5997,
+            2999,
+            2999
+          ],
+          "transport_digest": [
+            "e22cb5dd503b00e3",
+            "961bfe6223659e53",
+            "32079ac7ba1e73b1",
+            "32079ac7ba1e73b1"
+          ]
+        },
+        {
+          "clock": "CLOCK_THREAD_CPUTIME_ID",
+          "imu_ticks": 48001,
+          "filter": {
+            "calls": 6001,
+            "total_ns": 252100130,
+            "maximum_ns": 136910
+          },
+          "preintegration": {
+            "calls": 48000,
+            "total_ns": 97451360,
+            "maximum_ns": 5930
+          },
+          "predictor": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "queues": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "state_bytes": 34080,
+          "buffer_bytes": 0,
+          "transport_bytes": 107544,
+          "transport_delivered": [
+            599,
+            5997,
+            2999,
+            2999
+          ],
+          "transport_digest": [
+            "e22cb5dd503b00e3",
+            "961bfe6223659e53",
+            "32079ac7ba1e73b1",
+            "32079ac7ba1e73b1"
+          ]
+        },
+        {
+          "clock": "CLOCK_THREAD_CPUTIME_ID",
+          "imu_ticks": 48001,
+          "filter": {
+            "calls": 6001,
+            "total_ns": 251925290,
+            "maximum_ns": 132790
+          },
+          "preintegration": {
+            "calls": 48000,
+            "total_ns": 97288660,
+            "maximum_ns": 8640
+          },
+          "predictor": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "queues": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "state_bytes": 34080,
+          "buffer_bytes": 0,
+          "transport_bytes": 107544,
+          "transport_delivered": [
+            599,
+            5997,
+            2999,
+            2999
+          ],
+          "transport_digest": [
+            "e22cb5dd503b00e3",
+            "961bfe6223659e53",
+            "32079ac7ba1e73b1",
+            "32079ac7ba1e73b1"
+          ]
+        }
+      ],
+      "flight": {
+        "start_s": 13,
+        "end_s": 60,
+        "rows": 4700,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000005116,
+        "horizontal_position_rmse_m": 0.04256927424049136,
+        "vertical_position_rmse_m": 0.0395128592707934,
+        "position_3d_rmse_m": 0.058081056783737026,
+        "velocity_3d_rmse_m_s": 0.03200858262587564,
+        "attitude_rmse_deg": 0.41293860296523777,
+        "yaw_rmse_deg": 0.3605606890535349,
+        "max_horizontal_error_m": 0.11659825729982953,
+        "terminal_horizontal_error_m": 0.03429211115832059,
+        "gps_fused_accepted_hz": 10.0,
+        "flow_fused_accepted_hz": 99.65957446808511,
+        "mag_fused_accepted_hz": 50.0,
+        "baro_fused_accepted_hz": 49.87234042553192,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "before_outage": {
+        "start_s": 18,
+        "end_s": 25,
+        "rows": 700,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000001563,
+        "horizontal_position_rmse_m": 0.03768593160493548,
+        "vertical_position_rmse_m": 0.029836697013826245,
+        "position_3d_rmse_m": 0.0480672230280338,
+        "velocity_3d_rmse_m_s": 0.03209753718242414,
+        "attitude_rmse_deg": 0.3900519149461695,
+        "yaw_rmse_deg": 0.3453903753455161,
+        "max_horizontal_error_m": 0.08722020770089108,
+        "terminal_horizontal_error_m": 0.039500180553091714,
+        "gps_fused_accepted_hz": 10.0,
+        "flow_fused_accepted_hz": 99.85714285714286,
+        "mag_fused_accepted_hz": 50.0,
+        "baro_fused_accepted_hz": 49.714285714285715,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "outage_window": {
+        "start_s": 25,
+        "end_s": 40,
+        "rows": 1500,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000005116,
+        "horizontal_position_rmse_m": 0.03188199222522748,
+        "vertical_position_rmse_m": 0.036845127407098145,
+        "position_3d_rmse_m": 0.04872396578578924,
+        "velocity_3d_rmse_m_s": 0.030724202107612265,
+        "attitude_rmse_deg": 0.31826652232332603,
+        "yaw_rmse_deg": 0.25060214598634095,
+        "max_horizontal_error_m": 0.055873585953003756,
+        "terminal_horizontal_error_m": 0.012383596810650425,
+        "gps_fused_accepted_hz": 10.0,
+        "flow_fused_accepted_hz": 99.93333333333334,
+        "mag_fused_accepted_hz": 50.0,
+        "baro_fused_accepted_hz": 49.93333333333333,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "after_return": {
+        "start_s": 40,
+        "end_s": 60,
+        "rows": 2000,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000005116,
+        "horizontal_position_rmse_m": 0.052588730611260584,
+        "vertical_position_rmse_m": 0.045476287662720834,
+        "position_3d_rmse_m": 0.06952458073865869,
+        "velocity_3d_rmse_m_s": 0.030991326866947392,
+        "attitude_rmse_deg": 0.4514893885550451,
+        "yaw_rmse_deg": 0.41251194372340877,
+        "max_horizontal_error_m": 0.11659825729982953,
+        "terminal_horizontal_error_m": 0.03429211115832059,
+        "gps_fused_accepted_hz": 10.0,
+        "flow_fused_accepted_hz": 100.0,
+        "mag_fused_accepted_hz": 50.0,
+        "baro_fused_accepted_hz": 49.95,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      }
+    },
+    {
+      "name": "horizon",
+      "tag": "0.6_7",
+      "frequency": 0.6,
+      "seed": 7,
+      "profile": "100/50/50 Hz",
+      "scenario": "gps",
+      "delay_profile": "nominal",
+      "delays_ms": [
+        110,
+        30,
+        20,
+        20,
+        10
+      ],
+      "output_sha256": "8a855129c00cd98b80954039d9d9cf0c119eaaa8b5c013e172eb7e22f4783d6b",
+      "timing": [
+        {
+          "clock": "CLOCK_THREAD_CPUTIME_ID",
+          "imu_ticks": 48001,
+          "filter": {
+            "calls": 5980,
+            "total_ns": 249198700,
+            "maximum_ns": 108900
+          },
+          "preintegration": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "predictor": {
+            "calls": 48001,
+            "total_ns": 295584789,
+            "maximum_ns": 22920
+          },
+          "queues": {
+            "calls": 6001,
+            "total_ns": 32742950,
+            "maximum_ns": 14290
+          },
+          "state_bytes": 77860,
+          "buffer_bytes": 10488,
+          "fusion_horizon_s": 0.200000003,
+          "worst_residual_age_s": 0.00875091553,
+          "late": 0,
+          "overflow": 0,
+          "stale": 0,
+          "transport_bytes": 107544,
+          "transport_delivered": [
+            599,
+            5997,
+            2999,
+            2999
+          ],
+          "transport_digest": [
+            "e22cb5dd503b00e3",
+            "961bfe6223659e53",
+            "32079ac7ba1e73b1",
+            "32079ac7ba1e73b1"
+          ]
+        },
+        {
+          "clock": "CLOCK_THREAD_CPUTIME_ID",
+          "imu_ticks": 48001,
+          "filter": {
+            "calls": 5980,
+            "total_ns": 253073270,
+            "maximum_ns": 169330
+          },
+          "preintegration": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "predictor": {
+            "calls": 48001,
+            "total_ns": 299610840,
+            "maximum_ns": 25550
+          },
+          "queues": {
+            "calls": 6001,
+            "total_ns": 33526940,
+            "maximum_ns": 11150
+          },
+          "state_bytes": 77860,
+          "buffer_bytes": 10488,
+          "fusion_horizon_s": 0.200000003,
+          "worst_residual_age_s": 0.00875091553,
+          "late": 0,
+          "overflow": 0,
+          "stale": 0,
+          "transport_bytes": 107544,
+          "transport_delivered": [
+            599,
+            5997,
+            2999,
+            2999
+          ],
+          "transport_digest": [
+            "e22cb5dd503b00e3",
+            "961bfe6223659e53",
+            "32079ac7ba1e73b1",
+            "32079ac7ba1e73b1"
+          ]
+        },
+        {
+          "clock": "CLOCK_THREAD_CPUTIME_ID",
+          "imu_ticks": 48001,
+          "filter": {
+            "calls": 5980,
+            "total_ns": 256878979,
+            "maximum_ns": 181170
+          },
+          "preintegration": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "predictor": {
+            "calls": 48001,
+            "total_ns": 326921900,
+            "maximum_ns": 23600
+          },
+          "queues": {
+            "calls": 6001,
+            "total_ns": 33444390,
+            "maximum_ns": 12920
+          },
+          "state_bytes": 77860,
+          "buffer_bytes": 10488,
+          "fusion_horizon_s": 0.200000003,
+          "worst_residual_age_s": 0.00875091553,
+          "late": 0,
+          "overflow": 0,
+          "stale": 0,
+          "transport_bytes": 107544,
+          "transport_delivered": [
+            599,
+            5997,
+            2999,
+            2999
+          ],
+          "transport_digest": [
+            "e22cb5dd503b00e3",
+            "961bfe6223659e53",
+            "32079ac7ba1e73b1",
+            "32079ac7ba1e73b1"
+          ]
+        }
+      ],
+      "flight": {
+        "start_s": 13,
+        "end_s": 60,
+        "rows": 4700,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000005116,
+        "horizontal_position_rmse_m": 0.03635147606690989,
+        "vertical_position_rmse_m": 0.050868634218565086,
+        "position_3d_rmse_m": 0.06252237806981827,
+        "velocity_3d_rmse_m_s": 0.044376586556651686,
+        "attitude_rmse_deg": 1.07050774575185,
+        "yaw_rmse_deg": 0.8274598311925127,
+        "max_horizontal_error_m": 0.08180397653292597,
+        "terminal_horizontal_error_m": 0.038173980644506854,
+        "gps_fused_accepted_hz": 10.0,
+        "flow_fused_accepted_hz": 99.74468085106383,
+        "mag_fused_accepted_hz": 49.97872340425532,
+        "baro_fused_accepted_hz": 49.8936170212766,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "before_outage": {
+        "start_s": 18,
+        "end_s": 25,
+        "rows": 700,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000001563,
+        "horizontal_position_rmse_m": 0.030539225344176402,
+        "vertical_position_rmse_m": 0.036322556214070864,
+        "position_3d_rmse_m": 0.047454951001415266,
+        "velocity_3d_rmse_m_s": 0.04311002154141754,
+        "attitude_rmse_deg": 0.7592682738096872,
+        "yaw_rmse_deg": 0.3282557256737383,
+        "max_horizontal_error_m": 0.05892790975736402,
+        "terminal_horizontal_error_m": 0.024603881797370504,
+        "gps_fused_accepted_hz": 10.0,
+        "flow_fused_accepted_hz": 99.85714285714286,
+        "mag_fused_accepted_hz": 50.0,
+        "baro_fused_accepted_hz": 49.714285714285715,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "outage_window": {
+        "start_s": 25,
+        "end_s": 40,
+        "rows": 1500,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000005116,
+        "horizontal_position_rmse_m": 0.031729422973957776,
+        "vertical_position_rmse_m": 0.0464350274619719,
+        "position_3d_rmse_m": 0.05624027078219312,
+        "velocity_3d_rmse_m_s": 0.04402051481328059,
+        "attitude_rmse_deg": 0.7729926150379012,
+        "yaw_rmse_deg": 0.33686402450929137,
+        "max_horizontal_error_m": 0.061492178138270605,
+        "terminal_horizontal_error_m": 0.01847612449006206,
+        "gps_fused_accepted_hz": 10.0,
+        "flow_fused_accepted_hz": 99.93333333333334,
+        "mag_fused_accepted_hz": 50.0,
+        "baro_fused_accepted_hz": 49.93333333333333,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "after_return": {
+        "start_s": 40,
+        "end_s": 60,
+        "rows": 2000,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000005116,
+        "horizontal_position_rmse_m": 0.04362113850517994,
+        "vertical_position_rmse_m": 0.060736052137739874,
+        "position_3d_rmse_m": 0.07477748159550673,
+        "velocity_3d_rmse_m_s": 0.042000101658471754,
+        "attitude_rmse_deg": 0.5786401696265869,
+        "yaw_rmse_deg": 0.30744925515411686,
+        "max_horizontal_error_m": 0.08180397653292597,
+        "terminal_horizontal_error_m": 0.038173980644506854,
+        "gps_fused_accepted_hz": 10.0,
+        "flow_fused_accepted_hz": 100.0,
+        "mag_fused_accepted_hz": 50.0,
+        "baro_fused_accepted_hz": 50.0,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "fusion_state": {
+        "start_s": 13,
+        "end_s": 59,
+        "rows": 4600,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010002200000002404,
+        "horizontal_position_rmse_m": 0.03558262397554857,
+        "vertical_position_rmse_m": 0.04528238409462019,
+        "position_3d_rmse_m": 0.05759008107545948,
+        "velocity_3d_rmse_m_s": 0.04121928188044094,
+        "attitude_rmse_deg": 1.0112145471471063,
+        "yaw_rmse_deg": 0.7597337260644559,
+        "max_horizontal_error_m": 0.07762072940268665,
+        "terminal_horizontal_error_m": 0.03617091210985818,
+        "gps_fused_accepted_hz": 10.0,
+        "flow_fused_accepted_hz": 99.76086956521739,
+        "mag_fused_accepted_hz": 49.97826086956522,
+        "baro_fused_accepted_hz": 49.891304347826086,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "fusion_lag_s": {
+        "minimum": 0.20124889999999596,
+        "maximum": 0.20125320000000357
+      }
+    },
+    {
+      "name": "retrodiction",
+      "tag": "0.6_7",
+      "frequency": 0.6,
+      "seed": 7,
+      "profile": "100/50/50 Hz",
+      "scenario": "denied",
+      "delay_profile": "nominal",
+      "delays_ms": [
+        110,
+        30,
+        20,
+        20,
+        10
+      ],
+      "output_sha256": "f8bd24f6120122b93afd44381e0768245ebc350b2eb2c1abd7d7fd4ab18da22e",
+      "timing": [
+        {
+          "clock": "CLOCK_THREAD_CPUTIME_ID",
+          "imu_ticks": 48001,
+          "filter": {
+            "calls": 6001,
+            "total_ns": 198958400,
+            "maximum_ns": 68530
+          },
+          "preintegration": {
+            "calls": 48000,
+            "total_ns": 97194780,
+            "maximum_ns": 14840
+          },
+          "predictor": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "queues": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "state_bytes": 34080,
+          "buffer_bytes": 0,
+          "transport_bytes": 107544,
+          "transport_delivered": [
+            0,
+            5997,
+            2999,
+            2999
+          ],
+          "transport_digest": [
+            "cbf29ce484222325",
+            "961bfe6223659e53",
+            "32079ac7ba1e73b1",
+            "32079ac7ba1e73b1"
+          ]
+        },
+        {
+          "clock": "CLOCK_THREAD_CPUTIME_ID",
+          "imu_ticks": 48001,
+          "filter": {
+            "calls": 6001,
+            "total_ns": 197954730,
+            "maximum_ns": 59290
+          },
+          "preintegration": {
+            "calls": 48000,
+            "total_ns": 96142730,
+            "maximum_ns": 5850
+          },
+          "predictor": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "queues": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "state_bytes": 34080,
+          "buffer_bytes": 0,
+          "transport_bytes": 107544,
+          "transport_delivered": [
+            0,
+            5997,
+            2999,
+            2999
+          ],
+          "transport_digest": [
+            "cbf29ce484222325",
+            "961bfe6223659e53",
+            "32079ac7ba1e73b1",
+            "32079ac7ba1e73b1"
+          ]
+        },
+        {
+          "clock": "CLOCK_THREAD_CPUTIME_ID",
+          "imu_ticks": 48001,
+          "filter": {
+            "calls": 6001,
+            "total_ns": 199466970,
+            "maximum_ns": 64750
+          },
+          "preintegration": {
+            "calls": 48000,
+            "total_ns": 96649470,
+            "maximum_ns": 7970
+          },
+          "predictor": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "queues": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "state_bytes": 34080,
+          "buffer_bytes": 0,
+          "transport_bytes": 107544,
+          "transport_delivered": [
+            0,
+            5997,
+            2999,
+            2999
+          ],
+          "transport_digest": [
+            "cbf29ce484222325",
+            "961bfe6223659e53",
+            "32079ac7ba1e73b1",
+            "32079ac7ba1e73b1"
+          ]
+        }
+      ],
+      "flight": {
+        "start_s": 13,
+        "end_s": 60,
+        "rows": 4700,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000005116,
+        "horizontal_position_rmse_m": 14.593653779057309,
+        "vertical_position_rmse_m": 680.2497862087142,
+        "position_3d_rmse_m": 680.4063097647055,
+        "velocity_3d_rmse_m_s": 28.692393588033937,
+        "attitude_rmse_deg": 5.840845711585201,
+        "yaw_rmse_deg": 4.116302357711242,
+        "max_horizontal_error_m": 27.742340378975502,
+        "terminal_horizontal_error_m": 17.67642245646918,
+        "gps_fused_accepted_hz": 0.0,
+        "flow_fused_accepted_hz": 100.0,
+        "mag_fused_accepted_hz": 49.808510638297875,
+        "baro_fused_accepted_hz": 0.0,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "before_outage": {
+        "start_s": 18,
+        "end_s": 25,
+        "rows": 700,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000001563,
+        "horizontal_position_rmse_m": 12.581347837706122,
+        "vertical_position_rmse_m": 382.51949412798393,
+        "position_3d_rmse_m": 382.7263430982274,
+        "velocity_3d_rmse_m_s": 29.998207471595776,
+        "attitude_rmse_deg": 6.207514436044673,
+        "yaw_rmse_deg": 4.008554235763197,
+        "max_horizontal_error_m": 20.289703362726854,
+        "terminal_horizontal_error_m": 20.289703362726854,
+        "gps_fused_accepted_hz": 0.0,
+        "flow_fused_accepted_hz": 100.0,
+        "mag_fused_accepted_hz": 50.0,
+        "baro_fused_accepted_hz": 0.0,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "outage_window": {
+        "start_s": 25,
+        "end_s": 40,
+        "rows": 1500,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000005116,
+        "horizontal_position_rmse_m": 14.375384086939135,
+        "vertical_position_rmse_m": 609.1775036281308,
+        "position_3d_rmse_m": 609.3470953358589,
+        "velocity_3d_rmse_m_s": 30.899406154245014,
+        "attitude_rmse_deg": 6.415042617869914,
+        "yaw_rmse_deg": 4.782134160634567,
+        "max_horizontal_error_m": 26.051748144400577,
+        "terminal_horizontal_error_m": 19.792884663676453,
+        "gps_fused_accepted_hz": 0.0,
+        "flow_fused_accepted_hz": 100.0,
+        "mag_fused_accepted_hz": 49.666666666666664,
+        "baro_fused_accepted_hz": 0.0,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "after_return": {
+        "start_s": 40,
+        "end_s": 60,
+        "rows": 2000,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000005116,
+        "horizontal_position_rmse_m": 16.387294534739883,
+        "vertical_position_rmse_m": 861.2006848545863,
+        "position_3d_rmse_m": 861.3565829644402,
+        "velocity_3d_rmse_m_s": 26.613917098590136,
+        "attitude_rmse_deg": 5.844881376837018,
+        "yaw_rmse_deg": 4.053745353887258,
+        "max_horizontal_error_m": 27.742340378975502,
+        "terminal_horizontal_error_m": 17.67642245646918,
+        "gps_fused_accepted_hz": 0.0,
+        "flow_fused_accepted_hz": 100.0,
+        "mag_fused_accepted_hz": 49.8,
+        "baro_fused_accepted_hz": 0.0,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      }
+    },
+    {
+      "name": "horizon",
+      "tag": "0.6_7",
+      "frequency": 0.6,
+      "seed": 7,
+      "profile": "100/50/50 Hz",
+      "scenario": "denied",
+      "delay_profile": "nominal",
+      "delays_ms": [
+        110,
+        30,
+        20,
+        20,
+        10
+      ],
+      "output_sha256": "d078c7c437ccdf956dbd2f235b57a293cd3f2f63185071ea85210e7226b74752",
+      "timing": [
+        {
+          "clock": "CLOCK_THREAD_CPUTIME_ID",
+          "imu_ticks": 48001,
+          "filter": {
+            "calls": 5980,
+            "total_ns": 221578930,
+            "maximum_ns": 77900
+          },
+          "preintegration": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "predictor": {
+            "calls": 48001,
+            "total_ns": 302149509,
+            "maximum_ns": 36510
+          },
+          "queues": {
+            "calls": 6001,
+            "total_ns": 32745010,
+            "maximum_ns": 12060
+          },
+          "state_bytes": 77860,
+          "buffer_bytes": 10488,
+          "fusion_horizon_s": 0.200000003,
+          "worst_residual_age_s": 0.00875091553,
+          "late": 0,
+          "overflow": 0,
+          "stale": 0,
+          "transport_bytes": 107544,
+          "transport_delivered": [
+            0,
+            5997,
+            2999,
+            2999
+          ],
+          "transport_digest": [
+            "cbf29ce484222325",
+            "961bfe6223659e53",
+            "32079ac7ba1e73b1",
+            "32079ac7ba1e73b1"
+          ]
+        },
+        {
+          "clock": "CLOCK_THREAD_CPUTIME_ID",
+          "imu_ticks": 48001,
+          "filter": {
+            "calls": 5980,
+            "total_ns": 216794880,
+            "maximum_ns": 80730
+          },
+          "preintegration": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "predictor": {
+            "calls": 48001,
+            "total_ns": 322290490,
+            "maximum_ns": 23650
+          },
+          "queues": {
+            "calls": 6001,
+            "total_ns": 32095490,
+            "maximum_ns": 11700
+          },
+          "state_bytes": 77860,
+          "buffer_bytes": 10488,
+          "fusion_horizon_s": 0.200000003,
+          "worst_residual_age_s": 0.00875091553,
+          "late": 0,
+          "overflow": 0,
+          "stale": 0,
+          "transport_bytes": 107544,
+          "transport_delivered": [
+            0,
+            5997,
+            2999,
+            2999
+          ],
+          "transport_digest": [
+            "cbf29ce484222325",
+            "961bfe6223659e53",
+            "32079ac7ba1e73b1",
+            "32079ac7ba1e73b1"
+          ]
+        },
+        {
+          "clock": "CLOCK_THREAD_CPUTIME_ID",
+          "imu_ticks": 48001,
+          "filter": {
+            "calls": 5980,
+            "total_ns": 220239960,
+            "maximum_ns": 62100
+          },
+          "preintegration": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "predictor": {
+            "calls": 48001,
+            "total_ns": 326052420,
+            "maximum_ns": 22010
+          },
+          "queues": {
+            "calls": 6001,
+            "total_ns": 32783870,
+            "maximum_ns": 10680
+          },
+          "state_bytes": 77860,
+          "buffer_bytes": 10488,
+          "fusion_horizon_s": 0.200000003,
+          "worst_residual_age_s": 0.00875091553,
+          "late": 0,
+          "overflow": 0,
+          "stale": 0,
+          "transport_bytes": 107544,
+          "transport_delivered": [
+            0,
+            5997,
+            2999,
+            2999
+          ],
+          "transport_digest": [
+            "cbf29ce484222325",
+            "961bfe6223659e53",
+            "32079ac7ba1e73b1",
+            "32079ac7ba1e73b1"
+          ]
+        }
+      ],
+      "flight": {
+        "start_s": 13,
+        "end_s": 60,
+        "rows": 4700,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000005116,
+        "horizontal_position_rmse_m": 0.2964303128793571,
+        "vertical_position_rmse_m": 0.06131651369381229,
+        "position_3d_rmse_m": 0.30270554214503076,
+        "velocity_3d_rmse_m_s": 0.1230526777671585,
+        "attitude_rmse_deg": 3.236181756267325,
+        "yaw_rmse_deg": 2.9579449962341227,
+        "max_horizontal_error_m": 0.5182605614765107,
+        "terminal_horizontal_error_m": 0.31559875876572574,
+        "gps_fused_accepted_hz": 0.0,
+        "flow_fused_accepted_hz": 99.74468085106383,
+        "mag_fused_accepted_hz": 50.0,
+        "baro_fused_accepted_hz": 49.851063829787236,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "before_outage": {
+        "start_s": 18,
+        "end_s": 25,
+        "rows": 700,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000001563,
+        "horizontal_position_rmse_m": 0.28212358589893116,
+        "vertical_position_rmse_m": 0.04977724729310217,
+        "position_3d_rmse_m": 0.2864812246353158,
+        "velocity_3d_rmse_m_s": 0.1192025678525166,
+        "attitude_rmse_deg": 3.199574917267025,
+        "yaw_rmse_deg": 2.8943781433338773,
+        "max_horizontal_error_m": 0.37542536078108146,
+        "terminal_horizontal_error_m": 0.14298116560064159,
+        "gps_fused_accepted_hz": 0.0,
+        "flow_fused_accepted_hz": 99.85714285714286,
+        "mag_fused_accepted_hz": 50.0,
+        "baro_fused_accepted_hz": 49.57142857142857,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "outage_window": {
+        "start_s": 25,
+        "end_s": 40,
+        "rows": 1500,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000005116,
+        "horizontal_position_rmse_m": 0.2630782080194476,
+        "vertical_position_rmse_m": 0.05171853159534251,
+        "position_3d_rmse_m": 0.26811368865670054,
+        "velocity_3d_rmse_m_s": 0.12100346402817902,
+        "attitude_rmse_deg": 3.3278085451620987,
+        "yaw_rmse_deg": 3.044282093364279,
+        "max_horizontal_error_m": 0.47414208190990054,
+        "terminal_horizontal_error_m": 0.2987138854732653,
+        "gps_fused_accepted_hz": 0.0,
+        "flow_fused_accepted_hz": 99.93333333333334,
+        "mag_fused_accepted_hz": 50.0,
+        "baro_fused_accepted_hz": 49.86666666666667,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "after_return": {
+        "start_s": 40,
+        "end_s": 60,
+        "rows": 2000,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000005116,
+        "horizontal_position_rmse_m": 0.3208570616050614,
+        "vertical_position_rmse_m": 0.07406816848940485,
+        "position_3d_rmse_m": 0.3292952285794755,
+        "velocity_3d_rmse_m_s": 0.12308076597067076,
+        "attitude_rmse_deg": 3.0946503010016193,
+        "yaw_rmse_deg": 2.8282677938180765,
+        "max_horizontal_error_m": 0.5182605614765107,
+        "terminal_horizontal_error_m": 0.31559875876572574,
+        "gps_fused_accepted_hz": 0.0,
+        "flow_fused_accepted_hz": 100.0,
+        "mag_fused_accepted_hz": 50.0,
+        "baro_fused_accepted_hz": 50.0,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "fusion_state": {
+        "start_s": 13,
+        "end_s": 59,
+        "rows": 4600,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010002200000002404,
+        "horizontal_position_rmse_m": 0.2960801925290302,
+        "vertical_position_rmse_m": 0.0482305625075006,
+        "position_3d_rmse_m": 0.29998277878541213,
+        "velocity_3d_rmse_m_s": 0.1210464280281263,
+        "attitude_rmse_deg": 3.2345526044194504,
+        "yaw_rmse_deg": 2.9580878730998976,
+        "max_horizontal_error_m": 0.5112618781823844,
+        "terminal_horizontal_error_m": 0.2099446056004022,
+        "gps_fused_accepted_hz": 0.0,
+        "flow_fused_accepted_hz": 99.76086956521739,
+        "mag_fused_accepted_hz": 50.0,
+        "baro_fused_accepted_hz": 49.84782608695652,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "fusion_lag_s": {
+        "minimum": 0.20124889999999596,
+        "maximum": 0.20125320000000357
+      }
+    },
+    {
+      "name": "retrodiction",
+      "tag": "0.6_7",
+      "frequency": 0.6,
+      "seed": 7,
+      "profile": "100/50/50 Hz",
+      "scenario": "transition",
+      "delay_profile": "nominal",
+      "delays_ms": [
+        110,
+        30,
+        20,
+        20,
+        10
+      ],
+      "output_sha256": "fa043619d72ede8c6c20038d1fc0d5f531115f98962a6bd320a299d801dc0a7e",
+      "timing": [
+        {
+          "clock": "CLOCK_THREAD_CPUTIME_ID",
+          "imu_ticks": 48001,
+          "filter": {
+            "calls": 6001,
+            "total_ns": 240048460,
+            "maximum_ns": 121570
+          },
+          "preintegration": {
+            "calls": 48000,
+            "total_ns": 96369410,
+            "maximum_ns": 6080
+          },
+          "predictor": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "queues": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "state_bytes": 34080,
+          "buffer_bytes": 0,
+          "transport_bytes": 107544,
+          "transport_delivered": [
+            449,
+            5997,
+            2999,
+            2999
+          ],
+          "transport_digest": [
+            "c8a957ee118e61ae",
+            "961bfe6223659e53",
+            "32079ac7ba1e73b1",
+            "32079ac7ba1e73b1"
+          ]
+        },
+        {
+          "clock": "CLOCK_THREAD_CPUTIME_ID",
+          "imu_ticks": 48001,
+          "filter": {
+            "calls": 6001,
+            "total_ns": 242787960,
+            "maximum_ns": 132790
+          },
+          "preintegration": {
+            "calls": 48000,
+            "total_ns": 97794840,
+            "maximum_ns": 6410
+          },
+          "predictor": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "queues": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "state_bytes": 34080,
+          "buffer_bytes": 0,
+          "transport_bytes": 107544,
+          "transport_delivered": [
+            449,
+            5997,
+            2999,
+            2999
+          ],
+          "transport_digest": [
+            "c8a957ee118e61ae",
+            "961bfe6223659e53",
+            "32079ac7ba1e73b1",
+            "32079ac7ba1e73b1"
+          ]
+        },
+        {
+          "clock": "CLOCK_THREAD_CPUTIME_ID",
+          "imu_ticks": 48001,
+          "filter": {
+            "calls": 6001,
+            "total_ns": 239583560,
+            "maximum_ns": 116700
+          },
+          "preintegration": {
+            "calls": 48000,
+            "total_ns": 96149960,
+            "maximum_ns": 11960
+          },
+          "predictor": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "queues": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "state_bytes": 34080,
+          "buffer_bytes": 0,
+          "transport_bytes": 107544,
+          "transport_delivered": [
+            449,
+            5997,
+            2999,
+            2999
+          ],
+          "transport_digest": [
+            "c8a957ee118e61ae",
+            "961bfe6223659e53",
+            "32079ac7ba1e73b1",
+            "32079ac7ba1e73b1"
+          ]
+        }
+      ],
+      "flight": {
+        "start_s": 13,
+        "end_s": 60,
+        "rows": 4700,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000005116,
+        "horizontal_position_rmse_m": 0.05009936164915244,
+        "vertical_position_rmse_m": 0.040242549034675425,
+        "position_3d_rmse_m": 0.0642604761144891,
+        "velocity_3d_rmse_m_s": 0.03678101838407121,
+        "attitude_rmse_deg": 0.44707051177401136,
+        "yaw_rmse_deg": 0.3925581136418255,
+        "max_horizontal_error_m": 0.14592093139872117,
+        "terminal_horizontal_error_m": 0.03482132629748357,
+        "gps_fused_accepted_hz": 6.808510638297872,
+        "flow_fused_accepted_hz": 99.65957446808511,
+        "mag_fused_accepted_hz": 50.0,
+        "baro_fused_accepted_hz": 49.851063829787236,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "before_outage": {
+        "start_s": 18,
+        "end_s": 25,
+        "rows": 700,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000001563,
+        "horizontal_position_rmse_m": 0.03768593160493548,
+        "vertical_position_rmse_m": 0.029836697013826245,
+        "position_3d_rmse_m": 0.0480672230280338,
+        "velocity_3d_rmse_m_s": 0.03209753718242414,
+        "attitude_rmse_deg": 0.3900519149461695,
+        "yaw_rmse_deg": 0.3453903753455161,
+        "max_horizontal_error_m": 0.08722020770089108,
+        "terminal_horizontal_error_m": 0.039500180553091714,
+        "gps_fused_accepted_hz": 10.0,
+        "flow_fused_accepted_hz": 99.85714285714286,
+        "mag_fused_accepted_hz": 50.0,
+        "baro_fused_accepted_hz": 49.714285714285715,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "outage_window": {
+        "start_s": 25,
+        "end_s": 40,
+        "rows": 1500,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000005116,
+        "horizontal_position_rmse_m": 0.04112210944254196,
+        "vertical_position_rmse_m": 0.03932935324142319,
+        "position_3d_rmse_m": 0.056901897256533045,
+        "velocity_3d_rmse_m_s": 0.044132253150428354,
+        "attitude_rmse_deg": 0.42275649809103255,
+        "yaw_rmse_deg": 0.36607346241055794,
+        "max_horizontal_error_m": 0.06850443421724862,
+        "terminal_horizontal_error_m": 0.03803706590987707,
+        "gps_fused_accepted_hz": 0.06666666666666667,
+        "flow_fused_accepted_hz": 99.93333333333334,
+        "mag_fused_accepted_hz": 50.0,
+        "baro_fused_accepted_hz": 49.86666666666667,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "after_return": {
+        "start_s": 40,
+        "end_s": 60,
+        "rows": 2000,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000005116,
+        "horizontal_position_rmse_m": 0.06244586956893138,
+        "vertical_position_rmse_m": 0.0454194786066908,
+        "position_3d_rmse_m": 0.07721667995403346,
+        "velocity_3d_rmse_m_s": 0.03129207164151678,
+        "attitude_rmse_deg": 0.4634132914458087,
+        "yaw_rmse_deg": 0.41640103434924924,
+        "max_horizontal_error_m": 0.14592093139872117,
+        "terminal_horizontal_error_m": 0.03482132629748357,
+        "gps_fused_accepted_hz": 9.95,
+        "flow_fused_accepted_hz": 100.0,
+        "mag_fused_accepted_hz": 50.0,
+        "baro_fused_accepted_hz": 49.95,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "transition": {
+        "first_gps_use_after_return_s": 0.11999999999999744,
+        "recovery_to_025m_for_1s_s": 0.0,
+        "max_return_error_jump_m": 0.163784723581762
+      }
+    },
+    {
+      "name": "horizon",
+      "tag": "0.6_7",
+      "frequency": 0.6,
+      "seed": 7,
+      "profile": "100/50/50 Hz",
+      "scenario": "transition",
+      "delay_profile": "nominal",
+      "delays_ms": [
+        110,
+        30,
+        20,
+        20,
+        10
+      ],
+      "output_sha256": "3c0a06a556752adce5b7ae8994d3c15833ef9af9609a64583d26c29b0addd93e",
+      "timing": [
+        {
+          "clock": "CLOCK_THREAD_CPUTIME_ID",
+          "imu_ticks": 48001,
+          "filter": {
+            "calls": 5980,
+            "total_ns": 246403999,
+            "maximum_ns": 169380
+          },
+          "preintegration": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "predictor": {
+            "calls": 48001,
+            "total_ns": 302287610,
+            "maximum_ns": 22230
+          },
+          "queues": {
+            "calls": 6001,
+            "total_ns": 33088310,
+            "maximum_ns": 12210
+          },
+          "state_bytes": 77860,
+          "buffer_bytes": 10488,
+          "fusion_horizon_s": 0.200000003,
+          "worst_residual_age_s": 0.00875091553,
+          "late": 0,
+          "overflow": 0,
+          "stale": 0,
+          "transport_bytes": 107544,
+          "transport_delivered": [
+            449,
+            5997,
+            2999,
+            2999
+          ],
+          "transport_digest": [
+            "c8a957ee118e61ae",
+            "961bfe6223659e53",
+            "32079ac7ba1e73b1",
+            "32079ac7ba1e73b1"
+          ]
+        },
+        {
+          "clock": "CLOCK_THREAD_CPUTIME_ID",
+          "imu_ticks": 48001,
+          "filter": {
+            "calls": 5980,
+            "total_ns": 244648380,
+            "maximum_ns": 120630
+          },
+          "preintegration": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "predictor": {
+            "calls": 48001,
+            "total_ns": 297735310,
+            "maximum_ns": 17900
+          },
+          "queues": {
+            "calls": 6001,
+            "total_ns": 32605030,
+            "maximum_ns": 12290
+          },
+          "state_bytes": 77860,
+          "buffer_bytes": 10488,
+          "fusion_horizon_s": 0.200000003,
+          "worst_residual_age_s": 0.00875091553,
+          "late": 0,
+          "overflow": 0,
+          "stale": 0,
+          "transport_bytes": 107544,
+          "transport_delivered": [
+            449,
+            5997,
+            2999,
+            2999
+          ],
+          "transport_digest": [
+            "c8a957ee118e61ae",
+            "961bfe6223659e53",
+            "32079ac7ba1e73b1",
+            "32079ac7ba1e73b1"
+          ]
+        },
+        {
+          "clock": "CLOCK_THREAD_CPUTIME_ID",
+          "imu_ticks": 48001,
+          "filter": {
+            "calls": 5980,
+            "total_ns": 246040089,
+            "maximum_ns": 166700
+          },
+          "preintegration": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "predictor": {
+            "calls": 48001,
+            "total_ns": 300285840,
+            "maximum_ns": 31130
+          },
+          "queues": {
+            "calls": 6001,
+            "total_ns": 33182970,
+            "maximum_ns": 11350
+          },
+          "state_bytes": 77860,
+          "buffer_bytes": 10488,
+          "fusion_horizon_s": 0.200000003,
+          "worst_residual_age_s": 0.00875091553,
+          "late": 0,
+          "overflow": 0,
+          "stale": 0,
+          "transport_bytes": 107544,
+          "transport_delivered": [
+            449,
+            5997,
+            2999,
+            2999
+          ],
+          "transport_digest": [
+            "c8a957ee118e61ae",
+            "961bfe6223659e53",
+            "32079ac7ba1e73b1",
+            "32079ac7ba1e73b1"
+          ]
+        }
+      ],
+      "flight": {
+        "start_s": 13,
+        "end_s": 60,
+        "rows": 4700,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000005116,
+        "horizontal_position_rmse_m": 0.06653952410886108,
+        "vertical_position_rmse_m": 0.053344444655229195,
+        "position_3d_rmse_m": 0.08528269486952506,
+        "velocity_3d_rmse_m_s": 0.05122152789312579,
+        "attitude_rmse_deg": 1.2516888105793358,
+        "yaw_rmse_deg": 1.054564916470089,
+        "max_horizontal_error_m": 0.15595447049840408,
+        "terminal_horizontal_error_m": 0.03667394078944511,
+        "gps_fused_accepted_hz": 6.808510638297872,
+        "flow_fused_accepted_hz": 99.74468085106383,
+        "mag_fused_accepted_hz": 49.97872340425532,
+        "baro_fused_accepted_hz": 49.87234042553192,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "before_outage": {
+        "start_s": 18,
+        "end_s": 25,
+        "rows": 700,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000001563,
+        "horizontal_position_rmse_m": 0.030539225344176402,
+        "vertical_position_rmse_m": 0.036322556214070864,
+        "position_3d_rmse_m": 0.047454951001415266,
+        "velocity_3d_rmse_m_s": 0.04311002154141754,
+        "attitude_rmse_deg": 0.7592682738096872,
+        "yaw_rmse_deg": 0.3282557256737383,
+        "max_horizontal_error_m": 0.05892790975736402,
+        "terminal_horizontal_error_m": 0.024603881797370504,
+        "gps_fused_accepted_hz": 10.0,
+        "flow_fused_accepted_hz": 99.85714285714286,
+        "mag_fused_accepted_hz": 50.0,
+        "baro_fused_accepted_hz": 49.714285714285715,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "outage_window": {
+        "start_s": 25,
+        "end_s": 40,
+        "rows": 1500,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000005116,
+        "horizontal_position_rmse_m": 0.0929053165509027,
+        "vertical_position_rmse_m": 0.054347310687623294,
+        "position_3d_rmse_m": 0.10763376803959103,
+        "velocity_3d_rmse_m_s": 0.06153358197820857,
+        "attitude_rmse_deg": 1.389524772184035,
+        "yaw_rmse_deg": 1.171800577346434,
+        "max_horizontal_error_m": 0.15595447049840408,
+        "terminal_horizontal_error_m": 0.09913301169291418,
+        "gps_fused_accepted_hz": 0.13333333333333333,
+        "flow_fused_accepted_hz": 99.93333333333334,
+        "mag_fused_accepted_hz": 50.0,
+        "baro_fused_accepted_hz": 49.86666666666667,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "after_return": {
+        "start_s": 40,
+        "end_s": 60,
+        "rows": 2000,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000005116,
+        "horizontal_position_rmse_m": 0.059022088459606575,
+        "vertical_position_rmse_m": 0.06080404610818045,
+        "position_3d_rmse_m": 0.08473924090561208,
+        "velocity_3d_rmse_m_s": 0.04376449176858667,
+        "attitude_rmse_deg": 0.5688696854401771,
+        "yaw_rmse_deg": 0.3927168144584448,
+        "max_horizontal_error_m": 0.15403867400778784,
+        "terminal_horizontal_error_m": 0.03667394078944511,
+        "gps_fused_accepted_hz": 9.9,
+        "flow_fused_accepted_hz": 100.0,
+        "mag_fused_accepted_hz": 50.0,
+        "baro_fused_accepted_hz": 50.0,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "transition": {
+        "first_gps_use_after_return_s": 0.21000000000000085,
+        "recovery_to_025m_for_1s_s": 0.0,
+        "max_return_error_jump_m": 0.08703899920743186
+      },
+      "fusion_state": {
+        "start_s": 13,
+        "end_s": 59,
+        "rows": 4600,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010002200000002404,
+        "horizontal_position_rmse_m": 0.06630349972636877,
+        "vertical_position_rmse_m": 0.04612390699361512,
+        "position_3d_rmse_m": 0.08076861316328418,
+        "velocity_3d_rmse_m_s": 0.04889512301795036,
+        "attitude_rmse_deg": 1.2064470428589285,
+        "yaw_rmse_deg": 1.0079792367720348,
+        "max_horizontal_error_m": 0.15221972720312693,
+        "terminal_horizontal_error_m": 0.034467499696060416,
+        "gps_fused_accepted_hz": 6.739130434782608,
+        "flow_fused_accepted_hz": 99.76086956521739,
+        "mag_fused_accepted_hz": 49.97826086956522,
+        "baro_fused_accepted_hz": 49.869565217391305,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "fusion_lag_s": {
+        "minimum": 0.20124889999999596,
+        "maximum": 0.20125320000000357
+      }
+    },
+    {
+      "name": "retrodiction",
+      "tag": "lower_0.6_7",
+      "frequency": 0.6,
+      "seed": 7,
+      "profile": "25/25/25 Hz",
+      "scenario": "gps",
+      "delay_profile": "nominal",
+      "delays_ms": [
+        110,
+        30,
+        20,
+        20,
+        10
+      ],
+      "output_sha256": "76b377af2560a8ebf1dce96782b7a680a97c6b4b53e2a882ac19883f9d675cfa",
+      "timing": [
+        {
+          "clock": "CLOCK_THREAD_CPUTIME_ID",
+          "imu_ticks": 48001,
+          "filter": {
+            "calls": 6001,
+            "total_ns": 180854280,
+            "maximum_ns": 169300
+          },
+          "preintegration": {
+            "calls": 48000,
+            "total_ns": 97216919,
+            "maximum_ns": 18140
+          },
+          "predictor": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "queues": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "state_bytes": 34080,
+          "buffer_bytes": 0,
+          "transport_bytes": 107544,
+          "transport_delivered": [
+            599,
+            1500,
+            1500,
+            1500
+          ],
+          "transport_digest": [
+            "bc5c68884d64eaf6",
+            "ef5a93e2fb83108d",
+            "ef5a93e2fb83108d",
+            "ef5a93e2fb83108d"
+          ]
+        },
+        {
+          "clock": "CLOCK_THREAD_CPUTIME_ID",
+          "imu_ticks": 48001,
+          "filter": {
+            "calls": 6001,
+            "total_ns": 178946170,
+            "maximum_ns": 117570
+          },
+          "preintegration": {
+            "calls": 48000,
+            "total_ns": 96510390,
+            "maximum_ns": 12390
+          },
+          "predictor": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "queues": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "state_bytes": 34080,
+          "buffer_bytes": 0,
+          "transport_bytes": 107544,
+          "transport_delivered": [
+            599,
+            1500,
+            1500,
+            1500
+          ],
+          "transport_digest": [
+            "bc5c68884d64eaf6",
+            "ef5a93e2fb83108d",
+            "ef5a93e2fb83108d",
+            "ef5a93e2fb83108d"
+          ]
+        },
+        {
+          "clock": "CLOCK_THREAD_CPUTIME_ID",
+          "imu_ticks": 48001,
+          "filter": {
+            "calls": 6001,
+            "total_ns": 180241379,
+            "maximum_ns": 136450
+          },
+          "preintegration": {
+            "calls": 48000,
+            "total_ns": 97480270,
+            "maximum_ns": 23000
+          },
+          "predictor": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "queues": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "state_bytes": 34080,
+          "buffer_bytes": 0,
+          "transport_bytes": 107544,
+          "transport_delivered": [
+            599,
+            1500,
+            1500,
+            1500
+          ],
+          "transport_digest": [
+            "bc5c68884d64eaf6",
+            "ef5a93e2fb83108d",
+            "ef5a93e2fb83108d",
+            "ef5a93e2fb83108d"
+          ]
+        }
+      ],
+      "flight": {
+        "start_s": 13,
+        "end_s": 60,
+        "rows": 4700,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000005116,
+        "horizontal_position_rmse_m": 0.0458306880887516,
+        "vertical_position_rmse_m": 0.05480162256055615,
+        "position_3d_rmse_m": 0.07143997344595038,
+        "velocity_3d_rmse_m_s": 0.03827473610450979,
+        "attitude_rmse_deg": 0.39257758566305806,
+        "yaw_rmse_deg": 0.3548266196799856,
+        "max_horizontal_error_m": 0.1264340680432664,
+        "terminal_horizontal_error_m": 0.038577180297407816,
+        "gps_fused_accepted_hz": 10.0,
+        "flow_fused_accepted_hz": 24.97872340425532,
+        "mag_fused_accepted_hz": 25.0,
+        "baro_fused_accepted_hz": 24.914893617021278,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "before_outage": {
+        "start_s": 18,
+        "end_s": 25,
+        "rows": 700,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000001563,
+        "horizontal_position_rmse_m": 0.032425286039307,
+        "vertical_position_rmse_m": 0.045763045451675144,
+        "position_3d_rmse_m": 0.05608614359842333,
+        "velocity_3d_rmse_m_s": 0.036788804812394854,
+        "attitude_rmse_deg": 0.349456592207318,
+        "yaw_rmse_deg": 0.33133046035961916,
+        "max_horizontal_error_m": 0.07524971791799565,
+        "terminal_horizontal_error_m": 0.04438544930308027,
+        "gps_fused_accepted_hz": 10.0,
+        "flow_fused_accepted_hz": 25.0,
+        "mag_fused_accepted_hz": 25.0,
+        "baro_fused_accepted_hz": 24.857142857142858,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "outage_window": {
+        "start_s": 25,
+        "end_s": 40,
+        "rows": 1500,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000005116,
+        "horizontal_position_rmse_m": 0.030346458664178223,
+        "vertical_position_rmse_m": 0.05464915491456193,
+        "position_3d_rmse_m": 0.06250950076854292,
+        "velocity_3d_rmse_m_s": 0.03749722913734562,
+        "attitude_rmse_deg": 0.2987276946171004,
+        "yaw_rmse_deg": 0.25492005664255146,
+        "max_horizontal_error_m": 0.0589892818459032,
+        "terminal_horizontal_error_m": 0.004360675347929705,
+        "gps_fused_accepted_hz": 10.0,
+        "flow_fused_accepted_hz": 25.0,
+        "mag_fused_accepted_hz": 25.0,
+        "baro_fused_accepted_hz": 24.933333333333334,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "after_return": {
+        "start_s": 40,
+        "end_s": 60,
+        "rows": 2000,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000005116,
+        "horizontal_position_rmse_m": 0.06102004845005042,
+        "vertical_position_rmse_m": 0.0614927252877018,
+        "position_3d_rmse_m": 0.0866302578557588,
+        "velocity_3d_rmse_m_s": 0.03742361901165858,
+        "attitude_rmse_deg": 0.41884615405827463,
+        "yaw_rmse_deg": 0.3877518053630509,
+        "max_horizontal_error_m": 0.1264340680432664,
+        "terminal_horizontal_error_m": 0.038577180297407816,
+        "gps_fused_accepted_hz": 10.0,
+        "flow_fused_accepted_hz": 25.0,
+        "mag_fused_accepted_hz": 25.0,
+        "baro_fused_accepted_hz": 25.0,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      }
+    },
+    {
+      "name": "horizon",
+      "tag": "lower_0.6_7",
+      "frequency": 0.6,
+      "seed": 7,
+      "profile": "25/25/25 Hz",
+      "scenario": "gps",
+      "delay_profile": "nominal",
+      "delays_ms": [
+        110,
+        30,
+        20,
+        20,
+        10
+      ],
+      "output_sha256": "df51375c635fa44ec0ee7b0142eeafb8b2aa9a36056a9ed7220ec1387c220232",
+      "timing": [
+        {
+          "clock": "CLOCK_THREAD_CPUTIME_ID",
+          "imu_ticks": 48001,
+          "filter": {
+            "calls": 5980,
+            "total_ns": 179963020,
+            "maximum_ns": 167490
+          },
+          "preintegration": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "predictor": {
+            "calls": 48001,
+            "total_ns": 292882000,
+            "maximum_ns": 19430
+          },
+          "queues": {
+            "calls": 6001,
+            "total_ns": 32006290,
+            "maximum_ns": 11510
+          },
+          "state_bytes": 77860,
+          "buffer_bytes": 10488,
+          "fusion_horizon_s": 0.200000003,
+          "worst_residual_age_s": 0.00875091553,
+          "late": 0,
+          "overflow": 0,
+          "stale": 0,
+          "transport_bytes": 107544,
+          "transport_delivered": [
+            599,
+            1500,
+            1500,
+            1500
+          ],
+          "transport_digest": [
+            "bc5c68884d64eaf6",
+            "ef5a93e2fb83108d",
+            "ef5a93e2fb83108d",
+            "ef5a93e2fb83108d"
+          ]
+        },
+        {
+          "clock": "CLOCK_THREAD_CPUTIME_ID",
+          "imu_ticks": 48001,
+          "filter": {
+            "calls": 5980,
+            "total_ns": 181123150,
+            "maximum_ns": 158560
+          },
+          "preintegration": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "predictor": {
+            "calls": 48001,
+            "total_ns": 294983150,
+            "maximum_ns": 17450
+          },
+          "queues": {
+            "calls": 6001,
+            "total_ns": 32068690,
+            "maximum_ns": 10530
+          },
+          "state_bytes": 77860,
+          "buffer_bytes": 10488,
+          "fusion_horizon_s": 0.200000003,
+          "worst_residual_age_s": 0.00875091553,
+          "late": 0,
+          "overflow": 0,
+          "stale": 0,
+          "transport_bytes": 107544,
+          "transport_delivered": [
+            599,
+            1500,
+            1500,
+            1500
+          ],
+          "transport_digest": [
+            "bc5c68884d64eaf6",
+            "ef5a93e2fb83108d",
+            "ef5a93e2fb83108d",
+            "ef5a93e2fb83108d"
+          ]
+        },
+        {
+          "clock": "CLOCK_THREAD_CPUTIME_ID",
+          "imu_ticks": 48001,
+          "filter": {
+            "calls": 5980,
+            "total_ns": 184322180,
+            "maximum_ns": 154690
+          },
+          "preintegration": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "predictor": {
+            "calls": 48001,
+            "total_ns": 301499879,
+            "maximum_ns": 24750
+          },
+          "queues": {
+            "calls": 6001,
+            "total_ns": 33126430,
+            "maximum_ns": 11470
+          },
+          "state_bytes": 77860,
+          "buffer_bytes": 10488,
+          "fusion_horizon_s": 0.200000003,
+          "worst_residual_age_s": 0.00875091553,
+          "late": 0,
+          "overflow": 0,
+          "stale": 0,
+          "transport_bytes": 107544,
+          "transport_delivered": [
+            599,
+            1500,
+            1500,
+            1500
+          ],
+          "transport_digest": [
+            "bc5c68884d64eaf6",
+            "ef5a93e2fb83108d",
+            "ef5a93e2fb83108d",
+            "ef5a93e2fb83108d"
+          ]
+        }
+      ],
+      "flight": {
+        "start_s": 13,
+        "end_s": 60,
+        "rows": 4700,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000005116,
+        "horizontal_position_rmse_m": 0.04026580371181844,
+        "vertical_position_rmse_m": 0.053794065056515385,
+        "position_3d_rmse_m": 0.06719476455694522,
+        "velocity_3d_rmse_m_s": 0.047770452147583305,
+        "attitude_rmse_deg": 0.49458469505915476,
+        "yaw_rmse_deg": 0.3940417861532577,
+        "max_horizontal_error_m": 0.09826804467974092,
+        "terminal_horizontal_error_m": 0.0264083969942569,
+        "gps_fused_accepted_hz": 10.0,
+        "flow_fused_accepted_hz": 24.97872340425532,
+        "mag_fused_accepted_hz": 25.0,
+        "baro_fused_accepted_hz": 24.893617021276597,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "before_outage": {
+        "start_s": 18,
+        "end_s": 25,
+        "rows": 700,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000001563,
+        "horizontal_position_rmse_m": 0.03649365921348643,
+        "vertical_position_rmse_m": 0.04052700396310504,
+        "position_3d_rmse_m": 0.05453645765004923,
+        "velocity_3d_rmse_m_s": 0.0466978700019294,
+        "attitude_rmse_deg": 0.5138102000709952,
+        "yaw_rmse_deg": 0.43805929925825043,
+        "max_horizontal_error_m": 0.06315252440684128,
+        "terminal_horizontal_error_m": 0.02758292241613214,
+        "gps_fused_accepted_hz": 10.0,
+        "flow_fused_accepted_hz": 25.0,
+        "mag_fused_accepted_hz": 25.0,
+        "baro_fused_accepted_hz": 24.714285714285715,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "outage_window": {
+        "start_s": 25,
+        "end_s": 40,
+        "rows": 1500,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000005116,
+        "horizontal_position_rmse_m": 0.030680437710021186,
+        "vertical_position_rmse_m": 0.05116652965952904,
+        "position_3d_rmse_m": 0.059659894531233916,
+        "velocity_3d_rmse_m_s": 0.04644444497853184,
+        "attitude_rmse_deg": 0.35383727025107864,
+        "yaw_rmse_deg": 0.25779879664425903,
+        "max_horizontal_error_m": 0.05646227425165855,
+        "terminal_horizontal_error_m": 0.01615144815720793,
+        "gps_fused_accepted_hz": 10.0,
+        "flow_fused_accepted_hz": 25.0,
+        "mag_fused_accepted_hz": 25.0,
+        "baro_fused_accepted_hz": 24.933333333333334,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "after_return": {
+        "start_s": 40,
+        "end_s": 60,
+        "rows": 2000,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000005116,
+        "horizontal_position_rmse_m": 0.04880434204708804,
+        "vertical_position_rmse_m": 0.06328374697811291,
+        "position_3d_rmse_m": 0.0799168094598313,
+        "velocity_3d_rmse_m_s": 0.04654206850984431,
+        "attitude_rmse_deg": 0.44741640293699303,
+        "yaw_rmse_deg": 0.3421253854714596,
+        "max_horizontal_error_m": 0.09826804467974092,
+        "terminal_horizontal_error_m": 0.0264083969942569,
+        "gps_fused_accepted_hz": 10.0,
+        "flow_fused_accepted_hz": 25.0,
+        "mag_fused_accepted_hz": 25.0,
+        "baro_fused_accepted_hz": 25.0,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "fusion_state": {
+        "start_s": 13,
+        "end_s": 59,
+        "rows": 4600,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010002200000002404,
+        "horizontal_position_rmse_m": 0.039038143220709476,
+        "vertical_position_rmse_m": 0.04750768214588646,
+        "position_3d_rmse_m": 0.06148948275107869,
+        "velocity_3d_rmse_m_s": 0.044528736025923395,
+        "attitude_rmse_deg": 0.49511123991519124,
+        "yaw_rmse_deg": 0.39658414939454667,
+        "max_horizontal_error_m": 0.0909755346082893,
+        "terminal_horizontal_error_m": 0.02786997908242214,
+        "gps_fused_accepted_hz": 10.0,
+        "flow_fused_accepted_hz": 24.97826086956522,
+        "mag_fused_accepted_hz": 25.0,
+        "baro_fused_accepted_hz": 24.891304347826086,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "fusion_lag_s": {
+        "minimum": 0.20124889999999596,
+        "maximum": 0.20125320000000357
+      }
+    },
+    {
+      "name": "retrodiction",
+      "tag": "lower_0.6_7",
+      "frequency": 0.6,
+      "seed": 7,
+      "profile": "25/25/25 Hz",
+      "scenario": "denied",
+      "delay_profile": "nominal",
+      "delays_ms": [
+        110,
+        30,
+        20,
+        20,
+        10
+      ],
+      "output_sha256": "a465d7b8c0c0ebdb1a6728c9f993c32b90d0b5cad80111a6e346e70cdebb2e75",
+      "timing": [
+        {
+          "clock": "CLOCK_THREAD_CPUTIME_ID",
+          "imu_ticks": 48001,
+          "filter": {
+            "calls": 6001,
+            "total_ns": 145694530,
+            "maximum_ns": 61340
+          },
+          "preintegration": {
+            "calls": 48000,
+            "total_ns": 96206450,
+            "maximum_ns": 16950
+          },
+          "predictor": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "queues": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "state_bytes": 34080,
+          "buffer_bytes": 0,
+          "transport_bytes": 107544,
+          "transport_delivered": [
+            0,
+            1500,
+            1500,
+            1500
+          ],
+          "transport_digest": [
+            "cbf29ce484222325",
+            "ef5a93e2fb83108d",
+            "ef5a93e2fb83108d",
+            "ef5a93e2fb83108d"
+          ]
+        },
+        {
+          "clock": "CLOCK_THREAD_CPUTIME_ID",
+          "imu_ticks": 48001,
+          "filter": {
+            "calls": 6001,
+            "total_ns": 145932310,
+            "maximum_ns": 68840
+          },
+          "preintegration": {
+            "calls": 48000,
+            "total_ns": 95832050,
+            "maximum_ns": 6130
+          },
+          "predictor": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "queues": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "state_bytes": 34080,
+          "buffer_bytes": 0,
+          "transport_bytes": 107544,
+          "transport_delivered": [
+            0,
+            1500,
+            1500,
+            1500
+          ],
+          "transport_digest": [
+            "cbf29ce484222325",
+            "ef5a93e2fb83108d",
+            "ef5a93e2fb83108d",
+            "ef5a93e2fb83108d"
+          ]
+        },
+        {
+          "clock": "CLOCK_THREAD_CPUTIME_ID",
+          "imu_ticks": 48001,
+          "filter": {
+            "calls": 6001,
+            "total_ns": 145536250,
+            "maximum_ns": 53590
+          },
+          "preintegration": {
+            "calls": 48000,
+            "total_ns": 95829630,
+            "maximum_ns": 21560
+          },
+          "predictor": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "queues": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "state_bytes": 34080,
+          "buffer_bytes": 0,
+          "transport_bytes": 107544,
+          "transport_delivered": [
+            0,
+            1500,
+            1500,
+            1500
+          ],
+          "transport_digest": [
+            "cbf29ce484222325",
+            "ef5a93e2fb83108d",
+            "ef5a93e2fb83108d",
+            "ef5a93e2fb83108d"
+          ]
+        }
+      ],
+      "flight": {
+        "start_s": 13,
+        "end_s": 60,
+        "rows": 4700,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000005116,
+        "horizontal_position_rmse_m": 0.3764848946855313,
+        "vertical_position_rmse_m": 0.059597965408145576,
+        "position_3d_rmse_m": 0.38117291798757963,
+        "velocity_3d_rmse_m_s": 0.06262364821950019,
+        "attitude_rmse_deg": 1.006316572139716,
+        "yaw_rmse_deg": 0.921963288215257,
+        "max_horizontal_error_m": 0.47852217565171,
+        "terminal_horizontal_error_m": 0.42914508823665426,
+        "gps_fused_accepted_hz": 0.0,
+        "flow_fused_accepted_hz": 24.97872340425532,
+        "mag_fused_accepted_hz": 25.0,
+        "baro_fused_accepted_hz": 24.893617021276597,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "before_outage": {
+        "start_s": 18,
+        "end_s": 25,
+        "rows": 700,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000001563,
+        "horizontal_position_rmse_m": 0.39261622201976715,
+        "vertical_position_rmse_m": 0.05221541650494399,
+        "position_3d_rmse_m": 0.39607315929492104,
+        "velocity_3d_rmse_m_s": 0.06418396289001968,
+        "attitude_rmse_deg": 0.9249638104498751,
+        "yaw_rmse_deg": 0.8541267020242301,
+        "max_horizontal_error_m": 0.4438124800339136,
+        "terminal_horizontal_error_m": 0.32251577045412705,
+        "gps_fused_accepted_hz": 0.0,
+        "flow_fused_accepted_hz": 25.0,
+        "mag_fused_accepted_hz": 25.0,
+        "baro_fused_accepted_hz": 24.714285714285715,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "outage_window": {
+        "start_s": 25,
+        "end_s": 40,
+        "rows": 1500,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000005116,
+        "horizontal_position_rmse_m": 0.38464989446439307,
+        "vertical_position_rmse_m": 0.05780934132986692,
+        "position_3d_rmse_m": 0.3889697433688921,
+        "velocity_3d_rmse_m_s": 0.06346119022288427,
+        "attitude_rmse_deg": 0.9565239242533915,
+        "yaw_rmse_deg": 0.8658641357364051,
+        "max_horizontal_error_m": 0.47852217565171,
+        "terminal_horizontal_error_m": 0.41447866323754723,
+        "gps_fused_accepted_hz": 0.0,
+        "flow_fused_accepted_hz": 25.0,
+        "mag_fused_accepted_hz": 25.0,
+        "baro_fused_accepted_hz": 24.933333333333334,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "after_return": {
+        "start_s": 40,
+        "end_s": 60,
+        "rows": 2000,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000005116,
+        "horizontal_position_rmse_m": 0.3841451956912051,
+        "vertical_position_rmse_m": 0.0670463080453787,
+        "position_3d_rmse_m": 0.38995222629849163,
+        "velocity_3d_rmse_m_s": 0.06052244172684465,
+        "attitude_rmse_deg": 1.1013432417546583,
+        "yaw_rmse_deg": 1.0151295276247019,
+        "max_horizontal_error_m": 0.4727747107653171,
+        "terminal_horizontal_error_m": 0.42914508823665426,
+        "gps_fused_accepted_hz": 0.0,
+        "flow_fused_accepted_hz": 25.0,
+        "mag_fused_accepted_hz": 25.0,
+        "baro_fused_accepted_hz": 25.0,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      }
+    },
+    {
+      "name": "horizon",
+      "tag": "lower_0.6_7",
+      "frequency": 0.6,
+      "seed": 7,
+      "profile": "25/25/25 Hz",
+      "scenario": "denied",
+      "delay_profile": "nominal",
+      "delays_ms": [
+        110,
+        30,
+        20,
+        20,
+        10
+      ],
+      "output_sha256": "1e068acbf130d1f92300c9e6f34c8abd69f4ff5f1f7a8881f7f196aa162a47e0",
+      "timing": [
+        {
+          "clock": "CLOCK_THREAD_CPUTIME_ID",
+          "imu_ticks": 48001,
+          "filter": {
+            "calls": 5980,
+            "total_ns": 146561700,
+            "maximum_ns": 76300
+          },
+          "preintegration": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "predictor": {
+            "calls": 48001,
+            "total_ns": 291477190,
+            "maximum_ns": 19170
+          },
+          "queues": {
+            "calls": 6001,
+            "total_ns": 31554870,
+            "maximum_ns": 11600
+          },
+          "state_bytes": 77860,
+          "buffer_bytes": 10488,
+          "fusion_horizon_s": 0.200000003,
+          "worst_residual_age_s": 0.00875091553,
+          "late": 0,
+          "overflow": 0,
+          "stale": 0,
+          "transport_bytes": 107544,
+          "transport_delivered": [
+            0,
+            1500,
+            1500,
+            1500
+          ],
+          "transport_digest": [
+            "cbf29ce484222325",
+            "ef5a93e2fb83108d",
+            "ef5a93e2fb83108d",
+            "ef5a93e2fb83108d"
+          ]
+        },
+        {
+          "clock": "CLOCK_THREAD_CPUTIME_ID",
+          "imu_ticks": 48001,
+          "filter": {
+            "calls": 5980,
+            "total_ns": 147454429,
+            "maximum_ns": 77600
+          },
+          "preintegration": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "predictor": {
+            "calls": 48001,
+            "total_ns": 292970400,
+            "maximum_ns": 22320
+          },
+          "queues": {
+            "calls": 6001,
+            "total_ns": 31803390,
+            "maximum_ns": 11390
+          },
+          "state_bytes": 77860,
+          "buffer_bytes": 10488,
+          "fusion_horizon_s": 0.200000003,
+          "worst_residual_age_s": 0.00875091553,
+          "late": 0,
+          "overflow": 0,
+          "stale": 0,
+          "transport_bytes": 107544,
+          "transport_delivered": [
+            0,
+            1500,
+            1500,
+            1500
+          ],
+          "transport_digest": [
+            "cbf29ce484222325",
+            "ef5a93e2fb83108d",
+            "ef5a93e2fb83108d",
+            "ef5a93e2fb83108d"
+          ]
+        },
+        {
+          "clock": "CLOCK_THREAD_CPUTIME_ID",
+          "imu_ticks": 48001,
+          "filter": {
+            "calls": 5980,
+            "total_ns": 148708560,
+            "maximum_ns": 81350
+          },
+          "preintegration": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "predictor": {
+            "calls": 48001,
+            "total_ns": 295536810,
+            "maximum_ns": 30860
+          },
+          "queues": {
+            "calls": 6001,
+            "total_ns": 32038060,
+            "maximum_ns": 17920
+          },
+          "state_bytes": 77860,
+          "buffer_bytes": 10488,
+          "fusion_horizon_s": 0.200000003,
+          "worst_residual_age_s": 0.00875091553,
+          "late": 0,
+          "overflow": 0,
+          "stale": 0,
+          "transport_bytes": 107544,
+          "transport_delivered": [
+            0,
+            1500,
+            1500,
+            1500
+          ],
+          "transport_digest": [
+            "cbf29ce484222325",
+            "ef5a93e2fb83108d",
+            "ef5a93e2fb83108d",
+            "ef5a93e2fb83108d"
+          ]
+        }
+      ],
+      "flight": {
+        "start_s": 13,
+        "end_s": 60,
+        "rows": 4700,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000005116,
+        "horizontal_position_rmse_m": 0.4254122891644448,
+        "vertical_position_rmse_m": 0.0646727811575766,
+        "position_3d_rmse_m": 0.4303001096848442,
+        "velocity_3d_rmse_m_s": 0.05521495404993007,
+        "attitude_rmse_deg": 0.31575395648600607,
+        "yaw_rmse_deg": 0.2805757565107529,
+        "max_horizontal_error_m": 0.5974485740043121,
+        "terminal_horizontal_error_m": 0.48716645739792525,
+        "gps_fused_accepted_hz": 0.0,
+        "flow_fused_accepted_hz": 24.97872340425532,
+        "mag_fused_accepted_hz": 25.0,
+        "baro_fused_accepted_hz": 24.893617021276597,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "before_outage": {
+        "start_s": 18,
+        "end_s": 25,
+        "rows": 700,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000001563,
+        "horizontal_position_rmse_m": 0.2983031216120223,
+        "vertical_position_rmse_m": 0.05276979142174195,
+        "position_3d_rmse_m": 0.30293465178181767,
+        "velocity_3d_rmse_m_s": 0.05716226464629827,
+        "attitude_rmse_deg": 0.2538240839803133,
+        "yaw_rmse_deg": 0.22133898592956075,
+        "max_horizontal_error_m": 0.38490416109941006,
+        "terminal_horizontal_error_m": 0.37993743051351175,
+        "gps_fused_accepted_hz": 0.0,
+        "flow_fused_accepted_hz": 25.0,
+        "mag_fused_accepted_hz": 25.0,
+        "baro_fused_accepted_hz": 24.714285714285715,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "outage_window": {
+        "start_s": 25,
+        "end_s": 40,
+        "rows": 1500,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000005116,
+        "horizontal_position_rmse_m": 0.4031441701383807,
+        "vertical_position_rmse_m": 0.06093339595882184,
+        "position_3d_rmse_m": 0.4077230685890096,
+        "velocity_3d_rmse_m_s": 0.056253057802231866,
+        "attitude_rmse_deg": 0.23376326931165783,
+        "yaw_rmse_deg": 0.1979167337534371,
+        "max_horizontal_error_m": 0.4519084282902157,
+        "terminal_horizontal_error_m": 0.45031195957393033,
+        "gps_fused_accepted_hz": 0.0,
+        "flow_fused_accepted_hz": 25.0,
+        "mag_fused_accepted_hz": 25.0,
+        "baro_fused_accepted_hz": 24.933333333333334,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "after_return": {
+        "start_s": 40,
+        "end_s": 60,
+        "rows": 2000,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000005116,
+        "horizontal_position_rmse_m": 0.5081168936940329,
+        "vertical_position_rmse_m": 0.0745488955441897,
+        "position_3d_rmse_m": 0.5135565358206743,
+        "velocity_3d_rmse_m_s": 0.05131263780303607,
+        "attitude_rmse_deg": 0.39713686840273893,
+        "yaw_rmse_deg": 0.360919008205845,
+        "max_horizontal_error_m": 0.5974485740043121,
+        "terminal_horizontal_error_m": 0.48716645739792525,
+        "gps_fused_accepted_hz": 0.0,
+        "flow_fused_accepted_hz": 25.0,
+        "mag_fused_accepted_hz": 25.0,
+        "baro_fused_accepted_hz": 25.0,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "fusion_state": {
+        "start_s": 13,
+        "end_s": 59,
+        "rows": 4600,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010002200000002404,
+        "horizontal_position_rmse_m": 0.42511304407672484,
+        "vertical_position_rmse_m": 0.0527480228532573,
+        "position_3d_rmse_m": 0.4283730315497314,
+        "velocity_3d_rmse_m_s": 0.051917281607470264,
+        "attitude_rmse_deg": 0.30487198146235706,
+        "yaw_rmse_deg": 0.2714292613790427,
+        "max_horizontal_error_m": 0.5848948481117424,
+        "terminal_horizontal_error_m": 0.4831860265918295,
+        "gps_fused_accepted_hz": 0.0,
+        "flow_fused_accepted_hz": 24.97826086956522,
+        "mag_fused_accepted_hz": 25.0,
+        "baro_fused_accepted_hz": 24.891304347826086,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "fusion_lag_s": {
+        "minimum": 0.20124889999999596,
+        "maximum": 0.20125320000000357
+      }
+    },
+    {
+      "name": "retrodiction",
+      "tag": "lower_0.6_7",
+      "frequency": 0.6,
+      "seed": 7,
+      "profile": "25/25/25 Hz",
+      "scenario": "transition",
+      "delay_profile": "nominal",
+      "delays_ms": [
+        110,
+        30,
+        20,
+        20,
+        10
+      ],
+      "output_sha256": "250f05cf840b6ba892d23b412589133c36c53f3e9ab222ae8e6a04370d3a9a2b",
+      "timing": [
+        {
+          "clock": "CLOCK_THREAD_CPUTIME_ID",
+          "imu_ticks": 48001,
+          "filter": {
+            "calls": 6001,
+            "total_ns": 170069139,
+            "maximum_ns": 119130
+          },
+          "preintegration": {
+            "calls": 48000,
+            "total_ns": 96319580,
+            "maximum_ns": 17630
+          },
+          "predictor": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "queues": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "state_bytes": 34080,
+          "buffer_bytes": 0,
+          "transport_bytes": 107544,
+          "transport_delivered": [
+            449,
+            1500,
+            1500,
+            1500
+          ],
+          "transport_digest": [
+            "584c37e905381480",
+            "ef5a93e2fb83108d",
+            "ef5a93e2fb83108d",
+            "ef5a93e2fb83108d"
+          ]
+        },
+        {
+          "clock": "CLOCK_THREAD_CPUTIME_ID",
+          "imu_ticks": 48001,
+          "filter": {
+            "calls": 6001,
+            "total_ns": 171304590,
+            "maximum_ns": 111520
+          },
+          "preintegration": {
+            "calls": 48000,
+            "total_ns": 96988640,
+            "maximum_ns": 20430
+          },
+          "predictor": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "queues": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "state_bytes": 34080,
+          "buffer_bytes": 0,
+          "transport_bytes": 107544,
+          "transport_delivered": [
+            449,
+            1500,
+            1500,
+            1500
+          ],
+          "transport_digest": [
+            "584c37e905381480",
+            "ef5a93e2fb83108d",
+            "ef5a93e2fb83108d",
+            "ef5a93e2fb83108d"
+          ]
+        },
+        {
+          "clock": "CLOCK_THREAD_CPUTIME_ID",
+          "imu_ticks": 48001,
+          "filter": {
+            "calls": 6001,
+            "total_ns": 170566500,
+            "maximum_ns": 117620
+          },
+          "preintegration": {
+            "calls": 48000,
+            "total_ns": 96372270,
+            "maximum_ns": 12910
+          },
+          "predictor": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "queues": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "state_bytes": 34080,
+          "buffer_bytes": 0,
+          "transport_bytes": 107544,
+          "transport_delivered": [
+            449,
+            1500,
+            1500,
+            1500
+          ],
+          "transport_digest": [
+            "584c37e905381480",
+            "ef5a93e2fb83108d",
+            "ef5a93e2fb83108d",
+            "ef5a93e2fb83108d"
+          ]
+        }
+      ],
+      "flight": {
+        "start_s": 13,
+        "end_s": 60,
+        "rows": 4700,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000005116,
+        "horizontal_position_rmse_m": 0.049255062541482084,
+        "vertical_position_rmse_m": 0.055962461531309696,
+        "position_3d_rmse_m": 0.07455104483914783,
+        "velocity_3d_rmse_m_s": 0.04452476509830366,
+        "attitude_rmse_deg": 0.4070443239232447,
+        "yaw_rmse_deg": 0.36962701451660795,
+        "max_horizontal_error_m": 0.15415265799998376,
+        "terminal_horizontal_error_m": 0.03963721704754509,
+        "gps_fused_accepted_hz": 6.808510638297872,
+        "flow_fused_accepted_hz": 24.97872340425532,
+        "mag_fused_accepted_hz": 25.0,
+        "baro_fused_accepted_hz": 24.914893617021278,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "before_outage": {
+        "start_s": 18,
+        "end_s": 25,
+        "rows": 700,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000001563,
+        "horizontal_position_rmse_m": 0.032425286039307,
+        "vertical_position_rmse_m": 0.045763045451675144,
+        "position_3d_rmse_m": 0.05608614359842333,
+        "velocity_3d_rmse_m_s": 0.036788804812394854,
+        "attitude_rmse_deg": 0.349456592207318,
+        "yaw_rmse_deg": 0.33133046035961916,
+        "max_horizontal_error_m": 0.07524971791799565,
+        "terminal_horizontal_error_m": 0.04438544930308027,
+        "gps_fused_accepted_hz": 10.0,
+        "flow_fused_accepted_hz": 25.0,
+        "mag_fused_accepted_hz": 25.0,
+        "baro_fused_accepted_hz": 24.857142857142858,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "outage_window": {
+        "start_s": 25,
+        "end_s": 40,
+        "rows": 1500,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000005116,
+        "horizontal_position_rmse_m": 0.025125981224049163,
+        "vertical_position_rmse_m": 0.05834008377618814,
+        "position_3d_rmse_m": 0.06352070770610102,
+        "velocity_3d_rmse_m_s": 0.05459273875855884,
+        "attitude_rmse_deg": 0.3087839899260698,
+        "yaw_rmse_deg": 0.2647505030071753,
+        "max_horizontal_error_m": 0.04643443180400451,
+        "terminal_horizontal_error_m": 0.014789035141753521,
+        "gps_fused_accepted_hz": 0.06666666666666667,
+        "flow_fused_accepted_hz": 25.0,
+        "mag_fused_accepted_hz": 25.0,
+        "baro_fused_accepted_hz": 24.933333333333334,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "after_return": {
+        "start_s": 40,
+        "end_s": 60,
+        "rows": 2000,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000005116,
+        "horizontal_position_rmse_m": 0.06859899732857769,
+        "vertical_position_rmse_m": 0.06140635232070227,
+        "position_3d_rmse_m": 0.09206824935785639,
+        "velocity_3d_rmse_m_s": 0.03789336190269058,
+        "attitude_rmse_deg": 0.44501092924064356,
+        "yaw_rmse_deg": 0.4143877254247173,
+        "max_horizontal_error_m": 0.15415265799998376,
+        "terminal_horizontal_error_m": 0.03963721704754509,
+        "gps_fused_accepted_hz": 9.95,
+        "flow_fused_accepted_hz": 25.0,
+        "mag_fused_accepted_hz": 25.0,
+        "baro_fused_accepted_hz": 25.0,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "transition": {
+        "first_gps_use_after_return_s": 0.11999999999999744,
+        "recovery_to_025m_for_1s_s": 0.0,
+        "max_return_error_jump_m": 0.13960549760880403
+      }
+    },
+    {
+      "name": "horizon",
+      "tag": "lower_0.6_7",
+      "frequency": 0.6,
+      "seed": 7,
+      "profile": "25/25/25 Hz",
+      "scenario": "transition",
+      "delay_profile": "nominal",
+      "delays_ms": [
+        110,
+        30,
+        20,
+        20,
+        10
+      ],
+      "output_sha256": "75be6343e5ef0c0d2856f7bd9dbd23481fc215eea1d9865ea25153c2df41ff6b",
+      "timing": [
+        {
+          "clock": "CLOCK_THREAD_CPUTIME_ID",
+          "imu_ticks": 48001,
+          "filter": {
+            "calls": 5980,
+            "total_ns": 171252190,
+            "maximum_ns": 116270
+          },
+          "preintegration": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "predictor": {
+            "calls": 48001,
+            "total_ns": 291352590,
+            "maximum_ns": 21570
+          },
+          "queues": {
+            "calls": 6001,
+            "total_ns": 31733720,
+            "maximum_ns": 11440
+          },
+          "state_bytes": 77860,
+          "buffer_bytes": 10488,
+          "fusion_horizon_s": 0.200000003,
+          "worst_residual_age_s": 0.00875091553,
+          "late": 0,
+          "overflow": 0,
+          "stale": 0,
+          "transport_bytes": 107544,
+          "transport_delivered": [
+            449,
+            1500,
+            1500,
+            1500
+          ],
+          "transport_digest": [
+            "584c37e905381480",
+            "ef5a93e2fb83108d",
+            "ef5a93e2fb83108d",
+            "ef5a93e2fb83108d"
+          ]
+        },
+        {
+          "clock": "CLOCK_THREAD_CPUTIME_ID",
+          "imu_ticks": 48001,
+          "filter": {
+            "calls": 5980,
+            "total_ns": 171054209,
+            "maximum_ns": 118580
+          },
+          "preintegration": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "predictor": {
+            "calls": 48001,
+            "total_ns": 293424020,
+            "maximum_ns": 18110
+          },
+          "queues": {
+            "calls": 6001,
+            "total_ns": 31648270,
+            "maximum_ns": 11280
+          },
+          "state_bytes": 77860,
+          "buffer_bytes": 10488,
+          "fusion_horizon_s": 0.200000003,
+          "worst_residual_age_s": 0.00875091553,
+          "late": 0,
+          "overflow": 0,
+          "stale": 0,
+          "transport_bytes": 107544,
+          "transport_delivered": [
+            449,
+            1500,
+            1500,
+            1500
+          ],
+          "transport_digest": [
+            "584c37e905381480",
+            "ef5a93e2fb83108d",
+            "ef5a93e2fb83108d",
+            "ef5a93e2fb83108d"
+          ]
+        },
+        {
+          "clock": "CLOCK_THREAD_CPUTIME_ID",
+          "imu_ticks": 48001,
+          "filter": {
+            "calls": 5980,
+            "total_ns": 171871079,
+            "maximum_ns": 166840
+          },
+          "preintegration": {
+            "calls": 0,
+            "total_ns": 0,
+            "maximum_ns": 0
+          },
+          "predictor": {
+            "calls": 48001,
+            "total_ns": 294574420,
+            "maximum_ns": 19720
+          },
+          "queues": {
+            "calls": 6001,
+            "total_ns": 31835110,
+            "maximum_ns": 11220
+          },
+          "state_bytes": 77860,
+          "buffer_bytes": 10488,
+          "fusion_horizon_s": 0.200000003,
+          "worst_residual_age_s": 0.00875091553,
+          "late": 0,
+          "overflow": 0,
+          "stale": 0,
+          "transport_bytes": 107544,
+          "transport_delivered": [
+            449,
+            1500,
+            1500,
+            1500
+          ],
+          "transport_digest": [
+            "584c37e905381480",
+            "ef5a93e2fb83108d",
+            "ef5a93e2fb83108d",
+            "ef5a93e2fb83108d"
+          ]
+        }
+      ],
+      "flight": {
+        "start_s": 13,
+        "end_s": 60,
+        "rows": 4700,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000005116,
+        "horizontal_position_rmse_m": 0.04954427231921588,
+        "vertical_position_rmse_m": 0.0572379362168231,
+        "position_3d_rmse_m": 0.07570215493631426,
+        "velocity_3d_rmse_m_s": 0.051226948323361034,
+        "attitude_rmse_deg": 0.5016302206909597,
+        "yaw_rmse_deg": 0.39837500395155157,
+        "max_horizontal_error_m": 0.12479301395270362,
+        "terminal_horizontal_error_m": 0.02581337704789199,
+        "gps_fused_accepted_hz": 6.808510638297872,
+        "flow_fused_accepted_hz": 24.97872340425532,
+        "mag_fused_accepted_hz": 25.0,
+        "baro_fused_accepted_hz": 24.893617021276597,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "before_outage": {
+        "start_s": 18,
+        "end_s": 25,
+        "rows": 700,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000001563,
+        "horizontal_position_rmse_m": 0.03649365921348643,
+        "vertical_position_rmse_m": 0.04052700396310504,
+        "position_3d_rmse_m": 0.05453645765004923,
+        "velocity_3d_rmse_m_s": 0.0466978700019294,
+        "attitude_rmse_deg": 0.5138102000709952,
+        "yaw_rmse_deg": 0.43805929925825043,
+        "max_horizontal_error_m": 0.06315252440684128,
+        "terminal_horizontal_error_m": 0.02758292241613214,
+        "gps_fused_accepted_hz": 10.0,
+        "flow_fused_accepted_hz": 25.0,
+        "mag_fused_accepted_hz": 25.0,
+        "baro_fused_accepted_hz": 24.714285714285715,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "outage_window": {
+        "start_s": 25,
+        "end_s": 40,
+        "rows": 1500,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000005116,
+        "horizontal_position_rmse_m": 0.040175102500986416,
+        "vertical_position_rmse_m": 0.061932605614871176,
+        "position_3d_rmse_m": 0.07382199197537234,
+        "velocity_3d_rmse_m_s": 0.05646096412254021,
+        "attitude_rmse_deg": 0.3699065174530978,
+        "yaw_rmse_deg": 0.26751543438886627,
+        "max_horizontal_error_m": 0.07497586785393548,
+        "terminal_horizontal_error_m": 0.048414954260936865,
+        "gps_fused_accepted_hz": 0.13333333333333333,
+        "flow_fused_accepted_hz": 25.0,
+        "mag_fused_accepted_hz": 25.0,
+        "baro_fused_accepted_hz": 24.933333333333334,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "after_return": {
+        "start_s": 40,
+        "end_s": 60,
+        "rows": 2000,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010000000000005116,
+        "horizontal_position_rmse_m": 0.06193187008743555,
+        "vertical_position_rmse_m": 0.06316802990862394,
+        "position_3d_rmse_m": 0.08846330615042489,
+        "velocity_3d_rmse_m_s": 0.04687463451474891,
+        "attitude_rmse_deg": 0.45601890299758835,
+        "yaw_rmse_deg": 0.3482682765998193,
+        "max_horizontal_error_m": 0.12479301395270362,
+        "terminal_horizontal_error_m": 0.02581337704789199,
+        "gps_fused_accepted_hz": 9.9,
+        "flow_fused_accepted_hz": 25.0,
+        "mag_fused_accepted_hz": 25.0,
+        "baro_fused_accepted_hz": 25.0,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "transition": {
+        "first_gps_use_after_return_s": 0.21000000000000085,
+        "recovery_to_025m_for_1s_s": 0.0,
+        "max_return_error_jump_m": 0.14345512067132846
+      },
+      "fusion_state": {
+        "start_s": 13,
+        "end_s": 59,
+        "rows": 4600,
+        "row_coverage": 1.0,
+        "position_valid_fraction": 1.0,
+        "attitude_valid_fraction": 1.0,
+        "finite_fraction": 1.0,
+        "max_output_gap_s": 0.010002200000002404,
+        "horizontal_position_rmse_m": 0.04852102330867883,
+        "vertical_position_rmse_m": 0.04906565586257725,
+        "position_3d_rmse_m": 0.069005277248528,
+        "velocity_3d_rmse_m_s": 0.04812329609052833,
+        "attitude_rmse_deg": 0.5035503345749994,
+        "yaw_rmse_deg": 0.40196186998513517,
+        "max_horizontal_error_m": 0.12415860594383747,
+        "terminal_horizontal_error_m": 0.02724413893660484,
+        "gps_fused_accepted_hz": 6.739130434782608,
+        "flow_fused_accepted_hz": 24.97826086956522,
+        "mag_fused_accepted_hz": 25.0,
+        "baro_fused_accepted_hz": 24.891304347826086,
+        "nonzero_step_status_rows": 0,
+        "prediction_accepted_fraction": 1.0
+      },
+      "fusion_lag_s": {
+        "minimum": 0.20124889999999596,
+        "maximum": 0.20125320000000357
+      }
+    }
+  ]
+}

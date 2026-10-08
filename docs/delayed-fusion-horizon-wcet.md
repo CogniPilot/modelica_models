@@ -1,5 +1,14 @@
 # Fusion horizon timing on the flight target
 
+Current validation update (7 October 2026): the generated-component comparison
+in [eskf-delay.html](reviews/2026-10-07/eskf-delay.html) implements a buffered
+200 ms horizon and forward prediction alongside the retrodiction baseline.
+The vehicle default remains retrodiction: composed export is blocked by the
+Rumoca 0.10.2 sampled-read diagnostic, and flight-target timing has not been
+requalified. The packed-array predictor refactor changes generated code cost;
+older timing figures below describe the earlier implementation. Current host
+measurements do not replace flight-target timing evidence.
+
 Target: NXP MR-VMU-TROPIC, i.MX RT1064, Cortex-M7 at 600 MHz, single precision
 throughout. At an 800 Hz inertial tick the whole core has
 

@@ -1,0 +1,178 @@
+{
+  "lean": "Lean (version 4.29.1, x86_64-unknown-linux-gnu, commit f72c35b3f637c8c6571d353742168ab66cc22c00, Release)",
+  "modules": [
+    "CovariancePropagation",
+    "NoiseCoordinates",
+    "BearingOutput",
+    "BearingComparison",
+    "InertialBias",
+    "GroupAffine",
+    "RemainderStability",
+    "PredictionMoments",
+    "KalmanCorrection",
+    "InertialAidingObservability"
+  ],
+  "source_sha256": {
+    "GNC/Estimation/CovariancePropagation.lean": "b0c30193760a88221b6a26e117babc8891f94d1d05a335af15166aeb7b7f280b",
+    "GNC/Estimation/NoiseCoordinates.lean": "7dcf9fa396bad1e8f03098033cca6156763d783d01164c02d5ca00fc8275f207",
+    "GNC/Estimation/BearingOutput.lean": "66113ea5a11855b5271de718b2c778ee8f2a5f156ac4028bbd35e27461253d62",
+    "GNC/Estimation/BearingComparison.lean": "0cfe0448b9cf3c6a3127b954aa73443397d7c38a6b5ef75fbe0fe455e02a00bf",
+    "GNC/Estimation/InertialBias.lean": "c90d3085849713ab4ece4d0aded5e1a7d1cee96fa5008aa5ce69a317662d5789",
+    "GNC/Estimation/GroupAffine.lean": "e099ec6056cb97fe868b3d103fabb52d5c45c0aa177e61393371bae3ad8452e8",
+    "GNC/Estimation/RemainderStability.lean": "70f08095f4f461a42efb91ce08893f29cfbda7da6aee76aed025436c67e041a4",
+    "GNC/Estimation/PredictionMoments.lean": "4c860124bde1455d2a0f13da8d5f32ec97ba319ba28fc4d7cad9084a134d7433",
+    "GNC/Estimation/KalmanCorrection.lean": "e2615c7467fd2ea1ea694f94bcf01c23ff27557bf25f87b46aef838855fdda63",
+    "GNC/Estimation/InertialAidingObservability.lean": "9f3e0f1a73ecff44fbd80166739daa9b42f34eb07152018d2d2de1881cedee0f"
+  },
+  "proof_sha256": {
+    "GNC/Estimation/BearingComparison.olean": "4c2c3c09186cff201f1e28824afeaf7a8f89f7f1699420298838e9484fa73578",
+    "GNC/Estimation/BearingOutput.olean": "5284e203228a867155d4d71d3e09c0871aebc824da7659d6cb1a9f1545384ebc",
+    "GNC/Estimation/CovariancePropagation.olean": "a4ca4adcde2e2e4dfd3789bc04c90a48a5b53349ad7b7228009c45c8aa679450",
+    "GNC/Estimation/GroupAffine.olean": "37b6dc49ff5c31eeb70ee37f880072577df30911301cfdb0ff221a5efc362176",
+    "GNC/Estimation/InertialAidingObservability.olean": "456a98dac8cfd9725be4742d681fab3e2af39c65225a3685ec6296d7d255b3c5",
+    "GNC/Estimation/InertialBias.olean": "2b473a7c61c4ee1526cd5bf37294e8bd09388b95e2439a849c459fea58709a64",
+    "GNC/Estimation/KalmanCorrection.olean": "dfaa11618a1765208d2f2b8ac28547aec00e28e7822d114784c6fdf5295e52b5",
+    "GNC/Estimation/NoiseCoordinates.olean": "722726decc969c04cdeeea452722e77665fa7cf0f34ace90113f5744a46807ba",
+    "GNC/Estimation/PredictionMoments.olean": "52f4450e1ddd1f12f338abd897f1e7f7f12e8380c2f0933b4f74d86e45829094",
+    "GNC/Estimation/RemainderStability.olean": "1284c358370a7018f99beda3ba59e63ceafb1ccc3eac76392eac8a3c15af458e"
+  },
+  "audit": {
+    "source_modules": [
+      "GNC.Algebra.NilpotentSummation",
+      "GNC.Analysis.Coefficients",
+      "GNC.Analysis.ForcedResponse",
+      "GNC.Analysis.FundamentalSolution",
+      "GNC.Analysis.LinearODE",
+      "GNC.Analysis.MixedFlow",
+      "GNC.Control.LocalLogBackstepping",
+      "GNC.Control.LogBackstepping",
+      "GNC.Control.Lyapunov",
+      "GNC.Control.Planner",
+      "GNC.Control.PolytopicTube",
+      "GNC.Control.Reachability",
+      "GNC.Control.ReferenceTube",
+      "GNC.Dynamics.ForcedLogDynamics",
+      "GNC.Dynamics.Gravity",
+      "GNC.Dynamics.GravityAttitude",
+      "GNC.Dynamics.GravityField",
+      "GNC.Dynamics.GravityLinearization",
+      "GNC.Dynamics.LogDynamics",
+      "GNC.Dynamics.MatrixDynamics",
+      "GNC.Dynamics.MixedErrorDynamics",
+      "GNC.Dynamics.PrincipalErrorDynamics",
+      "GNC.Dynamics.RigidBodyKinematics",
+      "GNC.Estimation.BearingComparison",
+      "GNC.Estimation.BearingOutput",
+      "GNC.Estimation.CovariancePropagation",
+      "GNC.Estimation.GroupAffine",
+      "GNC.Estimation.InertialAidingObservability",
+      "GNC.Estimation.InertialBias",
+      "GNC.Estimation.KalmanCorrection",
+      "GNC.Estimation.NoiseCoordinates",
+      "GNC.Estimation.PredictionMoments",
+      "GNC.Estimation.RemainderStability",
+      "GNC.Lie.Adjoint",
+      "GNC.Lie.CayleyChart",
+      "GNC.Lie.Control",
+      "GNC.Lie.ControlGeometry",
+      "GNC.Lie.ControlResidual",
+      "GNC.Lie.Euclidean",
+      "GNC.Lie.Exponential",
+      "GNC.Lie.ExponentialCoordinates",
+      "GNC.Lie.GroupDifferential",
+      "GNC.Lie.Jacobian",
+      "GNC.Lie.JacobianDerivative",
+      "GNC.Lie.JacobianDifferential",
+      "GNC.Lie.LocalLog",
+      "GNC.Lie.PrincipalLog",
+      "GNC.Lie.RightJacobian",
+      "GNC.Lie.RotationDifferential",
+      "GNC.Lie.SE23",
+      "GNC.Lie.SE23Manifold",
+      "GNC.Lie.SO3Manifold",
+      "GNC.Lie.SmoothExponential",
+      "GNC.Lie.Vector3",
+      "GNC.Lie.ZeroAttitude",
+      "GNC.Preintegration.ClosedForm"
+    ],
+    "project_declarations": 1308,
+    "namespace_only_declarations": 0,
+    "library_theorem_declarations": 1101,
+    "library_declarations": 1308,
+    "compiler_runtime_companions": 0,
+    "axioms": [
+      "Classical.choice",
+      "Quot.sound",
+      "propext"
+    ],
+    "application_theorem_declarations": 0,
+    "application_declarations": 0
+  },
+  "commands": [
+    [
+      "/home/jgoppert/.elan/toolchains/leanprover--lean4---v4.29.1/bin/lean",
+      "GNC/Estimation/CovariancePropagation.lean",
+      "-o",
+      "/tmp/modelica-eskf-theory/proof-check-v4/lib/lean/GNC/Estimation/CovariancePropagation.olean"
+    ],
+    [
+      "/home/jgoppert/.elan/toolchains/leanprover--lean4---v4.29.1/bin/lean",
+      "GNC/Estimation/NoiseCoordinates.lean",
+      "-o",
+      "/tmp/modelica-eskf-theory/proof-check-v4/lib/lean/GNC/Estimation/NoiseCoordinates.olean"
+    ],
+    [
+      "/home/jgoppert/.elan/toolchains/leanprover--lean4---v4.29.1/bin/lean",
+      "GNC/Estimation/BearingOutput.lean",
+      "-o",
+      "/tmp/modelica-eskf-theory/proof-check-v4/lib/lean/GNC/Estimation/BearingOutput.olean"
+    ],
+    [
+      "/home/jgoppert/.elan/toolchains/leanprover--lean4---v4.29.1/bin/lean",
+      "GNC/Estimation/BearingComparison.lean",
+      "-o",
+      "/tmp/modelica-eskf-theory/proof-check-v4/lib/lean/GNC/Estimation/BearingComparison.olean"
+    ],
+    [
+      "/home/jgoppert/.elan/toolchains/leanprover--lean4---v4.29.1/bin/lean",
+      "GNC/Estimation/InertialBias.lean",
+      "-o",
+      "/tmp/modelica-eskf-theory/proof-check-v4/lib/lean/GNC/Estimation/InertialBias.olean"
+    ],
+    [
+      "/home/jgoppert/.elan/toolchains/leanprover--lean4---v4.29.1/bin/lean",
+      "GNC/Estimation/GroupAffine.lean",
+      "-o",
+      "/tmp/modelica-eskf-theory/proof-check-v4/lib/lean/GNC/Estimation/GroupAffine.olean"
+    ],
+    [
+      "/home/jgoppert/.elan/toolchains/leanprover--lean4---v4.29.1/bin/lean",
+      "GNC/Estimation/RemainderStability.lean",
+      "-o",
+      "/tmp/modelica-eskf-theory/proof-check-v4/lib/lean/GNC/Estimation/RemainderStability.olean"
+    ],
+    [
+      "/home/jgoppert/.elan/toolchains/leanprover--lean4---v4.29.1/bin/lean",
+      "GNC/Estimation/PredictionMoments.lean",
+      "-o",
+      "/tmp/modelica-eskf-theory/proof-check-v4/lib/lean/GNC/Estimation/PredictionMoments.olean"
+    ],
+    [
+      "/home/jgoppert/.elan/toolchains/leanprover--lean4---v4.29.1/bin/lean",
+      "GNC/Estimation/KalmanCorrection.lean",
+      "-o",
+      "/tmp/modelica-eskf-theory/proof-check-v4/lib/lean/GNC/Estimation/KalmanCorrection.olean"
+    ],
+    [
+      "/home/jgoppert/.elan/toolchains/leanprover--lean4---v4.29.1/bin/lean",
+      "GNC/Estimation/InertialAidingObservability.lean",
+      "-o",
+      "/tmp/modelica-eskf-theory/proof-check-v4/lib/lean/GNC/Estimation/InertialAidingObservability.olean"
+    ]
+  ],
+  "limitations": [
+    "Targeted estimation-module check, not a full GNC release build.",
+    "Other dependencies reuse the existing checked GNC/mathlib cache.",
+    "Exact-real mathematical identities; no Modelica-to-Lean refinement proof or universal firmware-performance theorem."
+  ]
+}

@@ -12,11 +12,11 @@ protected
   Real halfTransition[TangentLength, TangentLength];
   Real fullTransition[TangentLength, TangentLength];
 algorithm
-  drivenNoise := G * continuousNoise * transpose(G);
+  drivenNoise := LinearAlgebra.transformCovariance(G, continuousNoise);
   halfTransition := discreteTransition(A, 0.5 * dt);
   fullTransition := discreteTransition(A, dt);
   covariance := LinearAlgebra.symmetrize((dt / 6.0) * (
     drivenNoise
-      + 4.0 * halfTransition * drivenNoise * transpose(halfTransition)
-      + fullTransition * drivenNoise * transpose(fullTransition)));
+      + 4.0 * LinearAlgebra.transformCovariance(halfTransition, drivenNoise)
+      + LinearAlgebra.transformCovariance(fullTransition, drivenNoise)));
 end discreteProcessCovariance;

@@ -85,6 +85,20 @@ end for;
 testOutputDirectory := getTempDirectoryPath();
 cd(testOutputDirectory);
 
+queue := simulate(
+  Tests.AidingQueueTests,
+  startTime=0.0,
+  stopTime=0.0,
+  numberOfIntervals=1,
+  outputFormat="mat",
+  fileNamePrefix="modelica_models_Tests_AidingQueueTests");
+getErrorString();
+queueResultFile := queue.resultFile;
+if queueResultFile == "" then
+  print("Aiding queue regression failed\n");
+  exit(1);
+end if;
+
 identities := simulate(
   Tests.HorizonPredictorTests,
   startTime=0.0,

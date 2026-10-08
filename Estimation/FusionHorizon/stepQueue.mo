@@ -131,22 +131,6 @@ algorithm
   occupancyAfterPop := count - (if popped then 1 else 0);
 
   // ---- 2. admit the arriving measurement ----------------------------------
-  // DELIVERY PRECEDES ADMISSION, and it is forced rather than preferred. The
-  // caller stores the admitted row AFTER this function returns, so the ring
-  // this function was given predates it; delivering a just-admitted
-  // measurement would read the slot it is about to occupy, which still holds
-  // whatever was there before. Admitting first would not move the arrival
-  // forward, it would deliver the wrong row.
-  //
-  // The cost is a narrow band, and it is a band of ANOMALY rather than of
-  // flight. A measurement arriving already ripe -- transport latency between
-  // fusionHorizon_s and fusionHorizon_s + maximumResidualAge_s -- cannot be
-  // delivered on the tick it arrives, and by the next release the fusion
-  // instant has moved a whole window past it, so it leaves as
-  // AidingDroppedStale rather than AidingDeliveredAtHorizon. The horizon
-  // assertion keeps every DECLARED source far below that band; only a packet
-  // later than its source declares can reach it, and it is named and counted
-  // either way.
   arrivedAge_s := horizonEpoch_s - arrivedRow[1];
   // OLDER THAN THE HORIZON ON ARRIVAL. There is no fusion instant left to
   // fuse this at: the filter passed its epoch before it got here. The
@@ -195,6 +179,18 @@ algorithm
     elseif lateArrival then AidingRefusedLate
     elseif overflow then AidingRefusedOverflow
     else AidingQueued;
+
+  if admissible and releaseTick and count == 0
+      and arrivedAge_s >= -epochTolerance_s then
+    storeSlot := 0;
+    nextHead := head;
+    nextCount := 0;
+    deliveredRow := arrivedRow;
+    deliveredAge_s := max(arrivedAge_s, 0.0);
+    delivered := true;
+    arrivalOutcome := AidingDeliveredOnArrival;
+    deliveryOutcome := AidingDeliveredAtHorizon;
+  end if;
 
   // ---- 3. a reset drops the queue ----------------------------------------
   // Every queued measurement describes a state that no longer exists, so none

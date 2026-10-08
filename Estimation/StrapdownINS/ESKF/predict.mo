@@ -14,10 +14,7 @@ protected
   Real correctedAngularVelocity[3];
   Real correctedSpecificForce[3];
   Real A[TangentLength, TangentLength];
-  Real G[TangentLength, ProcessNoiseLength];
   Real transition[TangentLength, TangentLength];
-  Estimation.StrapdownINS.ProcessNoiseCovariance continuousNoise;
-  Covariance discreteNoise;
 algorithm
   previousNominal := NominalState(
     positionWorldEnu_m=previous.positionWorldEnu_m,
@@ -36,11 +33,8 @@ algorithm
   correctedSpecificForce := specificForceMeasuredBodyFlu_m_s2
     - previous.accelerometerBiasBodyFlu_m_s2;
   A := continuousTransition(correctedAngularVelocity, correctedSpecificForce);
-  G := noiseInputMatrix();
   transition := discreteTransition(A, dt);
-  continuousNoise := processNoiseMatrix(processNoise);
-  discreteNoise := discreteProcessCovariance(
-    A, G, continuousNoise, dt);
+  predicted := predictCovariance(previous, transition, A, processNoise, dt);
   predicted := State(
     positionWorldEnu_m=predictedNominal.positionWorldEnu_m,
     velocityWorldEnu_m_s=predictedNominal.velocityWorldEnu_m_s,
@@ -49,7 +43,7 @@ algorithm
       predictedNominal.gyroscopeBiasBodyFlu_rad_s,
     accelerometerBiasBodyFlu_m_s2=
       predictedNominal.accelerometerBiasBodyFlu_m_s2,
-    covariance=LinearAlgebra.symmetrize(
-      transition * previous.covariance * transpose(transition)
-        + discreteNoise));
+    covariance=predicted.covariance,
+    covarianceRoot=predicted.covarianceRoot,
+    useSquareRootCovariance=previous.useSquareRootCovariance);
 end predict;

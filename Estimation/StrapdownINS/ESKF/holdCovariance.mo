@@ -19,5 +19,5 @@ algorithm
   continuousNoise := processNoiseMatrix(processNoise);
   discreteNoise := discreteProcessCovariance(A, G, continuousNoise, dt);
   grown := LinearAlgebra.symmetrize(
-    transition * covariance * transpose(transition) + discreteNoise);
+    LinearAlgebra.transformCovariance(transition, covariance) + discreteNoise);
 end holdCovariance;

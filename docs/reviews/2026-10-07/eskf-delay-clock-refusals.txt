@@ -1,0 +1,50 @@
+true
+true
+record SimulationResult
+    resultFile = "",
+    simulationOptions = "startTime = 0.0, stopTime = 0.02, numberOfIntervals = 20, tolerance = 1e-8, method = 'dassl', fileNamePrefix = 'Tests.HorizonRefusals.FractionalRelease', options = '', outputFormat = 'csv', variableFilter = '.*', cflags = '-O0', simflags = ''",
+    messages = "Simulation execution failed for model: Tests.HorizonRefusals.FractionalRelease
+LOG_ASSERT        | error   | [$REPOSITORY/Estimation/FusionHorizon/OutputPredictor.mo:378:3-382:59:writable]
+|                 | |       | The following assertion has been violated during initialization at time 0.000000
+|                 | |       | ((false)) --> \"fusionPeriod_s must be an exact integer multiple of samplePeriod: the
+|                 | |       |      release cadence is counted in inertial ticks, so a fractional ratio makes
+|                 | |       |      every published packet epoch wrong by the remainder\"
+LOG_ASSERT        | info    | simulation terminated by an assertion at initialization
+",
+    timeFrontend = 0.065993196,
+    timeBackend = 0.22919545700000002,
+    timeSimCode = 0.041863117000000005,
+    timeTemplates = 0.071202576,
+    timeCompile = 1.047039537,
+    timeSimulation = 0.031069489000000002,
+    timeTotal = 1.486465622
+end SimulationResult;
+"Notification: Automatically loaded package Estimation (default) due to usage.
+Notification: Automatically loaded package Avionics (default) due to usage.
+Notification: Automatically loaded package LieGroups (default) due to usage.
+Warning: The initial conditions are not fully specified. For more information set -d=initialization. In OMEdit Tools->Options->Simulation->Show additional information from the initialization process, in OMNotebook call setCommandLineOptions(\"-d=initialization\").
+"
+""
+
+Negative test refused: FractionalRelease
+
+record SimulationResult
+    resultFile = "",
+    simulationOptions = "startTime = 0.0, stopTime = 0.02, numberOfIntervals = 20, tolerance = 1e-8, method = 'dassl', fileNamePrefix = 'Tests.HorizonRefusals.FractionalHorizon', options = '', outputFormat = 'csv', variableFilter = '.*', cflags = '-O0', simflags = ''",
+    messages = "Failed to build model: Tests.HorizonRefusals.FractionalHorizon",
+    timeFrontend = 0.0,
+    timeBackend = 0.0,
+    timeSimCode = 0.0,
+    timeTemplates = 0.0,
+    timeCompile = 0.0,
+    timeSimulation = 0.0,
+    timeTotal = 0.0
+end SimulationResult;
+"[$REPOSITORY/Estimation/FusionHorizon/OutputPredictor.mo:383:3-387:76:writable] Error: Assertion triggered during translation: \"fusionHorizon_s must be an exact integer multiple of fusionPeriod_s: the
+     buffer is counted in whole release windows, so a fractional ratio makes
+     the fusion instant differ from the declared horizon by the remainder\".
+"
+""
+
+Negative test refused: FractionalHorizon
+

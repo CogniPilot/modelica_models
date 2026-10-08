@@ -1,0 +1,323 @@
+{
+  "replay_sha256": "7f56e460f84994fcb77ebb676a853a986251261305c2ebd44e0e27926b365048",
+  "scores": [
+    {
+      "dataset": "original",
+      "tag": "0.6_7",
+      "climb_height_m": 4,
+      "scenario": "denied",
+      "name": "retrodiction",
+      "output_sha256": "898467539177de89dc65a673e0245c89ea31e7ae8c03439ee33b9e710df8cebf",
+      "consistency": {
+        "start_s": 13,
+        "end_s": 60,
+        "rows": 4700,
+        "mean_nees_15d": 6.917527442635591,
+        "median_nees_15d": 4.214703930197864,
+        "p95_nees_15d": 31.40223079309148,
+        "max_covariance_asymmetry": 0.0,
+        "mean_squared_error_over_marginal_variance": [
+          0.01653780147440246,
+          0.0013918432670214178,
+          0.13381337858744743,
+          1.0762486856657982,
+          1.8931433505666773,
+          0.33977307044700233,
+          1.37507710199717,
+          1.1655891376244891,
+          1.3039869827661146,
+          0.2895954876655971,
+          0.08740727246410541,
+          0.4653549178021581,
+          1.1894067954189926,
+          0.8332367091460059,
+          0.07648689710748341
+        ],
+        "terminal_bias_error": [
+          2.346539100000003e-05,
+          1.8204410999999947e-05,
+          3.3685162000000044e-05,
+          0.0016784151000000004,
+          0.004228533,
+          0.0007623995999999997
+        ],
+        "gyroscope_bias_truth": [
+          0.0008,
+          -0.0005,
+          0.0004
+        ],
+        "accelerometer_bias_truth": [
+          0.02,
+          -0.01,
+          0.015
+        ],
+        "note": "Local first-order right-error coordinates. Flight samples are correlated; these statistics are descriptive, not independent Monte Carlo draws."
+      }
+    },
+    {
+      "dataset": "original",
+      "tag": "0.6_19",
+      "climb_height_m": 4,
+      "scenario": "denied",
+      "name": "retrodiction",
+      "output_sha256": "844f9cb37229896a2fb57dab923b668a71fc3938659da6adc9eb2722c76fb825",
+      "consistency": {
+        "start_s": 13,
+        "end_s": 60,
+        "rows": 4700,
+        "mean_nees_15d": 6.3869015858534475,
+        "median_nees_15d": 4.666712882971936,
+        "p95_nees_15d": 13.612801921348568,
+        "max_covariance_asymmetry": 0.0,
+        "mean_squared_error_over_marginal_variance": [
+          0.010861842618752149,
+          0.003887058427663002,
+          0.21365868191560577,
+          1.1654029375126496,
+          0.7796052768344798,
+          0.1753180509419041,
+          0.8884793776235811,
+          1.0878615062532397,
+          1.0263716036776063,
+          0.2069022905359114,
+          0.11224884308434982,
+          0.2337141733500477,
+          1.0377363114890958,
+          0.40628555724663123,
+          0.042880936354636245
+        ],
+        "terminal_bias_error": [
+          5.432192000000085e-06,
+          -2.2075405999999985e-05,
+          -5.448080999999967e-06,
+          -0.0018588579,
+          0.0005919241999999998,
+          -0.0003855131999999997
+        ],
+        "gyroscope_bias_truth": [
+          0.0008,
+          -0.0005,
+          0.0004
+        ],
+        "accelerometer_bias_truth": [
+          0.02,
+          -0.01,
+          0.015
+        ],
+        "note": "Local first-order right-error coordinates. Flight samples are correlated; these statistics are descriptive, not independent Monte Carlo draws."
+      }
+    },
+    {
+      "dataset": "original",
+      "tag": "0.6_41",
+      "climb_height_m": 4,
+      "scenario": "denied",
+      "name": "retrodiction",
+      "output_sha256": "62eb16762dd2a6469246a5f94b1fd8b5273e79014522ba250179f7337518aa6a",
+      "consistency": {
+        "start_s": 13,
+        "end_s": 60,
+        "rows": 4700,
+        "mean_nees_15d": 141.60964487454615,
+        "median_nees_15d": 16.60949443025607,
+        "p95_nees_15d": 960.9974592993505,
+        "max_covariance_asymmetry": 0.0,
+        "mean_squared_error_over_marginal_variance": [
+          0.021717934503032364,
+          0.008845808064409561,
+          0.22222939641326353,
+          27.91060017011573,
+          25.90717937817601,
+          5.050406101003479,
+          25.90382280266404,
+          39.85090337088491,
+          37.539272617788306,
+          3.8126338316374384,
+          1.0141750162864982,
+          4.041553092575783,
+          40.80348348625874,
+          2.174244217905918,
+          3.849352206579062
+        ],
+        "terminal_bias_error": [
+          -6.842115999999929e-06,
+          2.8521544999999984e-05,
+          -2.7319667999999974e-05,
+          0.0013415129000000012,
+          -0.0008561455099999997,
+          0.00040611099999999893
+        ],
+        "gyroscope_bias_truth": [
+          0.0008,
+          -0.0005,
+          0.0004
+        ],
+        "accelerometer_bias_truth": [
+          0.02,
+          -0.01,
+          0.015
+        ],
+        "note": "Local first-order right-error coordinates. Flight samples are correlated; these statistics are descriptive, not independent Monte Carlo draws."
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_101",
+      "climb_height_m": 4,
+      "scenario": "denied",
+      "name": "retrodiction",
+      "output_sha256": "713ca1c65042cf367daf06f4bbcf4117cf102546491457c65d7abffcb20864fd",
+      "consistency": {
+        "start_s": 13,
+        "end_s": 60,
+        "rows": 4700,
+        "mean_nees_15d": 8.230043799524202,
+        "median_nees_15d": 5.7645674188346785,
+        "p95_nees_15d": 16.881481003108494,
+        "max_covariance_asymmetry": 0.0,
+        "mean_squared_error_over_marginal_variance": [
+          0.002494333515756279,
+          0.0028298409667563062,
+          0.3325581637736762,
+          0.5506849557621071,
+          1.0895512479168032,
+          0.2217010196173757,
+          1.4080169163160088,
+          0.45112610682631576,
+          0.4452373873285678,
+          0.7556039850506006,
+          0.14356776778583813,
+          0.2606882337294876,
+          0.4750065008897536,
+          0.6262429481671458,
+          0.06507981584408103
+        ],
+        "terminal_bias_error": [
+          1.7000965000000027e-05,
+          -6.1102089999999585e-06,
+          -2.6333980000000008e-05,
+          0.0020890034999999987,
+          0.001894349,
+          0.0001192646000000002
+        ],
+        "gyroscope_bias_truth": [
+          0.0008,
+          -0.0005,
+          0.0004
+        ],
+        "accelerometer_bias_truth": [
+          0.02,
+          -0.01,
+          0.015
+        ],
+        "note": "Local first-order right-error coordinates. Flight samples are correlated; these statistics are descriptive, not independent Monte Carlo draws."
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_307",
+      "climb_height_m": 4,
+      "scenario": "denied",
+      "name": "retrodiction",
+      "output_sha256": "e4af6c1d80782fadfec00eea4a2283f27cccdd75321617356e61a374752f2c03",
+      "consistency": {
+        "start_s": 13,
+        "end_s": 60,
+        "rows": 4700,
+        "mean_nees_15d": 11.626213250315967,
+        "median_nees_15d": 9.463461396154212,
+        "p95_nees_15d": 28.91979771059214,
+        "max_covariance_asymmetry": 0.0,
+        "mean_squared_error_over_marginal_variance": [
+          0.0017942926333548539,
+          0.009205955609379306,
+          0.12486718455317462,
+          1.7882045482665927,
+          1.5202159000820525,
+          0.4561332264022547,
+          2.3553529806736075,
+          2.287258557998214,
+          2.2754898751941455,
+          0.37388715244725024,
+          0.49595515204383206,
+          0.30904778867793714,
+          2.286935175572575,
+          2.1039137704723903,
+          0.11190455083924371
+        ],
+        "terminal_bias_error": [
+          -2.0399146000000005e-05,
+          6.989308999999955e-06,
+          3.713286000000003e-05,
+          -0.003484507599999999,
+          -0.0009757589900000006,
+          -0.0008256926000000005
+        ],
+        "gyroscope_bias_truth": [
+          0.0008,
+          -0.0005,
+          0.0004
+        ],
+        "accelerometer_bias_truth": [
+          0.02,
+          -0.01,
+          0.015
+        ],
+        "note": "Local first-order right-error coordinates. Flight samples are correlated; these statistics are descriptive, not independent Monte Carlo draws."
+      }
+    },
+    {
+      "dataset": "held-out",
+      "tag": "0.85_911",
+      "climb_height_m": 4,
+      "scenario": "denied",
+      "name": "retrodiction",
+      "output_sha256": "845d475e7933f35026d8c523f36f55415c9239884eb8c96c94dcdf97feb6b995",
+      "consistency": {
+        "start_s": 13,
+        "end_s": 60,
+        "rows": 4700,
+        "mean_nees_15d": 6.843972754917303,
+        "median_nees_15d": 5.058582246571385,
+        "p95_nees_15d": 20.50599107376834,
+        "max_covariance_asymmetry": 0.0,
+        "mean_squared_error_over_marginal_variance": [
+          0.017764657162110817,
+          0.002843067632586858,
+          0.18931340760801305,
+          0.37547214761954356,
+          1.042194418996777,
+          0.10046648316215473,
+          0.3788631285679265,
+          0.5516422531367157,
+          0.6815492333202133,
+          0.5075152561461828,
+          0.17476133118480425,
+          0.19284864343210392,
+          0.6831026128638441,
+          0.4424963712957672,
+          0.037624663696229264
+        ],
+        "terminal_bias_error": [
+          -6.031980999999967e-06,
+          3.248185999999982e-06,
+          1.891426900000004e-05,
+          -0.004504544199999998,
+          -0.0017561914800000005,
+          2.584079999999947e-05
+        ],
+        "gyroscope_bias_truth": [
+          0.0008,
+          -0.0005,
+          0.0004
+        ],
+        "accelerometer_bias_truth": [
+          0.02,
+          -0.01,
+          0.015
+        ],
+        "note": "Local first-order right-error coordinates. Flight samples are correlated; these statistics are descriptive, not independent Monte Carlo draws."
+      }
+    }
+  ]
+}

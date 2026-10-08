@@ -1,0 +1,38 @@
+{
+  "replays": 288,
+  "frozen_controls_identical": 72,
+  "covariance_samples_cholesky_checked": 1431360,
+  "max_covariance_asymmetry": 0.0,
+  "report_reproduction_byte_identical": true,
+  "csv_rows": 1440,
+  "source_hashes_verified": 616,
+  "negative_cases_refused": {
+    "missing_pair": "Expected the complete 288-run paired matrix",
+    "duplicate_pair": "Expected the complete 288-run paired matrix",
+    "changed_control": "Frozen FOH control must reproduce byte for byte",
+    "changed_delivery": "Paired sensor delivery differs",
+    "nonfinite_accuracy": "Invalid accuracy result",
+    "wrong_window": "Invalid accuracy result",
+    "asymmetric_covariance": "Invalid covariance result",
+    "nonfinite_nees": "Invalid covariance result",
+    "lost_horizon_packet": "Lost horizon packet",
+    "wrong_delay_profile": "Unexpected rest interval or delay profile"
+  },
+  "numerical_stationary_kernel_trials": 120,
+  "no_rest_control_executions": 8,
+  "python_unit_tests": 17,
+  "checks": [
+    "Fresh Rumoca 0.10.2 exports and GCC build",
+    "Horizon adapter assertions",
+    "Independent correlated six-axis correction reference",
+    "Modelica package structure",
+    "Ruff",
+    "clang-format",
+    "git diff --check"
+  ],
+  "not_run": [
+    "Full CI",
+    "Fresh native core builds or replays",
+    "Flight qualification"
+  ]
+}

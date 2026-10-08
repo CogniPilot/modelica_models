@@ -1,0 +1,26 @@
+true
+true
+"/tmp/modelica-eskf-theory/preintegration-debug"
+record SimulationResult
+    resultFile = "",
+    simulationOptions = "startTime = 0.0, stopTime = 0.001, numberOfIntervals = 1, tolerance = 1e-6, method = 'dassl', fileNamePrefix = 'PreintegrationDebug', options = '', outputFormat = 'csv', variableFilter = '.*', cflags = '-O0', simflags = ''",
+    messages = "Simulation execution failed for model: PreintegrationDebug
+LOG_ASSERT        | error   | [/tmp/modelica-eskf-theory/preintegration-debug/PreintegrationDebug.mo:611:5-626:123:writable]
+|                 | |       | PACKET_ERROR 4.0657581468206416e-20 6.9388939039072284e-18 0 0.040001000335204671
+LOG_ASSERT        | info    | simulation terminated by an assertion at initialization
+",
+    timeFrontend = 1.532891159,
+    timeBackend = 0.047332767000000005,
+    timeSimCode = 4.284577255,
+    timeTemplates = 1.033422478,
+    timeCompile = 16.734590643,
+    timeSimulation = 0.050945987000000005,
+    timeTotal = 23.683882169
+end SimulationResult;
+"Notification: Automatically loaded package Avionics (default) due to usage.
+Notification: Automatically loaded package Estimation (default) due to usage.
+Notification: Automatically loaded package LieGroups (default) due to usage.
+Notification: Automatically loaded package Tests (default) due to usage.
+Notification: Automatically loaded package LinearAlgebra (default) due to usage.
+Error: Could not evaluate diagonal. Ceval.cevalBuiltinDiagonal failed.
+"

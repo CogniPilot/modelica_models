@@ -14,6 +14,7 @@ function correctGps "Jointly correct GPS position and velocity"
     "Covariance of the held packet mean, {gyroscope, accelerometer}";
   input Real predictionInterval_s(unit = "s") = 0.0
     "Interval over which this same packet just predicted the current state";
+  input Boolean useSemiDirectBias = false;
   output State corrected;
   output Boolean accepted;
   output Integer rejectionReason
@@ -81,13 +82,7 @@ algorithm
     measurementStateCrossCovariance := forwardInput * heldImuCovariance
       * transpose(observationInput);
   end if;
-  corrected := State(
-    positionWorldEnu_m=predicted.positionWorldEnu_m,
-    velocityWorldEnu_m_s=predicted.velocityWorldEnu_m_s,
-    quaternionWorldBody=predicted.quaternionWorldBody,
-    gyroscopeBiasBodyFlu_rad_s=predicted.gyroscopeBiasBodyFlu_rad_s,
-    accelerometerBiasBodyFlu_m_s2=predicted.accelerometerBiasBodyFlu_m_s2,
-    covariance=predicted.covariance);
+  corrected := copyState(predicted);
   accepted := false;
   normalizedInnovationSquared := 0.0;
   if measurementAge_s < -1.0e-6
@@ -96,6 +91,7 @@ algorithm
   else
     (corrected, accepted, rejectionReason, normalizedInnovationSquared) :=
       correctLinear(predicted, residual, H, measurementCovariance,
-        innovationGate, zeros(3), measurementStateCrossCovariance);
+        innovationGate, zeros(3), measurementStateCrossCovariance, false,
+          useSemiDirectBias);
   end if;
 end correctGps;

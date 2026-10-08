@@ -1,0 +1,69 @@
+{
+  "stationary_window_s": [
+    1.0,
+    5.0
+  ],
+  "samples": 3200,
+  "sample_period_s": 0.0012499999999999734,
+  "imu_noise_density": [
+    5.2685230462579773e-05,
+    0.001060807282685249
+  ],
+  "density_order": [
+    "gyroscope_rad_sqrt_s",
+    "accelerometer_m_s_sqrt_s"
+  ],
+  "sample_covariance": [
+    [
+      2.239537185606119e-06,
+      -8.032959405370308e-08,
+      -8.730186918833582e-09,
+      1.2154258393369549e-06,
+      -1.7030296847346155e-06,
+      1.4759668958689738e-07
+    ],
+    [
+      -8.032959405370308e-08,
+      2.201984917628912e-06,
+      6.201144435239304e-08,
+      2.90127232047468e-08,
+      -9.416197902565108e-07,
+      2.4733266403125907e-07
+    ],
+    [
+      -8.730186918833582e-09,
+      6.201144435239304e-08,
+      2.2202383181134552e-06,
+      -2.210389437261733e-06,
+      1.4766536952815879e-06,
+      4.568360816305073e-07
+    ],
+    [
+      1.2154258393369549e-06,
+      2.90127232047468e-08,
+      -2.210389437261733e-06,
+      0.0008669634899225195,
+      5.73324949362478e-06,
+      2.0445010193736653e-06
+    ],
+    [
+      -1.7030296847346155e-06,
+      -9.416197902565108e-07,
+      1.4766536952815879e-06,
+      5.73324949362478e-06,
+      0.0008846225637971992,
+      -7.118263399754088e-06
+    ],
+    [
+      1.4759668958689738e-07,
+      2.4733266403125907e-07,
+      4.568360816305073e-07,
+      2.0445010193736653e-06,
+      -7.118263399754088e-06,
+      0.0009491629646756872
+    ]
+  ],
+  "method": "Adjacent-difference covariance / 2, averaged over each sensor's three axes; continuous spectral density is sample variance times sample period.",
+  "limitations": "The caller declares physical rest. Assumes independent white sample noise; does not estimate bias, bias random walk, vibration spectra, colored noise or temperature drift. Not an automatic stationary detector or flight tuning recommendation.",
+  "input_sha256": "46573ef7c5c8c10ea5d9762d381c03e46ca1246a14dc63651cb7dfd37a90055b"
+}

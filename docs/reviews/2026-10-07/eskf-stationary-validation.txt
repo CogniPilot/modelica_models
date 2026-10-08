@@ -1,0 +1,96 @@
+Stationary model simulations
+true
+true
+"Check of Tests.StationaryAidingTests completed successfully.
+Class Tests.StationaryAidingTests has 843 equation(s) and 843 variable(s).
+224 of these are trivial equation(s)."
+"Notification: Automatically loaded package Estimation (default) due to usage.
+Notification: Automatically loaded package Avionics (default) due to usage.
+Notification: Automatically loaded package LieGroups (default) due to usage.
+Notification: Automatically loaded package MathUtilities (default) due to usage.
+Notification: Automatically loaded package LinearAlgebra (default) due to usage.
+"
+record SimulationResult
+    resultFile = "${PROBE}/stationary-assertions/Tests.StationaryAidingTests_res.csv",
+    simulationOptions = "startTime = 0.0, stopTime = 1.0, numberOfIntervals = 100, tolerance = 1e-6, method = 'dassl', fileNamePrefix = 'Tests.StationaryAidingTests', options = '', outputFormat = 'csv', variableFilter = '.*', cflags = '-O0', simflags = ''",
+    messages = "LOG_SUCCESS       | info    | The initialization finished successfully without homotopy method.
+LOG_SUCCESS       | info    | The simulation finished successfully.
+",
+    timeFrontend = 0.14225117199999993,
+    timeBackend = 0.24849659500000001,
+    timeSimCode = 0.073424205,
+    timeTemplates = 0.331541531,
+    timeCompile = 9.774864017,
+    timeSimulation = 0.241426256,
+    timeTotal = 10.812102786
+end SimulationResult;
+"Warning: The initial conditions are not fully specified. For more information set -d=initialization. In OMEdit Tools->Options->Simulation->Show additional information from the initialization process, in OMNotebook call setCommandLineOptions(\"-d=initialization\").
+"
+"${PROBE}/stationary-assertions/Tests.StationaryAidingTests_res.csv"
+
+record SimulationResult
+    resultFile = "${PROBE}/stationary-assertions/Tests.MultisensorAidingTests_res.csv",
+    simulationOptions = "startTime = 0.0, stopTime = 1.0, numberOfIntervals = 100, tolerance = 1e-6, method = 'dassl', fileNamePrefix = 'Tests.MultisensorAidingTests', options = '', outputFormat = 'csv', variableFilter = '.*', cflags = '-O0', simflags = ''",
+    messages = "LOG_SUCCESS       | info    | The initialization finished successfully without homotopy method.
+LOG_SUCCESS       | info    | The simulation finished successfully.
+",
+    timeFrontend = 0.130126772,
+    timeBackend = 0.2061085279999999,
+    timeSimCode = 0.079342855,
+    timeTemplates = 0.29557777300000004,
+    timeCompile = 9.575168449,
+    timeSimulation = 0.22297080700000002,
+    timeTotal = 10.509393724
+end SimulationResult;
+"Warning: The initial conditions are not fully specified. For more information set -d=initialization. In OMEdit Tools->Options->Simulation->Show additional information from the initialization process, in OMNotebook call setCommandLineOptions(\"-d=initialization\").
+"
+"${PROBE}/stationary-assertions/Tests.MultisensorAidingTests_res.csv"
+
+
+
+Generated-C aiding fixture
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+Generated C refused nonfinite stationary variance
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+
+
+Generated-component horizon fixture
+Horizon stationary constraint followed fusion time and notified rebases
+Horizon adapter preserved aiding configuration and original payload
+
+
+Default compatibility
+original 108 disabled-option output hashes unchanged
+held-out 216 disabled-option output hashes unchanged
+
+
+Python scoring tests
+.......
+----------------------------------------------------------------------
+Ran 7 tests in 0.030s
+
+OK
+
+
+Composed horizon diagnostic
+   [ED020] canonical DAE construction rejected an invalid operation: variable
+  │ identity 577 is not owned by clock identity 0
+     ╭─[${REPOSITORY}/./Estimation/FusionHorizon/HorizonEstimator.mo:259:5]
+ 258 │     filterCorrectionCountHeld := filter.status.acceptedCorrectionCount;
+ 259 │     filterPositionHeld_m := filter.estimate.positionWorldEnu_m;
+     ·     ──────────┬─────────
+     ·               ╰── invalid DAE operation
+ 260 │     filterVelocityHeld_m_s := filter.estimate.velocityWorldEnu_m_s;
+     ╰────
+  help: the checked DAE constructor rejected this operation at its semantic
+        owner
+

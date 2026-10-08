@@ -6,6 +6,7 @@ function correctZeroVelocity
   input Real variance_m2_s2(unit = "m2/s2")
     "Per-axis measurement variance of the zero-velocity observation";
   input Real innovationGate = 0.0;
+  input Boolean useSemiDirectBias = false;
   output State corrected;
   output Boolean accepted;
   output Integer rejectionReason;
@@ -26,5 +27,6 @@ algorithm
   measurementCovariance := identity(3) * variance_m2_s2;
   (corrected, accepted, rejectionReason, normalizedInnovationSquared) :=
     correctLinear(predicted, residual, H, measurementCovariance,
-      innovationGate);
+      innovationGate, zeros(3), zeros(TangentLength, size(residual, 1)),
+      false, useSemiDirectBias);
 end correctZeroVelocity;

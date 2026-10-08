@@ -73,6 +73,17 @@ model CorrelatedGpsTests
       and abs(nis - 0.2) < 1e-10,
       "Correlated observation gain, NIS or Joseph covariance is wrong");
 
+    C[4, 1] := 0.04;
+    (corrected, accepted, reason, nis) :=
+      Estimation.StrapdownINS.ESKF.correctLinear(
+        prior, {0.1}, H, {{0.01}}, 0.0, zeros(3), C);
+    assert(not accepted
+      and reason == Estimation.StrapdownINS.CorrectionRejectedCovarianceUnusable
+      and max(abs(corrected.covariance - prior.covariance)) == 0.0
+      and max(abs(corrected.velocityWorldEnu_m_s
+        - prior.velocityWorldEnu_m_s)) == 0.0,
+      "An impossible joint covariance passed a positive innovation check");
+
     inputCovariance := cat(1, cat(2, zeros(3, 3), zeros(3, 3)),
       cat(2, zeros(3, 3), 3.0 * identity(3)));
     prior := Estimation.StrapdownINS.ESKF.State(
@@ -80,7 +91,8 @@ model CorrelatedGpsTests
       quaternionWorldBody={1.0, 0.0, 0.0, 0.0},
       gyroscopeBiasBodyFlu_rad_s=zeros(3), accelerometerBiasBodyFlu_m_s2=zeros(3),
       covariance=0.01 * identity(15)
-        + forwardInput * inputCovariance * transpose(forwardInput));
+        + forwardInput * inputCovariance * transpose(forwardInput),
+        useSquareRootCovariance=false, covarianceRoot=zeros(15, 15));
     gps := Avionics.GpsSample(valid=true, fresh=true, timestamp_s=-0.11,
       positionValid=true, velocityValid=true, geodetic_deg_m=zeros(3),
       positionWorldEnu_m=zeros(3), velocityWorldEnu_m_s={0.1, 0.0, 0.0},

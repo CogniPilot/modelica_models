@@ -12,6 +12,7 @@ function correctBarometer
   input Real specificForceMeasuredBodyFlu_m_s2[3] = zeros(3);
   input Real gravityWorldEnu_m_s2[3] = {0.0, 0.0, -9.81};
   input Real maximumAidingDelay_s(unit = "s") = 0.25;
+  input Boolean useSemiDirectBias = false;
   output State corrected;
   output Boolean accepted;
   output Integer rejectionReason;
@@ -30,6 +31,8 @@ protected
   Real verticalVariance_m2;
   Real covarianceFloor[TangentLength, TangentLength];
   Real floorIncrement_m2;
+  Real verticalRoot[TangentLength];
+  Real floorColumns[TangentLength, TangentLength + 1];
   State candidate;
   Boolean candidateAccepted;
   Integer candidateRejectionReason;
@@ -56,13 +59,7 @@ algorithm
   H := delayedH * currentToDelayed;
   measurementCovariance[1, 1] := measurement.variance_m2
     + max(barometerBiasVariance_m2, 0.0);
-  candidate := State(
-    positionWorldEnu_m=predicted.positionWorldEnu_m,
-    velocityWorldEnu_m_s=predicted.velocityWorldEnu_m_s,
-    quaternionWorldBody=predicted.quaternionWorldBody,
-    gyroscopeBiasBodyFlu_rad_s=predicted.gyroscopeBiasBodyFlu_rad_s,
-    accelerometerBiasBodyFlu_m_s2=predicted.accelerometerBiasBodyFlu_m_s2,
-    covariance=predicted.covariance);
+  candidate := copyState(predicted);
   candidateAccepted := false;
   candidateNis := 0.0;
   if measurementAge_s < -1.0e-6
@@ -71,25 +68,35 @@ algorithm
   else
     (candidate, candidateAccepted, candidateRejectionReason, candidateNis) :=
       correctLinear(predicted, residual, H, measurementCovariance,
-        innovationGate);
+        innovationGate, zeros(3), zeros(TangentLength, size(residual, 1)),
+        false, useSemiDirectBias);
   end if;
   // The learned pressure datum is one common nuisance variable, not a new
   // independent error on every packet. Preserve its posterior uncertainty.
   verticalDirectionLocal := rotationWorldBody[3, :];
-  verticalVariance_m2 := verticalDirectionLocal
-    * candidate.covariance[1:3, 1:3] * verticalDirectionLocal;
+  if candidate.useSquareRootCovariance then
+    verticalRoot := verticalDirectionLocal * candidate.covarianceRoot[1:3, :];
+    verticalVariance_m2 := verticalRoot * verticalRoot;
+  else
+    verticalVariance_m2 := verticalDirectionLocal
+      * candidate.covariance[1:3, 1:3] * verticalDirectionLocal;
+  end if;
   floorIncrement_m2 := if candidateAccepted then
     max(barometerBiasVariance_m2 - verticalVariance_m2, 0.0) else 0.0;
   covarianceFloor := zeros(TangentLength, TangentLength);
   covarianceFloor[1:3, 1:3] := floorIncrement_m2
     * transpose({verticalDirectionLocal}) * {verticalDirectionLocal};
-  corrected := State(
-    positionWorldEnu_m=candidate.positionWorldEnu_m,
-    velocityWorldEnu_m_s=candidate.velocityWorldEnu_m_s,
-    quaternionWorldBody=candidate.quaternionWorldBody,
-    gyroscopeBiasBodyFlu_rad_s=candidate.gyroscopeBiasBodyFlu_rad_s,
-    accelerometerBiasBodyFlu_m_s2=candidate.accelerometerBiasBodyFlu_m_s2,
-    covariance=LinearAlgebra.symmetrize(candidate.covariance + covarianceFloor));
+  if candidate.useSquareRootCovariance then
+    floorColumns := zeros(TangentLength, TangentLength + 1);
+    floorColumns[:, 1:TangentLength] := candidate.covarianceRoot;
+    floorColumns[:, TangentLength + 1] := cat(1,
+      sqrt(floorIncrement_m2) * verticalDirectionLocal, zeros(TangentLength - 3));
+    corrected := withCovarianceRoot(candidate,
+      LinearAlgebra.covarianceRoot(floorColumns));
+  else
+    corrected := withDenseCovariance(candidate, LinearAlgebra.symmetrize(
+      candidate.covariance + covarianceFloor));
+  end if;
   accepted := candidateAccepted;
   rejectionReason := candidateRejectionReason;
   normalizedInnovationSquared := candidateNis;

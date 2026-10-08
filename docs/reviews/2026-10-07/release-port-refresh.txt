@@ -1,0 +1,115 @@
+Latest stable release refresh for the external Modelica ports
+============================================================
+
+Checked October 7, 2026. Latest means stable firmware, excluding development
+branches and alpha/beta/RC releases. Official release pages:
+
+PX4 v1.17.0
+https://github.com/PX4/PX4-Autopilot/releases/tag/v1.17.0
+d6f12ad1c4f70ad3230afd7d86e971421e02fef4
+
+ArduPilot Copter-4.7.1
+https://github.com/ArduPilot/ardupilot/releases/tag/Copter-4.7.1
+dbe792162d06cab66c3475fd5556bf7a120f119e
+
+Prepared commits, with author and committer James Goppert
+<james.goppert@gmail.com> and git commit -s DCO sign-off:
+
+PX4: 4e0b6052e9fc9eb48e05cd10102f96c33c1b7dd6
+Branch: release/px4-v1.17.0
+Checkout: /tmp/modelica-release-ports/px4-ekf2-modelica
+Bundle: /tmp/modelica-release-ports/px4-v1.17.0.bundle
+Base required by bundle: ad2ce59d8647395255f2d1a1fdff0204436c52b8
+
+ArduPilot: f4dbd82d9ec015a299cd83db911b7e3d70b327c8
+Branch: release/copter-4.7.1
+Checkout: /tmp/modelica-release-ports/ardupilot-ekf3-modelica
+Bundle: /tmp/modelica-release-ports/ardupilot-copter-4.7.1.bundle
+Base required by bundle: 018b748d9c13d1804977a0bf333930bcc12ffac5
+
+Both owned repositories are clean. Both bundles pass git bundle verify and
+contain the signed-off commit. They can be fetched into the canonical port
+repositories without rewriting history. No AI coauthor trailer was added.
+These temporary artifacts are outside modelica_models. The JSON companion
+records bundle, evidence and upstream source SHA-256 hashes.
+
+Publishing status
+-----------------
+
+The canonical external checkouts and $HOME/scratch are read-only in this
+session. Prepared source and bounded build outputs therefore use owned /tmp
+directories. Both branch push attempts failed with:
+  Could not resolve host: github.com
+No remote branch or canonical checkout was updated. Once GitHub connectivity
+is available, the prepared signed-off branches can be published with:
+
+  git -C /tmp/modelica-release-ports/px4-ekf2-modelica push origin release/px4-v1.17.0
+  git -C /tmp/modelica-release-ports/ardupilot-ekf3-modelica push origin release/copter-4.7.1
+
+PX4 changes and evidence
+------------------------
+
+The port target and attribution now use v1.17.0, with immutable upstream
+source hashes. The release uses constant gravity 9.80665 m/s2; the prior
+fixture used the latitude-dependent gravity of a newer development revision.
+The quaternion normalizer, axis normalizer and IMU increment scaling now use
+reciprocal multiplication, preserving actual native matrix-library ordering.
+The release's license text is retained verbatim in both license copies.
+
+New native tests compile the actual release matrix, platform constants and
+generated covariance headers, rather than reimplementing their arithmetic.
+An empty board-configuration stub supplies no estimator behavior. Fresh
+Rumoca 0.10.2 generated C and GCC/G++ 15.3.0 execute identical float32 inputs.
+
+Two seeds, 20261007 and 20271008, cover 320 independent cases and 191,040 raw
+covariance/quaternion/rotation components with zero bit differences. Every
+24x24 covariance entry is compared. Cases include nonzero attitude/bias,
+correlated covariance, anisotropic acceleration variance, varied time steps
+and zero/small angular increments. Before the reciprocal fixes, the first
+seed failed 191 quaternion comparisons; no covariance entries differed.
+Exact checks reject signed-zero differences and nonfinite values. Per-seed
+JSON files retain shared-input, source, binary and compiler provenance.
+
+The complete predict/GPS DifferentialStep fixture also freshly exports with
+Rumoca 0.10.2. This is an export check, not combined-sequence parity. A new
+external-port CI workflow runs both exact kernel seeds against v1.17.0. That
+workflow has not run remotely because publishing failed.
+
+ArduPilot changes and evidence
+-----------------------------
+
+The port target, package documentation and covariance-generator provenance
+now use Copter-4.7.1. All eleven previously pinned upstream files are unchanged
+from Copter-4.7.0. Vector division sources are additionally pinned by hash.
+The test facade now divides vector components directly, matching the actual
+ArduPilot vector implementation; its previous reciprocal multiplication was
+a reference-adapter error. The Modelica equations did not need that change.
+
+The external generated-C validator now rejects all float32 bit differences
+for states, covariance and applicable GPS gate ratios, alongside existing
+counter/fusion-decision checks. The final strict audit covers 160 independent
+prediction/GPS cases and 96,560 components, with zero differences. The six-group
+480-case OpenModelica regression passes; worst scaled error is
+5.896831196761716e-9. External tests/evidence retains both records.
+
+Shared validation and limits
+----------------------------
+
+All 28 estimator-comparison Python tests and targeted Ruff checks pass. Both
+external port diffs pass whitespace checks. Validated source hashes match the
+final committed worktrees. Existing historic evidence was preserved.
+
+Both ports remain partial. PX4 uses approximate flat NED position integration,
+fixed origin curvature/rate constants and restricted aiding assumptions.
+ArduPilot tests extract actual methods into a storage/vector test facade; they
+do not instantiate the complete firmware lifecycle. Sensor buffers, delay
+handling, initialization, output observers, complete optical-flow/magnetic/
+height fusion and GPS dropout/recovery orchestration are not fully ported.
+Single-step exact kernel agreement does not qualify long flight trajectories,
+other compilers/architectures or the default double-precision ArduPilot SITL.
+
+Native flight baselines remain PX4 f1c0a1f and ArduPilot 1511f27. Historical
+flight scores have not been requalified against these stable releases. This
+refresh does not establish equal effective noise or new RMS/NEES/NIS results.
+No PX4 or ArduPilot implementation was copied into modelica_models; only
+original comparison tooling, provenance and numeric evidence are stored here.

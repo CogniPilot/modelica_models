@@ -264,7 +264,8 @@ algorithm
           gyroscopeBiasBodyFlu_rad_s=stateGyroscopeBiasBodyFlu_rad_s,
           accelerometerBiasBodyFlu_m_s2=
             stateAccelerometerBiasBodyFlu_m_s2,
-          covariance=stateCovariance),
+          covariance=stateCovariance,
+        useSquareRootCovariance=false, covarianceRoot=zeros(15, 15)),
         imu, gravityWorldEnu_m_s2, initialized);
 
     acceptedCorrectionCount := if reset then 0

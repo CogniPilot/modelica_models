@@ -1,0 +1,49 @@
+{
+  "python_tests": "test_dense_rounding_failure_is_retained (test_consistency.FusionEpochTests.test_dense_rounding_failure_is_retained) ... ok\ntest_mixed_epochs_and_unready_data_refused (test_consistency.FusionEpochTests.test_mixed_epochs_and_unready_data_refused) ... ok\ntest_moving_truth_at_delayed_epoch (test_consistency.FusionEpochTests.test_moving_truth_at_delayed_epoch) ... ok\ntest_root_refuses_invalid_or_mismatched_factors (test_consistency.FusionEpochTests.test_root_refuses_invalid_or_mismatched_factors) ... ok\ntest_root_whitening_at_fusion_epoch (test_consistency.FusionEpochTests.test_root_whitening_at_fusion_epoch) ... ok\ntest_camera_gyro_noise_is_not_cancelled_from_the_image (test_flow_exposure.FlowExposureTests.test_camera_gyro_noise_is_not_cancelled_from_the_image) ... ok\ntest_linear_exposure_and_missing_support (test_flow_exposure.FlowExposureTests.test_linear_exposure_and_missing_support) ... ok\ntest_px4_api_rejects_epoch_and_sign_errors (test_flow_exposure.FlowExposureTests.test_px4_api_rejects_epoch_and_sign_errors) ... ok\ntest_translation_and_rotation_axes_at_native_boundaries (test_flow_exposure.FlowExposureTests.test_translation_and_rotation_axes_at_native_boundaries) ... ok\ntest_bad_window_and_capture_refused (test_imu_noise.ImuNoiseTests.test_bad_window_and_capture_refused) ... ok\ntest_white_noise_density_and_bias_invariance (test_imu_noise.ImuNoiseTests.test_white_noise_density_and_bias_invariance) ... ok\ntest_linear_motion_and_sign_equivalence (test_native_delay.CommonEpochTests.test_linear_motion_and_sign_equivalence) ... ok\ntest_no_extrapolation_or_missing_interval (test_native_delay.CommonEpochTests.test_no_extrapolation_or_missing_interval) ... ok\ntest_zero_quaternion_rejected (test_native_delay.CommonEpochTests.test_zero_quaternion_rejected) ... ok\ntest_invalid_or_clamped_configuration_refused (test_native_noise.NativeNoiseTests.test_invalid_or_clamped_configuration_refused) ... ok\ntest_white_sample_accumulation (test_native_noise.NativeNoiseTests.test_white_sample_accumulation) ... ok\ntest_no_takeoff_flag_or_historical_mode (test_native_phase.FlightPhaseTests.test_no_takeoff_flag_or_historical_mode) ... ok\ntest_timeout_changes_only_takeoff_and_emits_once (test_native_phase.FlightPhaseTests.test_timeout_changes_only_takeoff_and_emits_once) ... ok\ntest_matching_negative_values_and_subnormals (test_port_parity.PortParityTests.test_matching_negative_values_and_subnormals) ... ok\ntest_missing_reordered_duplicate_and_nonfinite_data_refused (test_port_parity.PortParityTests.test_missing_reordered_duplicate_and_nonfinite_data_refused) ... ok\ntest_one_ulp_mutation_is_not_parity (test_port_parity.PortParityTests.test_one_ulp_mutation_is_not_parity) ... ok\ntest_signed_zero_is_numerically_equal_but_not_identical (test_port_parity.PortParityTests.test_signed_zero_is_numerically_equal_but_not_identical) ... ok\ntest_no_extrapolation (test_score.ScoringTests.test_no_extrapolation) ... ok\ntest_nonfinite_output_fails_accuracy (test_score.ScoringTests.test_nonfinite_output_fails_accuracy) ... ok\ntest_quaternion_sign_and_wrapped_heading (test_score.ScoringTests.test_quaternion_sign_and_wrapped_heading) ... ok\ntest_vector_rmse_and_invalid_states (test_score.ScoringTests.test_vector_rmse_and_invalid_states) ... ok\ntest_higher_climb_is_consistent_and_preserves_other_motion (test_trajectory.ClimbTests.test_higher_climb_is_consistent_and_preserves_other_motion) ... ok\ntest_invalid_height (test_trajectory.ClimbTests.test_invalid_height) ... ok\n\n----------------------------------------------------------------------\nRan 28 tests in 0.182s\n\nOK\n",
+  "cli_checks": [
+    {
+      "label": "exact",
+      "exit_code": 0,
+      "expected": 0,
+      "diagnostic": ""
+    },
+    {
+      "label": "different-input",
+      "exit_code": 2,
+      "expected": 2,
+      "diagnostic": "usage: port_parity.py [-h] --native NATIVE --modelica MODELICA --output OUTPUT\n                      --native-input-sha256 NATIVE_INPUT_SHA256\n                      --modelica-input-sha256 MODELICA_INPUT_SHA256\n                      --native-revision NATIVE_REVISION\n                      --port-upstream-revision PORT_UPSTREAM_REVISION --scope\n                      SCOPE\nport_parity.py: error: Parity requires identical, declared input hashes"
+    },
+    {
+      "label": "different-revision",
+      "exit_code": 2,
+      "expected": 2,
+      "diagnostic": "usage: port_parity.py [-h] --native NATIVE --modelica MODELICA --output OUTPUT\n                      --native-input-sha256 NATIVE_INPUT_SHA256\n                      --modelica-input-sha256 MODELICA_INPUT_SHA256\n                      --native-revision NATIVE_REVISION\n                      --port-upstream-revision PORT_UPSTREAM_REVISION --scope\n                      SCOPE\nport_parity.py: error: Parity requires the same immutable upstream revision"
+    },
+    {
+      "label": "original-facade",
+      "exit_code": 1,
+      "expected": 1,
+      "diagnostic": ""
+    }
+  ],
+  "corrected_double_precision_regression": {
+    "upstream_revision": "1511f27194f1dcc3728270883047bdf022b3fd53",
+    "cases": 480,
+    "max_scaled_error": {
+      "0": 0.0,
+      "1": 5.896831196761716e-09,
+      "2": 4.382694474781226e-10,
+      "3": 0.0,
+      "4": 0.0,
+      "5": 5.896831196761716e-09
+    },
+    "cpp_oracle_sha256": "0c5f5f9d884ad92460a66a0ce33191dd038db1e094a3480fe750613f8b35b020",
+    "facade_sha256": "1f41dde19a66f49b93b4a763576afd8c0813b54f01bdac4b91e3f3eff46a6f47",
+    "omc": "a96aa1a-cmake"
+  },
+  "unchanged_modelica_files": 13,
+  "identical_fixture_input_sha256": "8557d947d9b6615ab39489f815955d9d353de179da442f45f1141ab397fb1e70",
+  "ruff_check": "passed",
+  "ruff_format": "passed",
+  "git_diff_check": "passed"
+}

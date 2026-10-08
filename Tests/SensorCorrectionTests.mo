@@ -92,7 +92,8 @@ model SensorCorrectionTests
       quaternionWorldBody={1.0, 0.0, 0.0, 0.0},
       gyroscopeBiasBodyFlu_rad_s=zeros(3),
       accelerometerBiasBodyFlu_m_s2=zeros(3),
-      covariance=covariance);
+      covariance=covariance,
+        useSquareRootCovariance=false, covarianceRoot=zeros(15, 15));
     flowNear := Avionics.OpticalFlowSample(
       valid=true, fresh=true, timestamp_s=0.0,
       integratedLineOfSight_rad={0.0, 0.005},
@@ -206,7 +207,8 @@ model SensorCorrectionTests
       quaternionWorldBody={1.0, 0.0, 0.0, 0.0},
       gyroscopeBiasBodyFlu_rad_s=zeros(3),
       accelerometerBiasBodyFlu_m_s2=zeros(3),
-      covariance=identity(15));
+      covariance=identity(15),
+        useSquareRootCovariance=false, covarianceRoot=zeros(15, 15));
     agedMocap := Avionics.MocapSample(
       valid=true,
       fresh=true,

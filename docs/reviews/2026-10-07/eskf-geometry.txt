@@ -1,0 +1,168 @@
+Geometric ESKF experiments, 7 October 2026
+========================================
+
+The objective remains outperforming native PX4 EKF2 and ArduPilot EKF3 across
+GPS, GPS-denied and GPS loss/return, including velocity, heading, consistency
+and recovery. That objective has not been achieved. This review records the
+next geometric candidates, including regressions. Both new estimator options
+remain disabled by default; changing defaults needs further validation.
+
+The subsequent buffered-horizon versus retrodiction comparison is recorded
+in eskf-delay.html and eskf-delay.txt. Its delay campaign compares ESKF modes;
+it does not add delayed native EKF2/3 results.
+
+See eskf-geometry.html for the interactive comparison and
+eskf-geometry-metrics.csv for all 192 aggregate rows. Each entry is the median
+of three seed-specific RMSE values with their minimum and maximum. Native
+scores are reused from the same frozen captures, source pins and configurations
+audited in eskf-native-audit.json. The previous review contains experiment
+design details and all limitations; these experiments do not remove them.
+
+Magnetic-vector output on SO(3)
+------------------------------
+
+The new optional magnetic observation avoids Euler heading extraction.
+With b = R_hat' B_world / |B_world| and y = B_body / |B_world|, it uses
+
+  residual = y - b
+  H_attitude = wedge((b + y) / 2)
+  R_measurement = R_sensor / |B_world|^2.
+
+For noiseless y = Exp(-phi) b, residual - H_attitude phi is cubic in phi.
+The measured/predicted midpoint cancels the quadratic term. Scaling by the
+reference magnitude preserves the measurement information while avoiding tiny
+Tesla-squared pivots in float32. Joseph updating and the existing SE_2(3)
+right-Jacobian reset remain in use. Sensor covariance must be positive definite.
+
+Tests check cubic scaling, the unobservable rotation about one magnetic vector,
+positive covariance, vertical pitch without an Euler singularity, a zero
+reference and rejection of a large field disturbance. The vector path does not
+execute the Euler-heading observation. Its assumption is a calibrated and
+trustworthy local field vector, stronger than knowing declination alone.
+
+Output equivariance and symmetric linearization are motivated by Fornasier et
+al., Equivariant Symmetries for Inertial Navigation Systems, Section 2.2:
+https://arxiv.org/html/2309.03765v3
+That work also separates geometric pose errors from bias-aware symmetries.
+The implementation here is a new observation inside the existing ESKF, not a
+complete implementation of the paper's bias-aware equivariant filters.
+
+Geometric initialization covariance
+----------------------------------
+
+The existing initialization levels the nominal attitude from filtered gravity
+and aligns heading from a magnetometer, but retains the configured broad
+attitude covariance. The optional alignment candidate conditions the initial
+covariance on those same alignment vectors. It retains attitude-accelerometer
+bias correlation and the yaw nullspace of gravity.
+
+The gravity residual is f_filtered - R_hat'(-g) - b_accel. Its Jacobian has
+wedge(R_hat'(-g)) in the attitude block and identity in the accelerometer-bias
+block. Gravity is used once at a successful quiet startup alignment; it is not
+a continuous gravity observation during flight. The candidate is skipped for
+mocap alignment, disabled quiet gating and timed-out alignment. It does not
+add a commanded stationary phase or a zero-velocity measurement.
+
+The filtered-force covariance follows the existing first-order filter's white
+noise recursion. For gain alpha and N usable startup ticks, its variance factor
+relative to one sample is
+
+  w + (1-w) alpha/(2-alpha),  w = (1-alpha)^(2 max(N-1,0)).
+
+The sample covariance is the configured accelerometer noise density divided
+by the estimator period. No sensor noise values were retuned to the captures.
+The magnetic seed is conditioned and consumed at initialization, preventing
+the held seed from being processed again on the following tick.
+
+The inherited quiet-alignment gate assumes specific force represents gravity.
+Magnitude/rate thresholds cannot prove stationarity: constant velocity and
+some acceleration patterns can satisfy them. This candidate adds no new
+stationarity evidence. Moving-start and model-error campaigns remain necessary.
+
+Results
+-------
+
+Original .6 rad/s, high-rate GPS-denied, median of three seeds:
+  current ESKF                 .4934 m horizontal, .0810 m/s velocity, 1.7392 deg yaw
+  geometric alignment         .3375 m horizontal, .0719 m/s velocity, 1.4248 deg yaw
+  alignment + magnetic vector .3407 m horizontal, .0529 m/s velocity,  .9094 deg yaw
+  native PX4 EKF2              .1022 m horizontal, .0155 m/s velocity,  .2185 deg yaw
+  native ArduPilot EKF3        .1968 m horizontal, .0643 m/s velocity,  .2482 deg yaw
+
+Held-out high-rate denied horizontal RMSE at .45 and .85 rad/s:
+  current ESKF                 .7766, .7693 m
+  geometric alignment         .4271, .4738 m
+  alignment + magnetic vector .3655, .3461 m
+  native PX4                  .0922, .0929 m
+  native ArduPilot             .1445, .2082 m.
+
+Held-out low-rate denied horizontal RMSE at .45 and .85 rad/s:
+  current ESKF                 .1222, .1199 m
+  geometric alignment         .1008, .1018 m
+  alignment + magnetic vector .3144, .2771 m
+  native PX4                  .0850, .0964 m
+  native ArduPilot             .1679, .2228 m.
+
+Alignment alone improves aggregate denied horizontal error across all eight
+motion/profile combinations. It still regresses some other metrics: held-out
+.85 rad/s high-rate outage position changes .0302 -> .0417 m, velocity
+.0444 -> .0468 m/s and yaw .2087 -> .3308 deg. At .45 rad/s high-rate denial,
+velocity changes .0506 -> .0537 m/s. These are retained in the comparison.
+
+Vector fusion alone and with alignment causes substantial held-out low-rate
+position regressions. It must not be selected automatically based on the
+favorable high-rate results. Improved angular accuracy does not guarantee
+improved integrated position or bias convergence. Full per-seed ranges and
+GPS/return results are in the table rather than hidden behind an overall rank.
+
+A bias-coupled retraction was also prototyped with an independently checked
+joint covariance reset. Finite differences passed, but its smoke replays gave
+negligible gains and mixed position changes. It was removed from the working
+tree. Changing retraction alone is not equivalent to implementing a complete
+semi-direct or tangent-group equivariant filter.
+
+Validation
+----------
+
+- 72 vector-only generated-code replays, original plus held-out captures.
+- 216 baseline/alignment/alignment-plus-vector generated-code replays.
+- All 72 disabled-option baseline outputs match the preceding validated ESKF
+  byte for byte. Final source-cleanup replay hashes are recorded separately.
+- 24 full covariance checks across both candidates, both rate profiles,
+  all three GPS cases, and selected original/held-out motions. Cholesky checks
+  passed; descriptive mean 15-state NEES ranged from 3.08 to 6.69. Samples are
+  correlated and priors were not independently sampled, so this is not proof
+  of full-filter consistency or a Monte Carlo calibration test.
+- New magnetic-vector and alignment-covariance Modelica assertions passed.
+- Existing heading-consider and simultaneous-aiding Modelica simulations passed.
+- Actual generated C simultaneous-aiding fixture passed all four option
+  combinations, including initialization covariance and seed-consumption checks.
+- Rumoca 0.10.2 lowers the complete Tests.All model. A sequential tick-variable
+  read in the simultaneous-aiding test exposed ED013; expressing the tick
+  declaratively fixes it without dropping the assertions. The fixed component
+  simulation passes OpenModelica as well.
+- Existing independent scoring tests, structure and Python lint checks passed.
+
+Full local CI, complete mission qualification and remote CI have not been
+rerun for this complete working tree. .git and the large scratch build storage
+are read-only in this resumed session. Small targeted compiler probes used
+bounded temporary storage with compiler caching disabled; existing large
+captures and builds stayed under $HOME/scratch. No commit or push was made.
+
+Next geometric milestone
+------------------------
+
+Implement and independently validate a bias-aware error geometry, not only a
+new pose retraction. The propagation, bias coupling, noise mapping, GPS/flow/
+height/magnetic outputs, correction and reset must all use the same error
+definition. Compare a minimal semi-direct bias formulation with the tangent
+group's additional virtual bias state before choosing the production design.
+Preserve unobservable directions and validate Jacobians with independent
+finite differences and frame-change tests before flight comparisons.
+
+Add larger initial heading/bias errors and more exciting motion families to
+expose convergence differences. Then test magnetic disturbances, raw angular
+flow/range/gyro correlations, moving startup, actual delayed arrivals and
+bounded GPS recovery. Native startup-information and tuning differences still
+need a separate comparison. A geometric name or a single favorable RMSE is
+not evidence of beating both native estimators.

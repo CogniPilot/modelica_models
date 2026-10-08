@@ -10,6 +10,7 @@ function correctMocap "Correct position and attitude from motion capture"
   input Real specificForceMeasuredBodyFlu_m_s2[3] = zeros(3);
   input Real gravityWorldEnu_m_s2[3] = {0.0, 0.0, -9.81};
   input Real maximumAidingDelay_s(unit = "s") = 0.25;
+  input Boolean useSemiDirectBias = false;
   output State corrected;
   output Boolean accepted;
   output Integer rejectionReason
@@ -61,13 +62,7 @@ algorithm
   // the future, is REFUSED by timestamp rather than transported to meet the
   // state. The named outcome is what a supervisor can act on; a transported
   // one is an answer with an error nobody bounded.
-  corrected := State(
-    positionWorldEnu_m=predicted.positionWorldEnu_m,
-    velocityWorldEnu_m_s=predicted.velocityWorldEnu_m_s,
-    quaternionWorldBody=predicted.quaternionWorldBody,
-    gyroscopeBiasBodyFlu_rad_s=predicted.gyroscopeBiasBodyFlu_rad_s,
-    accelerometerBiasBodyFlu_m_s2=predicted.accelerometerBiasBodyFlu_m_s2,
-    covariance=predicted.covariance);
+  corrected := copyState(predicted);
   accepted := false;
   normalizedInnovationSquared := 0.0;
   if measurementAge_s < -1.0e-6
@@ -76,6 +71,7 @@ algorithm
   else
     (corrected, accepted, rejectionReason, normalizedInnovationSquared) :=
       correctLinear(predicted, residual, H, measurementCovariance,
-        innovationGate);
+        innovationGate, zeros(3), zeros(TangentLength, size(residual, 1)),
+        false, useSemiDirectBias);
   end if;
 end correctMocap;

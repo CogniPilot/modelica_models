@@ -1,0 +1,56 @@
+{
+  "python_unittests": 17,
+  "horizon_replays": 36,
+  "retrodiction_compatibility_replays": 2,
+  "magnetic_ablation_replays": 8,
+  "horizon_primary_outputs_identical": 36,
+  "retrodiction_primary_and_covariance_summaries_identical": 2,
+  "magnetic_unchanged_output_controls": 4,
+  "distinct_covariance_samples_checked": 211320,
+  "positive_definite_and_symmetric": true,
+  "report_csv_rows": 288,
+  "report_reproduction_identical": true,
+  "observability_reproduction_identical": true,
+  "negative_report_cases_refused": [
+    {
+      "case": "missing_case",
+      "reason": "Incomplete horizon consistency matrix"
+    },
+    {
+      "case": "duplicate_case",
+      "reason": "Incomplete horizon consistency matrix"
+    },
+    {
+      "case": "current_epoch",
+      "reason": "Covariance must be scored at the fusion epoch"
+    },
+    {
+      "case": "changed_output",
+      "reason": "Covariance recording changed primary output"
+    },
+    {
+      "case": "missing_window",
+      "reason": "Inconsistent covariance windows"
+    },
+    {
+      "case": "nonfinite",
+      "reason": "Nonfinite consistency statistic"
+    },
+    {
+      "case": "asymmetry",
+      "reason": "Invalid delayed state or asymmetric covariance"
+    },
+    {
+      "case": "changed_calibration",
+      "reason": "Horizon implementation or calibration differs between motion sets"
+    },
+    {
+      "case": "existing_outputs",
+      "reason": "Choose new report paths"
+    }
+  ],
+  "ruff": true,
+  "clang_format": true,
+  "git_diff_check": true,
+  "modelica_package_structure": true
+}

@@ -1,0 +1,197 @@
+ESKF improvement and native estimator comparison, 7 October 2026
+==============================================================
+
+The current ESKF fixes a sensor scheduling problem and greatly improves
+high-rate GPS-denied heading, velocity and position. It does not yet beat both
+PX4 EKF2 and ArduPilot EKF3 across the requested scenarios. The native filters
+retain a substantial high-rate denied position advantage; PX4 generally has
+better velocity accuracy. Some ESKF position cases also regress.
+
+Open eskf-improvements.html for all 128 aggregate rows, including horizontal
+and vertical position, velocity, attitude and yaw, with the range across seeds.
+eskf-improvement-metrics.csv contains the same values. The JSON evidence retains
+per-run scores, validation hashes, source pins and native adapter limitations.
+
+Implementation
+--------------
+
+The previous dispatcher selected only one aiding source per tick. Frequent
+flow updates could starve magnetic and height corrections. The dispatcher now
+selects mocap or GPS for absolute aiding, then independently processes fresh
+flow, barometer and magnetometer measurements. Held timestamps are consumed
+once. Supplemental acceptance cannot clear a rejected GPS anchor or hide its
+primary rejection diagnostic. Flow rejection counters reflect flow's own
+result even when GPS is the primary source.
+
+acceptedCorrectionCount increments once per fusion instant if any real sensor
+correction succeeds; pseudo measurements and zero-velocity updates are excluded.
+Per-sensor acceptance flags describe simultaneous corrections. Scalar source,
+outcome and NIS describe the first attempted source in priority order, rather
+than summarizing all corrections made at that instant.
+
+Heading correction restricts the gain to attitude and gyro bias along the
+body-frame vertical. Translation and accelerometer bias remain considered
+states: their uncertainty stays in the innovation covariance, while heading
+does not directly change their estimates. Generalized Joseph updating uses the
+constrained gain. A focused test verifies unchanged considered states, allowed
+vertical gyro-bias learning and positive covariance. This addresses divergence
+observed after the scheduling repair; it does not imply accelerometer bias is
+unobservable under every maneuver.
+
+Optical flow stays in angular-rate coordinates. A small projection matrix
+replaces component expressions; its Jacobian maps velocity and attitude to
+image rate. Range uncertainty uses predicted image rate. This avoids converting
+noisy image flow to velocity before correction. The synthetic benchmark still
+reconstructs angular flow from body velocity and range; it does not exercise
+raw image noise or correlated gyro compensation.
+
+Repeated covariance transformations use transformCovariance with a materialized
+intermediate product and Inline=false. Matrix multiplication order is preserved.
+This prevents OpenModelica expression expansion: generated Tests.All function
+source fell from about 45 MB to 4 MB, and GCC test compilation from about 418 s
+to 9.76 s. The complete final assertion run took 16.32 s on this host with -O0.
+Production generated replay code uses -O2. All 72 refactor equivalence replays
+were byte-identical to the preceding algorithm version, not the original ESKF.
+
+Algorithm changes use arrays, matrix expressions and explicit helper names.
+No explanatory algorithm comments were added. Independent root Modelica
+packages remain in use. Upstream PX4/ArduPilot code remains pinned validation
+submodules; no upstream source was copied into this repository.
+
+Experiment design
+-----------------
+
+All filters receive common deterministic analytic truth and noisy captures.
+IMU sampling is 800 Hz; the generated estimator runs at 100 Hz. Profile names
+denote flow/magnetometer/barometer rates. GPS is 10 Hz when available; the other
+aiding streams remain available during GPS denial. Replays last 60 seconds.
+Flight scores use 13 <= t < 60 s, excluding stationary startup. The transition
+removes GPS over 25 <= t < 40 s; return scores use 40 <= t < 60 s.
+
+Original captures use trajectory frequencies .25 and .6 rad/s and seeds
+7, 19 and 41. Held-out captures use .45 and .85 rad/s and seeds 101, 307 and
+911. Frequencies are trajectory parameters, not speeds in m/s. There are 108
+held-out runs: three estimators, three scenarios, two frequencies, three seeds
+and two profiles. The previous ESKF was also replayed on all 36 held-out cases.
+Aggregate metrics are medians of three seed-specific RMSE values, not pooled
+RMSE or confidence intervals. This synthetic benchmark is not qualification.
+
+Results and regressions
+-----------------------
+
+At original .6 rad/s and 100/50/50 Hz, denied horizontal RMSE fell from
+2.5826 to .4934 m, velocity from 1.1026 to .0810 m/s, and yaw from 30.3354
+to 1.7392 degrees. Native PX4 and ArduPilot position errors are .1022 and
+.1968 m. Held-out high-rate denied position improves from 1.5352 to .7766 m
+and from 1.4631 to .7693 m, still behind both native filters.
+
+At 25/25/25 Hz, held-out denied errors are .1222 and .1199 m, better than
+ArduPilot's .1679 and .2228 m but behind PX4's .0850 and .0964 m. GPS-aided
+held-out median horizontal errors are lower than both native configurations
+at both rates and frequencies. This does not establish superiority in velocity,
+heading, availability, startup, robustness or overall estimator quality.
+
+Regressions remain visible: original .6 rad/s low-rate denied position worsens
+from .3769 to .4654 m while velocity and yaw improve. Held-out .45 rad/s
+high-rate transition outage worsens from .0395 to .0739 m. Original .6 rad/s
+high-rate GPS position also rises slightly, .0346 to .0369 m. Improved heading
+alone is therefore not a sufficient acceptance criterion.
+
+Return-window RMSE describes the entire post-return interval. It does not
+guarantee reacquisition delay, reset jumps or peak errors. Per-run scores also
+contain recovery diagnostics; native flags indicate use/activation rather than
+independently verified measurement acceptance counts.
+
+Preintegration ablation and covariance
+-------------------------------------
+
+All 108 final integration ablations completed with finite outputs and zero
+reported step-status errors. They compare one held-input preintegral from the
+mean of eight IMU samples, eight endpoint ZOH intervals and production FOH.
+Filter rate, captures and tuning are unchanged. At .6 rad/s high-rate denied
+position RMSE is .49283 m for mean, .49284 m for ZOH and .49336 m for FOH.
+Low-rate values are .46494, .46498 and .46544 m. FOH changes yaw slightly but
+provides no material position advantage here. These smooth motions do not
+establish the result for aggressive coning, vibration or large intersample
+rotation; preintegration is not the current benchmark's main performance gap.
+
+Median child CPU time for a whole 60-second CSV replay was .2858 s for mean,
+.3358 s for ZOH and .3412 s for FOH in serial runs on this host. These include
+CSV handling and the estimator. They are not MCU deadline measurements or a
+fair comparison of native estimator CPU costs.
+
+Actual generated preintegrator and prediction covariance functions were tested
+with 20,000 independent adjacent-packet draw pairs for each of three motions
+and two integration modes. Each packet contains eight intervals; adjacent FOH
+packets share an endpoint measurement. Bias random walks are not included.
+For nine-dimensional packet error, mean NEES is about 8.94--8.97 for ZOH and
+8.05--8.08 for FOH, versus nominal expectation 9. FOH empirical diagonal
+covariance ratios are about .90--.95, with whitened eigenvalues about .80--.96.
+Adjacent gyro/velocity errors show correlation of about .03 when normalized by
+predicted packet covariance. The held white-noise approximation is mildly
+conservative here. Shrinking Q blindly ignores shared-endpoint correlation.
+
+Full 15-state descriptive NEES was computed for 36 final ESKF cases using logged
+full covariance and known synthetic biases. All covariance matrices passed
+Cholesky checks; mean NEES ranged from 3.04 to 10.16. Flight samples are correlated
+and initial errors were not independently drawn from the prior distribution.
+These are descriptive diagnostics, not independent full-filter Monte Carlo
+calibration or proof of consistency under arbitrary motion or delayed fusion.
+
+Native implementation audit
+---------------------------
+
+Actual native estimator cores are compared, rather than the partial Modelica
+ports. Pins are recorded in eskf-native-audit.json and the manifest:
+PX4 f1c0a1f794edf8e5e974b6ed96df3f95eda0df39;
+ArduPilot 1511f27194f1dcc3728270883047bdf022b3fd53;
+external adapters 3dbaeb98d21c418c895ac5b4402f056c3eba68d3.
+Adapters remain in their separately licensed repository.
+
+All 17 ArduPilot input and 17 output schemas, their message IDs and ordering,
+and three PX4 aid-source stub field types were checked against pinned upstream
+definitions. Frame rotations, magnetic units, gyro units and flow compensation
+signs were checked against native interfaces. Material remaining limitations:
+- Flow reconstructs image rate from velocity/range rather than actual images.
+- Native active flags are not accepted-measurement counters.
+- Native cores receive a common commanded stationary startup phase; ESKF lacks
+  equivalent explicit at-rest input. Startup bias information is not equal.
+- PX4 uses a shortened one-second health interval and explicit origin setup.
+- ArduPilot uses horizontal GPS/flow velocity, heading and barometric height;
+  vertical GPS velocity fusion is disabled in this configuration.
+- Noise tuning and priors remain stack-specific, without optimality claims.
+- There is no transport delay, jitter, magnetic disturbance or range dropout
+  campaign. Rumoca 0.10.2's multi-clock HorizonEstimator limitation remains.
+- Native adapters do not yet honor invalid or missing GPS velocity flags.
+  Reviewed captures all have valid three-axis velocity, so present scores are
+  unaffected. Fix the adapters or reject those inputs before broader testing.
+
+Validation and next work
+------------------------
+
+Passed: final OpenModelica Tests.All with no LOG_ASSERT; actual generated C
+multisensor fixture covering loss/return, held timestamps and independent
+rejection counters; negative control failing with the previous dispatcher;
+72 byte-identical covariance-refactor replays (36 ESKF, 36 UKF); 36 final held-out
+ESKF equivalence checks; 108 held-out native/generated scores; 36 baseline
+held-out scores; 108 integration ablations; packet Monte Carlo; 36 full covariance
+checks; Modelica structure and Python lint/format checks.
+
+Full Rumoca regression passed at the scheduler stage. Final exports and replays
+validate subsequent heading, flow and covariance changes. A fresh full local
+CI and remote mission qualification have not run for this complete working tree.
+
+Next priorities are stationary-startup information parity and safe bias
+learning, followed by raw angular-flow/range/gyro noise and magnetic robustness
+tests. Then test delayed arrival, loss/return hysteresis and jump bounds,
+independently sampled prior/noise ensembles, more motions and held-out flight
+logs. Tune after correcting measurement/model mismatches. Beating both native
+estimators needs acceptable position, velocity, heading, consistency,
+availability and runtime results across these tests.
+
+This working tree is based on e7b5912acf872c81ca2bd9c4fbb46f6491d90c6b on
+workspace/eskf-multisensor-improvements. The resumed session grants read-only
+access to .git and the scratch build directory. Current changes and evidence
+are uncommitted and unpushed; a fresh full build cannot run there. Large builds,
+logs and captures stay under $HOME/scratch/modelica_models; durable evidence
+stays here. No current remote CI result is inferred.

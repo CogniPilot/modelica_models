@@ -24,7 +24,9 @@ def ramp(t, duration):
     )
 
 
-def trajectory(t, speed):
+def trajectory(t, speed, climb_height_m=2.0):
+    if not np.isfinite(climb_height_m) or not 0 < climb_height_m <= 8:
+        raise ValueError("Climb height must be finite and between 0 and 8 m")
     tau = np.maximum(t - 13, 0)
     r, dr, ddr = ramp(tau, 5)
     w = speed
@@ -34,10 +36,15 @@ def trajectory(t, speed):
         (-4 * w * w * np.sin(w * tau), 3 * w * w * np.cos(w * tau))
     )
     z, dz, ddz = ramp(tau, 3)
-    p = np.column_stack((r[:, None] * signal, 2 * z))
-    v = np.column_stack((dr[:, None] * signal + r[:, None] * first, 2 * dz))
+    p = np.column_stack((r[:, None] * signal, climb_height_m * z))
+    v = np.column_stack(
+        (dr[:, None] * signal + r[:, None] * first, climb_height_m * dz)
+    )
     a = np.column_stack(
-        (ddr[:, None] * signal + 2 * dr[:, None] * first + r[:, None] * second, 2 * ddz)
+        (
+            ddr[:, None] * signal + 2 * dr[:, None] * first + r[:, None] * second,
+            climb_height_m * ddz,
+        )
     )
     angles = r[:, None] * np.column_stack(
         (0.10 * np.sin(0.6 * tau), 0.12 * np.sin(0.4 * tau), 0.3 * np.sin(0.18 * tau))
@@ -113,11 +120,13 @@ def write(directory, name, header, data):
     )
 
 
-def generate(directory, seed=7, speed=0.25, lower_rates=False):
+def generate(directory, seed=7, speed=0.25, lower_rates=False, climb_height_m=2.0):
+    if not np.isfinite(climb_height_m) or not 0 < climb_height_m <= 8:
+        raise ValueError("Climb height must be finite and between 0 and 8 m")
     directory.mkdir(parents=True, exist_ok=True)
     rng = np.random.default_rng(seed)
     t = np.arange(0, 60 + 0.000625, 1 / 800)
-    p, v, a, quat, gyro, force, bv, mag, distance = trajectory(t, speed)
+    p, v, a, quat, gyro, force, bv, mag, distance = trajectory(t, speed, climb_height_m)
     gm = gyro + [0.0008, -0.0005, 0.0004] + rng.normal(0, 0.0015, gyro.shape)
     am = force + [0.02, -0.01, 0.015] + rng.normal(0, 0.03, force.shape)
     write(
@@ -262,6 +271,7 @@ def generate(directory, seed=7, speed=0.25, lower_rates=False):
                 ground_plane_offset_m=-1,
                 baro_startup_datum_m=baro_datum,
                 world_magnetic_field_T=FIELD.tolist(),
+                **({"climb_height_m": climb_height_m} if climb_height_m != 2 else {}),
             ),
             indent=2,
         )
@@ -275,5 +285,6 @@ if __name__ == "__main__":
     parser.add_argument("--seed", type=int, default=7)
     parser.add_argument("--speed", type=float, default=0.25)
     parser.add_argument("--lower-rates", action="store_true")
+    parser.add_argument("--climb-height-m", type=float, default=2.0)
     args = parser.parse_args()
-    generate(args.output, args.seed, args.speed, args.lower_rates)
+    generate(args.output, args.seed, args.speed, args.lower_rates, args.climb_height_m)

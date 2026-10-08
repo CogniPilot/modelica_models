@@ -1,0 +1,30 @@
+RDD2 estimator update audit, 7 October 2026
+
+Vehicles.Rdd2.NavigationEstimator directly extends
+Estimation.StrapdownINS.ESKF.Estimator. WaypointVehicleSystem selects that
+block as its default replaceable EstimatorModel. There is no copied older
+ESKF implementation in the vehicle package.
+
+The current RDD2 deployment export was regenerated with Rumoca 0.10.2 and
+compiled with GCC -O2 after all three fixes: valid joint covariance checks,
+an explicit covariance-root row snapshot, and assigned raw-prediction
+transition. See estimator-theory-manifest.json for source/generated-C hashes.
+eskf_aiding.c passed against this export, including simultaneous aiding,
+GPS loss/return, independent rejection health and invalid stationary settings.
+The current shared correction and raw-prediction kernels passed their
+independent reference suites. All 96 updated comparison flight outputs
+match the frozen ESKF controls byte for byte.
+
+The comparison driver explicitly enables geometric alignment and vector
+magnetic fusion; the RDD2 block's inherited deployment defaults leave both
+disabled. Square-root covariance, semi-direct bias and stationary IMU aiding
+also remain opt-in. WaypointVehicleSystem defaults to ZOH and has FOH
+available through useFirstOrderHoldImu; the comparison driver supplies FOH
+packets and all five bias Jacobians.
+
+RDD2's default estimator block uses state retrodiction. The delayed fusion
+horizon and forward output predictor are exercised through the separate
+comparison composition. The production composed-export limitation remains
+documented in docs/delayed-fusion-horizon.md. Fresh RDD2 export and replay
+validation must not be described as deployment of that composition or as
+whole closed-loop mission qualification.

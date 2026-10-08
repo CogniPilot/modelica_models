@@ -1,0 +1,63 @@
+PX4 coning indexing and comparison with ArduPilot, 7 October 2026
+
+Finding: PX4 v1.17.0's sensors::IntegratorConing has a one-interval lag in
+the accumulated-angle term used for the coning correction. The same ordering
+is present in the main-branch header inspected during this review.
+This is a sensor-integrator finding, not a demonstrated defect in every
+EKF2 coning/sculling operation.
+
+Let a_n be the trapezoidal angular increment over interval n, and A_n be
+the sum of increments through interval n. Immediately before put(n),
+PX4 _alpha = A_(n-1), but _last_alpha = A_(n-2). The correction reads
+_last_alpha, then saves _last_alpha = _alpha, then adds a_n to _alpha.
+It therefore uses 0.5 (A_(n-2) + a_(n-1)/6) cross a_n. Using the current
+accumulator gives 0.5 (A_(n-1) + a_(n-1)/6) cross a_n instead.
+The missing pairwise term is 0.5 a_(n-1) cross a_n. For two intervals in
+a reset packet, the adjacent-pair coefficient is 1/12 rather than 7/12.
+Previous-increment history is preserved across a normal packet reset.
+
+ArduPilot Copter-4.7.1 AP_InertialSensor_Backend uses the current
+_delta_angle_acc with _last_delta_angle/6 before accumulating the new
+increment and correction. Its accumulator also includes earlier coning
+corrections, so the two implementations differ in higher-order terms as well.
+
+Reproducer and scope
+tools/estimator_comparison/imu_coning.cpp compiles the actual external PX4
+v1.17.0 Integrator.hpp with upstream float32 matrix types. The test warms
+one interval, resets the published packet, then integrates a linear angular
+rate ramp over 2, 4 or 8 intervals at four sample periods. ArduPilot's
+backend recurrence is transcribed into the probe; the full backend is not
+compiled. No upstream implementation source is added to modelica_models.
+check_imu_coning.py independently integrates the quaternion ODE with
+double-precision RK4 and checks agreement after doubling reference steps.
+All 12 cases have lower angular error with the ArduPilot recurrence.
+Exact values and source/binary hashes are in px4-coning-indexing.json.
+
+Sculling must be assessed separately
+PX4's EKF IMU downsampler rotates previous accumulated velocity into the
+new end frame and adds the average of the new velocity increment expressed
+in the old and new frames. EKF prediction then uses the updated attitude.
+Combining those operations gives midpoint/trapezoidal orientation weighting;
+updating attitude first is not by itself an off-by-one error.
+ArduPilot's EKF3 downsampler rotates the newest velocity increment with
+the accumulated quaternion into the start-of-packet frame, and its state
+prediction uses the previous packet attitude. Under an instantaneous-sample
+interpretation this is endpoint quadrature; sample integration conventions
+must be matched before judging it against PX4. This review has not reproduced
+a separate PX4 sculling indexing defect.
+
+Effect on the estimator comparison
+The frozen PX4 flight adapter constructs delta_ang = gyro * dt and calls
+Ekf::setIMUData directly. It bypasses sensors::IntegratorConing. Consequently
+this coning defect does not explain the published PX4-versus-ArduPilot
+flight scores, and those scores do not validate the complete sensor pipeline.
+The numerical reproducer establishes a specific finite-input discrepancy,
+not universal ESKF superiority or a complete firmware failure claim.
+
+Primary sources
+https://github.com/PX4/PX4-Autopilot/blob/v1.17.0/src/modules/sensors/Integrator.hpp
+https://github.com/PX4/PX4-Autopilot/blob/main/src/modules/sensors/Integrator.hpp
+https://github.com/PX4/PX4-Autopilot/blob/v1.17.0/src/modules/ekf2/EKF/imu_down_sampler/imu_down_sampler.cpp
+https://github.com/ArduPilot/ardupilot/blob/Copter-4.7.1/libraries/AP_InertialSensor/AP_InertialSensor_Backend.cpp
+https://github.com/ArduPilot/ardupilot/blob/Copter-4.7.1/libraries/AP_NavEKF3/AP_NavEKF3_Measurements.cpp
+https://github.com/ArduPilot/ardupilot/blob/Copter-4.7.1/libraries/AP_NavEKF3/AP_NavEKF3_core.cpp

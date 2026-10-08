@@ -1,0 +1,38 @@
+{
+  "source_sha256": {
+    "Estimation/StrapdownINS/ESKF/SemiDirectBias/package.mo": "b91393ffb5ea2a859932a215b8894253748bcedbefef3f811518b9d7f70653d1",
+    "Estimation/StrapdownINS/ESKF/SemiDirectBias/package.order": "9fffd19c13730c3f2b65703e3d077ead17cbd80bd3501251499208523efe8030",
+    "Estimation/StrapdownINS/ESKF/SemiDirectBias/inject.mo": "36ee7382e98b5c5aabd523d417591fed528bbdb1e6dc6f21aa71b49d26ee2e58",
+    "Estimation/StrapdownINS/ESKF/SemiDirectBias/resetJacobian.mo": "8c3120a050485b64e1f6432970e8852c71a4a0fd8e230c497648bf410965fd78",
+    "Tests/SemiDirectBiasReplay.mo": "28e5d5e50a8168f9fc6522bd2705a94b249f2215fee516fd7f5fa1dc951f0a9f",
+    "tools/estimator_comparison/check_semidirect_bias.py": "9d0251e59079c98b684a3fd9f501e84763bc1a63237368214a72e06291a748c3",
+    "tools/estimator_comparison/semidirect_bias.c": "72d181147276050b36705c84b26a166264f170f4e8dcc9d2d97502e5499e3e45",
+    "Estimation/StrapdownINS/ESKF/package.order": "efeec6a81004a81157575bf4afcb0f41760697fc46570324d3e1f820ad40472e",
+    "Tests/package.order": "d4842f2fab9cb3720dde6e760b02d0a0194741e2bf58b2b566ea50be84f73851"
+  },
+  "artifact_sha256": {
+    "eskf-semidirect-bias-design.txt": "0de382a1e6a2eea844b8284006b64ae488703bcfe39286879f92b24d0ec529e5",
+    "eskf-semidirect-bias-generated-probe.json": "f4188647063c5264f48481f564509a650a68e1552bdf9c36ed41939ab649d909",
+    "eskf-semidirect-bias-held-out-probe.json": "313edbb9348b9d9008426bf4aab6992feb2e8774b0d7295737d3133a9fe0a718"
+  },
+  "rumoca_version": "0.10.2",
+  "generated_sha256": {
+    ".clang-format": "c2ce622c39ec84edfb33949a5200b802d8cd142d7b849e255f05593080e9c742",
+    "Tests_SemiDirectBiasReplay.c": "e1a3139f838dded9972c0eb94a3eaca06d9b1ccabf1546dab2e643f7291e47a0",
+    "Tests_SemiDirectBiasReplay.h": "0b79eb26f30396ccd6ca17fddb45c2a054097796cec7fec9edc6702ed55112a9",
+    "manifest.xml": "ab9dddd294f68fe59cbc76876b930dc9f56386a1c978dc5b8ffc1d15d2cc6c5a",
+    "rumoca_galec_kernels.c": "558d27b61e5617b2b2abb842f418ac280fc89c1d8cee912343d4e5e38c27e968",
+    "rumoca_galec_kernels.h": "3065c1696a99e00e2460f40fc25abb4576db80d42cc72fc1cc3ac2ae92d8ca47"
+  },
+  "library_sha256": "e069dccad9456bd26e472892f2f2ea78543bad1344ee3621172dc1552ac28701",
+  "generated_trials": 240,
+  "independent_python_trials": 240,
+  "production_filter_integrated": false,
+  "performance_evaluated": false,
+  "objective_achieved": false,
+  "base_source_snapshot": {
+    "manifest": "eskf-stationary-manifest.json",
+    "sha256": "9b8fcbb7c66ccf1c96d53ac80f1d738e1b10f6cdcc51cc2f0d08c4133752737e",
+    "all_other_recorded_sources_unchanged": true
+  }
+}

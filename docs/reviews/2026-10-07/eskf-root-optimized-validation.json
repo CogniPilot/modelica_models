@@ -1,0 +1,39 @@
+{
+  "fresh_replay_executions": 96,
+  "full_covariance_control_byte_exact": 48,
+  "previous_root_state_output_byte_exact": 48,
+  "previous_root_covariance_diagnostic_byte_exact": 48,
+  "scored_root_samples": 238560,
+  "independent_qr_checks": 412,
+  "independent_correction_checks": 1440,
+  "primitive_preservation_probe": {
+    "seed": 20271009,
+    "cases": 1000,
+    "byte_identical": 999,
+    "signed_zero_only": 1,
+    "nonzero_values_bit_identical": true,
+    "scope": "Actual old/new generated float32 QR primitive; 15 by 30 anisotropic inputs, every tenth case with only 15 active columns."
+  },
+  "current_ci_qr_and_correction_gates_passed": true,
+  "current_main_openmodelica_balance": true,
+  "openmodelica_qr_assertion_simulation": true,
+  "rumoca_tests_all_dae_lowering": true,
+  "horizon_adapter": true,
+  "python_unit_tests": 24,
+  "structure": true,
+  "ruff": true,
+  "diff_check": true,
+  "full_ci": false,
+  "modelica_changes_limited_to_qr": true,
+  "other_frozen_source_files_unchanged": 528,
+  "optimized_report_byte_exact": true,
+  "new_root_preservation_refusals": [
+    "missing_root_reference",
+    "wrong_root_reference_digest",
+    "root_control_false",
+    "missing_root_control",
+    "changed_root_output",
+    "incorrect_covariance_preservation",
+    "changed_covariance_digest"
+  ]
+}

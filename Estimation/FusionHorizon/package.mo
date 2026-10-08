@@ -49,6 +49,8 @@ package FusionHorizon
     "No novel, valid, finitely stamped sample was presented on this tick";
   constant Integer AidingQueued = 1
     "Stored, to be fused when the fusion instant reaches its timestamp";
+  constant Integer AidingDeliveredOnArrival = 5
+    "Delivered directly at an empty queue's current release";
   constant Integer AidingRefusedLate = 2
     "Refused at arrival: the fusion instant had already passed this timestamp
      by more than the residual alignment covers, so there is no fusion instant
@@ -92,21 +94,7 @@ package FusionHorizon
     "The oldest entry's timestamp has been reached by the fusion instant, and
      the entry was handed to the filter";
   constant Integer AidingDroppedStale = 2
-    "The oldest entry was ripe but older than the residual alignment covers,
-     so it was discarded rather than fused against a state that has already
-     moved past it.
-
-     An earlier note here called this unreachable in a correctly configured
-     buffer. It is not, and the case it missed is worth naming: a measurement
-     arriving ALREADY ripe, with a transport latency between fusionHorizon_s
-     and fusionHorizon_s + maximumResidualAge_s, cannot be delivered on the
-     tick it arrives, because delivery reads the queue as it stood before that
-     tick's store. By the next release the fusion instant has moved a whole
-     window past it and it leaves as stale. So the outcome of an anomalously
-     late packet is AidingRefusedLate above that band and AidingDroppedStale
-     inside it, and both are counted. The horizon assertion in AidingBuffer
-     keeps every DECLARED source far below the band; only a packet later than
-     its own source declares can reach it";
+    "The oldest queued entry exceeded the residual alignment bound";
 
   annotation(Documentation(info = "<html>
     <p>The estimator fuses at a delayed horizon <code>t - D</code>, where every

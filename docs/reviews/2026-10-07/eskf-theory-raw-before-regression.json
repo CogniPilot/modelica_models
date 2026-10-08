@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "before_fix": "Rumoca 0.10.2 rejects the formerly unassigned transition before generating deployable C",
+  "compiler_exit_code": 1,
+  "diagnostic_code": "ED020",
+  "reconstructed_source_sha256": "70c180e57910fc408aaa03a9a8502e48307b479dbf30b25d6f583818614eed03",
+  "diagnostic": "  \u001b[31m\u001b[0m \u001b[31m[ED020]\u001b[0m canonical DAE construction rejected an invalid operation: missing\n  \u001b[31m\u2502\u001b[0m function value definition for identity 6\n    \u256d\u2500[\u001b[36;1;4m/tmp/modelica-eskf-theory/raw-before-source/Estimation/StrapdownINS/ESKF/predict.mo:36:44\u001b[0m]\n \u001b[2m35\u001b[0m \u2502   A := continuousTransition(correctedAngularVelocity, correctedSpecificForce);\n \u001b[2m36\u001b[0m \u2502   predicted := predictCovariance(previous, transition, A, processNoise, dt);\n    \u00b7 \u001b[31;1m                                           \u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u001b[0m\n    \u00b7                                                 \u001b[31;1m\u2570\u2500\u2500 \u001b[31;1minvalid DAE operation\u001b[0m\u001b[0m\n \u001b[2m37\u001b[0m \u2502   predicted := State(\n    \u2570\u2500\u2500\u2500\u2500\n\u001b[36m  help: \u001b[0mthe checked DAE constructor rejected this operation at its semantic\n        owner\n\nTraceback (most recent call last):\n  File \"<stdin>\", line 10, in <module>\n  File \"/nix/store/gjvxjlip4f1rc89vrizki47qbfa46r5m-python3-3.12.13-env/lib/python3.12/subprocess.py\", line 571, in run\n    raise CalledProcessError(retcode, process.args,\nsubprocess.CalledProcessError: Command '['/nix/store/gshrjiwc2s5mdv8p875h9as7qxid94hd-rumoca-0.10.2/bin/rumoca', 'compile', 'Tests/RawPredictionReplay.mo', '--model', 'Tests.RawPredictionReplay', '--source-root', '/tmp/modelica-eskf-theory/raw-before-source', '--target', 'galec-production', '--output', '/tmp/modelica-eskf-theory/raw-before-probe', '--cache-dir', '/tmp/modelica-release-ports/cache/rumoca']' returned non-zero exit status 1.\n",
+  "numerical_before_fix_evidence": "estimator-theory-raw-prediction-before.txt (OpenModelica)",
+  "after_fix_cases": 640
+}

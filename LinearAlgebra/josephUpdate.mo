@@ -8,6 +8,6 @@ function josephUpdate "Dimension-generic Joseph-form covariance correction"
     "Measurement covariance";
   output Real covarianceNext[size(factor, 1), size(factor, 1)];
 algorithm
-  covarianceNext := factor * covariance * transpose(factor)
-    + gain * measurementNoise * transpose(gain);
+  covarianceNext := transformCovariance(factor, covariance)
+    + transformCovariance(gain, measurementNoise);
 end josephUpdate;

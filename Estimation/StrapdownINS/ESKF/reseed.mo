@@ -14,6 +14,7 @@ function reseed
   output State reseededState;
 protected
   Covariance restored;
+  Covariance root;
 algorithm
   // Zero the position and velocity rows and columns entirely, then rebuild
   // their diagonal at the initial variances. This restores the two blocks and
@@ -30,5 +31,16 @@ algorithm
     quaternionWorldBody=predicted.quaternionWorldBody,
     gyroscopeBiasBodyFlu_rad_s=predicted.gyroscopeBiasBodyFlu_rad_s,
     accelerometerBiasBodyFlu_m_s2=predicted.accelerometerBiasBodyFlu_m_s2,
-    covariance=restored);
+    covariance=restored,
+    covarianceRoot=predicted.covarianceRoot,
+    useSquareRootCovariance=predicted.useSquareRootCovariance);
+  if predicted.useSquareRootCovariance then
+    root := diagonal(cat(1,
+      {sqrt(initialVariances.position_m2[axis]) for axis in 1:3},
+      {sqrt(initialVariances.velocity_m2_s2[axis]) for axis in 1:3},
+      zeros(TangentLength - 6)));
+    root[7:TangentLength, 7:TangentLength] := LinearAlgebra.covarianceRoot(
+      predicted.covarianceRoot[7:TangentLength, :]);
+    reseededState := withCovarianceRoot(reseededState, root);
+  end if;
 end reseed;

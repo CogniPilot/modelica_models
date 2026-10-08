@@ -7,6 +7,7 @@ BarometerMeasurementLength
 OpticalFlowMeasurementLength
 AidingNoArrival
 AidingQueued
+AidingDeliveredOnArrival
 AidingRefusedLate
 AidingRefusedOverflow
 AidingBeforeHorizon
@@ -25,6 +26,7 @@ retireDelta
 composeRows
 retireRows
 composePose
+predictPose
 foldBuffer
 readRow
 storeRow

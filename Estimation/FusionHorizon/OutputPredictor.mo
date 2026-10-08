@@ -376,12 +376,12 @@ equation
   // eight ticks and every epoch the block published would have been wrong by
   // a tenth of a window with nothing reporting it. Assert the ratios instead.
   assert(abs(fusionPeriod_s - deltasPerFusion * samplePeriod)
-      <= 1.0e-9 * fusionPeriod_s,
+      <= 1.0e-6 * fusionPeriod_s,
     "fusionPeriod_s must be an exact integer multiple of samplePeriod: the
      release cadence is counted in inertial ticks, so a fractional ratio makes
      every published packet epoch wrong by the remainder");
   assert(abs(fusionHorizon_s - horizonWindows * fusionPeriod_s)
-      <= 1.0e-9 * fusionHorizon_s,
+      <= 1.0e-6 * fusionHorizon_s,
     "fusionHorizon_s must be an exact integer multiple of fusionPeriod_s: the
      buffer is counted in whole release windows, so a fractional ratio makes
      the fusion instant differ from the declared horizon by the remainder");

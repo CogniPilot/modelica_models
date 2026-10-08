@@ -1,0 +1,1 @@
+Structure check passed: 1392 modules; all proofs exported by GNC; core has no application imports; local Markdown links resolve.

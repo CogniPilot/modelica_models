@@ -50,7 +50,8 @@ algorithm
         quaternionWorldBody = quaternion,
         gyroscopeBiasBodyFlu_rad_s = gyroscopeBias,
         accelerometerBiasBodyFlu_m_s2 = accelerometerBias,
-        covariance = zeros(15, 15)),
+        covariance = zeros(15, 15),
+        useSquareRootCovariance=false, covarianceRoot=zeros(15, 15)),
       angularVelocity, specificForce, gravity, age_s);
     difference := Tests.RuleChecks.fdRetrodictJacobian(
       Estimation.StrapdownINS.ESKF.State(
@@ -59,7 +60,8 @@ algorithm
         quaternionWorldBody = quaternion,
         gyroscopeBiasBodyFlu_rad_s = gyroscopeBias,
         accelerometerBiasBodyFlu_m_s2 = accelerometerBias,
-        covariance = zeros(15, 15)),
+        covariance = zeros(15, 15),
+        useSquareRootCovariance=false, covarianceRoot=zeros(15, 15)),
       angularVelocity, specificForce, gravity, age_s, step);
     constructed := Estimation.StrapdownINS.ESKF.discreteTransition(
       Estimation.StrapdownINS.ESKF.continuousTransition(

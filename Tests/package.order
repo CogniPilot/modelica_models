@@ -15,9 +15,18 @@ StrapdownPreintegrationTests
 StrapdownPreintegrationJacobianTests
 PreintegrationHoldStudy
 PreintegrationReplay
+PreintegrationNoiseReplay
+CovarianceRootReplay
+RawPredictionReplay
+CovarianceRootTests
 RotorVibrationHoverStudy
 OpticalFlowPlaneTests
 SensorCorrectionTests
+HeadingConsiderTests
+MagneticVectorTests
+AlignmentCovarianceTests
+MultisensorAidingTests
+StationaryAidingTests
 StrapdownEstimatorInterfaceTests
 HorizonPredictorTests
 HorizonInterfaceTests
@@ -41,3 +50,7 @@ MultirotorInnerLoopTests
 Cubs2EstimatorTests
 DynamicsTests
 All
+AidingQueueTests
+SemiDirectBiasReplay
+SemiDirectBiasCorrectionReplay
+SquareRootCorrectionReplay

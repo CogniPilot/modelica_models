@@ -1,0 +1,1456 @@
+{
+  "seed": 20271008,
+  "cases": [
+    {
+      "label": "zero",
+      "full_rank": false,
+      "normalized_covariance_error": 0.0,
+      "normalized_root_error": 0.0,
+      "worst_relative_nees_error": null
+    },
+    {
+      "label": "negative diagonal",
+      "full_rank": true,
+      "normalized_covariance_error": 0.0,
+      "normalized_root_error": 0.0,
+      "worst_relative_nees_error": 0.0
+    },
+    {
+      "label": "rank one",
+      "full_rank": false,
+      "normalized_covariance_error": 0.0,
+      "normalized_root_error": 0.0,
+      "worst_relative_nees_error": null
+    },
+    {
+      "label": "anisotropic 0",
+      "full_rank": true,
+      "normalized_covariance_error": 6.81270158996239e-07,
+      "normalized_root_error": 3.3085569118885126e-07,
+      "worst_relative_nees_error": 1.2704248308903487e-06
+    },
+    {
+      "label": "anisotropic 1",
+      "full_rank": true,
+      "normalized_covariance_error": 5.034031816138378e-07,
+      "normalized_root_error": 2.457757175782349e-07,
+      "worst_relative_nees_error": 7.521370180008091e-07
+    },
+    {
+      "label": "anisotropic 2",
+      "full_rank": true,
+      "normalized_covariance_error": 2.8563672970747305e-07,
+      "normalized_root_error": 1.9468716696576033e-07,
+      "worst_relative_nees_error": 6.593802703847018e-07
+    },
+    {
+      "label": "anisotropic 3",
+      "full_rank": true,
+      "normalized_covariance_error": 7.151210432668929e-07,
+      "normalized_root_error": 3.096107145642208e-07,
+      "worst_relative_nees_error": 8.7773591261886e-07
+    },
+    {
+      "label": "anisotropic 4",
+      "full_rank": true,
+      "normalized_covariance_error": 5.537364667138002e-07,
+      "normalized_root_error": 3.683982992037506e-07,
+      "worst_relative_nees_error": 1.6529404551768323e-06
+    },
+    {
+      "label": "anisotropic 5",
+      "full_rank": true,
+      "normalized_covariance_error": 3.163310131766421e-07,
+      "normalized_root_error": 1.8990947906142958e-07,
+      "worst_relative_nees_error": 1.3097243031223726e-06
+    },
+    {
+      "label": "anisotropic 6",
+      "full_rank": true,
+      "normalized_covariance_error": 6.668921436636245e-07,
+      "normalized_root_error": 3.2436760326398446e-07,
+      "worst_relative_nees_error": 1.117120937310645e-06
+    },
+    {
+      "label": "anisotropic 7",
+      "full_rank": true,
+      "normalized_covariance_error": 7.459919421280864e-07,
+      "normalized_root_error": 3.846519357980529e-07,
+      "worst_relative_nees_error": 1.0011401352372218e-06
+    },
+    {
+      "label": "anisotropic 8",
+      "full_rank": true,
+      "normalized_covariance_error": 5.711588570329058e-07,
+      "normalized_root_error": 2.8649871800663e-07,
+      "worst_relative_nees_error": 8.947549809956712e-07
+    },
+    {
+      "label": "anisotropic 9",
+      "full_rank": true,
+      "normalized_covariance_error": 3.7243033406781076e-07,
+      "normalized_root_error": 1.8576376438927634e-07,
+      "worst_relative_nees_error": 9.621817366189944e-07
+    },
+    {
+      "label": "anisotropic 10",
+      "full_rank": true,
+      "normalized_covariance_error": 6.907976388312984e-07,
+      "normalized_root_error": 3.664068977085898e-07,
+      "worst_relative_nees_error": 1.273226033715602e-06
+    },
+    {
+      "label": "anisotropic 11",
+      "full_rank": true,
+      "normalized_covariance_error": 4.996137030010858e-07,
+      "normalized_root_error": 3.093723540791991e-07,
+      "worst_relative_nees_error": 1.2231373567317405e-06
+    },
+    {
+      "label": "anisotropic 12",
+      "full_rank": true,
+      "normalized_covariance_error": 6.889633223398217e-07,
+      "normalized_root_error": 2.6482573546537166e-07,
+      "worst_relative_nees_error": 1.3989413208959078e-06
+    },
+    {
+      "label": "anisotropic 13",
+      "full_rank": true,
+      "normalized_covariance_error": 6.655804402255514e-07,
+      "normalized_root_error": 3.853005585789552e-07,
+      "worst_relative_nees_error": 1.3017342261889553e-06
+    },
+    {
+      "label": "anisotropic 14",
+      "full_rank": true,
+      "normalized_covariance_error": 5.266870218484852e-07,
+      "normalized_root_error": 2.771168243299886e-07,
+      "worst_relative_nees_error": 8.947915779433657e-07
+    },
+    {
+      "label": "anisotropic 15",
+      "full_rank": true,
+      "normalized_covariance_error": 3.702883010240189e-07,
+      "normalized_root_error": 2.3131020563272297e-07,
+      "worst_relative_nees_error": 1.0094022586670803e-06
+    },
+    {
+      "label": "anisotropic 16",
+      "full_rank": true,
+      "normalized_covariance_error": 3.9843571000021754e-07,
+      "normalized_root_error": 1.7725283671993734e-07,
+      "worst_relative_nees_error": 8.316746595848912e-07
+    },
+    {
+      "label": "anisotropic 17",
+      "full_rank": true,
+      "normalized_covariance_error": 3.558688590213467e-07,
+      "normalized_root_error": 1.8966335977752762e-07,
+      "worst_relative_nees_error": 8.284437317263027e-07
+    },
+    {
+      "label": "anisotropic 18",
+      "full_rank": true,
+      "normalized_covariance_error": 5.393787012930307e-07,
+      "normalized_root_error": 2.6968938704560195e-07,
+      "worst_relative_nees_error": 1.3764400790261533e-06
+    },
+    {
+      "label": "anisotropic 19",
+      "full_rank": true,
+      "normalized_covariance_error": 4.6816505510827887e-07,
+      "normalized_root_error": 2.668046639718366e-07,
+      "worst_relative_nees_error": 7.761279601226079e-07
+    },
+    {
+      "label": "anisotropic 20",
+      "full_rank": true,
+      "normalized_covariance_error": 4.6558713465477845e-07,
+      "normalized_root_error": 2.695287553458887e-07,
+      "worst_relative_nees_error": 9.074075142390114e-07
+    },
+    {
+      "label": "anisotropic 21",
+      "full_rank": true,
+      "normalized_covariance_error": 3.384218654031312e-07,
+      "normalized_root_error": 2.0275889581639644e-07,
+      "worst_relative_nees_error": 7.643848602967296e-07
+    },
+    {
+      "label": "anisotropic 22",
+      "full_rank": true,
+      "normalized_covariance_error": 7.297396434748351e-07,
+      "normalized_root_error": 3.6284287865255794e-07,
+      "worst_relative_nees_error": 1.0184820888881063e-06
+    },
+    {
+      "label": "anisotropic 23",
+      "full_rank": true,
+      "normalized_covariance_error": 5.5040005027394e-07,
+      "normalized_root_error": 2.7011981865929303e-07,
+      "worst_relative_nees_error": 7.572772489083945e-07
+    },
+    {
+      "label": "anisotropic 24",
+      "full_rank": true,
+      "normalized_covariance_error": 6.199730605368693e-07,
+      "normalized_root_error": 3.104935002982391e-07,
+      "worst_relative_nees_error": 1.0870857327649475e-06
+    },
+    {
+      "label": "anisotropic 25",
+      "full_rank": true,
+      "normalized_covariance_error": 4.702095993658851e-07,
+      "normalized_root_error": 2.0864865597455704e-07,
+      "worst_relative_nees_error": 7.907130219475533e-07
+    },
+    {
+      "label": "anisotropic 26",
+      "full_rank": true,
+      "normalized_covariance_error": 5.365196882873841e-07,
+      "normalized_root_error": 2.4658147806950825e-07,
+      "worst_relative_nees_error": 1.1467679920107443e-06
+    },
+    {
+      "label": "anisotropic 27",
+      "full_rank": true,
+      "normalized_covariance_error": 5.00089876361688e-07,
+      "normalized_root_error": 2.556451554273782e-07,
+      "worst_relative_nees_error": 1.0706673629901076e-06
+    },
+    {
+      "label": "anisotropic 28",
+      "full_rank": true,
+      "normalized_covariance_error": 3.1006696711897274e-07,
+      "normalized_root_error": 1.881798986807099e-07,
+      "worst_relative_nees_error": 6.804021632778046e-07
+    },
+    {
+      "label": "anisotropic 29",
+      "full_rank": true,
+      "normalized_covariance_error": 5.173182648931334e-07,
+      "normalized_root_error": 2.704091262194552e-07,
+      "worst_relative_nees_error": 7.729853084281757e-07
+    },
+    {
+      "label": "anisotropic 30",
+      "full_rank": true,
+      "normalized_covariance_error": 3.96837121729774e-07,
+      "normalized_root_error": 2.2810475784475772e-07,
+      "worst_relative_nees_error": 7.299674902316866e-07
+    },
+    {
+      "label": "anisotropic 31",
+      "full_rank": true,
+      "normalized_covariance_error": 5.526385265823069e-07,
+      "normalized_root_error": 2.763192251092778e-07,
+      "worst_relative_nees_error": 8.824909485394272e-07
+    },
+    {
+      "label": "anisotropic 32",
+      "full_rank": true,
+      "normalized_covariance_error": 3.679630862357758e-07,
+      "normalized_root_error": 1.988192645125239e-07,
+      "worst_relative_nees_error": 9.880758702340842e-07
+    },
+    {
+      "label": "anisotropic 33",
+      "full_rank": true,
+      "normalized_covariance_error": 5.820426766155002e-07,
+      "normalized_root_error": 2.9933543131194553e-07,
+      "worst_relative_nees_error": 1.2314651727241e-06
+    },
+    {
+      "label": "anisotropic 34",
+      "full_rank": true,
+      "normalized_covariance_error": 2.8890711848197206e-07,
+      "normalized_root_error": 1.7812379381049097e-07,
+      "worst_relative_nees_error": 9.829803380156932e-07
+    },
+    {
+      "label": "anisotropic 35",
+      "full_rank": true,
+      "normalized_covariance_error": 4.7106415697144575e-07,
+      "normalized_root_error": 3.198947273623546e-07,
+      "worst_relative_nees_error": 1.181764760271875e-06
+    },
+    {
+      "label": "anisotropic 36",
+      "full_rank": true,
+      "normalized_covariance_error": 5.210207158984826e-07,
+      "normalized_root_error": 2.6051039188242223e-07,
+      "worst_relative_nees_error": 8.854417768988654e-07
+    },
+    {
+      "label": "anisotropic 37",
+      "full_rank": true,
+      "normalized_covariance_error": 4.779727767508966e-07,
+      "normalized_root_error": 3.1469043172757345e-07,
+      "worst_relative_nees_error": 1.007676874498209e-06
+    },
+    {
+      "label": "anisotropic 38",
+      "full_rank": true,
+      "normalized_covariance_error": 3.708616204566068e-07,
+      "normalized_root_error": 2.1428666152566969e-07,
+      "worst_relative_nees_error": 8.664425574789192e-07
+    },
+    {
+      "label": "anisotropic 39",
+      "full_rank": true,
+      "normalized_covariance_error": 5.59020996442621e-07,
+      "normalized_root_error": 2.928924332631707e-07,
+      "worst_relative_nees_error": 9.783987064970745e-07
+    },
+    {
+      "label": "anisotropic 40",
+      "full_rank": true,
+      "normalized_covariance_error": 6.827385154577948e-07,
+      "normalized_root_error": 3.5530348617059906e-07,
+      "worst_relative_nees_error": 8.841045402441239e-07
+    },
+    {
+      "label": "anisotropic 41",
+      "full_rank": true,
+      "normalized_covariance_error": 5.966381570704296e-07,
+      "normalized_root_error": 3.073953428708628e-07,
+      "worst_relative_nees_error": 9.415298243276027e-07
+    },
+    {
+      "label": "anisotropic 42",
+      "full_rank": true,
+      "normalized_covariance_error": 5.828343493891786e-07,
+      "normalized_root_error": 2.5092847746276064e-07,
+      "worst_relative_nees_error": 1.0806230492654834e-06
+    },
+    {
+      "label": "anisotropic 43",
+      "full_rank": true,
+      "normalized_covariance_error": 3.4963124144299605e-07,
+      "normalized_root_error": 1.9372087580492065e-07,
+      "worst_relative_nees_error": 8.550035868193362e-07
+    },
+    {
+      "label": "anisotropic 44",
+      "full_rank": true,
+      "normalized_covariance_error": 3.841564314870139e-07,
+      "normalized_root_error": 2.02312034999521e-07,
+      "worst_relative_nees_error": 8.875360451021663e-07
+    },
+    {
+      "label": "anisotropic 45",
+      "full_rank": true,
+      "normalized_covariance_error": 6.446611219682482e-07,
+      "normalized_root_error": 3.2611836870196015e-07,
+      "worst_relative_nees_error": 8.93879897101435e-07
+    },
+    {
+      "label": "anisotropic 46",
+      "full_rank": true,
+      "normalized_covariance_error": 7.712307330548045e-07,
+      "normalized_root_error": 3.169900887023022e-07,
+      "worst_relative_nees_error": 1.306500531761401e-06
+    },
+    {
+      "label": "anisotropic 47",
+      "full_rank": true,
+      "normalized_covariance_error": 4.4364597708166324e-07,
+      "normalized_root_error": 2.1690535414186013e-07,
+      "worst_relative_nees_error": 7.710281760830995e-07
+    },
+    {
+      "label": "anisotropic 48",
+      "full_rank": true,
+      "normalized_covariance_error": 6.985050371252569e-07,
+      "normalized_root_error": 3.4833377288109846e-07,
+      "worst_relative_nees_error": 9.853933382597546e-07
+    },
+    {
+      "label": "anisotropic 49",
+      "full_rank": true,
+      "normalized_covariance_error": 3.148858913629681e-07,
+      "normalized_root_error": 1.556286979967703e-07,
+      "worst_relative_nees_error": 9.174926265398398e-07
+    },
+    {
+      "label": "anisotropic 50",
+      "full_rank": true,
+      "normalized_covariance_error": 2.921747005934236e-07,
+      "normalized_root_error": 1.9901663087273663e-07,
+      "worst_relative_nees_error": 7.731259412668834e-07
+    },
+    {
+      "label": "anisotropic 51",
+      "full_rank": true,
+      "normalized_covariance_error": 4.035611832913093e-07,
+      "normalized_root_error": 1.975943370737945e-07,
+      "worst_relative_nees_error": 8.741329552419685e-07
+    },
+    {
+      "label": "anisotropic 52",
+      "full_rank": true,
+      "normalized_covariance_error": 5.156140224602121e-07,
+      "normalized_root_error": 2.773785039942199e-07,
+      "worst_relative_nees_error": 9.686966240263217e-07
+    },
+    {
+      "label": "anisotropic 53",
+      "full_rank": true,
+      "normalized_covariance_error": 6.443744233255523e-07,
+      "normalized_root_error": 3.389595734783363e-07,
+      "worst_relative_nees_error": 1.014829101086967e-06
+    },
+    {
+      "label": "anisotropic 54",
+      "full_rank": true,
+      "normalized_covariance_error": 3.9889602287817245e-07,
+      "normalized_root_error": 1.9354791199854324e-07,
+      "worst_relative_nees_error": 8.254841257215872e-07
+    },
+    {
+      "label": "anisotropic 55",
+      "full_rank": true,
+      "normalized_covariance_error": 4.3503277082688726e-07,
+      "normalized_root_error": 2.2815196934879542e-07,
+      "worst_relative_nees_error": 8.58317153906718e-07
+    },
+    {
+      "label": "anisotropic 56",
+      "full_rank": true,
+      "normalized_covariance_error": 4.753150481002117e-07,
+      "normalized_root_error": 2.3765749583829333e-07,
+      "worst_relative_nees_error": 7.237711865393237e-07
+    },
+    {
+      "label": "anisotropic 57",
+      "full_rank": true,
+      "normalized_covariance_error": 4.6914879186954486e-07,
+      "normalized_root_error": 2.1481340845001206e-07,
+      "worst_relative_nees_error": 6.714572360344562e-07
+    },
+    {
+      "label": "anisotropic 58",
+      "full_rank": true,
+      "normalized_covariance_error": 5.532229908362296e-07,
+      "normalized_root_error": 2.3332873863589126e-07,
+      "worst_relative_nees_error": 8.384312459863708e-07
+    },
+    {
+      "label": "anisotropic 59",
+      "full_rank": true,
+      "normalized_covariance_error": 7.359333053061331e-07,
+      "normalized_root_error": 3.633278290102017e-07,
+      "worst_relative_nees_error": 1.0604983349260522e-06
+    },
+    {
+      "label": "anisotropic 60",
+      "full_rank": true,
+      "normalized_covariance_error": 3.5354466074123143e-07,
+      "normalized_root_error": 1.767723460638259e-07,
+      "worst_relative_nees_error": 8.724341171717498e-07
+    },
+    {
+      "label": "anisotropic 61",
+      "full_rank": true,
+      "normalized_covariance_error": 3.4369763251949116e-07,
+      "normalized_root_error": 1.832652018166214e-07,
+      "worst_relative_nees_error": 7.163437665269612e-07
+    },
+    {
+      "label": "anisotropic 62",
+      "full_rank": true,
+      "normalized_covariance_error": 5.191726550726474e-07,
+      "normalized_root_error": 2.604079664459213e-07,
+      "worst_relative_nees_error": 9.994015426340042e-07
+    },
+    {
+      "label": "anisotropic 63",
+      "full_rank": true,
+      "normalized_covariance_error": 5.880045496666697e-07,
+      "normalized_root_error": 2.940022316266374e-07,
+      "worst_relative_nees_error": 8.780485185599929e-07
+    },
+    {
+      "label": "anisotropic 64",
+      "full_rank": true,
+      "normalized_covariance_error": 5.183413521409591e-07,
+      "normalized_root_error": 2.6388910766634415e-07,
+      "worst_relative_nees_error": 1.0244318149332798e-06
+    },
+    {
+      "label": "anisotropic 65",
+      "full_rank": true,
+      "normalized_covariance_error": 5.722058051288602e-07,
+      "normalized_root_error": 2.94007240577138e-07,
+      "worst_relative_nees_error": 1.1720469147435963e-06
+    },
+    {
+      "label": "anisotropic 66",
+      "full_rank": true,
+      "normalized_covariance_error": 4.41448999378618e-07,
+      "normalized_root_error": 2.2168651963683343e-07,
+      "worst_relative_nees_error": 9.69385846039117e-07
+    },
+    {
+      "label": "anisotropic 67",
+      "full_rank": true,
+      "normalized_covariance_error": 8.535635825859952e-07,
+      "normalized_root_error": 4.255126285319507e-07,
+      "worst_relative_nees_error": 1.2063695297159782e-06
+    },
+    {
+      "label": "anisotropic 68",
+      "full_rank": true,
+      "normalized_covariance_error": 4.345392559411073e-07,
+      "normalized_root_error": 2.7743733416919784e-07,
+      "worst_relative_nees_error": 9.242441687540293e-07
+    },
+    {
+      "label": "anisotropic 69",
+      "full_rank": true,
+      "normalized_covariance_error": 4.5270551062733335e-07,
+      "normalized_root_error": 2.5549438245709385e-07,
+      "worst_relative_nees_error": 1.0938757071254912e-06
+    },
+    {
+      "label": "anisotropic 70",
+      "full_rank": true,
+      "normalized_covariance_error": 4.020439454216572e-07,
+      "normalized_root_error": 2.2155710471967372e-07,
+      "worst_relative_nees_error": 6.508717944608833e-07
+    },
+    {
+      "label": "anisotropic 71",
+      "full_rank": true,
+      "normalized_covariance_error": 4.4320622618539426e-07,
+      "normalized_root_error": 2.224132057478148e-07,
+      "worst_relative_nees_error": 1.1102431480836117e-06
+    },
+    {
+      "label": "anisotropic 72",
+      "full_rank": true,
+      "normalized_covariance_error": 3.96626618800832e-07,
+      "normalized_root_error": 1.9864788898676573e-07,
+      "worst_relative_nees_error": 8.723243691832749e-07
+    },
+    {
+      "label": "anisotropic 73",
+      "full_rank": true,
+      "normalized_covariance_error": 4.3697241349948743e-07,
+      "normalized_root_error": 2.1673469071620723e-07,
+      "worst_relative_nees_error": 8.907352443410232e-07
+    },
+    {
+      "label": "anisotropic 74",
+      "full_rank": true,
+      "normalized_covariance_error": 5.362762758106125e-07,
+      "normalized_root_error": 2.7874085636515585e-07,
+      "worst_relative_nees_error": 8.529903940956984e-07
+    },
+    {
+      "label": "anisotropic 75",
+      "full_rank": true,
+      "normalized_covariance_error": 4.226557048666858e-07,
+      "normalized_root_error": 2.1634468449674188e-07,
+      "worst_relative_nees_error": 8.482979612089991e-07
+    },
+    {
+      "label": "anisotropic 76",
+      "full_rank": true,
+      "normalized_covariance_error": 7.4762793436489e-07,
+      "normalized_root_error": 3.766293786448351e-07,
+      "worst_relative_nees_error": 9.648823953156693e-07
+    },
+    {
+      "label": "anisotropic 77",
+      "full_rank": true,
+      "normalized_covariance_error": 3.8033732805798716e-07,
+      "normalized_root_error": 1.921430102015367e-07,
+      "worst_relative_nees_error": 8.070884087718611e-07
+    },
+    {
+      "label": "anisotropic 78",
+      "full_rank": true,
+      "normalized_covariance_error": 5.4653873675335e-07,
+      "normalized_root_error": 2.820433708911593e-07,
+      "worst_relative_nees_error": 1.0117367059692128e-06
+    },
+    {
+      "label": "anisotropic 79",
+      "full_rank": true,
+      "normalized_covariance_error": 5.347650661734555e-07,
+      "normalized_root_error": 2.7091279073967506e-07,
+      "worst_relative_nees_error": 7.998439470746632e-07
+    },
+    {
+      "label": "anisotropic 80",
+      "full_rank": true,
+      "normalized_covariance_error": 5.371439403778267e-07,
+      "normalized_root_error": 2.704079161132636e-07,
+      "worst_relative_nees_error": 8.109290137170433e-07
+    },
+    {
+      "label": "anisotropic 81",
+      "full_rank": true,
+      "normalized_covariance_error": 5.404778125034515e-07,
+      "normalized_root_error": 2.8780586940443555e-07,
+      "worst_relative_nees_error": 8.85835435004978e-07
+    },
+    {
+      "label": "anisotropic 82",
+      "full_rank": true,
+      "normalized_covariance_error": 4.624970241874606e-07,
+      "normalized_root_error": 2.3310558551405471e-07,
+      "worst_relative_nees_error": 8.455337030532917e-07
+    },
+    {
+      "label": "anisotropic 83",
+      "full_rank": true,
+      "normalized_covariance_error": 6.326876817910231e-07,
+      "normalized_root_error": 3.152888454659225e-07,
+      "worst_relative_nees_error": 1.250470067604148e-06
+    },
+    {
+      "label": "anisotropic 84",
+      "full_rank": true,
+      "normalized_covariance_error": 6.584142365745201e-07,
+      "normalized_root_error": 3.2920706407343036e-07,
+      "worst_relative_nees_error": 9.239682972062013e-07
+    },
+    {
+      "label": "anisotropic 85",
+      "full_rank": true,
+      "normalized_covariance_error": 4.649733157617425e-07,
+      "normalized_root_error": 2.3693175181735322e-07,
+      "worst_relative_nees_error": 9.631147294131281e-07
+    },
+    {
+      "label": "anisotropic 86",
+      "full_rank": true,
+      "normalized_covariance_error": 7.189458478579999e-07,
+      "normalized_root_error": 3.620092614053314e-07,
+      "worst_relative_nees_error": 1.2648404597026541e-06
+    },
+    {
+      "label": "anisotropic 87",
+      "full_rank": true,
+      "normalized_covariance_error": 7.073027191497091e-07,
+      "normalized_root_error": 3.7004899488223094e-07,
+      "worst_relative_nees_error": 9.804943420510526e-07
+    },
+    {
+      "label": "anisotropic 88",
+      "full_rank": true,
+      "normalized_covariance_error": 5.830313232201834e-07,
+      "normalized_root_error": 2.9151570398307807e-07,
+      "worst_relative_nees_error": 1.057856795050327e-06
+    },
+    {
+      "label": "anisotropic 89",
+      "full_rank": true,
+      "normalized_covariance_error": 5.432997229780305e-07,
+      "normalized_root_error": 2.967697034145019e-07,
+      "worst_relative_nees_error": 1.0504599710081663e-06
+    },
+    {
+      "label": "anisotropic 90",
+      "full_rank": true,
+      "normalized_covariance_error": 3.726589190585116e-07,
+      "normalized_root_error": 1.7819016929276051e-07,
+      "worst_relative_nees_error": 6.596247157375501e-07
+    },
+    {
+      "label": "anisotropic 91",
+      "full_rank": true,
+      "normalized_covariance_error": 3.7576129615445457e-07,
+      "normalized_root_error": 2.4845768272223614e-07,
+      "worst_relative_nees_error": 9.140089705095278e-07
+    },
+    {
+      "label": "anisotropic 92",
+      "full_rank": true,
+      "normalized_covariance_error": 6.862196128008237e-07,
+      "normalized_root_error": 3.437724649418339e-07,
+      "worst_relative_nees_error": 9.756716550235467e-07
+    },
+    {
+      "label": "anisotropic 93",
+      "full_rank": true,
+      "normalized_covariance_error": 3.71906127671737e-07,
+      "normalized_root_error": 2.6698365042573737e-07,
+      "worst_relative_nees_error": 7.303808590153338e-07
+    },
+    {
+      "label": "anisotropic 94",
+      "full_rank": true,
+      "normalized_covariance_error": 6.244011996073606e-07,
+      "normalized_root_error": 3.460344199932126e-07,
+      "worst_relative_nees_error": 1.2566726912410786e-06
+    },
+    {
+      "label": "anisotropic 95",
+      "full_rank": true,
+      "normalized_covariance_error": 9.327413060685742e-07,
+      "normalized_root_error": 4.5805959741569204e-07,
+      "worst_relative_nees_error": 1.0371110479301393e-06
+    },
+    {
+      "label": "anisotropic 96",
+      "full_rank": true,
+      "normalized_covariance_error": 4.584065306858361e-07,
+      "normalized_root_error": 2.717800105582043e-07,
+      "worst_relative_nees_error": 9.496926774987813e-07
+    },
+    {
+      "label": "anisotropic 97",
+      "full_rank": true,
+      "normalized_covariance_error": 6.56275384694437e-07,
+      "normalized_root_error": 3.2115744784559823e-07,
+      "worst_relative_nees_error": 1.0102903660325069e-06
+    },
+    {
+      "label": "anisotropic 98",
+      "full_rank": true,
+      "normalized_covariance_error": 6.073937293580647e-07,
+      "normalized_root_error": 3.0018254277285757e-07,
+      "worst_relative_nees_error": 1.046068163201852e-06
+    },
+    {
+      "label": "anisotropic 99",
+      "full_rank": true,
+      "normalized_covariance_error": 4.4457836003026037e-07,
+      "normalized_root_error": 2.3258416753758204e-07,
+      "worst_relative_nees_error": 7.327293372050292e-07
+    },
+    {
+      "label": "anisotropic 100",
+      "full_rank": true,
+      "normalized_covariance_error": 4.791290804555827e-07,
+      "normalized_root_error": 3.0263201595870795e-07,
+      "worst_relative_nees_error": 1.4405729255040356e-06
+    },
+    {
+      "label": "anisotropic 101",
+      "full_rank": true,
+      "normalized_covariance_error": 2.709911413029007e-07,
+      "normalized_root_error": 2.199701109322312e-07,
+      "worst_relative_nees_error": 9.020346509736044e-07
+    },
+    {
+      "label": "anisotropic 102",
+      "full_rank": true,
+      "normalized_covariance_error": 4.0973315483724523e-07,
+      "normalized_root_error": 2.4823195598106563e-07,
+      "worst_relative_nees_error": 8.115158772747932e-07
+    },
+    {
+      "label": "anisotropic 103",
+      "full_rank": true,
+      "normalized_covariance_error": 4.5793177716055876e-07,
+      "normalized_root_error": 3.0662193736604604e-07,
+      "worst_relative_nees_error": 1.2240540916419462e-06
+    },
+    {
+      "label": "anisotropic 104",
+      "full_rank": true,
+      "normalized_covariance_error": 3.8194895473475976e-07,
+      "normalized_root_error": 2.8196859837075206e-07,
+      "worst_relative_nees_error": 8.173907448671969e-07
+    },
+    {
+      "label": "anisotropic 105",
+      "full_rank": true,
+      "normalized_covariance_error": 3.7531665197043895e-07,
+      "normalized_root_error": 1.5463220365227622e-07,
+      "worst_relative_nees_error": 6.025474703630351e-07
+    },
+    {
+      "label": "anisotropic 106",
+      "full_rank": true,
+      "normalized_covariance_error": 2.60241951918158e-07,
+      "normalized_root_error": 2.0188653650047487e-07,
+      "worst_relative_nees_error": 6.27107073158939e-07
+    },
+    {
+      "label": "anisotropic 107",
+      "full_rank": true,
+      "normalized_covariance_error": 4.401388292296938e-07,
+      "normalized_root_error": 2.4818147090694584e-07,
+      "worst_relative_nees_error": 9.55774392297215e-07
+    },
+    {
+      "label": "anisotropic 108",
+      "full_rank": true,
+      "normalized_covariance_error": 4.740719870838614e-07,
+      "normalized_root_error": 2.2212482834410062e-07,
+      "worst_relative_nees_error": 1.6314124595684376e-06
+    },
+    {
+      "label": "anisotropic 109",
+      "full_rank": true,
+      "normalized_covariance_error": 5.49638031826742e-07,
+      "normalized_root_error": 2.857447171146742e-07,
+      "worst_relative_nees_error": 9.823852861190474e-07
+    },
+    {
+      "label": "anisotropic 110",
+      "full_rank": true,
+      "normalized_covariance_error": 3.6455209216444354e-07,
+      "normalized_root_error": 2.0706254939799588e-07,
+      "worst_relative_nees_error": 8.786930301152296e-07
+    },
+    {
+      "label": "anisotropic 111",
+      "full_rank": true,
+      "normalized_covariance_error": 6.659716957378244e-07,
+      "normalized_root_error": 2.970107593726829e-07,
+      "worst_relative_nees_error": 7.84384777907654e-07
+    },
+    {
+      "label": "anisotropic 112",
+      "full_rank": true,
+      "normalized_covariance_error": 2.1857260378945794e-07,
+      "normalized_root_error": 2.2317301266616505e-07,
+      "worst_relative_nees_error": 5.979442782022559e-07
+    },
+    {
+      "label": "anisotropic 113",
+      "full_rank": true,
+      "normalized_covariance_error": 5.532978139534029e-07,
+      "normalized_root_error": 2.819476549994894e-07,
+      "worst_relative_nees_error": 1.1497755599831905e-06
+    },
+    {
+      "label": "anisotropic 114",
+      "full_rank": true,
+      "normalized_covariance_error": 5.401658028850214e-07,
+      "normalized_root_error": 2.6864647282561945e-07,
+      "worst_relative_nees_error": 7.518285549679149e-07
+    },
+    {
+      "label": "anisotropic 115",
+      "full_rank": true,
+      "normalized_covariance_error": 5.766815157649246e-07,
+      "normalized_root_error": 3.2000447162001517e-07,
+      "worst_relative_nees_error": 1.091357416882488e-06
+    },
+    {
+      "label": "anisotropic 116",
+      "full_rank": true,
+      "normalized_covariance_error": 8.190405435261983e-07,
+      "normalized_root_error": 4.1123017729710005e-07,
+      "worst_relative_nees_error": 1.2287079260708822e-06
+    },
+    {
+      "label": "anisotropic 117",
+      "full_rank": true,
+      "normalized_covariance_error": 3.405525671711538e-07,
+      "normalized_root_error": 2.0481005926891353e-07,
+      "worst_relative_nees_error": 7.839952649302262e-07
+    },
+    {
+      "label": "anisotropic 118",
+      "full_rank": true,
+      "normalized_covariance_error": 4.3595062540766417e-07,
+      "normalized_root_error": 2.2124893989018175e-07,
+      "worst_relative_nees_error": 8.285651547090822e-07
+    },
+    {
+      "label": "anisotropic 119",
+      "full_rank": true,
+      "normalized_covariance_error": 4.4834002371532285e-07,
+      "normalized_root_error": 2.2398988865957484e-07,
+      "worst_relative_nees_error": 5.926538995115749e-07
+    },
+    {
+      "label": "anisotropic 120",
+      "full_rank": true,
+      "normalized_covariance_error": 4.3304554525329204e-07,
+      "normalized_root_error": 2.435061374383904e-07,
+      "worst_relative_nees_error": 1.08173178625659e-06
+    },
+    {
+      "label": "anisotropic 121",
+      "full_rank": true,
+      "normalized_covariance_error": 5.340981574011221e-07,
+      "normalized_root_error": 2.6272142630061056e-07,
+      "worst_relative_nees_error": 9.155512703529212e-07
+    },
+    {
+      "label": "anisotropic 122",
+      "full_rank": true,
+      "normalized_covariance_error": 5.597740437441037e-07,
+      "normalized_root_error": 2.7247009619291735e-07,
+      "worst_relative_nees_error": 1.382405509509077e-06
+    },
+    {
+      "label": "anisotropic 123",
+      "full_rank": true,
+      "normalized_covariance_error": 4.331996315756508e-07,
+      "normalized_root_error": 1.7000304193067555e-07,
+      "worst_relative_nees_error": 7.587195218761167e-07
+    },
+    {
+      "label": "anisotropic 124",
+      "full_rank": true,
+      "normalized_covariance_error": 4.1672933136197276e-07,
+      "normalized_root_error": 2.365217639318954e-07,
+      "worst_relative_nees_error": 7.490086130212958e-07
+    },
+    {
+      "label": "anisotropic 125",
+      "full_rank": true,
+      "normalized_covariance_error": 4.5316251096171106e-07,
+      "normalized_root_error": 2.3272429321480715e-07,
+      "worst_relative_nees_error": 7.038420242189147e-07
+    },
+    {
+      "label": "anisotropic 126",
+      "full_rank": true,
+      "normalized_covariance_error": 6.08261399154376e-07,
+      "normalized_root_error": 3.180340761790075e-07,
+      "worst_relative_nees_error": 9.557554472294782e-07
+    },
+    {
+      "label": "anisotropic 127",
+      "full_rank": true,
+      "normalized_covariance_error": 4.257345926465443e-07,
+      "normalized_root_error": 2.4553456814804013e-07,
+      "worst_relative_nees_error": 9.150486405262725e-07
+    },
+    {
+      "label": "anisotropic 128",
+      "full_rank": true,
+      "normalized_covariance_error": 7.252954172436651e-07,
+      "normalized_root_error": 3.6264764286432243e-07,
+      "worst_relative_nees_error": 9.5841694958132e-07
+    },
+    {
+      "label": "anisotropic 129",
+      "full_rank": true,
+      "normalized_covariance_error": 4.934321062348741e-07,
+      "normalized_root_error": 2.4438829951078104e-07,
+      "worst_relative_nees_error": 1.078085774208759e-06
+    },
+    {
+      "label": "anisotropic 130",
+      "full_rank": true,
+      "normalized_covariance_error": 5.094193248703735e-07,
+      "normalized_root_error": 2.724459519196207e-07,
+      "worst_relative_nees_error": 8.199896825988873e-07
+    },
+    {
+      "label": "anisotropic 131",
+      "full_rank": true,
+      "normalized_covariance_error": 4.3368289821930046e-07,
+      "normalized_root_error": 1.9900754254195316e-07,
+      "worst_relative_nees_error": 1.0651439478204239e-06
+    },
+    {
+      "label": "anisotropic 132",
+      "full_rank": true,
+      "normalized_covariance_error": 7.492046953873612e-07,
+      "normalized_root_error": 3.8800934135154e-07,
+      "worst_relative_nees_error": 1.457875226540395e-06
+    },
+    {
+      "label": "anisotropic 133",
+      "full_rank": true,
+      "normalized_covariance_error": 5.608811965204034e-07,
+      "normalized_root_error": 2.932626329482372e-07,
+      "worst_relative_nees_error": 1.2977693901738974e-06
+    },
+    {
+      "label": "anisotropic 134",
+      "full_rank": true,
+      "normalized_covariance_error": 8.394898538626388e-07,
+      "normalized_root_error": 4.1926883134155737e-07,
+      "worst_relative_nees_error": 1.440148470921443e-06
+    },
+    {
+      "label": "anisotropic 135",
+      "full_rank": true,
+      "normalized_covariance_error": 4.876954782201355e-07,
+      "normalized_root_error": 2.4746716186787287e-07,
+      "worst_relative_nees_error": 9.679282619856622e-07
+    },
+    {
+      "label": "anisotropic 136",
+      "full_rank": true,
+      "normalized_covariance_error": 3.7525718365618683e-07,
+      "normalized_root_error": 2.6712081352850373e-07,
+      "worst_relative_nees_error": 1.1317703394464473e-06
+    },
+    {
+      "label": "anisotropic 137",
+      "full_rank": true,
+      "normalized_covariance_error": 9.715245620482047e-07,
+      "normalized_root_error": 4.857623990399463e-07,
+      "worst_relative_nees_error": 1.7282500752724417e-06
+    },
+    {
+      "label": "anisotropic 138",
+      "full_rank": true,
+      "normalized_covariance_error": 7.305555467034078e-07,
+      "normalized_root_error": 4.0783918980697755e-07,
+      "worst_relative_nees_error": 1.1700938362668722e-06
+    },
+    {
+      "label": "anisotropic 139",
+      "full_rank": true,
+      "normalized_covariance_error": 7.225892641364409e-07,
+      "normalized_root_error": 3.6234444243155065e-07,
+      "worst_relative_nees_error": 1.005864812997359e-06
+    },
+    {
+      "label": "anisotropic 140",
+      "full_rank": true,
+      "normalized_covariance_error": 4.546932001907967e-07,
+      "normalized_root_error": 2.338596566005006e-07,
+      "worst_relative_nees_error": 7.68370603920765e-07
+    },
+    {
+      "label": "anisotropic 141",
+      "full_rank": true,
+      "normalized_covariance_error": 3.271135760014692e-07,
+      "normalized_root_error": 1.9649212495813155e-07,
+      "worst_relative_nees_error": 6.656852382658229e-07
+    },
+    {
+      "label": "anisotropic 142",
+      "full_rank": true,
+      "normalized_covariance_error": 5.769946975787989e-07,
+      "normalized_root_error": 2.905339506300127e-07,
+      "worst_relative_nees_error": 1.146074709135192e-06
+    },
+    {
+      "label": "anisotropic 143",
+      "full_rank": true,
+      "normalized_covariance_error": 4.012816635841354e-07,
+      "normalized_root_error": 2.1956053449752068e-07,
+      "worst_relative_nees_error": 9.618227823082748e-07
+    },
+    {
+      "label": "anisotropic 144",
+      "full_rank": true,
+      "normalized_covariance_error": 5.461960016853956e-07,
+      "normalized_root_error": 2.730980380081806e-07,
+      "worst_relative_nees_error": 8.947757368371612e-07
+    },
+    {
+      "label": "anisotropic 145",
+      "full_rank": true,
+      "normalized_covariance_error": 5.680872826011008e-07,
+      "normalized_root_error": 2.5267739532430063e-07,
+      "worst_relative_nees_error": 8.059017668760049e-07
+    },
+    {
+      "label": "anisotropic 146",
+      "full_rank": true,
+      "normalized_covariance_error": 6.430317117057378e-07,
+      "normalized_root_error": 3.7715856492292054e-07,
+      "worst_relative_nees_error": 9.58210597978848e-07
+    },
+    {
+      "label": "anisotropic 147",
+      "full_rank": true,
+      "normalized_covariance_error": 3.147597404401362e-07,
+      "normalized_root_error": 1.744816779833448e-07,
+      "worst_relative_nees_error": 7.104350312481245e-07
+    },
+    {
+      "label": "anisotropic 148",
+      "full_rank": true,
+      "normalized_covariance_error": 6.074168977904571e-07,
+      "normalized_root_error": 3.037084951618827e-07,
+      "worst_relative_nees_error": 1.133712465017922e-06
+    },
+    {
+      "label": "anisotropic 149",
+      "full_rank": true,
+      "normalized_covariance_error": 5.404185124432536e-07,
+      "normalized_root_error": 2.8307587469049976e-07,
+      "worst_relative_nees_error": 1.0803142207471694e-06
+    },
+    {
+      "label": "anisotropic 150",
+      "full_rank": true,
+      "normalized_covariance_error": 6.306953936252911e-07,
+      "normalized_root_error": 3.338071429940332e-07,
+      "worst_relative_nees_error": 1.6889067612213537e-06
+    },
+    {
+      "label": "anisotropic 151",
+      "full_rank": true,
+      "normalized_covariance_error": 6.127315715651106e-07,
+      "normalized_root_error": 3.0043244120533737e-07,
+      "worst_relative_nees_error": 9.958867467352306e-07
+    },
+    {
+      "label": "anisotropic 152",
+      "full_rank": true,
+      "normalized_covariance_error": 5.693281599336886e-07,
+      "normalized_root_error": 2.866717897142225e-07,
+      "worst_relative_nees_error": 7.952256262377944e-07
+    },
+    {
+      "label": "anisotropic 153",
+      "full_rank": true,
+      "normalized_covariance_error": 5.657367068355364e-07,
+      "normalized_root_error": 2.8578030191172444e-07,
+      "worst_relative_nees_error": 1.0700234338578696e-06
+    },
+    {
+      "label": "anisotropic 154",
+      "full_rank": true,
+      "normalized_covariance_error": 5.617212503842621e-07,
+      "normalized_root_error": 2.675174382088276e-07,
+      "worst_relative_nees_error": 9.370522392471159e-07
+    },
+    {
+      "label": "anisotropic 155",
+      "full_rank": true,
+      "normalized_covariance_error": 4.7398798431523683e-07,
+      "normalized_root_error": 2.4656264267724636e-07,
+      "worst_relative_nees_error": 8.921944125717118e-07
+    },
+    {
+      "label": "anisotropic 156",
+      "full_rank": true,
+      "normalized_covariance_error": 4.989830375705613e-07,
+      "normalized_root_error": 2.6229835664474023e-07,
+      "worst_relative_nees_error": 9.362770834187017e-07
+    },
+    {
+      "label": "anisotropic 157",
+      "full_rank": true,
+      "normalized_covariance_error": 4.786461495317229e-07,
+      "normalized_root_error": 3.1190139225501563e-07,
+      "worst_relative_nees_error": 9.69497327751867e-07
+    },
+    {
+      "label": "anisotropic 158",
+      "full_rank": true,
+      "normalized_covariance_error": 7.11163924275838e-07,
+      "normalized_root_error": 3.6826056885117466e-07,
+      "worst_relative_nees_error": 1.8371779617609718e-06
+    },
+    {
+      "label": "anisotropic 159",
+      "full_rank": true,
+      "normalized_covariance_error": 7.557198338562749e-07,
+      "normalized_root_error": 3.884300274797583e-07,
+      "worst_relative_nees_error": 1.4009791218239087e-06
+    },
+    {
+      "label": "anisotropic 160",
+      "full_rank": true,
+      "normalized_covariance_error": 5.63121226660718e-07,
+      "normalized_root_error": 2.4968916093563024e-07,
+      "worst_relative_nees_error": 9.916098293594189e-07
+    },
+    {
+      "label": "anisotropic 161",
+      "full_rank": true,
+      "normalized_covariance_error": 2.664185665059947e-07,
+      "normalized_root_error": 1.5650403759859552e-07,
+      "worst_relative_nees_error": 7.394311003494636e-07
+    },
+    {
+      "label": "anisotropic 162",
+      "full_rank": true,
+      "normalized_covariance_error": 4.939092287017875e-07,
+      "normalized_root_error": 2.574201531525204e-07,
+      "worst_relative_nees_error": 9.544000771910532e-07
+    },
+    {
+      "label": "anisotropic 163",
+      "full_rank": true,
+      "normalized_covariance_error": 4.312563020811449e-07,
+      "normalized_root_error": 2.1481038861813665e-07,
+      "worst_relative_nees_error": 8.341066385364471e-07
+    },
+    {
+      "label": "anisotropic 164",
+      "full_rank": true,
+      "normalized_covariance_error": 6.763906699740083e-07,
+      "normalized_root_error": 3.3819539213958686e-07,
+      "worst_relative_nees_error": 1.2856699351804224e-06
+    },
+    {
+      "label": "anisotropic 165",
+      "full_rank": true,
+      "normalized_covariance_error": 5.420937742545804e-07,
+      "normalized_root_error": 3.0557745123058935e-07,
+      "worst_relative_nees_error": 8.03395839743537e-07
+    },
+    {
+      "label": "anisotropic 166",
+      "full_rank": true,
+      "normalized_covariance_error": 4.6493094799285503e-07,
+      "normalized_root_error": 2.515095499609612e-07,
+      "worst_relative_nees_error": 8.695953409576518e-07
+    },
+    {
+      "label": "anisotropic 167",
+      "full_rank": true,
+      "normalized_covariance_error": 5.665331090221139e-07,
+      "normalized_root_error": 2.824290197139032e-07,
+      "worst_relative_nees_error": 9.590605687392895e-07
+    },
+    {
+      "label": "anisotropic 168",
+      "full_rank": true,
+      "normalized_covariance_error": 7.002614298153831e-07,
+      "normalized_root_error": 3.503976155980608e-07,
+      "worst_relative_nees_error": 9.068389563715584e-07
+    },
+    {
+      "label": "anisotropic 169",
+      "full_rank": true,
+      "normalized_covariance_error": 6.279622776279096e-07,
+      "normalized_root_error": 3.1456821389568395e-07,
+      "worst_relative_nees_error": 1.1902218279846721e-06
+    },
+    {
+      "label": "anisotropic 170",
+      "full_rank": true,
+      "normalized_covariance_error": 5.332955260917885e-07,
+      "normalized_root_error": 2.666477274329766e-07,
+      "worst_relative_nees_error": 9.9294703947983e-07
+    },
+    {
+      "label": "anisotropic 171",
+      "full_rank": true,
+      "normalized_covariance_error": 6.464042482103585e-07,
+      "normalized_root_error": 2.3259833769565551e-07,
+      "worst_relative_nees_error": 1.109724373060672e-06
+    },
+    {
+      "label": "anisotropic 172",
+      "full_rank": true,
+      "normalized_covariance_error": 4.350273800975055e-07,
+      "normalized_root_error": 2.928298990694485e-07,
+      "worst_relative_nees_error": 8.842851358936699e-07
+    },
+    {
+      "label": "anisotropic 173",
+      "full_rank": true,
+      "normalized_covariance_error": 3.2087716919811677e-07,
+      "normalized_root_error": 1.7556204688402891e-07,
+      "worst_relative_nees_error": 5.386628203485344e-07
+    },
+    {
+      "label": "anisotropic 174",
+      "full_rank": true,
+      "normalized_covariance_error": 6.524803630637509e-07,
+      "normalized_root_error": 2.9816169576568996e-07,
+      "worst_relative_nees_error": 9.385166218622842e-07
+    },
+    {
+      "label": "anisotropic 175",
+      "full_rank": true,
+      "normalized_covariance_error": 3.523449870335889e-07,
+      "normalized_root_error": 1.8353300993436727e-07,
+      "worst_relative_nees_error": 7.82248812614128e-07
+    },
+    {
+      "label": "anisotropic 176",
+      "full_rank": true,
+      "normalized_covariance_error": 4.883776773577704e-07,
+      "normalized_root_error": 2.7856724161696417e-07,
+      "worst_relative_nees_error": 7.165486066718074e-07
+    },
+    {
+      "label": "anisotropic 177",
+      "full_rank": true,
+      "normalized_covariance_error": 3.288095965667532e-07,
+      "normalized_root_error": 1.7364047577035067e-07,
+      "worst_relative_nees_error": 7.723500748957335e-07
+    },
+    {
+      "label": "anisotropic 178",
+      "full_rank": true,
+      "normalized_covariance_error": 4.888320658045008e-07,
+      "normalized_root_error": 2.522359454656296e-07,
+      "worst_relative_nees_error": 8.650620084704741e-07
+    },
+    {
+      "label": "anisotropic 179",
+      "full_rank": true,
+      "normalized_covariance_error": 4.590835678781666e-07,
+      "normalized_root_error": 2.263097410636431e-07,
+      "worst_relative_nees_error": 7.450195360636513e-07
+    },
+    {
+      "label": "anisotropic 180",
+      "full_rank": true,
+      "normalized_covariance_error": 3.3865420474084734e-07,
+      "normalized_root_error": 2.375082185328729e-07,
+      "worst_relative_nees_error": 6.623134354288851e-07
+    },
+    {
+      "label": "anisotropic 181",
+      "full_rank": true,
+      "normalized_covariance_error": 3.682295061692881e-07,
+      "normalized_root_error": 1.9068837449317506e-07,
+      "worst_relative_nees_error": 8.73711724969084e-07
+    },
+    {
+      "label": "anisotropic 182",
+      "full_rank": true,
+      "normalized_covariance_error": 6.481654022972148e-07,
+      "normalized_root_error": 3.4487019451251e-07,
+      "worst_relative_nees_error": 9.282466439941572e-07
+    },
+    {
+      "label": "anisotropic 183",
+      "full_rank": true,
+      "normalized_covariance_error": 5.274053373776976e-07,
+      "normalized_root_error": 2.596887711965254e-07,
+      "worst_relative_nees_error": 8.979508492323873e-07
+    },
+    {
+      "label": "anisotropic 184",
+      "full_rank": true,
+      "normalized_covariance_error": 3.8873503508572954e-07,
+      "normalized_root_error": 1.774389927080122e-07,
+      "worst_relative_nees_error": 9.030658474351583e-07
+    },
+    {
+      "label": "anisotropic 185",
+      "full_rank": true,
+      "normalized_covariance_error": 3.774236893863133e-07,
+      "normalized_root_error": 2.6308908186261656e-07,
+      "worst_relative_nees_error": 9.33713565132166e-07
+    },
+    {
+      "label": "anisotropic 186",
+      "full_rank": true,
+      "normalized_covariance_error": 6.206684374483218e-07,
+      "normalized_root_error": 3.108644594150525e-07,
+      "worst_relative_nees_error": 1.0284821707617908e-06
+    },
+    {
+      "label": "anisotropic 187",
+      "full_rank": true,
+      "normalized_covariance_error": 4.7424877605827254e-07,
+      "normalized_root_error": 2.4089127082713533e-07,
+      "worst_relative_nees_error": 9.272985672659217e-07
+    },
+    {
+      "label": "anisotropic 188",
+      "full_rank": true,
+      "normalized_covariance_error": 4.473142006106175e-07,
+      "normalized_root_error": 2.0570350179833656e-07,
+      "worst_relative_nees_error": 7.896234035520422e-07
+    },
+    {
+      "label": "anisotropic 189",
+      "full_rank": true,
+      "normalized_covariance_error": 3.7143596607251965e-07,
+      "normalized_root_error": 2.597821997824424e-07,
+      "worst_relative_nees_error": 1.0128785401519735e-06
+    },
+    {
+      "label": "anisotropic 190",
+      "full_rank": true,
+      "normalized_covariance_error": 4.759977244778761e-07,
+      "normalized_root_error": 2.3679648973037443e-07,
+      "worst_relative_nees_error": 7.609437988609358e-07
+    },
+    {
+      "label": "anisotropic 191",
+      "full_rank": true,
+      "normalized_covariance_error": 6.523575226430948e-07,
+      "normalized_root_error": 3.29073353999564e-07,
+      "worst_relative_nees_error": 1.229673925018382e-06
+    },
+    {
+      "label": "anisotropic 192",
+      "full_rank": true,
+      "normalized_covariance_error": 3.9193984985582677e-07,
+      "normalized_root_error": 1.876023090708804e-07,
+      "worst_relative_nees_error": 9.034015893139014e-07
+    },
+    {
+      "label": "anisotropic 193",
+      "full_rank": true,
+      "normalized_covariance_error": 3.643892696216499e-07,
+      "normalized_root_error": 1.9351121416832157e-07,
+      "worst_relative_nees_error": 6.774308289880793e-07
+    },
+    {
+      "label": "anisotropic 194",
+      "full_rank": true,
+      "normalized_covariance_error": 4.2428342458123747e-07,
+      "normalized_root_error": 1.8567192156912986e-07,
+      "worst_relative_nees_error": 7.338350797025939e-07
+    },
+    {
+      "label": "anisotropic 195",
+      "full_rank": true,
+      "normalized_covariance_error": 6.372150004089685e-07,
+      "normalized_root_error": 3.122389398316224e-07,
+      "worst_relative_nees_error": 9.844661215119288e-07
+    },
+    {
+      "label": "anisotropic 196",
+      "full_rank": true,
+      "normalized_covariance_error": 6.560483682384751e-07,
+      "normalized_root_error": 3.279440619457184e-07,
+      "worst_relative_nees_error": 9.565777516762353e-07
+    },
+    {
+      "label": "anisotropic 197",
+      "full_rank": true,
+      "normalized_covariance_error": 8.049259699269729e-07,
+      "normalized_root_error": 4.126371217349227e-07,
+      "worst_relative_nees_error": 1.2881767545991352e-06
+    },
+    {
+      "label": "anisotropic 198",
+      "full_rank": true,
+      "normalized_covariance_error": 4.434647205244812e-07,
+      "normalized_root_error": 2.6049909164089125e-07,
+      "worst_relative_nees_error": 1.0064166749979009e-06
+    },
+    {
+      "label": "anisotropic 199",
+      "full_rank": true,
+      "normalized_covariance_error": 5.658532338800786e-07,
+      "normalized_root_error": 2.9025247712830975e-07,
+      "worst_relative_nees_error": 8.736136500875347e-07
+    },
+    {
+      "label": "scaled -25",
+      "full_rank": true,
+      "normalized_covariance_error": 7.845026499712082e-07,
+      "normalized_root_error": 3.920864665806741e-07,
+      "worst_relative_nees_error": 1.8145183913187424e-06
+    },
+    {
+      "label": "scaled 20",
+      "full_rank": true,
+      "normalized_covariance_error": 5.20490985076281e-07,
+      "normalized_root_error": 2.6009483589079566e-07,
+      "worst_relative_nees_error": 8.687116577199561e-07
+    },
+    {
+      "label": "captured failing reset",
+      "full_rank": true,
+      "normalized_covariance_error": 1.4159328353557788e-07,
+      "normalized_root_error": 1.0365869546640618e-07,
+      "worst_relative_nees_error": 0.00028179150177432
+    }
+  ],
+  "maxima": {
+    "normalized_covariance_error": 9.715245620482047e-07,
+    "normalized_root_error": 4.857623990399463e-07,
+    "worst_relative_nees_error": 0.00028179150177432
+  },
+  "captured_reset_nees_relative_error": 5.405769054611653e-08,
+  "captured_generated_covariance_min_eigenvalue": -3.883507294329814e-09,
+  "no_added_noise": true,
+  "note": "Generated root primitive only; the current ESKF still stores a full covariance. This is not an end-to-end square-root ESKF or a fixed replay failure."
+}

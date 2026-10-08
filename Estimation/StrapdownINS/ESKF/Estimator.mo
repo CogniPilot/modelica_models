@@ -4,6 +4,19 @@ block Estimator
   "Sampled aided strapdown inertial-navigation ESKF"
   extends Estimation.StrapdownINS.PartialEstimator;
 
+  parameter Boolean useSemiDirectBias = false;
+  parameter Boolean useStationaryImu = false;
+  parameter Boolean useSquareRootCovariance = false;
+  output Real errorCovarianceRoot[15, 15](each start=0, each fixed=true);
+  output Boolean stationaryImuCorrectionAccepted(start = false, fixed = true);
+  input Boolean vehicleAtRest = false;
+  parameter Real stationaryVelocityVariance_m2_s2(unit = "m2/s2") = 0.01;
+
+  parameter Boolean useEquivariantMagnetometer = false
+    "Fuse a calibrated local magnetic field vector with symmetric SO(3) linearization";
+  parameter Boolean useGeometricAlignment = false
+    "Condition startup uncertainty on the vectors used for quiet alignment";
+
   // Consistency instrumentation (NEES/NIS study): mirror the full
   // error-state covariance and the bias estimates as public outputs so
   // a mission-level consistency evaluation can be post-processed from
@@ -181,6 +194,7 @@ protected
     start = {1.0, 0.0, 0.0, 0.0}, each fixed = true);
   discrete Real stateGyroscopeBias[3](each start = 0.0, each fixed = true);
   discrete Real stateAccelerometerBias[3](each start = 0.0, each fixed = true);
+  discrete Real stateCovarianceRoot[15, 15](each start=0, each fixed=true);
   discrete Real stateCovariance[15, 15](each start = 0.0, each fixed = true);
   discrete Boolean initialized(start = false, fixed = true);
   discrete Boolean predictionAccepted(start = false, fixed = true);
@@ -218,10 +232,8 @@ protected
     "Monotonic count of SHIFTED FUSION INSTANTS on the status boundary: ticks
      on which at least one aiding correction was accepted, at most one per
      tick. See Avionics.EstimatorStatus.acceptedCorrectionCount, which states
-     the contract; this filter satisfies it by construction because its
-     correction dispatch is a priority chain that fuses at most one source per
-     tick, so correctionOutcome carries a single value per tick and this
-     increments on it.
+     the contract. Coalesce all real-sensor acceptance flags into one increment
+     even when several independent sources correct the state on the same tick.
 
      The outcome field is a level held for the whole filter tick, so a
      consumer running faster than the filter cannot edge-detect it; the count
@@ -417,7 +429,9 @@ algorithm
      alignmentSpecificForce_m_s2,
      quietAngularRate_rad_s,
      pseudoPositionCorrectionAccepted,
-     zeroVelocityCorrectionAccepted) :=
+     zeroVelocityCorrectionAccepted,
+     stationaryImuCorrectionAccepted,
+     stateCovarianceRoot) :=
       step(
         pre(initialized),
         State(
@@ -426,7 +440,9 @@ algorithm
           quaternionWorldBody=pre(stateQuaternion),
           gyroscopeBiasBodyFlu_rad_s=pre(stateGyroscopeBias),
           accelerometerBiasBodyFlu_m_s2=pre(stateAccelerometerBias),
-          covariance=pre(stateCovariance)),
+          covariance=pre(stateCovariance),
+          covarianceRoot=pre(stateCovarianceRoot),
+          useSquareRootCovariance=useSquareRootCovariance),
         reset,
         imu,
         mocap,
@@ -456,6 +472,11 @@ algorithm
           varianceLimits=varianceLimits,
           innovationGate=innovationGate,
           localMagneticFieldWorldEnu_T=localMagneticFieldWorldEnu_T,
+          useEquivariantMagnetometer=useEquivariantMagnetometer,
+          useGeometricAlignment=useGeometricAlignment,
+          useSemiDirectBias=useSemiDirectBias,
+          useStationaryImu=useStationaryImu,
+          useSquareRootCovariance=useSquareRootCovariance,
           barometerBias_m=stateBarometerBias_m,
           barometerBiasVariance_m2=stateBarometerBiasVariance_m2,
           maximumAidingDelay_s=maximumAidingDelay_s,
@@ -473,7 +494,8 @@ algorithm
           quietAngularRateLimit_rad_s=quietAngularRateLimit_rad_s,
           quietFilterTimeConstant_s=quietFilterTimeConstant_s,
           pseudoPositionVariance_m2=pseudoPositionVariance_m2,
-          zeroVelocityVariance_m2_s2=zeroVelocityVariance_m2_s2),
+          zeroVelocityVariance_m2_s2=zeroVelocityVariance_m2_s2,
+          stationaryVelocityVariance_m2_s2=stationaryVelocityVariance_m2_s2),
         pre(consecutiveRejectedCorrections),
         pre(rejectionElapsed_s),
         pre(mocapRejections),
@@ -496,7 +518,8 @@ algorithm
         pre(pseudoPositionHold_m),
         pre(alignmentSource),
         pre(alignmentSpecificForce_m_s2),
-        pre(quietAngularRate_rad_s));
+        pre(quietAngularRate_rad_s),
+        vehicleAtRest);
     (estimate.valid,
      estimate.timestamp_s,
      estimate.positionWorldEnu_m,
@@ -514,7 +537,9 @@ algorithm
           quaternionWorldBody=stateQuaternion,
           gyroscopeBiasBodyFlu_rad_s=stateGyroscopeBias,
           accelerometerBiasBodyFlu_m_s2=stateAccelerometerBias,
-          covariance=stateCovariance),
+          covariance=stateCovariance,
+          covarianceRoot=stateCovarianceRoot,
+          useSquareRootCovariance=useSquareRootCovariance),
         // The HELD sample, never the raw connector: three published fields
         // are computed from the IMU rather than from the state, so passing
         // the raw sample here is what let a non-finite reading reach the
@@ -547,10 +572,11 @@ algorithm
         gravityWorldEnu_m_s2,
         estimateValid);
     acceptedCorrectionCount := if reset then 0
-      elseif correctionOutcome == Estimation.StrapdownINS.CorrectionAccepted
-          and correctionSource
-            <> Estimation.StrapdownINS.SourcePseudoPosition
-          and correctionSource <> Estimation.StrapdownINS.SourceZeroVelocity
+      elseif mocapCorrectionAccepted or gpsPositionCorrectionAccepted
+          or gpsVelocityCorrectionAccepted or opticalFlowCorrectionAccepted
+          or barometerCorrectionAccepted or magnetometerCorrectionAccepted
+          or (vehicleAtRest and zeroVelocityCorrectionAccepted)
+          or stationaryImuCorrectionAccepted
         then pre(acceptedCorrectionCount) + 1
       else pre(acceptedCorrectionCount);
     reseedCount := if reset then 0
@@ -585,6 +611,7 @@ algorithm
     status.pseudoPositionCorrectionAccepted := pseudoPositionCorrectionAccepted;
     status.zeroVelocityCorrectionAccepted := zeroVelocityCorrectionAccepted;
     errorCovariance := stateCovariance;
+    errorCovarianceRoot := stateCovarianceRoot;
     estimatedGyroscopeBias_rad_s := stateGyroscopeBias;
     estimatedAccelerometerBias_m_s2 := stateAccelerometerBias;
   end when;

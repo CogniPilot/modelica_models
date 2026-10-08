@@ -1,0 +1,3 @@
+Horizon adapter transferred explicit exposure duration and covariance
+Horizon stationary constraint followed fusion time and notified rebases
+Horizon adapter preserved aiding configuration and original payload

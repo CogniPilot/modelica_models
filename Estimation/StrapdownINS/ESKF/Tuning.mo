@@ -10,6 +10,8 @@ record Tuning
   Real innovationGate
     "Per-degree-of-freedom NIS gate; non-positive disables";
   Real localMagneticFieldWorldEnu_T[3];
+  Boolean useEquivariantMagnetometer = false;
+  Boolean useGeometricAlignment = false;
   Real barometerBias_m;
   Real barometerBiasVariance_m2;
   Real maximumAidingDelay_s;
@@ -62,4 +64,8 @@ record Tuning
   Real zeroVelocityVariance_m2_s2
     "Per-axis variance of the synthetic zero-velocity measurement fused while
      quasi-static and unaided; non-positive disables it";
+  Real stationaryVelocityVariance_m2_s2 = 0.01;
+  Boolean useSemiDirectBias = false;
+  Boolean useStationaryImu = false;
+  Boolean useSquareRootCovariance = false;
 end Tuning;

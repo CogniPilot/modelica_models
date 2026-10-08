@@ -1,0 +1,19 @@
+{
+  "seed": 911,
+  "trials": 120,
+  "configurations": 6,
+  "counts": {
+    "accepted": 630,
+    "rejected": 90,
+    "limited": 434,
+    "correlated": 480,
+    "heading": 240
+  },
+  "maximum_errors": {
+    "mean": 4.497409204473975e-05,
+    "covariance": 7.857136895070054e-06,
+    "nis": 6.650847645968993e-07
+  },
+  "library_sha256": "5ea7b3d2fa34aad73ee503ecc82424ad2dccc0f7d0fb8be0f615aac63c289ddb",
+  "note": "Independent float64 Gaussian solve and reset, evaluated against float32 deployment C; includes both correction geometries, projected/heading gain, correlated noise, trust limits and exact rejection preservation."
+}

@@ -1,0 +1,222 @@
+Buffered fusion horizon versus state retrodiction, 7 October 2026
+==============================================================
+
+A buffered 200 ms ESKF horizon and SE_2(3) forward predictor now run through
+actual Rumoca 0.10.2 generated components in the comparison harness. The same
+current ESKF also runs with its existing state-retrodiction path. This meets
+the numerical comparison milestone; it does not establish superiority over
+native PX4 EKF2 or ArduPilot EKF3, or qualify the horizon for vehicle use.
+
+Open eskf-delay.html for the interactive accuracy/CPU comparison. The sibling
+CSV contains 864 per-seed window rows; the HTML aggregates them into 288 rows.
+The two score JSON files preserve current-state errors, fusion-state errors,
+GPS-return metrics, timings, queue diagnostics and capture/binary hashes.
+eskf-delay-manifest.json records sources and validation. Earlier geometric
+experiments and the native comparison remain in eskf-geometry.html and
+eskf-improvements.html. Neither geometric option is enabled in this campaign.
+
+Architecture and native correspondence
+--------------------------------------
+
+The retrodiction baseline predicts at the present and transports the nominal
+state and measurement Jacobian back using one held IMU sample. Its transition
+uses the existing truncated series. It does not reconstruct the actual past
+IMU trajectory or rewind the covariance and replay measurement corrections.
+
+The buffered path accumulates FOH increments at 800 Hz, releases an IMU packet
+at 100 Hz approximately 200 ms behind the present, queues aiding by original
+measurement timestamp, then runs the same ESKF at that epoch. The predictor
+reapplies buffered SE_2(3) increments to publish the present pose and velocity.
+Bias changes use the existing first-order preintegral bias Jacobians. Accepted
+corrections trigger prediction rebases; publication follows the correction by
+one IMU tick (1.25 ms). Predicting forward adds no new sensor information.
+
+PX4 documents buffered delayed fusion and forward output prediction:
+https://docs.px4.io/main/en/advanced_config/tuning_the_ecl_ekf
+The audited pinned PX4 core pops the oldest buffered IMU, predicts, fuses and
+corrects the output predictor in src/modules/ekf2/EKF/ekf.cpp, lines 145–189:
+https://github.com/PX4/PX4-Autopilot/blob/f1c0a1f794edf8e5e974b6ed96df3f95eda0df39/src/modules/ekf2/EKF/ekf.cpp
+ArduPilot's pinned calcOutputStates describes the fusion horizon and current
+output complementary observer and low-pass tracking:
+https://github.com/ArduPilot/ardupilot/blob/1511f27194f1dcc3728270883047bdf022b3fd53/libraries/AP_NavEKF3/AP_NavEKF3_core.cpp#L808
+
+The correspondence is the delayed-fusion/forward-output architecture. Our
+buffered Lie-group reapplication does not duplicate native complementary
+output dynamics, terrain states, source selection, initialization, tuning or
+supervision. The earlier native campaign used zero configured transport delay.
+The new delay campaign runs the two ESKF modes only. Native EKF2/3 must receive
+these same delayed arrivals before any delayed-flight superiority claim.
+
+Experiment and evidence checks
+------------------------------
+
+Both modes receive identical captures, timestamps, valid flags and arrival
+payloads. Original motion is .6 rad/s with seeds 7/19/41; held-out motion is
+.85 rad/s with seeds 101/307/911. Each has high-rate flow/mag/baro at 100/50/50 Hz
+and lower rates at 25/25/25 Hz, 10 Hz GPS, 800 Hz IMU and a 100 Hz filter.
+The common stationary pad ends at 13 s. Flight scoring uses 13–60 s.
+
+GPS/flow/mag/baro transport delays in milliseconds:
+  zero       0 /  0 /  0 /  0, no jitter
+  nominal  110 / 30 / 20 / 20, plus seeded 0–10 ms positive jitter
+  stress   160 / 60 / 50 / 70, plus seeded 0–20 ms positive jitter
+
+Packets preserve original measurement time and arrive on the common 100 Hz
+sensor schedule. Jitter preserves each source's order. Original flow gyro
+integrals travel with their measurement. GPS loss removes measurements stamped
+25 <= t < 40 s before transport; the returning packet is delayed normally.
+Cases are GPS throughout, denied throughout, and GPS loss/return.
+
+There are 216 estimator runs (108 paired cases). Every output row is present,
+has its expected timestamp, is finite and has generated status zero. Finite
+output is not evidence of accurate estimation: some retrodiction cases diverge
+badly. Delivered transport counts and payload digests match between modes.
+The horizon records zero late, stale or overflow drops. Fusion lag is about
+201.25 ms at the common reporting phase; residual aiding age stays below 10 ms.
+The separate fusion-state scores use the fusion epoch, not the present time.
+Horizon covariance/NEES scoring has not been implemented.
+
+Findings
+--------
+
+Horizontal position RMSE, median of three seed-specific values, meters.
+Each pair is retrodiction / buffered horizon. GPS and denied use 13–60 s;
+transition uses the GPS outage window 25–40 s.
+
+Original .6 rad/s:
+  rates       delay       GPS             denied          transition outage
+  100/50/50   zero      .0368 / .0363     .4934 / .5574      .0572 / .0675
+  100/50/50   nominal   .0457 / .0364   14.5937 / .5792      .0559 / .0669
+  100/50/50   stress    .0545 / .0364    1.8755 / .5134      .0754 / .0670
+  25/25/25    zero      .0385 / .0403     .4654 / .4540      .0401 / .0402
+  25/25/25    nominal   .0458 / .0403     .3765 / .4254      .0351 / .0402
+  25/25/25    stress    .0521 / .0403     .3781 / .4541      .0448 / .0402
+
+Held-out .85 rad/s:
+  rates       delay       GPS             denied          transition outage
+  100/50/50   zero      .0387 / .0390     .7693 / .4987      .0302 / .0874
+  100/50/50   nominal   .0464 / .0390   10.9354 / .5323      .0484 / .0874
+  100/50/50   stress    .0543 / .0390   30.0275 / .4560      .0547 / .0878
+  25/25/25    zero      .0405 / .0416     .1199 / .0911      .0419 / .0424
+  25/25/25    nominal   .0464 / .0416     .1532 / .1202      .0642 / .0424
+  25/25/25    stress    .0523 / .0416     .2627 / .1031      .0684 / .0424
+
+The buffered horizon removes the large delayed, high-rate denied failures in
+this campaign. For original nominal/high-rate denied, vertical RMSE changes
+659.98 -> .0730 m, velocity 28.2333 -> .1231 m/s, and yaw 4.1163 -> 2.9579 deg.
+Held-out nominal/high-rate denied changes vertical 603.68 -> .0484 m, velocity
+25.5114 -> .0498 m/s and yaw 3.4956 -> .4236 deg. These dramatic baseline
+failures deserve their own diagnostic campaign; the table retains them rather
+than treating finite status as successful navigation.
+
+The horizon regresses original lower-rate denied position under nominal and
+stress delays, and held-out high-rate transition outage position under every
+delay profile. It also slightly regresses several zero-delay GPS cases.
+The whole error vector, seed ranges and window results remain in the HTML/CSV.
+
+GPS-return behavior is visible separately. At high rates, first horizon GPS
+use is 210 ms after measurement-time return, versus 0/120/about 180 ms for
+retrodiction in zero/nominal/stress profiles. Both modes already stay within
+the report's .25 m horizontal recovery bound around return in these cases;
+a reported zero recovery time is therefore not evidence of faster recovery
+from a large error. Held-out high-rate post-return horizontal RMSE is .0432 m
+for the horizon, versus .0420/.0491/.0552 m for retrodiction. Output correction
+jumps remain visible and are not always smaller with buffered reapplication.
+
+Efficiency and source cleanup
+-----------------------------
+
+The predictor now uses packed-array composition and one materialized pose
+function instead of repeatedly expanding record-valued expressions. Generated
+predictor C shrinks from about 6.07 MB to .40 MB. Rebiasing remains conditional:
+the ordinary IMU path avoids an unnecessary quaternion renormalization.
+All 216 replay outputs match the expanded implementation byte for byte.
+The fixed aiding queue is called on arrival or release in the C harness;
+this scheduler optimization is not yet in the composed Modelica model.
+
+Median generated component CPU for a complete 60 s trace, milliseconds:
+  dataset     rates       retrodiction   horizon
+  original    100/50/50       347.52       667.57
+  original    25/25/25        272.91       512.26
+  held-out    100/50/50       334.01       577.60
+  held-out    25/25/25        252.23       500.63
+
+In the original high-rate campaign, median predictor CPU falls from 2769.40
+to 349.59 ms, about 7.9x; queue CPU falls from 273.28 to 39.00 ms. The horizon
+still costs roughly 1.7–2.0x retrodiction in these host runs. These are single
+runs per seed/case, not repeated same-case timing distributions. They include
+timer overhead and exclude CSV, transport simulation and adapter copies.
+They are neither end-to-end execution times nor flight-target WCET. An
+additional nominal-delay seed-7 campaign repeats each case three times (36
+extra runs); its outputs are deterministic and timings are retained separately
+in eskf-delay-timing-repeat.json.
+
+Generated instance storage including instance-owned scratch is 34,080 bytes
+for retrodiction and 77,860 bytes for horizon mode (2.28x). Horizon dense IMU
+buffer storage is 10,488 bytes. The common host transport simulator is excluded
+and reported separately. Array materialization saves execution cost here,
+not instance RAM. No embedded stack, linker placement or memory budget claim.
+
+Correctness fixes and validation
+--------------------------------
+
+The predictor's rate-lattice tolerance now accepts the legal .2/.01 s clock
+configuration in float32. Timestamp advancement uses the tick lattice rather
+than repeated addition. An empty queue delivers a ripe arrival on its release
+instead of making it stale on the next tick. Existing FIFO order, future/late
+refusal and reset behavior remain asserted. Standalone aiding capacity defaults
+now accommodate 50 Hz magnetometer samples; vehicle composition still passes
+its explicit 20 Hz setting.
+
+An initial C adapter copied filter-delayed zero covariance fields back into
+arrival configuration. That prototype was invalidated. Its two JSON files
+are marked valid_for_comparison=false and are not used in this report. The
+fixed adapter initializes constant capture covariance once and transfers live
+payload separately. A generated-component regression checks that arrival
+transfer preserves fixed covariance, integration time, quality and variance,
+while retaining the original GPS payload and timestamp.
+
+Passed on the final sources:
+- Fresh Rumoca 0.10.2 generated-component build and C99 adapter fixture.
+- 216 paired delayed-arrival runs; all 216 outputs match the earlier expanded
+  predictor implementation, with identical shared transport payload digests.
+- 72 default retrodiction replays match the prior geometry-stage hashes.
+- Generated float32 predictor: 120 seconds, a mid-run reset, 11,959 releases,
+  maximum epoch error 6.4087 microseconds, no early releases.
+- OpenModelica simulations: AidingQueueTests, HorizonResetTests,
+  AidingHorizonTests and HorizonPredictorTests, all assertions passed.
+- Fractional release/horizon configurations still refuse invalid clock lattices.
+- Rumoca canonical DAE construction of Tests.All.
+- Recorded composed-model ED020 diagnostic independently reproduced:
+  identity 575 is not owned by clock identity 0, HorizonEstimator.mo:259:5.
+- Four independent scoring tests, library structure, Python lint and diff check.
+- 72 interactive report selections, including original/held-out motion changes.
+
+Limits and next step
+--------------------
+
+The vehicle default remains retrodiction. The composed horizon Modelica export
+is blocked by Rumoca 0.10.2. The host replay deliberately allows 100 Hz
+corrections with a 10,000 Hz fold budget; those overrides do not alter the
+flight defaults of 5 Hz corrections and 7.3 Hz folds. The earlier Cortex-M7
+timing record describes older generated code and must be remeasured before
+changing flight scheduling. Full local CI, mission qualification and remote
+CI were not rerun for this complete working tree.
+
+Native validation still needs delayed packet injection, matched information
+and clear source validity semantics. Existing native startup/at-rest hints,
+stack-specific tuning, synthetic flow interface and native active-versus-
+accepted flags remain limitations. Full bias-aware geometric propagation,
+more motion families, moving starts, disturbances, raw angular flow/range
+correlation, and output smoothing/recovery are still open work.
+
+Next, diagnose the remaining transition/low-rate regressions, qualify current
+predictor timing on the flight target, resolve composed export, and replay
+native EKF2/3 on the same delay matrix. The geometric candidates should be
+combined with the horizon only as explicitly tested options. These results
+do not justify enabling all candidates or claiming that ESKF beats both native
+estimators across all scenarios.
+
+The resumed environment makes .git and $HOME/scratch read-only. Existing
+large captures remain in scratch; small owned compiler probes used bounded
+temporary storage with compiler caching disabled. No commit or push was made.

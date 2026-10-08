@@ -11,6 +11,7 @@ State
 VarianceLimits
 Tuning
 initialize
+conditionAlignment
 seedPositionVariances
 continuousTransition
 noiseInputMatrix
@@ -20,15 +21,18 @@ heldInputJacobian
 discreteProcessCovariance
 predictNominal
 predictPreintegrated
+predictStationary
 retrodict
 predict
 limitCovariance
 inflateCovariance
 holdCovariance
 inject
+SemiDirectBias
 reseed
 conjugateReset
 considerGainProjector
+constrainGain
 correctLinear
 correctMocap
 correctGps
@@ -37,6 +41,7 @@ correctGpsVelocity
 correctMagnetometer
 correctPseudoPosition
 correctZeroVelocity
+correctStationaryImu
 correctBarometer
 opticalFlowRangeJacobian
 correctOpticalFlow
@@ -44,3 +49,9 @@ navigationEstimate
 nominalStateFinite
 step
 Estimator
+withCovarianceRoot
+predictCovariance
+limitStateCovariance
+inflateStateCovariance
+copyState
+withDenseCovariance

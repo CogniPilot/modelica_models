@@ -12,6 +12,7 @@ function correctPseudoPosition
      integrate without limit, exactly as the fake-position fusion of the
      PX4 and ArduPilot filters does";
   input Real innovationGate = 0.0;
+  input Boolean useSemiDirectBias = false;
   output State corrected;
   output Boolean accepted;
   output Integer rejectionReason;
@@ -32,5 +33,6 @@ algorithm
   measurementCovariance := identity(3) * variance_m2;
   (corrected, accepted, rejectionReason, normalizedInnovationSquared) :=
     correctLinear(predicted, residual, H, measurementCovariance,
-      innovationGate);
+      innovationGate, zeros(3), zeros(TangentLength, size(residual, 1)),
+      false, useSemiDirectBias);
 end correctPseudoPosition;

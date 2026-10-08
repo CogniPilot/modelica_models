@@ -1,0 +1,31 @@
+true
+true
+"Check of Vehicles.Rdd2.NavigationEstimator completed successfully.
+Class Vehicles.Rdd2.NavigationEstimator has 1292 equation(s) and 1292 variable(s).
+46 of these are trivial equation(s)."
+"Notification: Automatically loaded package Vehicles default due to usage.
+Notification: Automatically loaded package Estimation (default) due to usage.
+Notification: Automatically loaded package Avionics (default) due to usage.
+Notification: Automatically loaded package LieGroups (default) due to usage.
+Notification: Automatically loaded package MathUtilities (default) due to usage.
+Notification: Automatically loaded package LinearAlgebra (default) due to usage.
+"
+"/tmp/modelica-eskf-root-optimization"
+record SimulationResult
+    resultFile = "",
+    simulationOptions = "startTime = 0.0, stopTime = 0.001, numberOfIntervals = 1, tolerance = 1e-6, method = 'dassl', fileNamePrefix = 'Tests.CovarianceRootTests', options = '', outputFormat = 'csv', variableFilter = '.*', cflags = '', simflags = ''",
+    messages = "Simulation execution failed for model: Tests.CovarianceRootTests
+LOG_ASSERT        | error   | [/home/jgoppert/git/modelica_models/Tests/CovarianceRootTests.mo:15:3-17:58:writable]
+|                 | |       | The following assertion has been violated during initialization at time 0.000000
+|                 | |       | ((false)) --> \"Rectangular covariance root changed the covariance\"
+LOG_ASSERT        | info    | simulation terminated by an assertion at initialization
+",
+    timeFrontend = 0.003820229,
+    timeBackend = 0.0049549500000000005,
+    timeSimCode = 9.7389e-4,
+    timeTemplates = 0.00718871,
+    timeCompile = 0.49296597,
+    timeSimulation = 0.012385739000000002,
+    timeTotal = 0.522400278
+end SimulationResult;
+""

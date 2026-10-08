@@ -1,0 +1,105 @@
+ACC 2027 preintegration and the current ESKF
+7 October 2026
+
+The working-tree ESKF uses the ACC manuscript's retained FOH preintegration
+step and consistent physical bias Jacobians. This statement covers the mean
+preintegral and its first-order bias correction, not a complete certified
+Kalman-filter implementation or a demonstrated universal performance win.
+
+The primary manuscript is ACC_2027_FOH_Preintegration (1).pdf, SHA-256
+cd224a97f85a71df6b8a26848718f8a4b89edc67cb5292df9c1b64bb41e2b0bf.
+The older ACC_2027_FOH_Preintegration.pdf has SHA-256
+19fa20c0d6a4ccbbd613d11620cdfafd45658d97a9d96310364fffcdebdf69fa.
+Both current download hashes match the original review. The misspelled
+filename in the earlier request does not exist. The existing extracted text
+and paper review identify equations (10) and (11) in the newer PDF; no
+manuscript was edited during this verification.
+
+Implementation correspondence
+
+1. preintegrateImuStep applies equation (10)'s trapezoidal body inputs plus
+   the signed coning/sculling/scrolling bracket terms, then evaluates the
+   mixed SE_2(3) exponential. This is the retained Magnus approximation;
+   it is not an exact solution for an arbitrary changing IMU input.
+2. Equation (11)'s exponent sensitivities pass through the derivative of
+   mixed_increment_matrix. The composed physical blocks are rotation/gyro,
+   velocity/gyro, velocity/accel, position/gyro and position/accel. The
+   attitude sensitivity is transported through the full increment rotation;
+   position inherits the previous velocity sensitivity. These are analytic
+   derivatives of the retained step at its constant bias anchor.
+3. correctPreintegratedImu moves a stored packet to the estimated bias:
+   delta-R becomes delta-R * Exp(J_rotation_gyro * delta-b_gyro), while
+   delta-v and delta-p receive their two Jacobian products. rebiasDelta
+   performs the same operation on a composed predictor window. This move
+   is first order in the bias change; it does not exactly reintegrate a
+   finite gyro-bias change. The Kalman measurement updates estimate biases;
+   the preintegral Jacobians transport the resulting change into increments.
+4. ESKF.predictPreintegrated invokes that correction before predicting
+   position, velocity and attitude, and uses the packet's bias Jacobians
+   in its covariance transition. The transition is exact at the packet's
+   bias anchor for the retained nominal map; moving away from that anchor
+   retains the first-order bias-linearization approximation.
+5. Both comparison paths exercise this implementation. Retrodiction uses
+   generated PreintegrationReplay at 800 Hz and supplies its five blocks
+   to the 100 Hz ESKF. The fusion-horizon path generates the same raw-sample
+   increments through integrateSample, composes their Jacobians, releases
+   anchored packets to the delayed ESKF and reapplies rebiased buffered
+   increments to predict the output forward. A raw-IMU path still exists
+   when no preintegrated packet is supplied; not every possible ESKF
+   configuration therefore uses FOH.
+6. Vehicles.Rdd2.WaypointVehicleSystem still defaults useFirstOrderHoldImu
+   to false. Its FohGlobalWaypointMission variant explicitly enables FOH.
+   The corrected physical bias Jacobians also apply to ZOH, but the FOH
+   bracket terms require enabling that option. The benchmark candidate's
+   use of FOH must not be described as enabling FOH for every vehicle model.
+
+Fresh verification
+
+Tests.StrapdownPreintegrationJacobianTests and
+Tests.StrapdownPreintegrationTests both pass as top-level OpenModelica
+simulations from the current worktree. The composed central-difference
+regression checks all five physical blocks through three steps, for both
+FOH and ZOH, with nonidentity initial rotation, nonzero bias anchor,
+changing three-axis inputs, zero rotation and both coefficient branches.
+The packed-coordinate tolerance is 2e-8; this is not a universal accuracy
+bound. The packet regression checks held-input composition, bias derivatives,
+ESKF/UKF packet prediction and FOH improvement against a refined reference.
+These constant-parameter tests evaluate assertions during translation and
+initialization; their output CSVs contain only time. The normalized log is
+acc-preintegration-validation.txt. Local paths are replaced with placeholders;
+source and output hashes are in native-noise-manifest.json.
+
+check_paper_series.py also passes twelve independent exact-rational matrix
+cases: grades zero through four vanish and grade five has the stated form.
+That finite sanity check is not a proof of the general theorem. These checks
+are not a fresh full-CI or flight-qualification run.
+
+Limits
+
+The finite-defect flow-error certificate is not evaluated online. The
+15-state process-noise covariance uses an equivalent held angular rate and
+specific force with a Simpson integral; it does not propagate the exact
+sampled FOH packet-noise covariance or its shared-endpoint cross correlation.
+The earlier 20,000-draw packet-noise experiment exposes that distinction in
+eskf-preintegration-noise.json. Exactness of a mean increment's derivative
+must not be described as exact stochastic covariance propagation.
+
+Semi-direct bias geometry is a separate experimental ESKF option, disabled
+in the frozen comparison candidate. The paper's FOH bias Jacobians do not
+require that option, and they do not make the ESKF a full tangent-group EqF.
+The seed-41 stationary attitude/bias overconfidence, native sensor timing
+fidelity, full scenario matrix and target resource qualification remain open.
+The current evidence supports the preintegration correspondence above, not
+completion of the overall estimator-comparison goal.
+
+Implementation references (relative to the repository)
+
+Estimation/StrapdownINS/preintegrateImuStep.mo
+LieGroups/SE23/Quat/mixed_increment_matrix_jacobian.mo
+Estimation/StrapdownINS/correctPreintegratedImu.mo
+Estimation/StrapdownINS/ESKF/predictPreintegrated.mo
+Estimation/FusionHorizon/integrateSample.mo
+Estimation/FusionHorizon/composeDelta.mo
+Estimation/FusionHorizon/rebiasDelta.mo
+Tests/StrapdownPreintegrationJacobianTests.mo
+Tests/StrapdownPreintegrationTests.mo

@@ -1,0 +1,45 @@
+true
+
+"/tmp/modelica-eskf-theory/omc-all-noopt"
+"/tmp/modelica-eskf-theory/omc-all-noopt"
+"Check of Tests.All completed successfully.
+Class Tests.All has 5614 equation(s) and 5614 variable(s).
+2734 of these are trivial equation(s)."
+Check of Tests.All completed successfully.
+Class Tests.All has 5614 equation(s) and 5614 variable(s).
+2734 of these are trivial equation(s).
+Notification: Automatically loaded package LieGroups (default) due to usage.
+Notification: Automatically loaded package Estimation (default) due to usage.
+Notification: Automatically loaded package Avionics (default) due to usage.
+Notification: Automatically loaded package Vehicles (default) due to usage.
+Notification: Automatically loaded package RigidBody (default) due to usage.
+Notification: Automatically loaded package LinearAlgebra (default) due to usage.
+Notification: Automatically loaded package MathUtilities (default) due to usage.
+Notification: Automatically loaded package Planning (default) due to usage.
+Notification: Automatically loaded package Polynomials (default) due to usage.
+Notification: Automatically loaded package Geodesy (default) due to usage.
+Notification: Automatically loaded package Control (default) due to usage.
+
+record SimulationResult
+    resultFile = "",
+    simulationOptions = "startTime = 0.0, stopTime = 1.0, numberOfIntervals = 1000, tolerance = 1e-8, method = 'dassl', fileNamePrefix = 'modelica_models_Tests_All', options = '', outputFormat = 'mat', variableFilter = '.*', cflags = '-O0', simflags = ''",
+    messages = "Simulation execution failed for model: Tests.All
+LOG_ASSERT        | error   | [/home/jgoppert/git/modelica_models/Tests/StrapdownPreintegrationTests.mo:611:5-622:83:writable]
+|                 | |       | Packet prediction disagrees with ten sequential held-IMU covariance steps
+LOG_ASSERT        | info    | simulation terminated by an assertion at initialization
+",
+    timeFrontend = 4.5194856,
+    timeBackend = 1.8099561620000002,
+    timeSimCode = 4.794086375,
+    timeTemplates = 3.551439088,
+    timeCompile = 115.311959877,
+    timeSimulation = 0.1604556,
+    timeTotal = 130.147516622
+end SimulationResult;
+"Warning: The initial conditions are not fully specified. For more information set -d=initialization. In OMEdit Tools->Options->Simulation->Show additional information from the initialization process, in OMNotebook call setCommandLineOptions(\"-d=initialization\").
+Error: Could not evaluate diagonal. Ceval.cevalBuiltinDiagonal failed.
+"
+""
+
+Modelica test simulation failed
+

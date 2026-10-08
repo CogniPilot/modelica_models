@@ -56,6 +56,20 @@ def main(arguments: Sequence[str] | None = None) -> int:
         if options.command in ("test", "ci", "omc"):
             run_openmodelica_tests(repository)
         if options.command in ("test", "ci", "rumoca"):
+            run_command(
+                [
+                    sys.executable,
+                    "-m",
+                    "unittest",
+                    "discover",
+                    "-s",
+                    "tools/estimator_comparison",
+                    "-p",
+                    "test_*.py",
+                ],
+                repository,
+                "Estimator scoring and IMU calibration regressions",
+            )
             run_rumoca_tests(repository)
         if options.command in ("test", "ci", "plots"):
             run_planning_plots(repository)
@@ -206,6 +220,34 @@ def run_rumoca_tests(repository: Path) -> None:
                 "strapdown-estimator-interface.dae.json",
             ),
             (
+                "Tests/SemiDirectBiasCorrectionReplay.mo",
+                "Tests.SemiDirectBiasCorrectionReplay",
+                "--target",
+                "galec-production",
+                "eskf-correction-kernel",
+            ),
+            (
+                "Tests/CovarianceRootReplay.mo",
+                "Tests.CovarianceRootReplay",
+                "--target",
+                "galec-production",
+                "covariance-root-kernel",
+            ),
+            (
+                "Tests/RawPredictionReplay.mo",
+                "Tests.RawPredictionReplay",
+                "--target",
+                "galec-production",
+                "raw-prediction-kernel",
+            ),
+            (
+                "Tests/SquareRootCorrectionReplay.mo",
+                "Tests.SquareRootCorrectionReplay",
+                "--target",
+                "galec-production",
+                "square-root-correction-kernel",
+            ),
+            (
                 "Estimation/FusionHorizon/OutputPredictor.mo",
                 "Estimation.FusionHorizon.OutputPredictor",
                 "--target",
@@ -274,8 +316,226 @@ def run_rumoca_tests(repository: Path) -> None:
                 f"Rumoca {format_name} compile for {model_name}",
             )
 
+        check_eskf_native(repository, output)
+        check_eskf_correction(repository, output)
+        check_eskf_correction(repository, output, square_root=True)
+        suffix = {"win32": ".dll", "darwin": ".dylib"}.get(sys.platform, ".so")
+        run_command(
+            [
+                sys.executable,
+                str(
+                    repository
+                    / "tools/estimator_comparison/check_correction_covariance.py"
+                ),
+                "--dense",
+                str(output / ("eskf-correction-kernel" + suffix)),
+                "--root",
+                str(output / ("square-root-correction-kernel" + suffix)),
+                "--output",
+                str(output / "correction-joint-covariance.json"),
+            ],
+            repository,
+            "Reject impossible ESKF error/noise covariances",
+        )
+        check_covariance_root(repository, output)
+        check_raw_prediction(repository, output)
+        check_horizon_native(repository, output)
         check_ukf_native(repository, rumoca, output)
         check_pin_dependent_lowering(repository, rumoca, output)
+
+
+def check_eskf_native(repository: Path, output: Path) -> None:
+    """Check simultaneous corrections through the actual deployment export."""
+    compiler = program("MODELICA_MODELS_CC", None, "cc")
+    require_program(compiler, "C99 compiler for the ESKF aiding regression")
+    code = output / "rdd2-estimator/Vehicles_Rdd2_NavigationEstimator/ProductionCode"
+    executable = output / "eskf-aiding-test.exe"
+    run_command(
+        [
+            compiler,
+            "-std=c99",
+            "-O2",
+            "-I" + str(code),
+            str(repository / "tools/estimator_comparison/eskf_aiding.c"),
+            str(code / "Vehicles_Rdd2_NavigationEstimator.c"),
+            str(code / "rumoca_galec_kernels.c"),
+            "-lm",
+            "-o",
+            str(executable),
+        ],
+        repository,
+        "Build ESKF generated C aiding regression",
+    )
+    run_command([str(executable)], repository, "ESKF generated C aiding regression")
+
+
+def check_eskf_correction(
+    repository: Path, output: Path, square_root: bool = False
+) -> None:
+    """Compare deployment corrections with an independent float64 reference."""
+    compiler = program("MODELICA_MODELS_CC", None, "cc")
+    require_program(compiler, "C99 compiler for the ESKF correction regression")
+    probe = "square-root-correction" if square_root else "eskf-correction"
+    model = (
+        "SquareRootCorrectionReplay"
+        if square_root
+        else "SemiDirectBiasCorrectionReplay"
+    )
+    bridge = "square_root_correction.c" if square_root else "semidirect_correction.c"
+    code = output / f"{probe}-kernel/Tests_{model}/ProductionCode"
+    suffix = {"win32": ".dll", "darwin": ".dylib"}.get(sys.platform, ".so")
+    library = output / (probe + "-kernel" + suffix)
+    run_command(
+        [
+            compiler,
+            "-std=c99",
+            "-O2",
+            "-pipe",
+            "-fPIC",
+            "-dynamiclib" if sys.platform == "darwin" else "-shared",
+            "-I" + str(code),
+            str(repository / "tools/estimator_comparison" / bridge),
+            str(code / f"Tests_{model}.c"),
+            str(code / "rumoca_galec_kernels.c"),
+            "-lm",
+            "-o",
+            str(library),
+        ],
+        repository,
+        "Build ESKF generated C correction regression",
+    )
+    for seed in (20261007, 911):
+        run_command(
+            [
+                sys.executable,
+                str(
+                    repository
+                    / "tools/estimator_comparison/check_semidirect_correction.py"
+                ),
+                "--library",
+                str(library),
+                "--seed",
+                str(seed),
+                "--output",
+                str(output / f"{probe}-{seed}.json"),
+            ],
+            repository,
+            f"Independent ESKF correction regression, seed {seed}",
+        )
+
+
+def check_raw_prediction(repository: Path, output: Path) -> None:
+    compiler = program("MODELICA_MODELS_CC", None, "cc")
+    require_program(compiler, "C99 compiler for raw ESKF prediction")
+    code = output / "raw-prediction-kernel/Tests_RawPredictionReplay/ProductionCode"
+    suffix = {"win32": ".dll", "darwin": ".dylib"}.get(sys.platform, ".so")
+    library = output / ("raw-prediction-kernel" + suffix)
+    run_command(
+        [
+            compiler,
+            "-std=c99",
+            "-O2",
+            "-pipe",
+            "-fPIC",
+            "-dynamiclib" if sys.platform == "darwin" else "-shared",
+            "-I" + str(code),
+            str(repository / "tools/estimator_comparison/raw_prediction.c"),
+            str(code / "Tests_RawPredictionReplay.c"),
+            str(code / "rumoca_galec_kernels.c"),
+            "-lm",
+            "-o",
+            str(library),
+        ],
+        repository,
+        "Build raw ESKF prediction regression",
+    )
+    for seed in (20261007, 20271008):
+        run_command(
+            [
+                sys.executable,
+                str(repository / "tools/estimator_comparison/check_raw_prediction.py"),
+                "--library",
+                str(library),
+                "--seed",
+                str(seed),
+                "--output",
+                str(output / f"raw-prediction-{seed}.json"),
+            ],
+            repository,
+            f"Independent raw prediction regression, seed {seed}",
+        )
+
+
+def check_covariance_root(repository: Path, output: Path) -> None:
+    """Check float32 QR factors, including the captured failing covariance reset."""
+    compiler = program("MODELICA_MODELS_CC", None, "cc")
+    require_program(compiler, "C99 compiler for the covariance-root regression")
+    code = output / "covariance-root-kernel/Tests_CovarianceRootReplay/ProductionCode"
+    suffix = {"win32": ".dll", "darwin": ".dylib"}.get(sys.platform, ".so")
+    library = output / ("covariance-root-kernel" + suffix)
+    run_command(
+        [
+            compiler,
+            "-std=c99",
+            "-O2",
+            "-pipe",
+            "-fPIC",
+            "-dynamiclib" if sys.platform == "darwin" else "-shared",
+            "-I" + str(code),
+            str(repository / "tools/estimator_comparison/covariance_root.c"),
+            str(code / "Tests_CovarianceRootReplay.c"),
+            str(code / "rumoca_galec_kernels.c"),
+            "-lm",
+            "-o",
+            str(library),
+        ],
+        repository,
+        "Build generated C covariance-root regression",
+    )
+    for seed in (20271007, 20271008):
+        run_command(
+            [
+                sys.executable,
+                str(repository / "tools/estimator_comparison/check_covariance_root.py"),
+                "--library",
+                str(library),
+                "--seed",
+                str(seed),
+                "--output",
+                str(output / f"covariance-root-{seed}.json"),
+            ],
+            repository,
+            f"Independent covariance-root regression, seed {seed}",
+        )
+
+
+def check_horizon_native(repository: Path, output: Path) -> None:
+    """Check horizon epochs in float32 through startup, reset and a long replay."""
+    compiler = program("MODELICA_MODELS_CC", None, "cc")
+    require_program(compiler, "C99 compiler for the horizon epoch regression")
+    code = (
+        output
+        / "fusion-horizon-output-predictor/Estimation_FusionHorizon_OutputPredictor/ProductionCode"
+    )
+    executable = output / "horizon-epoch-test.exe"
+    run_command(
+        [
+            compiler,
+            "-std=c99",
+            "-O2",
+            "-pipe",
+            "-I" + str(code),
+            str(repository / "tools/estimator_comparison/horizon_epoch.c"),
+            str(code / "Estimation_FusionHorizon_OutputPredictor.c"),
+            str(code / "rumoca_galec_kernels.c"),
+            "-lm",
+            "-o",
+            str(executable),
+        ],
+        repository,
+        "Build horizon generated C epoch regression",
+    )
+    run_command([str(executable)], repository, "Horizon generated C epoch regression")
 
 
 def check_ukf_native(repository: Path, rumoca: str, output: Path) -> None:
@@ -339,7 +599,7 @@ PIN_DEPENDENT_MODELS = (
     (
         "Estimation/FusionHorizon/HorizonEstimator.mo",
         "Estimation.FusionHorizon.HorizonEstimator",
-        "identity 573 is not owned by clock identity 0",
+        "identity 578 is not owned by clock identity 0",
         "Estimation/FusionHorizon/HorizonEstimator.mo:259:5",
         "filterPositionHeld_m := filter.estimate.positionWorldEnu_m",
     ),

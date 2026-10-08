@@ -1,0 +1,243 @@
+{
+  "date": "2026-10-07",
+  "base_commit": "e7b5912acf872c81ca2bd9c4fbb46f6491d90c6b",
+  "host": "Linux-6.18.39-x86_64-with-glibc2.42",
+  "source_sha256": {
+    "tools/estimator_comparison/native_delay.py": "83b347ce15deb20a43111e32832e07820723486ca232352d48e733957881fd5b",
+    "tools/estimator_comparison/transport_trace.c": "616336d374b756e4b69dcf107e5a770e8cfb1e74a831acdddcbb75692f4501fb",
+    "tools/estimator_comparison/transport.h": "6e426a1ba56f540fb6b571d01a105104cbcb2a3ddf0dd0f138a201b8e9bf9a77",
+    "tools/estimator_comparison/report_native_delay.py": "97109ce103bac807f350eee3b33c754d5d0aed651e194e1207076d411717c3c8",
+    "tools/estimator_comparison/test_native_delay.py": "b535bf144661203169db4bf5d07472eb75625b998966fa518548c3a0827eebbe",
+    "tools/estimator_comparison/score.py": "d9d9dcf779c88abd5a4f8342251247078178100aa0617b205bac7455d9ab0077"
+  },
+  "input_sha256": {
+    "original": {
+      "0.6_19": {
+        "imu.csv": "d71c1d718ca12ebb08bc0ca39b52b41d37a55a36c1cd3e7f7c5b4e3fdc8af070",
+        "gps.csv": "751434a3cfb82af5381c4d26150bcc13976d084809c19df10216920fc2b8f1e5",
+        "flow.csv": "7c439fa29bc73376ca26c26296bbfab55fae23dab09d8acbc2de9bd18c42d239",
+        "mag.csv": "f61b6501defb1b8dae3217ba5ceeaa59748e5c3124c14d5133511c9eac64913e",
+        "baro.csv": "9ef2db5a18e60034fe168095bd3504608c5620e98ee3f389f5f451e22efed1fd",
+        "origin.json": "42b674a5ad7ec5fd8e28c274387ceeb3e27d8c1bbce5a723ba702af6756394ab",
+        "modelica_input.csv": "acb6e2d3e2fcd3af3a4274dce4eabde37e85875c096907f8a888754ac293c23e",
+        "truth.csv": "33d28654acba349e570cb65fb05603219bc5f8b3d00f73369925c45db9ee52c2"
+      },
+      "0.6_41": {
+        "imu.csv": "c760bbdce77764bfb20e9a7a0fad9531ab3eb33ecadee10978607524839228e7",
+        "gps.csv": "4908d39e36317d3ba6b5f9febc1c4fc9db70483d26949c97cace3c958bfb4f32",
+        "flow.csv": "a084c2fe15d353d297df8fcd002f395db1df1f68a5c8aaba17dff673bbcf61fb",
+        "mag.csv": "040d67c6623514e979e9df5ccd30414d5aa32475f8fbc755810169fde034be2c",
+        "baro.csv": "f0bd6c0e1105a8c54c62fbc6d3253e0c05c9b11d840f1f6ecb1981a7b13a01d0",
+        "origin.json": "f9c821df4bc987f83fffd310a8f3970c446b52d1fc7c3aa0261fefd484227b73",
+        "modelica_input.csv": "6609b33ff5b5fed148af03dfa6fae94def4ce38822cf86fea256ba4b5a8b1bbf",
+        "truth.csv": "33d28654acba349e570cb65fb05603219bc5f8b3d00f73369925c45db9ee52c2"
+      },
+      "0.6_7": {
+        "imu.csv": "46573ef7c5c8c10ea5d9762d381c03e46ca1246a14dc63651cb7dfd37a90055b",
+        "gps.csv": "0057f8a277834500d2d4857305bf70ed619e4fe34438cd6964a6793610432c62",
+        "flow.csv": "8326a2b37d40c7300c89dc7d3a06424c6bd69ae40380acca8f9d591f7d715280",
+        "mag.csv": "d8d19e45275d5d692f9deda8c3e3c13439b23e7bc5f2ac4085175e015e61d550",
+        "baro.csv": "3b87d63b95ea3e3dfd7f92f854ef67b5ac54d5021bc3013848b2b3cd187ad28b",
+        "origin.json": "e260b5cace69c5ec57e606a38718b49eb0f36218dbb4e0b944c4ba42d5754972",
+        "modelica_input.csv": "b79060fc8c40437f604890940600d3ab6a602358fe3f0a4fed1cab598ad4c1db",
+        "truth.csv": "33d28654acba349e570cb65fb05603219bc5f8b3d00f73369925c45db9ee52c2"
+      },
+      "lower_0.6_19": {
+        "imu.csv": "d71c1d718ca12ebb08bc0ca39b52b41d37a55a36c1cd3e7f7c5b4e3fdc8af070",
+        "gps.csv": "751434a3cfb82af5381c4d26150bcc13976d084809c19df10216920fc2b8f1e5",
+        "flow.csv": "94cb9ee63846f439abd7b409f734e595ebe084a8ecad5627b7192fe3534af9a8",
+        "mag.csv": "622f6569b485ad4b709c8e82c8c0c08674706378ce837839cee34a8b462f5a9d",
+        "baro.csv": "508e8197b1dcdc4e01de97e2efc89090bd6b029c0b2d7d9158ba65a6593af8e4",
+        "origin.json": "65504b1c16035fffb3ce24444b18195e0a112d5ed4b8fdfa4a294a27a76b6c74",
+        "modelica_input.csv": "2cb1b41799b889c70f3ee22917c5d9bf61ed2202a8fc166d46a4c6088c2a7a38",
+        "truth.csv": "33d28654acba349e570cb65fb05603219bc5f8b3d00f73369925c45db9ee52c2"
+      },
+      "lower_0.6_41": {
+        "imu.csv": "c760bbdce77764bfb20e9a7a0fad9531ab3eb33ecadee10978607524839228e7",
+        "gps.csv": "4908d39e36317d3ba6b5f9febc1c4fc9db70483d26949c97cace3c958bfb4f32",
+        "flow.csv": "995923fd0c60842b6cfa63169d60d5daacd9f4de5e7cd072567dc8c77cc99be5",
+        "mag.csv": "0aad6b67c0b6450b8d6929024bf2a23499e22e48a64bdfee9d309e3fab48564d",
+        "baro.csv": "89ec0e98736a0e40d5bbbab38a56be0b312abe73064fda974a6b330b17208420",
+        "origin.json": "b125ebcf7c33a7cc311d74f1ae173a9df87f163628aa77166769e06830d11135",
+        "modelica_input.csv": "585fc573f7a180c6f593af4ac21cdd42a66bf32f306453ee5e0aaaa3cebbd9c4",
+        "truth.csv": "33d28654acba349e570cb65fb05603219bc5f8b3d00f73369925c45db9ee52c2"
+      },
+      "lower_0.6_7": {
+        "imu.csv": "46573ef7c5c8c10ea5d9762d381c03e46ca1246a14dc63651cb7dfd37a90055b",
+        "gps.csv": "0057f8a277834500d2d4857305bf70ed619e4fe34438cd6964a6793610432c62",
+        "flow.csv": "774d0ec176cb880c524514be1f74d5e346a6ba2c3f3b8c5720bf5b9e854cacbf",
+        "mag.csv": "e94dd3736a38964fd27f07fe6c68ce91901703991c9efa26f3d4b3bc5ecb083c",
+        "baro.csv": "ebc48666ffb3337a1204d818f4c41a2d2e71b6e4b2004247c01dabe8e9a11889",
+        "origin.json": "7426b29f243c22e01bd8d18c65d13c8f8f97ffec0741f5e19fd7bb2840c5d3c1",
+        "modelica_input.csv": "6aef04c6681771eaa39e76c334ab80ee688b09ea364e273e26774afec5c002b4",
+        "truth.csv": "33d28654acba349e570cb65fb05603219bc5f8b3d00f73369925c45db9ee52c2"
+      }
+    },
+    "held-out": {
+      "0.85_101": {
+        "imu.csv": "3c720575a4fd06688f3452602e26b4deaf3697793852b9c4fd17e460545c6af9",
+        "gps.csv": "c177a2092db4acf81ce756f97fc0bc67e5f8ba5be282c2970602c757a872699b",
+        "flow.csv": "0913a11201609f33ccd3aa18daf130e6db6591efc02ce9ffc263958e15d44f3a",
+        "mag.csv": "4493120c54cc05850a9f2debe1a989eaaeef675ec409a2362dfd33fe02cde569",
+        "baro.csv": "759a8dedb15668370004ec37eacfd004fcf7d777142c7419bd77251d3bbcf3f2",
+        "origin.json": "ec05eabf0ca6a72ce660c3fb9ab1d1ec865e05a44a4642ed7ad764f9b7779410",
+        "modelica_input.csv": "9642d37c2552d9e93e0cb69ea9a356bb1e89fe7ce36af49677cf96ca90332d03",
+        "truth.csv": "e32d05d8f741addac6da1a84faae6ea63c1509c535b0541d072a8c74f6f574c5"
+      },
+      "0.85_307": {
+        "imu.csv": "4228efe20e900ce326655beb1409f19221b5b8126ac6a14812c93a236543fafb",
+        "gps.csv": "054927a63205936ac3d7002e88448221b83826d167b3c4f5f84bfce4f15a9aa6",
+        "flow.csv": "eccfb4c0975e12251b89948316e056d511190477b6ab4cf19dcdbba2ae808c01",
+        "mag.csv": "868bdfba968a29976fbbe3e08b352e090b90d1537944e4aef2a1a64a7cc1389f",
+        "baro.csv": "406ca2004c30e200aa67cc413730ab02f8a01d76f125df2cd09298da604266ae",
+        "origin.json": "64f28281a4e2b531d10efe1949c791b4d7d7ef1df3fba74659e63849415c651d",
+        "modelica_input.csv": "144ee37fa7950cb0fc5f81191f2eeade57bff5a7c6e8c6e3d57437ae4edf80b8",
+        "truth.csv": "e32d05d8f741addac6da1a84faae6ea63c1509c535b0541d072a8c74f6f574c5"
+      },
+      "0.85_911": {
+        "imu.csv": "4987d799b45f73ef586f56b955a23026e9e5e97e813581998246c6b995591e11",
+        "gps.csv": "fde006f8f0ffad69dbe1ba2408516f8233bf863ce39a6807757409c91240186c",
+        "flow.csv": "3cc3e9a3e9168e765e9f4259a5969a1e5c70d2c28a86d3c618977272b8877b10",
+        "mag.csv": "2f27383ae8725e2e25d2f420b0ca160c18ae411d8677754088f35def8ba52507",
+        "baro.csv": "f401191cc9f7b5ae0daa9ea8ea72de9b0a4a0314c9dd449e2484314f4af140b3",
+        "origin.json": "5ea9a2ba12c50556ee3008b1c08bf64c5b890eb5ed04c270fa3639efda8434d2",
+        "modelica_input.csv": "808c8285ecd2da2b6452cb77e7ef1c315b7ae0393c9144443c8fab8c813c56ef",
+        "truth.csv": "e32d05d8f741addac6da1a84faae6ea63c1509c535b0541d072a8c74f6f574c5"
+      },
+      "lower_0.85_101": {
+        "imu.csv": "3c720575a4fd06688f3452602e26b4deaf3697793852b9c4fd17e460545c6af9",
+        "gps.csv": "c177a2092db4acf81ce756f97fc0bc67e5f8ba5be282c2970602c757a872699b",
+        "flow.csv": "49e6d8f1935bb1e96e398f91e30c79a921b6b70623b7441e5ab31d7ea7cc82fd",
+        "mag.csv": "b512e4e1dd3be60402c0bda1b55a7acd87a5f1c938e6978b4110f8604cde0909",
+        "baro.csv": "d9e9c787113a4cfb66765edf680fbd29135cbf814e8d1ea897e42742d3ae8f59",
+        "origin.json": "ae7fd2901f30ce9d58b12661714d3b9897b46489d3471b7c40848e1f9d800e77",
+        "modelica_input.csv": "42cb082f817da73e1a79f94c597bec9e9ab41fb6833fd19ee4f82d1819d78ab9",
+        "truth.csv": "e32d05d8f741addac6da1a84faae6ea63c1509c535b0541d072a8c74f6f574c5"
+      },
+      "lower_0.85_307": {
+        "imu.csv": "4228efe20e900ce326655beb1409f19221b5b8126ac6a14812c93a236543fafb",
+        "gps.csv": "054927a63205936ac3d7002e88448221b83826d167b3c4f5f84bfce4f15a9aa6",
+        "flow.csv": "72cb44c00660a47926c055885175f69779f1868eefc58b70dff53d589f8db13a",
+        "mag.csv": "b245d90b378dfa6f64c470f55222bd22a68305320b07baf95f29c67b0d4f239c",
+        "baro.csv": "d89bc336549bce13b99d6c4dbb001108a0dcafee5b2e0157ceb3ba99e6f74474",
+        "origin.json": "fb3c0a3f0f2428e3501e2508f1808ebe4c8cad92dd65a0b8dc13eb3ecae680c3",
+        "modelica_input.csv": "1129619ee20c20887c0006b1c56ea2691db18f977f55d2e25779b48dac0db17c",
+        "truth.csv": "e32d05d8f741addac6da1a84faae6ea63c1509c535b0541d072a8c74f6f574c5"
+      },
+      "lower_0.85_911": {
+        "imu.csv": "4987d799b45f73ef586f56b955a23026e9e5e97e813581998246c6b995591e11",
+        "gps.csv": "fde006f8f0ffad69dbe1ba2408516f8233bf863ce39a6807757409c91240186c",
+        "flow.csv": "9bbc1b94d1335c94b5c5dba0c41abe7d946b227d9242a1d6d78969fd9d7a54bf",
+        "mag.csv": "397554fc241523b442e1013a6e44dcf49bcf88fbddd2b78119b9bbd4008968a0",
+        "baro.csv": "c8e2f4c481584705d1463731374cf8f51d197a8c40608ddb9ace924855db5533",
+        "origin.json": "a601cea5741fdf8afdbeb381650c63332a87c54a21d2ce752768a591592e32a8",
+        "modelica_input.csv": "8f5d5dcb18e285fd2761986ace4055e78c8a9d1c49a52c6ae9ebc2e84eb814bc",
+        "truth.csv": "e32d05d8f741addac6da1a84faae6ea63c1509c535b0541d072a8c74f6f574c5"
+      }
+    }
+  },
+  "artifact_sha256": {
+    "native-delay-held-out.json": "3f57f5e922c33695a0bb38762cf30f9141fa199572bb774d32cf437d5297f161",
+    "native-delay.html": "5d49ac5a1d580644a7ad4754c2b547691a24eaa76b8428c22f3b1a8f24905e3e",
+    "native-delay-original.json": "dd3c7fe7cf33936b646bb0184f5c4836d0723f845a07dcd32991b5e8aa6e45e9",
+    "native-delay.txt": "f33b59d18e018748be9cd570bc1a6ad0ea2e1e55feb12d50002fd6da76f1d207",
+    "native-delay.csv": "73859f78d41baf7bcb40443da45e8e2d3d876980cc80167b7798bde25f157cac",
+    "eskf-delay-original.json": "114dd1ba9887d62423f0e011ba09dcd945a7e4e678f6138d057b02a53477e8f9",
+    "eskf-delay-held-out.json": "eab3440be73bd5d3c626984be79d9e403b1adc68141eb896c1f09d37489aac68",
+    "eskf-delay-manifest.json": "3872c3afd096c82b7bdb98219daf78d6e5ea04ee5589b9620090c9b8a18c55a5"
+  },
+  "native_source_pins": {
+    "px4": "f1c0a1f794edf8e5e974b6ed96df3f95eda0df39",
+    "ardupilot": "1511f27194f1dcc3728270883047bdf022b3fd53"
+  },
+  "external_adapter_sha256": {
+    "ardupilot/csv_to_dataflash.py": "1c165fda77af2dd39e2a9c96685441abf65893503618c230e3f436f47750e7eb",
+    "ardupilot/run_ekf3.py": "46bbfaf1ae961c45c4c9f3fa6d357fe3e238d67a8cf48001c3c8caadc8ad61a0"
+  },
+  "native_binary_sha256": {
+    "original": {
+      "px4": "8ac48cfb02325a1e429a97bc027c68d351a23c4db0a494b29d54ea6c559f2e25",
+      "ekf3": "5c55e32c8f129768038af70df3bfc63f4a0d5ef8b514bea07444dec31f39fc71",
+      "px4_core_library": "a279a1ad795ccde644e4bdb1f515ccd376ed8c93cfc8bd29745df9283ee1fb04",
+      "transport_trace": "4ba96ac07ffb4b46f720c51be9dbab95921b143fd50b4309212c3942e6b90360"
+    },
+    "held-out": {
+      "px4": "8ac48cfb02325a1e429a97bc027c68d351a23c4db0a494b29d54ea6c559f2e25",
+      "ekf3": "5c55e32c8f129768038af70df3bfc63f4a0d5ef8b514bea07444dec31f39fc71",
+      "px4_core_library": "a279a1ad795ccde644e4bdb1f515ccd376ed8c93cfc8bd29745df9283ee1fb04",
+      "transport_trace": "4ba96ac07ffb4b46f720c51be9dbab95921b143fd50b4309212c3942e6b90360"
+    }
+  },
+  "patched_external_px4_adapter_sha256": {
+    "original": "5fd9b8a87fff090ada81e33461d67610ae346f9b09942a7d748b2131327db9bb",
+    "held-out": "5fd9b8a87fff090ada81e33461d67610ae346f9b09942a7d748b2131327db9bb"
+  },
+  "provenance": "Native cores unchanged; existing clean pinned-source library/Replay builds reused. External adapter main transformed only in owned probe directories. No upstream native code vendored.",
+  "configuration": {
+    "px4_delay_max_ms": 200,
+    "px4_timestamp_delays_ms": 0,
+    "ekf3_reserved_buffer_delay_ms": 200,
+    "ekf3_reserve_parameter": "EK3_BCN_DELAY (no beacon measurements)",
+    "ekf3_gps_driver_lag": "Exact arrival age per packet; full three-axis velocity enabled",
+    "ekf3_flow_and_height_delay": "Declared mean transport age, including positive jitter and 100 Hz quantization",
+    "ekf3_magnetic_delay_ms": 60
+  },
+  "delay_profiles_ms": {
+    "zero": [
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "nominal": [
+      110,
+      30,
+      20,
+      20,
+      10
+    ],
+    "stress": [
+      160,
+      60,
+      50,
+      70,
+      20
+    ]
+  },
+  "validation": {
+    "native_runs": 216,
+    "shared_cases": 108,
+    "eskf_runs_reused": 216,
+    "matched_transport_digests": 216,
+    "scoring_rows_per_flight": 4700,
+    "resampling_tests": 3,
+    "interactive_report_selections": 576,
+    "lint": "passed",
+    "diff_check": "passed",
+    "native_cores_rebuilt": false,
+    "full_ci": false,
+    "mission_qualification": false,
+    "flight_timing_qualified": false,
+    "fresh_c99_trace_checks": 108,
+    "fresh_c99_trace_binary_sha256": "493337f072105edc9ce48cda44266fc25b21631aabcc741f51a7859b63a59da1",
+    "fresh_c99_arrival_traces_byte_identical": 108,
+    "final_source_smoke_outputs_identical": 4,
+    "scoring_tests": 4
+  },
+  "limitations": [
+    "Original declared stationary phase is supplied to native at-rest/armed interfaces; ESKF has no equivalent explicit flag",
+    "Native priors, process/measurement tuning, sensor selection and complementary output dynamics remain stack-specific",
+    "EKF3 reconstructs flow/magnetic epochs using native fixed-delay rules; preserved packet timestamps do not override those rules",
+    "EKF3 uses barometric height while PX4/ESKF can also fuse GPS height; all three receive three-axis GPS velocity",
+    "Synthetic body-velocity/range flow reconstruction; not a real raw-image disturbance campaign",
+    "Native source-active flags do not prove individual measurement acceptance",
+    "Existing audited native library/binary reused; native cores were not freshly rebuilt in this restricted session",
+    "Native timing/memory not instrumented comparably",
+    "Horizon covariance consistency not implemented",
+    "Only two delayed-flight motion frequencies; no disturbance/moving-start campaign"
+  ],
+  "committed": false,
+  "pushed": false,
+  "objective_achieved": false
+}

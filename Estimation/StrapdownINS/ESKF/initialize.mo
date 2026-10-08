@@ -9,6 +9,7 @@ function initialize "Initialize the geometric error-state filter"
   input Real initialAccelerometerBiasBodyFlu_m_s2[3] = zeros(3);
   input Real initialPositionCovarianceWorld_m2[3, 3] = zeros(3, 3)
     "Covariance of an aiding position used as the seed; zero keeps configured priors";
+  input Boolean useSquareRootCovariance = false;
   output State state;
 protected
   Covariance initialCovariance;
@@ -26,5 +27,9 @@ algorithm
     quaternionWorldBody=LieGroups.SO3.Quat.normalize(quaternionWorldBody),
     gyroscopeBiasBodyFlu_rad_s=initialGyroscopeBiasBodyFlu_rad_s,
     accelerometerBiasBodyFlu_m_s2=initialAccelerometerBiasBodyFlu_m_s2,
-    covariance=initialCovariance);
+    covariance=initialCovariance,
+    useSquareRootCovariance=useSquareRootCovariance,
+    covarianceRoot=if useSquareRootCovariance then diagonal(
+      {sqrt(initialCovariance[axis, axis]) for axis in 1:TangentLength})
+      else zeros(TangentLength, TangentLength));
 end initialize;

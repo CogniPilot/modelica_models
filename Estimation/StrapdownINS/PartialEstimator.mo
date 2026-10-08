@@ -29,7 +29,7 @@ partial block PartialEstimator
     "Plane offset d in normal' * position = d";
   parameter Real localMagneticFieldWorldEnu_T[3] =
     {-1.59e-6, 20.04e-6, -47.91e-6}
-    "Local geomagnetic field reference used only for yaw";
+    "Local geomagnetic field reference in world ENU axes";
   // ENU, so the components are {east, north, up} and the horizontal pair is
   // what sets declination. The previous default {18.0e-6, 4.0e-6, -47.0e-6}
   // had east and north transposed: it declares a field pointing 77.5 degrees
