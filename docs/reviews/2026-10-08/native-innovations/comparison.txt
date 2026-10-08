@@ -1,0 +1,101 @@
+Native scalar innovations and GPS readiness audit
+
+24 observer replays reproduce all frozen native state outputs byte for byte.
+Native measurement variances are logged at the actual scalar correction, not reconstructed from gate ratios.
+Per-axis NIS is not joint vector NIS; accepted-update statistics are conditional on native selection.
+Native effective R/Q, priors and source policies remain unequal.
+No independent Monte Carlo or uniform-estimator-superiority claim.
+
+Actual first horizontal GPS fusion (seconds at the fusion horizon):
+px4 f=0.6 seed=7 height=2 scenario=gps: first=2.12625; GPS updates in 13-25s=120
+ekf3 f=0.6 seed=7 height=2 scenario=gps: first=35.6; GPS updates in 13-25s=0
+px4 f=0.6 seed=7 height=2 scenario=transition: first=2.12625; GPS updates in 13-25s=120
+ekf3 f=0.6 seed=7 height=2 scenario=transition: first=40.1; GPS updates in 13-25s=0
+px4 f=0.6 seed=7 height=4 scenario=gps: first=2.12625; GPS updates in 13-25s=120
+ekf3 f=0.6 seed=7 height=4 scenario=gps: first=43.912; GPS updates in 13-25s=0
+px4 f=0.6 seed=7 height=4 scenario=transition: first=2.12625; GPS updates in 13-25s=120
+ekf3 f=0.6 seed=7 height=4 scenario=transition: first=43.912; GPS updates in 13-25s=0
+px4 f=0.85 seed=101 height=2 scenario=gps: first=2.12625; GPS updates in 13-25s=120
+ekf3 f=0.85 seed=101 height=2 scenario=gps: first=35.7; GPS updates in 13-25s=0
+px4 f=0.85 seed=101 height=2 scenario=transition: first=2.12625; GPS updates in 13-25s=120
+ekf3 f=0.85 seed=101 height=2 scenario=transition: first=40.1; GPS updates in 13-25s=0
+px4 f=0.85 seed=101 height=4 scenario=gps: first=2.12625; GPS updates in 13-25s=120
+ekf3 f=0.85 seed=101 height=4 scenario=gps: first=43.312; GPS updates in 13-25s=0
+px4 f=0.85 seed=101 height=4 scenario=transition: first=2.12625; GPS updates in 13-25s=120
+ekf3 f=0.85 seed=101 height=4 scenario=transition: first=43.312; GPS updates in 13-25s=0
+
+All four EKF3 loss/return cases have zero GPS corrections before the 25s outage.
+They do not demonstrate an established-GPS to GPS-denied to GPS-restored transition for EKF3.
+All four PX4 cases have 120 GPS-position corrections in the 13-25s interval.
+EKF3 steady-GPS cases first fuse horizontal GPS at 35.6-43.912s; PX4 begins at 2.12625s.
+The native EKF3 gyro-bias variance readiness condition is not met at the 13s takeoff.
+Joining the covariance observer is valid because both observers have identical published trajectories.
+Post-update covariance snapshots show a necessary condition, not every readiness flag or sole-cause intervention.
+
+Flight-window median of condition-level scalar NIS means (all selection caveats apply):
+ekf3 denied barometer 0: conditions=4/4, median mean-NIS=0.002510401, median R=4, invalid scored rows=0
+ekf3 denied mag_heading 0: conditions=4/4, median mean-NIS=0.0007508655, median R=0.25, invalid scored rows=0
+ekf3 denied optical_flow 0: conditions=4/4, median mean-NIS=0.000436481, median R=0.0625, invalid scored rows=0
+ekf3 denied optical_flow 1: conditions=4/4, median mean-NIS=0.0004272271, median R=0.0625, invalid scored rows=0
+ekf3 gps barometer 0: conditions=4/4, median mean-NIS=0.002510276, median R=4, invalid scored rows=0
+ekf3 gps gps_position 0: conditions=4/4, median mean-NIS=0.1349799, median R=0.25, invalid scored rows=0
+ekf3 gps gps_position 1: conditions=4/4, median mean-NIS=0.1786451, median R=0.25, invalid scored rows=0
+ekf3 gps gps_velocity 0: conditions=4/4, median mean-NIS=0.02915678, median R=0.09000001, invalid scored rows=0
+ekf3 gps gps_velocity 1: conditions=4/4, median mean-NIS=0.02771187, median R=0.09000001, invalid scored rows=0
+ekf3 gps gps_velocity 2: conditions=4/4, median mean-NIS=0.00975406, median R=0.25, invalid scored rows=0
+ekf3 gps mag_heading 0: conditions=4/4, median mean-NIS=0.0008139337, median R=0.25, invalid scored rows=0
+ekf3 gps optical_flow 0: conditions=4/4, median mean-NIS=0.00055972, median R=0.0625, invalid scored rows=0
+ekf3 gps optical_flow 1: conditions=4/4, median mean-NIS=0.0005296666, median R=0.0625, invalid scored rows=0
+ekf3 transition barometer 0: conditions=4/4, median mean-NIS=0.002512544, median R=4, invalid scored rows=0
+ekf3 transition gps_position 0: conditions=4/4, median mean-NIS=0.1296426, median R=0.25, invalid scored rows=0
+ekf3 transition gps_position 1: conditions=4/4, median mean-NIS=0.1825381, median R=0.25, invalid scored rows=0
+ekf3 transition gps_velocity 0: conditions=4/4, median mean-NIS=0.02818887, median R=0.09000001, invalid scored rows=0
+ekf3 transition gps_velocity 1: conditions=4/4, median mean-NIS=0.0282187, median R=0.09000001, invalid scored rows=0
+ekf3 transition gps_velocity 2: conditions=4/4, median mean-NIS=0.009569728, median R=0.25, invalid scored rows=0
+ekf3 transition mag_heading 0: conditions=4/4, median mean-NIS=0.0008153156, median R=0.25, invalid scored rows=0
+ekf3 transition optical_flow 0: conditions=4/4, median mean-NIS=0.0005442699, median R=0.0625, invalid scored rows=0
+ekf3 transition optical_flow 1: conditions=4/4, median mean-NIS=0.0005210588, median R=0.0625, invalid scored rows=0
+px4 denied barometer 0: conditions=4/4, median mean-NIS=0.002641122, median R=4.081475, invalid scored rows=0
+px4 denied mag_axes 0: conditions=4/4, median mean-NIS=0.003500464, median R=0.0025, invalid scored rows=0
+px4 denied mag_axes 1: conditions=4/4, median mean-NIS=0.00394215, median R=0.0025, invalid scored rows=0
+px4 denied mag_axes 2: conditions=4/4, median mean-NIS=0.003660104, median R=0.0025, invalid scored rows=0
+px4 denied mag_heading_axes 0: conditions=4/4, median mean-NIS=0.002337557, median R=0.0025, invalid scored rows=0
+px4 denied mag_heading_axes 1: conditions=4/4, median mean-NIS=0.004463146, median R=0.0025, invalid scored rows=0
+px4 denied mag_heading_axes 2: conditions=4/4, median mean-NIS=0.00240411, median R=0.0025, invalid scored rows=0
+px4 denied optical_flow 0: conditions=4/4, median mean-NIS=0.001172942, median R=0.0225, invalid scored rows=0
+px4 denied optical_flow 1: conditions=4/4, median mean-NIS=0.0008162391, median R=0.0225, invalid scored rows=0
+px4 gps barometer 0: conditions=4/4, median mean-NIS=0.003296117, median R=4.081218, invalid scored rows=0
+px4 gps gps_height 0: conditions=4/4, median mean-NIS=0.1950373, median R=0.5946399, invalid scored rows=0
+px4 gps gps_position 0: conditions=4/4, median mean-NIS=0.1483639, median R=0.25, invalid scored rows=0
+px4 gps gps_position 1: conditions=4/4, median mean-NIS=0.1710475, median R=0.25, invalid scored rows=0
+px4 gps gps_velocity 0: conditions=4/4, median mean-NIS=0.01515117, median R=0.25, invalid scored rows=0
+px4 gps gps_velocity 1: conditions=4/4, median mean-NIS=0.01862941, median R=0.25, invalid scored rows=0
+px4 gps gps_velocity 2: conditions=4/4, median mean-NIS=0.005837687, median R=0.5625, invalid scored rows=0
+px4 gps mag_axes 0: conditions=4/4, median mean-NIS=0.003566666, median R=0.0025, invalid scored rows=0
+px4 gps mag_axes 1: conditions=4/4, median mean-NIS=0.004754856, median R=0.0025, invalid scored rows=0
+px4 gps mag_axes 2: conditions=4/4, median mean-NIS=0.003749911, median R=0.0025, invalid scored rows=0
+px4 gps mag_heading_axes 0: conditions=4/4, median mean-NIS=0.002345096, median R=0.0025, invalid scored rows=0
+px4 gps mag_heading_axes 1: conditions=4/4, median mean-NIS=0.004454106, median R=0.0025, invalid scored rows=0
+px4 gps mag_heading_axes 2: conditions=4/4, median mean-NIS=0.002405074, median R=0.0025, invalid scored rows=0
+px4 gps optical_flow 0: conditions=4/4, median mean-NIS=0.001442408, median R=0.0225, invalid scored rows=0
+px4 gps optical_flow 1: conditions=4/4, median mean-NIS=0.002223454, median R=0.0225, invalid scored rows=0
+px4 transition barometer 0: conditions=4/4, median mean-NIS=0.006344579, median R=4.081218, invalid scored rows=0
+px4 transition gps_height 0: conditions=4/4, median mean-NIS=0.2008714, median R=0.5946672, invalid scored rows=0
+px4 transition gps_position 0: conditions=4/4, median mean-NIS=0.1398165, median R=0.25, invalid scored rows=0
+px4 transition gps_position 1: conditions=4/4, median mean-NIS=0.1798187, median R=0.25, invalid scored rows=0
+px4 transition gps_velocity 0: conditions=4/4, median mean-NIS=0.01622456, median R=0.25, invalid scored rows=0
+px4 transition gps_velocity 1: conditions=4/4, median mean-NIS=0.01981532, median R=0.25, invalid scored rows=0
+px4 transition gps_velocity 2: conditions=4/4, median mean-NIS=0.006704014, median R=0.5625, invalid scored rows=0
+px4 transition mag_axes 0: conditions=4/4, median mean-NIS=0.003551497, median R=0.0025, invalid scored rows=0
+px4 transition mag_axes 1: conditions=4/4, median mean-NIS=0.004830042, median R=0.0025, invalid scored rows=0
+px4 transition mag_axes 2: conditions=4/4, median mean-NIS=0.003759554, median R=0.0025, invalid scored rows=0
+px4 transition mag_heading_axes 0: conditions=4/4, median mean-NIS=0.002345096, median R=0.0025, invalid scored rows=0
+px4 transition mag_heading_axes 1: conditions=4/4, median mean-NIS=0.004454106, median R=0.0025, invalid scored rows=0
+px4 transition mag_heading_axes 2: conditions=4/4, median mean-NIS=0.002405074, median R=0.0025, invalid scored rows=0
+px4 transition optical_flow 0: conditions=4/4, median mean-NIS=0.00181267, median R=0.0225, invalid scored rows=0
+px4 transition optical_flow 1: conditions=4/4, median mean-NIS=0.00199852, median R=0.0225, invalid scored rows=0
+
+Missing coverage is not a zero statistic: this observer does not yet log EKF3 three-axis magnetic fusion,
+auxiliary terrain/range fusion, or all GPS/height and PX4 rejected gate candidates.
+Gate and fusion records remain separate; a scalar sum is not promoted to a joint NIS.
+Readiness-qualified common warmup and new loss/return timing must precede a final steady-state ranking.

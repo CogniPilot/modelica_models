@@ -85,6 +85,12 @@ covers GPS, optical-flow flight without GPS, and GPS loss/recovery against
 native PX4 EKF2 and ArduPilot EKF3, including observed scheduling and generated
 UKF runtime limitations.
 
+A later [native readiness audit](docs/reviews/2026-10-08/native-innovations/README.txt)
+found that EKF3 had not begun GPS fusion before the outage in any of the four
+stable-release transition cases. Those results describe startup and GPS
+acquisition; a comparison of established GPS loss and recovery still requires
+a common warmup that satisfies each native filter's readiness checks.
+
 Sensor `timestamp_s` is capture time. `valid` may remain true while a usable
 sample is held; `fresh` pulses for one estimator tick when a new sample arrives,
 preventing a slow sensor value from being fused repeatedly. Latency compensation

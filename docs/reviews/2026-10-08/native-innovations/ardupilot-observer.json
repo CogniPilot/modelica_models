@@ -1,0 +1,22 @@
+{
+  "native_revision": "dbe792162d06cab66c3475fd5556bf7a120f119e",
+  "files": [
+    {
+      "file": "libraries/AP_NavEKF3/AP_NavEKF3_PosVelFusion.cpp",
+      "before_sha256": "5d2668e2889c8e879f5d63f9e334d7b50ae47fd66286dcb8b8551a58cee8c0f2",
+      "after_sha256": "8d50e584bd748499e5b116cd9c9ec0a3f122ee0f36c40b19d27610178e500839"
+    },
+    {
+      "file": "libraries/AP_NavEKF3/AP_NavEKF3_OptFlowFusion.cpp",
+      "before_sha256": "47f8af8d792c0f251c5b9589861f8511332459a0922da4307e439759d1683c40",
+      "after_sha256": "7dfaf911b569d780d7ffb781558b0a532d77382054ccc27ab605bd0d1db872fd"
+    },
+    {
+      "file": "libraries/AP_NavEKF3/AP_NavEKF3_MagFusion.cpp",
+      "before_sha256": "b5a1809af3a86a26f1a4a75dd21fb4d1e0bb69ccc1a7f5219a03c815d2a3be52",
+      "after_sha256": "fa225405f0563c55641f9fc538fc29f2760d90370a3dd44d1eba7e72bfce5b07"
+    }
+  ],
+  "observer_sha256": "a692be57063ec3f89f8a68c7a78a31b90801c86100056552c2cc3c51832dced2",
+  "scope": "Actual scalar fusion inputs; some EKF3 gate inputs also recorded. No full joint NIS or ungated-innovation coverage claim; require published-state parity."
+}

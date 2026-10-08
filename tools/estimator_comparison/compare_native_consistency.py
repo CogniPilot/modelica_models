@@ -1,6 +1,7 @@
 """Check native observer output parity and common-state NEES on frozen cases."""
 
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -13,6 +14,7 @@ from audit_native_configuration import prepare_px4, probe, probe_px4
 from compare_delay import PROFILES
 from compare_exposure import digest
 from native_consistency import check
+from native_innovations import check as check_innovations
 from native_release import SOURCE_PINS
 
 
@@ -29,15 +31,28 @@ def verify_observers(args):
         ).splitlines()
         if revision != SOURCE_PINS[name] or evidence["native_revision"] != revision:
             raise ValueError("Native observer source revision changed")
-        if changed != [evidence["file"]]:
+        records = evidence.get("files", [evidence] if "file" in evidence else [])
+        if not records or changed != sorted(record["file"] for record in records):
             raise ValueError("Only the recorded read-only native observer may differ")
-        path = source / evidence["file"]
-        if (
-            digest(path) != evidence["after_sha256"]
-            or digest(path.with_name("native_covariance_dump.h"))
-            != evidence["observer_sha256"]
-        ):
-            raise ValueError("Native observer source changed after instrumentation")
+        header = (
+            "native_innovation_dump.h"
+            if getattr(args, "observation", "covariance") == "innovations"
+            else "native_covariance_dump.h"
+        )
+        for record in records:
+            path = source / record["file"]
+            if (
+                digest(path) != record["after_sha256"]
+                or digest(path.with_name(header)) != evidence["observer_sha256"]
+            ):
+                raise ValueError("Native observer source changed after instrumentation")
+            original = subprocess.check_output(
+                ["git", "-C", str(source), "show", "HEAD:" + record["file"]]
+            )
+            if hashlib.sha256(original).hexdigest() != record["before_sha256"]:
+                raise ValueError(
+                    "Native observer baseline differs from its pinned source"
+                )
         observers[name] = evidence
     return observers
 
@@ -51,6 +66,7 @@ def run(args):
     if digest(args.transport_trace) != reference["binary_sha256"]["transport_trace"]:
         raise ValueError("Frozen packet transport executable changed")
     observers = verify_observers(args)
+    innovations = getattr(args, "observation", "covariance") == "innovations"
     args.work.mkdir(parents=True)
     base_work = args.work
     args.imu_noise_density = reference["imu_noise_density"]
@@ -71,6 +87,12 @@ def run(args):
         scores=[],
         scope="Native full covariance observer, frozen published-state parity, common 15D marginal NEES at native fusion epochs. No NIS or matched effective R/Q claim.",
     )
+    if innovations:
+        result["scope"] = (
+            "Actual native scalar correction inputs and selected separate gate inputs; "
+            "frozen published-state parity. Accepted-update NIS is conditional on selection. "
+            "No full joint NIS, complete rejection coverage or matched effective R/Q claim."
+        )
     for previous in reference["scores"]:
         if previous["name"] not in ("px4", "ekf3") or not previous["explicit_exposure"]:
             continue
@@ -110,9 +132,14 @@ def run(args):
             raise ValueError("Frozen packet delivery differs")
         args.capture = capture
         args.seed = previous["seed"]
-        covariance = args.work / "native-covariance.csv"
-        old_environment = os.environ.get("NATIVE_COVARIANCE_PATH")
-        os.environ["NATIVE_COVARIANCE_PATH"] = str(covariance.resolve())
+        observation = args.work / (
+            "native-innovations.csv" if innovations else "native-covariance.csv"
+        )
+        environment_key = (
+            "NATIVE_INNOVATION_PATH" if innovations else "NATIVE_COVARIANCE_PATH"
+        )
+        old_environment = os.environ.get(environment_key)
+        os.environ[environment_key] = str(observation.resolve())
         try:
             if name == "px4":
                 score = probe_px4(args, px4, capture, previous["scenario"])
@@ -123,9 +150,9 @@ def run(args):
                 score = probe(args, capture, arrivals, previous["scenario"], "baseline")
         finally:
             if old_environment is None:
-                del os.environ["NATIVE_COVARIANCE_PATH"]
+                del os.environ[environment_key]
             else:
-                os.environ["NATIVE_COVARIANCE_PATH"] = old_environment
+                os.environ[environment_key] = old_environment
         identical = score["output_sha256"] == previous["output_sha256"]
         row = dict(
             **{
@@ -142,20 +169,28 @@ def run(args):
             raise ValueError(
                 "Native instrumentation changed published outputs; retain the failure"
             )
-        evidence = args.work / "consistency.json"
-        check(
+        evidence = args.work / (
+            "innovations.json" if innovations else "consistency.json"
+        )
+        (check_innovations if innovations else check)(
             SimpleNamespace(
                 filter=name,
-                covariance=covariance,
+                covariance=observation,
+                innovations=observation,
                 truth=capture / "truth.csv",
                 output=evidence,
             )
         )
-        row["consistency"] = json.loads(evidence.read_text())
+        row["innovations" if innovations else "consistency"] = json.loads(
+            evidence.read_text()
+        )
         args.output.write_text(json.dumps(result, indent=2, allow_nan=False) + "\n")
         print(label, name, "published output identical", flush=True)
     if len(result["scores"]) != 24:
         raise ValueError("Incomplete native covariance campaign")
+    if innovations:
+        result["complete"] = True
+        args.output.write_text(json.dumps(result, indent=2, allow_nan=False) + "\n")
 
 
 if __name__ == "__main__":
@@ -176,4 +211,7 @@ if __name__ == "__main__":
     ):
         parser.add_argument("--" + name, type=Path, required=True)
     parser.add_argument("--cxx", default="c++")
+    parser.add_argument(
+        "--observation", choices=("covariance", "innovations"), default="covariance"
+    )
     run(parser.parse_args())

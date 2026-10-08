@@ -7,6 +7,17 @@ score GPS-aided, GPS-denied and GPS-loss/recovery cases. This is a controlled
 kinematic benchmark, not a flight qualification or a universal filter ranking.
 The dated review in docs/reviews/2026-10-07 includes findings and all scores.
 
+Read docs/reviews/2026-10-08/native-innovations before using the stable-release
+GPS/transition rankings. Actual scalar correction observers reproduce all 24
+native state outputs byte for byte, but EKF3 first fuses GPS at 35.6-43.912 s
+in its GPS cases. None of its four transition cases fuses GPS before the
+25 s outage. Those cases measure startup followed by acquisition, not an
+established-GPS loss/recovery transition. The 13 s preflight does not satisfy
+EKF3's gyro-bias covariance readiness condition. A common readiness-qualified
+warmup and revised outage timing are required before a final ranking. The new
+report includes actual scalar NIS and measurement variances with explicit
+selection and sensor-coverage limitations; it does not claim joint vector NIS.
+
 Read docs/reviews/2026-10-07/native-configuration-audit.txt before interpreting
 the native rankings. A later 24-replay audit reproduced the previous native
 outputs but found a persistent ArduPilot takeoff flag, different active magnetic
