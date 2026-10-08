@@ -2,56 +2,31 @@ modelica_models (CogniPilot Modelica Models)
 Copyright 2026 CogniPilot Foundation
 
 This product includes software developed by the CogniPilot Foundation.
-Project-authored code uses the Apache License, Version 2.0; see the root
-LICENSE file.
+See LICENSE for the Apache License, Version 2.0.
 
-This NOTICE records the remaining third-party content redistributed in this
-repository and the license each is under. It is the top-level index; the
-authoritative text for each entry is the license file named in that entry.
+World Magnetic Model 2025
+-------------------------
+Geodesy/WMM2025 includes the WMM2025 coefficient set and a Modelica
+implementation of its spherical-harmonic evaluation. The model is produced
+jointly by NOAA National Centers for Environmental Information (NCEI) and
+the British Geological Survey (BGS). The WMM software and coefficients are
+in the public domain in the United States. NOAA and BGS do not endorse
+this port.
+https://www.ncei.noaa.gov/products/world-magnetic-model
 
+CogniPilot implementations
+--------------------------
+The following Modelica implementations follow Apache-2.0-licensed
+CogniPilot sources, copyright CogniPilot Foundation:
 
-1. Geodesy/WMM2025/ -- US Government public domain, NOAA/NCEI and BGS
----------------------------------------------------------------------
+Vehicles/Templates/FixedWingPlant.mo
+    CogniPilot/cubs2: cubs2_dynamics/cubs2_dynamics/sportcub.py
+Control/Multirotor/LogLinear/
+    CogniPilot/cyecca: cyecca/models/rdd2_loglinear.py
+Planning/Bezier/
+    CogniPilot/cyecca: cyecca/models/bezier.py
 
-Geodesy/WMM2025 is a pure-Modelica port of the World Magnetic Model 2025
-degree/order-12 spherical-harmonic evaluation and carries the WMM2025
-coefficient set.
-
-    Source:    World Magnetic Model 2025 (WMM2025)
-    Producers: NOAA National Centers for Environmental Information (NCEI),
-               United States, jointly with the British Geological Survey
-               (BGS), United Kingdom
-    Status:    The WMM software and coefficients are in the public domain in
-               the United States. BGS is a joint producer of the model and is
-               credited here; NOAA and BGS do not endorse this port.
-    Reference: WMM2025 Technical Report, NOAA NCEI / BGS,
-               https://www.ncei.noaa.gov/products/world-magnetic-model
-
-
-2. Modelica derived from CogniPilot Python implementations -- Apache-2.0
-------------------------------------------------------------------------
-
-Three packages state in-tree that they follow an implementation in another
-CogniPilot repository. All three upstreams are Apache-2.0, the same license
-this repository is under, so no additional condition attaches; they are listed
-so a reader need not go looking.
-
-    Vehicles/Templates/FixedWingPlant.mo
-        follows CogniPilot/cubs2, cubs2_dynamics/cubs2_dynamics/sportcub.py
-        Apache-2.0, Copyright CogniPilot Foundation
-    Control/Multirotor/LogLinear/
-        follows CogniPilot/cyecca, cyecca/models/rdd2_loglinear.py
-        Apache-2.0, Copyright CogniPilot Foundation
-    Planning/Bezier/
-        follows CogniPilot/cyecca, cyecca/models/bezier.py
-        Apache-2.0, Copyright CogniPilot Foundation
-
-
-3. Tooling invoked but not redistributed
-----------------------------------------
-
-flake.nix pins OpenModelica (OSMC-PL / GPL-3.0) and git (GPL-2.0) as
-development-shell and container tools. They are invoked as separate
-executables, are never linked into or redistributed with anything this
-repository produces, and are not in the closure of packages.default. No
-copyleft term attaches to this repository's output.
+Documentation artwork
+----------------------
+The CogniPilot logo is from the official CogniPilot brand assets.
+https://cognipilot.com/brand/

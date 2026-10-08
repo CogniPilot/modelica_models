@@ -757,5 +757,32 @@ equation
     as a gate acceptance, and is refused on a non-finite payload. It is
     disabled by default. The commanded <code>reset</code> input remains the
     operator-level re-seed of position, attitude, and velocity together.</p>
-  </html>"));
+  <h4>Configure a vehicle</h4>
+<p>Set the initial pose and biases, initial variances, continuous process-noise
+covariances, gravity and local magnetic field through
+<a href=\"modelica://Estimation.StrapdownINS.PartialEstimator\">PartialEstimator</a>.
+The default magnetic reference is site-specific. The block's
+<code>samplePeriod</code> sets its discrete update interval; feed calibrated
+ENU/FLU packets on the inherited sensor connectors.</p>
+<h4>Choose the IMU path</h4>
+<p>Use <a href=\"modelica://Estimation.StrapdownINS.preintegrateImuStep\">preintegrateImuStep</a>
+to accumulate intervals and bias sensitivities into an
+<a href=\"modelica://Avionics.ImuSample\">ImuSample</a>. A preintegral carries its
+integration duration and bias anchor; its rotation, velocity, position and five
+Jacobian blocks describe the same interval. The filter transports it to the
+estimated bias with
+<a href=\"modelica://Estimation.StrapdownINS.correctPreintegratedImu\">correctPreintegratedImu</a>.
+This first-order bias correction is not reintegration of the raw samples.</p>
+<h4>Inspect health and uncertainty</h4>
+<p>Read per-source acceptance flags, innovation statistics and recovery status
+from <code>status</code>. A finite <code>estimate</code> does not establish that
+position is trustworthy: use the recovery and aiding-health signals as well.
+The full error covariance uses body-local right perturbations, ordered
+{position, velocity, attitude, gyroscope bias, accelerometer bias}. Transform
+truth errors into those coordinates before computing NEES.</p>
+<p>To compare delayed fusion with the direct block, place this same backend in
+<a href=\"modelica://Estimation.FusionHorizon.HorizonEstimator\">HorizonEstimator</a>.
+Its horizon state and current-time predicted output have different timestamps;
+only pair a covariance with the state epoch it describes.</p>
+    </html>"));
 end Estimator;

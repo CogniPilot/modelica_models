@@ -46,4 +46,17 @@ algorithm
       * gyroscopeBiasDelta_rad_s
     + imu.deltaPositionAccelerometerBiasJacobian_s2
       * accelerometerBiasDelta_m_s2;
+  annotation(Documentation(info = "<html>
+    <h4>Bias-anchor transport</h4>
+<p>The stored preintegral is evaluated at its two bias anchors. This function
+multiplies each bias change by the corresponding stored Jacobian, right-injects
+the rotation correction, and adds the velocity and position corrections. It
+leaves the input packet unchanged.</p>
+<p>Supply deltas, anchors and Jacobians from the same accumulation window, such
+as the outputs of
+<a href=\"modelica://Estimation.StrapdownINS.preintegrateImuStep\">preintegrateImuStep</a>.
+The transport is first order in bias change. It is exact neither for arbitrary
+bias changes nor for the underlying continuous IMU trajectory; large changes
+require reassessing the anchor or reintegrating available raw samples.</p>
+    </html>"));
 end correctPreintegratedImu;

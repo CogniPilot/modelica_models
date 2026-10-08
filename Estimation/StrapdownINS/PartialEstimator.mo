@@ -83,5 +83,20 @@ partial block PartialEstimator
     diagnostics remain inside each implementation. That separation permits an
     ESKF, UKF, or another estimator to replace one another without pretending
     their internal uncertainty states have identical meanings.</p>
-  </html>"));
+  <h4>Noise and initialization</h4>
+<p><code>initialVariances</code> contains variances, while
+<code>processNoise</code> contains continuous covariance spectral densities.
+A sensor standard deviation must be squared before constructing its covariance;
+continuous process noise must not be discretized twice. See
+<a href=\"modelica://Estimation.StrapdownINS.ProcessNoise\">ProcessNoise</a> for units.</p>
+<p>Set <code>localMagneticFieldWorldEnu_T</code> for the mission location and date.
+The optical-flow ground plane and range limits are part of the measurement
+model, not camera calibration. Keep their normal, offset and altitude datum
+consistent with the world ENU origin.</p>
+<h4>Compare implementations</h4>
+<p>Connect the same captured packets to each estimator. Match initial state,
+noise assumptions, capture times and output times; compare errors and covariance
+in each implementation's declared tangent coordinates. Sharing this interface
+does not make different internal covariance representations interchangeable.</p>
+    </html>"));
 end PartialEstimator;

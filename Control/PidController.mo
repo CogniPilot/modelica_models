@@ -51,4 +51,18 @@ algorithm
     command := result.command;
     preview := result.preview;
   end when;
+  annotation(Documentation(info = "<html>
+    <h4>Use</h4>
+<p>Supply setpoint and measurement in the same units. Configure gains, sampling
+period, command bounds, integral limit and derivative cutoff through
+<a href=\"modelica://Control.PidParameters\">PidParameters</a>.</p>
+<pre>Control.PidController controller(params=Control.PidParameters(
+  samplePeriod=0.01, kp=2.0, ki=0.5, kd=0.0,
+  commandMin=-1.0, commandMax=1.0));</pre>
+<p>The block updates on its own sample clock. <code>command</code> is limited;
+<code>preview</code> is the integral-free command, not a second actuator output.
+<code>saturated</code> reports clipping. For explicit scheduling or replay, use
+<a href=\"modelica://Control.pidTransition\">pidTransition</a> and carry
+<a href=\"modelica://Control.PidState\">PidState</a> between calls.</p>
+    </html>"));
 end PidController;

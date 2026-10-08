@@ -84,4 +84,20 @@ partial model RGBDFastSLAMInterface
   output Real trackingCurrentPixel[featureCapacity,2];
   output Real trackingReferencePixel[featureCapacity,2];
   output Real trackingEnabled[featureCapacity];
+  annotation(Documentation(info = "<html>
+    <h4>Session lifecycle</h4>
+<p>This boundary owns the complete persistent visual session. Supply the prior
+session as <code>previous</code>; initialization and step adapters produce
+<code>next</code>. Keep frame epochs, interval time, calibration and requested
+operations consistent with the supplied image and IMU data.</p>
+<p>Use <a href=\"modelica://SLAM.RGBDFastSLAMInitialize\">RGBDFastSLAMInitialize</a>
+for initialization, <a href=\"modelica://SLAM.RGBDFastSLAMStep\">RGBDFastSLAMStep</a>
+for advancement, and <a href=\"modelica://SLAM.RGBDFastSLAMReset\">RGBDFastSLAMReset</a>
+for an explicit reset. Inspect operation-specific acceptance and reason outputs;
+a produced array alone does not mean its update was accepted.</p>
+<p>The browser application handles transport and rendering. Modelica owns image
+processing, geometry, estimator and map state. Export/compiler support of the
+complete graph must be validated separately from the smaller fixed-map visual
+fusion replays.</p>
+    </html>"));
 end RGBDFastSLAMInterface;

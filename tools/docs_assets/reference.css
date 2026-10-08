@@ -1,0 +1,64 @@
+:root {
+  color-scheme: light;
+  --navy: #06090f;
+  --blue: #3d5b99;
+  --gold: #c39b00;
+  --ink: #172b3a;
+  --muted: #526575;
+  --line: #dce3ec;
+}
+* { box-sizing: border-box; }
+body { margin: 0; color: var(--ink); background: #f2f5f9; font: 16px/1.65 system-ui, sans-serif; }
+a { color: #2e4f91; text-underline-offset: .18em; }
+a:hover { color: #805f00; }
+header { padding: 1.5rem max(1.5rem, calc((100vw - 1160px) / 2)); background: var(--navy); border-bottom: 3px solid var(--gold); }
+.brand { display: inline-block; padding: 20px; margin-left: -20px; }
+.brand img { width: 200px; min-width: 160px; height: auto; display: block; }
+.eyebrow { color: #8a97a8; font-size: .73rem; letter-spacing: .16em; margin: 0 0 1.1rem; }
+header nav { display: flex; flex-wrap: wrap; gap: .45rem 1.15rem; }
+header a { color: #d3deef; font-size: .88rem; text-decoration: none; }
+header a:hover { color: #35e0d8; }
+main { max-width: 1160px; margin: 2rem auto 4rem; padding: 2.5rem 3rem; background: white; border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 8px 35px #14263c08; }
+h1,h2,h3 { line-height: 1.25; letter-spacing: -.025em; }
+h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); overflow-wrap: anywhere; margin: .6rem 0 1rem; }
+h2 { font-size: 1.4rem; margin-top: 2.5rem; padding-bottom: .5rem; border-bottom: 1px solid var(--line); }
+h3 { margin-top: 1.6rem; font-size: 1.1rem; }
+p { max-width: 85ch; }
+.kind { color: var(--blue); font-size: .75rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+.breadcrumbs { color: var(--muted); font-size: .9rem; margin: 1rem 0; display: flex; gap: .5rem; flex-wrap: wrap; }
+.actions { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1.25rem 0 2rem; }
+.actions a { padding: .45rem .85rem; border: 1px solid var(--line); border-radius: 5px; text-decoration: none; background: #f5f7fb; font-size: .9rem; }
+.actions a:hover { border-color: var(--blue); }
+.table-scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+th,td { padding: .7rem .8rem; border-bottom: 1px solid var(--line); vertical-align: top; text-align: left; }
+th { background: #f1f4f9; font-weight: 600; }
+tbody tr:hover { background: #f8fafc; }
+code,pre { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .84rem; }
+pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #f3f6fa; padding: 1.2rem; border: 1px solid var(--line); border-radius: 6px; }
+.source { white-space: pre; overflow: auto; overflow-wrap: normal; padding: 1rem .5rem; line-height: 1.65; }
+.source-line { scroll-margin-top: 1rem; }
+.source-line:target { background: #fff1ad; box-shadow: 0 0 0 2px #fff1ad; }
+.line-number { display: inline-block; width: 4.5em; padding-right: 1em; text-align: right; user-select: none; color: #7b899a; text-decoration: none; }
+.line-number::before { content: attr(data-line); }
+.keyword { color: #713895; font-weight: 600; }
+.comment { color: #55715b; }
+.string { color: #995027; }
+.definition { text-decoration: underline dotted; text-decoration-color: #9eb1cf; }
+.definition:hover { background: #e2eaff; }
+input { display: block; margin: .5rem 0 1rem; padding: .7rem .9rem; width: min(100%, 32rem); font: inherit; border: 1px solid #b9c5d6; border-radius: 5px; }
+input:focus { outline: 2px solid #3d5b9940; border-color: var(--blue); }
+summary { cursor: pointer; color: var(--blue); padding: .7rem 0; font-weight: 500; }
+li { margin: .45rem 0; }
+@media(max-width: 700px) {
+  header { padding: 1rem 1.25rem; }
+  main { margin: 0; padding: 1.5rem 1.15rem 3rem; border: 0; border-radius: 0; }
+  header nav { gap: .5rem 1rem; }
+  .source { margin-inline: -.6rem; font-size: .76rem; }
+  th,td { padding: .5rem; }
+}
+.quick-search { margin-top: 1.3rem; max-width: 24rem; }
+.quick-search label { color: #8a97a8; font-size: .78rem; }
+.quick-search input { background: #111a29; border-color: #28364e; color: #e6edf4; margin-bottom: 0; padding: .5rem .75rem; font-size: .85rem; }
+.source-shortcut { font-size: .8rem; color: var(--muted); margin-left: .5rem; }
+footer { max-width: 1160px; margin: 0 auto 2rem; padding: 0 1.25rem; color: var(--muted); font-size: .85rem; }

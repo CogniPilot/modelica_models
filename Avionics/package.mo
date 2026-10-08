@@ -346,5 +346,21 @@ package Avionics
     their consistency so consumers never depend on its internal state
     representation. Filter covariance, bias states, and tangent ordering remain
     private because they have no unambiguous meaning across algorithms.</p>
-  </html>"));
+  <h4>Timestamp and freshness contract</h4>
+<p>An IMU timestamp identifies the end of its integration interval. Aiding
+packets carry capture time in the estimator clock, not transport arrival time.
+The integration duration describes the interval, and sensor latency describes
+when its packet becomes available; these are separate quantities.</p>
+<p><code>valid</code> says that a packet is usable. <code>fresh</code> indicates a
+new arrival for one estimator tick. Holding a measurement's value is acceptable;
+repeating its freshness would count correlated data as independent corrections.
+An adapter must preserve frame, units, covariance and timestamp when converting
+from an external transport.</p>
+<h4>Consumers</h4>
+<p>Guidance and control consume <code>NavigationEstimate</code> in one continuous
+local world frame. Health decisions also read <code>EstimatorStatus</code>:
+finite output numbers alone do not establish healthy position aiding. A delayed
+fusion wrapper publishes its filtered horizon state and its propagated current
+output separately; select the appropriate epoch for each consumer.</p>
+    </html>"));
 end Avionics;
