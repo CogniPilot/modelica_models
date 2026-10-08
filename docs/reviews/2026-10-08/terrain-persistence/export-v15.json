@@ -1,0 +1,22 @@
+{
+  "command": [
+    "/nix/store/gshrjiwc2s5mdv8p875h9as7qxid94hd-rumoca-0.10.2/bin/rumoca",
+    "compile",
+    "Vehicles/Rdd2/NavigationEstimator.mo",
+    "--source-root",
+    ".",
+    "--model",
+    "Vehicles.Rdd2.NavigationEstimator",
+    "--target",
+    "galec-production",
+    "--output",
+    "/home/jgoppert/scratch/modelica_models/joint-terrain/estimator-export-v15",
+    "--cache-dir",
+    "/home/jgoppert/scratch/modelica_models/joint-terrain/rumoca-cache"
+  ],
+  "source_snapshot_sha256": "805b8b9934b1d01ede75c1b64f05fdee352eb093cb1864fbdd88ab97e9283779",
+  "started_utc": "2026-10-08T13:31:52.331883+00:00",
+  "complete": true,
+  "returncode": 0,
+  "finished_utc": "2026-10-08T13:36:09.300577+00:00"
+}

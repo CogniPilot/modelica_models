@@ -1,0 +1,73 @@
+{
+  "state_byte_parity": true,
+  "covariance_byte_parity": true,
+  "trace_sha256": "ff2c3c15fde6254b3457498d491909aeb650173509c6ad940faa73b38ab96166",
+  "failed_matrices_sha256": "a93dfa676eb1cc16146cd76e296ad8777a608d50c738cdee8a9aabce2321f74c",
+  "stages": [
+    {
+      "stage": "Terrain.correctLinear_specialization_41",
+      "rows": 1296,
+      "failure_rows": 164,
+      "first_failure": {
+        "t_s": 123.208748,
+        "stage": 0.0,
+        "pd": 0.0,
+        "failure_pivot": 16.0,
+        "minimum_pivot": -4.6886786280663704e-05,
+        "maximum_asymmetry": 0.0
+      }
+    },
+    {
+      "stage": "Terrain.correctLinear_specialization_77",
+      "rows": 936,
+      "failure_rows": 160,
+      "first_failure": {
+        "t_s": 123.208748,
+        "stage": 1.0,
+        "pd": 0.0,
+        "failure_pivot": 16.0,
+        "minimum_pivot": -4.6886786280663704e-05,
+        "maximum_asymmetry": 0.0
+      }
+    },
+    {
+      "stage": "Terrain.correctLinear_specialization_107",
+      "rows": 0,
+      "failure_rows": 0,
+      "first_failure": null
+    },
+    {
+      "stage": "predictCovariance",
+      "rows": 5448,
+      "failure_rows": 850,
+      "first_failure": {
+        "t_s": 123.21875,
+        "stage": 3.0,
+        "pd": 0.0,
+        "failure_pivot": 16.0,
+        "minimum_pivot": -7.360979174965406e-05,
+        "maximum_asymmetry": 0.0
+      }
+    },
+    {
+      "stage": "limitStateCovariance",
+      "rows": 9192,
+      "failure_rows": 1469,
+      "first_failure": {
+        "t_s": 123.21875,
+        "stage": 4.0,
+        "pd": 0.0,
+        "failure_pivot": 16.0,
+        "minimum_pivot": -7.360979174965406e-05,
+        "maximum_asymmetry": 0.0
+      }
+    },
+    {
+      "stage": "Terrain.correctLinear_specialization_151",
+      "rows": 0,
+      "failure_rows": 0,
+      "first_failure": null
+    }
+  ],
+  "scope": "Read-only full17 covariance double-Cholesky diagnostics after actual generated float32 operations, at t>=117 s. No repair and no arithmetic modifications. Full state/covariance CSV byte parity qualified."
+}

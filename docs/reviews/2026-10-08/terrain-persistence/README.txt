@@ -74,6 +74,36 @@ it is not an applied full-estimator fix or a covariance-validity result.
 R symmetry and covariance regressions must be diagnosed independently. No
 adoption claim follows from these reproductions or the conditional Lean bounds.
 
+Subsequent v15 development qualification
+--------------------------------------
+The read-only v14 stage observer retains exact state/full-covariance byte
+parity. Its first chronological indefinite output is the scalar terrain
+correction at 123.208748 s, after usable prediction/limiter outputs; the later
+three-component rejection carries that invalid prior forward. Stage listings
+are grouped by specialization, so listing order is not execution order.
+
+V15 was declared before export. It changes only the optional derived terrain
+noise expression from q * transpose({h}) * {h} to q * (transpose({h}) * {h}).
+Noise settings, gates, defaults and external input covariance are unchanged.
+Full Rumoca 0.10.2 export passed, as did all 24 disabled-terrain state and
+full-covariance byte parity controls. All 24 enabled development cases now
+pass the raw full17 covariance and pressure/terrain Schur checks in the scored
+117.0--166.7 s window, without audit-side jitter or covariance repair.
+
+The v15 denied/horizon gain observer again preserves state/full-covariance
+bytes. All 936 flight three-component calls have symmetric derived R and valid
+prior/noise/factor checks; all are accepted. Flow acceptance returns to 10 Hz.
+Horizontal RMS is 0.145979 m in that development case, versus 0.181459 m for
+the original horizon baseline. Stationary retrodiction still has regressions;
+the known seed-911 pilot is not independent validation. No candidate defaults
+or full joint-terrain implementation have been adopted on main. Startup before
+the scored window is not certified by the full17 campaign checks.
+
+The declaration, export/source identities, parity receipt, compact per-case
+campaign results and exact-parity observers are retained alongside the earlier
+failure evidence. The complete candidate and raw replays remain in owned
+scratch storage; these receipts alone do not reconstruct that unmerged source.
+
 The shared v12 Jacobian precision change produces exact state/full-covariance
 CSV equality with v11 on all 24 enabled development cases. This establishes
 that the shared fix did not resolve the terrain candidate's existing losses.

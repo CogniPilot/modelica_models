@@ -1,0 +1,15 @@
+{
+  "created_utc": "2026-10-08T13:31:52.265428+00:00",
+  "source_before_sha256": "b15a57c0a3bc4982c9dec8cc339467260393f1b9fb17a331575c57247e561519",
+  "evidence_sha256": "3e22a9e1c88c46b35b1a52c2e5fdb14fa7ac6b5b09beb739783c43e593264e7d",
+  "primitive_sha256": "c1b0624e01b06dccee504093d080c9370822fc862148f4842d482bc226a75f3f",
+  "hypothesis": "Left-associated scalar-times-outer-product construction introduces asymmetry in derived R that strict gain validation rejects. Grouping the symmetric outer product before scalar multiplication should remove this source of asymmetry. No claim that it resolves indefinite prior covariance.",
+  "change": "One parenthesis-only grouping change in Terrain.correctOpticalFlow derived terrain-drift noise term; no changes to external input covariance, gains, gates, defaults, or noise scales.",
+  "qualification": [
+    "Full Rumoca 0.10.2 Modelica export",
+    "24 disabled-terrain state and full-covariance byte parity controls",
+    "All enabled raw full17 covariance checks, stop on first failure",
+    "Read-only gain observer with state and covariance byte parity",
+    "Known-seed development metrics only; independent validation required before adoption"
+  ]
+}
