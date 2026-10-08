@@ -1,0 +1,57 @@
+{
+  "complete": true,
+  "results": [
+    {
+      "name": "ReassignedFlagVariable",
+      "command": [
+        "/nix/store/29qjlshvklnyr67nhpprzgb9igmsfsjj-gcc-wrapper-15.2.0/bin/gcc",
+        "-O2",
+        "-I/home/jgoppert/scratch/modelica_models/joint-terrain/persistence-repro/export-variable/ReassignedFlagVariable/ProductionCode",
+        "/home/jgoppert/scratch/modelica_models/joint-terrain/persistence-repro/ReassignedFlagVariable-probe.c",
+        "/home/jgoppert/scratch/modelica_models/joint-terrain/persistence-repro/export-variable/ReassignedFlagVariable/ProductionCode/ReassignedFlagVariable.c",
+        "/home/jgoppert/scratch/modelica_models/joint-terrain/persistence-repro/export-variable/ReassignedFlagVariable/ProductionCode/rumoca_galec_kernels.c",
+        "-lm",
+        "-o",
+        "/home/jgoppert/scratch/modelica_models/joint-terrain/persistence-repro/ReassignedFlagVariable"
+      ],
+      "failed_expected_true": 0,
+      "rows": 16,
+      "manifest_sha256": "87f231d824914cc00607477b86decf280fb2c8c44bcdacdd2727e3970a9e2533"
+    },
+    {
+      "name": "ReassignedFlagParameter",
+      "command": [
+        "/nix/store/29qjlshvklnyr67nhpprzgb9igmsfsjj-gcc-wrapper-15.2.0/bin/gcc",
+        "-O2",
+        "-I/home/jgoppert/scratch/modelica_models/joint-terrain/persistence-repro/export-parameter/ReassignedFlagParameter/ProductionCode",
+        "/home/jgoppert/scratch/modelica_models/joint-terrain/persistence-repro/ReassignedFlagParameter-probe.c",
+        "/home/jgoppert/scratch/modelica_models/joint-terrain/persistence-repro/export-parameter/ReassignedFlagParameter/ProductionCode/ReassignedFlagParameter.c",
+        "/home/jgoppert/scratch/modelica_models/joint-terrain/persistence-repro/export-parameter/ReassignedFlagParameter/ProductionCode/rumoca_galec_kernels.c",
+        "-lm",
+        "-o",
+        "/home/jgoppert/scratch/modelica_models/joint-terrain/persistence-repro/ReassignedFlagParameter"
+      ],
+      "failed_expected_true": 8,
+      "rows": 16,
+      "manifest_sha256": "dad96e1e6ba2abc3197ee42e9cf1e5dc8b1fdcacabe8e5e1636ce4fbfeb9dd3b"
+    },
+    {
+      "name": "ReassignedFlagParameterStatement",
+      "command": [
+        "/nix/store/29qjlshvklnyr67nhpprzgb9igmsfsjj-gcc-wrapper-15.2.0/bin/gcc",
+        "-O2",
+        "-I/home/jgoppert/scratch/modelica_models/joint-terrain/persistence-repro/export-parameter-statement/ReassignedFlagParameterStatement/ProductionCode",
+        "/home/jgoppert/scratch/modelica_models/joint-terrain/persistence-repro/ReassignedFlagParameterStatement-probe.c",
+        "/home/jgoppert/scratch/modelica_models/joint-terrain/persistence-repro/export-parameter-statement/ReassignedFlagParameterStatement/ProductionCode/ReassignedFlagParameterStatement.c",
+        "/home/jgoppert/scratch/modelica_models/joint-terrain/persistence-repro/export-parameter-statement/ReassignedFlagParameterStatement/ProductionCode/rumoca_galec_kernels.c",
+        "-lm",
+        "-o",
+        "/home/jgoppert/scratch/modelica_models/joint-terrain/persistence-repro/ReassignedFlagParameterStatement"
+      ],
+      "failed_expected_true": 0,
+      "rows": 16,
+      "manifest_sha256": "3b0dcbcb004a7bb773e795dc8b6bc353251cc7fbda87aa5c059bb17e0bec5937"
+    }
+  ],
+  "scope": "Single-assignment if-expression preserves input Boolean useJoint but folds tunableParameter useJoint=false. Tuning it true before first dostep yields 8/16 failures. Equivalent explicit if-statement yields 0/16 failures. eFMI manifests declare useJoint as tunableParameter."
+}

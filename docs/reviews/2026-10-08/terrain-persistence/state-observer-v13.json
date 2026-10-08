@@ -1,0 +1,10 @@
+{
+  "state_sha256": "346f71d198f8d1a8c4e405ea87231367843baf13e9b26fd1cbaff271cf55aba3",
+  "covariance_sha256": "5496653f6a204173d8b9af0d799eae86c2b8bd0f875d7a3f5870955e13445405",
+  "initialized_count": 0,
+  "rows": 16701,
+  "joint_count": 16701,
+  "first_initialized": null,
+  "state_byte_parity": true,
+  "covariance_byte_parity": true
+}

@@ -1,0 +1,14 @@
+{
+  "created_utc": "2026-10-08T13:13:49.447929+00:00",
+  "source_before_sha256": "50f9cf64d4b699f2d27b4130a44e765452a0adc09c5941aa270607fe630336b2",
+  "hypothesis": "Rumoca 0.10.2 folds tunable-parameter if-expressions to defaults, independently of sequential guard-merging. v13 fixes the latter but still drops joint initialized result and terrain prior selection. Use explicit mutually exclusive if-statements for tunable terrain configuration.",
+  "evidence_sha256": "d4b5260771b7063b8189ca75ee42609cb082959338c49a2dc54ceffe82296239",
+  "change": "Preserve terrain prior mean/variance and initialized flag using explicit if-statements; give terrainCorrectionAccepted one mutually exclusive assignment. No gain/noise/gate changes.",
+  "qualification": [
+    "Full Modelica export.",
+    "24 disabled-state and full covariance parity cases.",
+    "Read-only initialized-state observer with exact v14 replay parity.",
+    "24 known-development enabled cases and raw full17 covariance.",
+    "No default adoption or independent validation claim."
+  ]
+}

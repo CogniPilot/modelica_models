@@ -1,0 +1,15 @@
+339099:             /* Modelica trace: Estimation/StrapdownINS/ESKF/Estimator.mo:430:7-430:24. */
+339100:             self->terrainInitialized = ((!(self->reset)) && self->previous_terrainInitialized);
+339101:         } else {
+339102:             /* Modelica trace: Estimation/StrapdownINS/ESKF/Estimator.mo:284:8-284:13. */
+339103:             if (!((!(self->useJointTerrain)))) {
+339104:                 /* Modelica trace: Estimation/StrapdownINS/ESKF/Estimator.mo:434:7-434:24. */
+339105:                 self->terrainInitialized = ((!(self->reset)) && self->previous_terrainInitialized);
+339106:             } else {
+339107:                 /* Modelica trace: Estimation/StrapdownINS/ESKF/Estimator.mo:284:8-284:13. */
+339108:                 if (self->useJointTerrain) {
+339109:                     /* Modelica trace: Estimation/StrapdownINS/ESKF/Estimator.mo:606:7-606:24. */
+339110:                     self->terrainInitialized = call23546_result51;
+339111:                 }
+339112:             }
+339113:         }

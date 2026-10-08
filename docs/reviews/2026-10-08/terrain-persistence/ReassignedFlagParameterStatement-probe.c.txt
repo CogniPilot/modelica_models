@@ -1,0 +1,14 @@
+#include "ReassignedFlagParameterStatement.h"
+#include <stdio.h>
+int main(void) {
+  ReassignedFlagParameterStatementState state;
+  puts("use_joint,reset,tick,flag");
+  for (int joint=0;joint<2;++joint) for (int reset=0;reset<2;++reset) {
+    ReassignedFlagParameterStatement_startup(&state);
+    state.useJoint=joint;state.reset=reset;state.nextFlag=true;
+    for (int tick=0;tick<4;++tick) {
+      ReassignedFlagParameterStatement_dostep(&state);
+      printf("%d,%d,%d,%d\n",joint,reset,tick,state.flag);
+    }
+  }
+}

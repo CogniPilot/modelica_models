@@ -1,0 +1,14 @@
+#include "ReassignedFlagFixed.h"
+#include <stdio.h>
+int main(void) {
+  ReassignedFlagFixedState state;
+  puts("use_joint,reset,tick,flag");
+  for (int joint=0;joint<2;++joint) for (int reset=0;reset<2;++reset) {
+    ReassignedFlagFixed_startup(&state);
+    state.useJoint=joint;state.reset=reset;
+    for (int tick=0;tick<4;++tick) {
+      ReassignedFlagFixed_dostep(&state);
+      printf("%d,%d,%d,%d\n",joint,reset,tick,state.flag);
+    }
+  }
+}

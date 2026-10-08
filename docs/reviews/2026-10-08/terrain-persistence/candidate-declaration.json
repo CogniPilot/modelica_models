@@ -1,0 +1,12 @@
+{
+  "created_utc": "2026-10-08T13:00:21.499877+00:00",
+  "source_before_sha256": "3f412729f298045a9745cb03b83d6043fa22036da8de188f763edd7178860ac4",
+  "hypothesis": "Rumoca 0.10.2 guard merging makes the later terrainInitialized assignment unreachable when joint terrain is enabled. Single assignment after the step should preserve initialized state across calls. Do not change filter gains, process/measurement noise, or gates.",
+  "evidence": "Read-only state observer: joint terrain enabled on all 16701 rows, initialized false on all rows; state and covariance CSV bytes exactly match v12. Generated guard at Estimator.mo:434 shadows line606.",
+  "qualification": [
+    "Actual full Modelica export, not generated C intervention.",
+    "24 flags-off state/covariance byte parity with v12.",
+    "Repeat read-only initialized-state trace.",
+    "24 known-development flight replays, raw full17 covariance, no default adoption."
+  ]
+}

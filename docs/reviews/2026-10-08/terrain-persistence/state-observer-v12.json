@@ -1,0 +1,8 @@
+{
+  "state_byte_parity": true,
+  "covariance_byte_parity": true,
+  "initialized_count": 0,
+  "rows": 16701,
+  "joint_count": 16701,
+  "first_initialized": null
+}

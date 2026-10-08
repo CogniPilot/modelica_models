@@ -1,0 +1,179 @@
+{
+  "complete": true,
+  "state_original_stationary_parity_cases": 24,
+  "covariance_v10_parity_cases": 24,
+  "parity_v13_sha256": "d9d9b354d17bb56288a5c8ef5556d7771dac8b6222dde08c8cd7892a0f2af9f4",
+  "parity_v10_sha256": "96e6b93ff9921843fdd54e7ef8fc3a0eed4f9fafdda901fede2e1001cbe878af",
+  "inherited_original_joint_covariance_parity_sha256": "631b35c318ab3c10ef38e9d5118b69b3cb6191d91f10606ff86faf6655155676",
+  "cases": [
+    {
+      "name": "horizon",
+      "scenario": "gps",
+      "state_sha256": "ec456556ed878933b50def270ad9efa9a3e7b4147e5be464fccc547f195f7812",
+      "old_covariance_sha256": "bfd16888e12ab3d30659a5fa924b36a5f3d684e7f49eb64f7d81d7538de22a34",
+      "new_covariance_sha256": "bfd16888e12ab3d30659a5fa924b36a5f3d684e7f49eb64f7d81d7538de22a34"
+    },
+    {
+      "name": "retrodiction",
+      "scenario": "gps",
+      "state_sha256": "22d0dcbbaecc2a4f82f56d2387b8f5cb041c505e1010baff51dee59d7aed7fbb",
+      "old_covariance_sha256": "661a6551ec7b87d1fe4a92cead1c2de5c04df1e2f349ad72159206207f4a4c61",
+      "new_covariance_sha256": "661a6551ec7b87d1fe4a92cead1c2de5c04df1e2f349ad72159206207f4a4c61"
+    },
+    {
+      "name": "horizon_joint",
+      "scenario": "gps",
+      "state_sha256": "03f32a9ebeeb6d9d9426b129f6d568035c9416bbb40b114a4e6f6716850c9bb0",
+      "old_covariance_sha256": "3521a5ae7e21012bf4e3f34adddf4c12e494a095659000984ea5d6bb1ff9f587",
+      "new_covariance_sha256": "3521a5ae7e21012bf4e3f34adddf4c12e494a095659000984ea5d6bb1ff9f587"
+    },
+    {
+      "name": "retrodiction_joint",
+      "scenario": "gps",
+      "state_sha256": "633ef1d36b02c798aa9e6554322760cf3d1bfbc06f2010ffaf6860a2b0119526",
+      "old_covariance_sha256": "98378598773a18d0c2ae59efbe3e9957ebaa55ed983b8b68bc961e3346793e2f",
+      "new_covariance_sha256": "98378598773a18d0c2ae59efbe3e9957ebaa55ed983b8b68bc961e3346793e2f"
+    },
+    {
+      "name": "stationary_horizon",
+      "scenario": "gps",
+      "state_sha256": "ca626b2a0867cb1f62b95fafa6f7d465c0803ead4f23930a70183216032c5e29",
+      "old_covariance_sha256": "fd5077f73877a151d6d189b1c3a1af49893db78c85fdcd48709036fcc352a92a",
+      "new_covariance_sha256": "fd5077f73877a151d6d189b1c3a1af49893db78c85fdcd48709036fcc352a92a"
+    },
+    {
+      "name": "stationary_retrodiction",
+      "scenario": "gps",
+      "state_sha256": "1d27ec5f7021e3ac7dcd6cc8b09281633ed928352a73bdba177b09c3900f2e96",
+      "old_covariance_sha256": "7e476ad70847d411ff723509eeb9ac3b536f4c2d13828377cbf945828c8f66f2",
+      "new_covariance_sha256": "7e476ad70847d411ff723509eeb9ac3b536f4c2d13828377cbf945828c8f66f2"
+    },
+    {
+      "name": "stationary_horizon_joint",
+      "scenario": "gps",
+      "state_sha256": "20f688d6071836612acf01b99c95f756fde0fe484b1674b2372f7771ae879bbf",
+      "old_covariance_sha256": "996f075c28aa1f54d7325f470d63f0fa3b1df671c6b1cb1f6aac38a29864adb2",
+      "new_covariance_sha256": "996f075c28aa1f54d7325f470d63f0fa3b1df671c6b1cb1f6aac38a29864adb2"
+    },
+    {
+      "name": "stationary_retrodiction_joint",
+      "scenario": "gps",
+      "state_sha256": "c7487100df532fc34406e3e6d7cc7c70ebe5e82bedd672bc02bf1970a4302640",
+      "old_covariance_sha256": "29d55ca91344a2f20f262ba6db63c2ff7840a6b57fd5cbc6c4681eddc4a2eb3b",
+      "new_covariance_sha256": "29d55ca91344a2f20f262ba6db63c2ff7840a6b57fd5cbc6c4681eddc4a2eb3b"
+    },
+    {
+      "name": "horizon",
+      "scenario": "denied",
+      "state_sha256": "ac9f316efdd59bb2237700d9209742f52a7a16ba0785671511e59586b6e61415",
+      "old_covariance_sha256": "a598b3e87f431a75245db577ef5e0d2ebb52c9a7bb3e21f377b8cccaaf876803",
+      "new_covariance_sha256": "a598b3e87f431a75245db577ef5e0d2ebb52c9a7bb3e21f377b8cccaaf876803"
+    },
+    {
+      "name": "retrodiction",
+      "scenario": "denied",
+      "state_sha256": "f0ea9731318b02daaaf8b64f7fc4d3ec3a9f35293d46192448d57fbbef30e15f",
+      "old_covariance_sha256": "988a5c36924c2899902722abfbf1b603a0ba5d80aefb51bd7a7cdd24a29d44d9",
+      "new_covariance_sha256": "988a5c36924c2899902722abfbf1b603a0ba5d80aefb51bd7a7cdd24a29d44d9"
+    },
+    {
+      "name": "horizon_joint",
+      "scenario": "denied",
+      "state_sha256": "4eb2795fd26e078c2b946fed2c948e95331079d041cf19061591e1fbacaa5e7e",
+      "old_covariance_sha256": "247c25ff523f5702c490fdd2d091569a1eed0303bd1ae44d428ccb8e532194b5",
+      "new_covariance_sha256": "247c25ff523f5702c490fdd2d091569a1eed0303bd1ae44d428ccb8e532194b5"
+    },
+    {
+      "name": "retrodiction_joint",
+      "scenario": "denied",
+      "state_sha256": "54167c80c9adc1ced97ac3e8aea239e8c8f0b5d23f1bcf1974d6279cb372491c",
+      "old_covariance_sha256": "aa2dbe25438b703504727eee89343a2b63d2b64d791d21e4516f2079e9b79cc3",
+      "new_covariance_sha256": "aa2dbe25438b703504727eee89343a2b63d2b64d791d21e4516f2079e9b79cc3"
+    },
+    {
+      "name": "stationary_horizon",
+      "scenario": "denied",
+      "state_sha256": "a229a3824fca2c9fdcde2dd5939952b994763e80ebaaf450beebff5548fd75ff",
+      "old_covariance_sha256": "a23c62bbb1566999db56eaf11dcf97d158872c5c7a984dbecdc221f2f6f78b8f",
+      "new_covariance_sha256": "a23c62bbb1566999db56eaf11dcf97d158872c5c7a984dbecdc221f2f6f78b8f"
+    },
+    {
+      "name": "stationary_retrodiction",
+      "scenario": "denied",
+      "state_sha256": "69d1a237affca03a2a1e2234c567f8b0777b51c73ef82c5958e91725bfa4816e",
+      "old_covariance_sha256": "14ec37a1f1be62a75eb89ba9ac28572a3fc5949315b4460827234021735d5077",
+      "new_covariance_sha256": "14ec37a1f1be62a75eb89ba9ac28572a3fc5949315b4460827234021735d5077"
+    },
+    {
+      "name": "stationary_horizon_joint",
+      "scenario": "denied",
+      "state_sha256": "6b599de67bb6ca497a6253d715e69532e6a77454ca999b1434647dbd85a7aa0e",
+      "old_covariance_sha256": "9108a6117c2aff5f33779ea6c78bda65ad94a9aaed298f9346381225a7380b06",
+      "new_covariance_sha256": "9108a6117c2aff5f33779ea6c78bda65ad94a9aaed298f9346381225a7380b06"
+    },
+    {
+      "name": "stationary_retrodiction_joint",
+      "scenario": "denied",
+      "state_sha256": "b6921b88b9a5b94fb384bf98c7ac2dbbd2f9cf628cb457c562fbe4105dca88bb",
+      "old_covariance_sha256": "cc500e416ba1ce6ace887379499622fbf2f8b18fbb1c0ea7e71d1d8ecf6df115",
+      "new_covariance_sha256": "cc500e416ba1ce6ace887379499622fbf2f8b18fbb1c0ea7e71d1d8ecf6df115"
+    },
+    {
+      "name": "horizon",
+      "scenario": "transition",
+      "state_sha256": "4224973c0e30ba43552d66d7c8fb0d1423364fc6ebef7f652e83d08b2ccaf89c",
+      "old_covariance_sha256": "359c6844198dc9f3f1c799c72e8e907fb5879cab22e031cbc3ccaeebe8c636a8",
+      "new_covariance_sha256": "359c6844198dc9f3f1c799c72e8e907fb5879cab22e031cbc3ccaeebe8c636a8"
+    },
+    {
+      "name": "retrodiction",
+      "scenario": "transition",
+      "state_sha256": "fecdaf4ecae15020e06e3644ea62c06723797d1d2388525e148d6fdda097cdfc",
+      "old_covariance_sha256": "74dc91bf5cc8094c81b776e28fcdb7d2482003c99ca959fa4a2ebd38ae48b698",
+      "new_covariance_sha256": "74dc91bf5cc8094c81b776e28fcdb7d2482003c99ca959fa4a2ebd38ae48b698"
+    },
+    {
+      "name": "horizon_joint",
+      "scenario": "transition",
+      "state_sha256": "981a56d0c07c48521afc9c209678609cd07700f7f820a4b1df8e441bf438542a",
+      "old_covariance_sha256": "4f94823a631393dba7217ac662eb396b0955da22a8510b2b2330f5dc307ec719",
+      "new_covariance_sha256": "4f94823a631393dba7217ac662eb396b0955da22a8510b2b2330f5dc307ec719"
+    },
+    {
+      "name": "retrodiction_joint",
+      "scenario": "transition",
+      "state_sha256": "9ecdb10e4ca4ba9e9074053c9263a31422df6a1a12cf08b210865816d7e403c3",
+      "old_covariance_sha256": "ff431d5b4aca5d06ad0417f29cb5dd590c792fecc1bf2b73821ae205bfdc392c",
+      "new_covariance_sha256": "ff431d5b4aca5d06ad0417f29cb5dd590c792fecc1bf2b73821ae205bfdc392c"
+    },
+    {
+      "name": "stationary_horizon",
+      "scenario": "transition",
+      "state_sha256": "4294be20a332e6a4c408ac624184d535db8cc8969131d6a715f30c4aaae96fe4",
+      "old_covariance_sha256": "42011603795af2e1f0f03f99e572254e7b13082a8e12674d981c1867a960ae50",
+      "new_covariance_sha256": "42011603795af2e1f0f03f99e572254e7b13082a8e12674d981c1867a960ae50"
+    },
+    {
+      "name": "stationary_retrodiction",
+      "scenario": "transition",
+      "state_sha256": "0b9f6146ab29ae987f57aba2c300ed7e810bc41a634559bfebc01a21814ff55f",
+      "old_covariance_sha256": "c0652a418d2963b2cb2517e20279db972f6850e7d8a51d97d4c9c0100aacf252",
+      "new_covariance_sha256": "c0652a418d2963b2cb2517e20279db972f6850e7d8a51d97d4c9c0100aacf252"
+    },
+    {
+      "name": "stationary_horizon_joint",
+      "scenario": "transition",
+      "state_sha256": "11dbe5b0b000dc429646f9f3e7dacac5f67de3c9120096e46b965d0726a2ea75",
+      "old_covariance_sha256": "ad6275df3d7a2017dea2c0474e7273ec247935d81c14f0c4ac5aeb3985ee50fa",
+      "new_covariance_sha256": "ad6275df3d7a2017dea2c0474e7273ec247935d81c14f0c4ac5aeb3985ee50fa"
+    },
+    {
+      "name": "stationary_retrodiction_joint",
+      "scenario": "transition",
+      "state_sha256": "c6247d0ea6182b7368d503c04fe9f3a534268a37a7a535d9d22486d27395c364",
+      "old_covariance_sha256": "37a425ce011b1bddaa59459b9cc322eb58f8dd4e719d70d844d6b7aae9eac13f",
+      "new_covariance_sha256": "37a425ce011b1bddaa59459b9cc322eb58f8dd4e719d70d844d6b7aae9eac13f"
+    }
+  ],
+  "scope": "24 disabled-terrain states match original/stationary baselines and 24 complete covariance CSV files match v10. The inherited v10 audit separately establishes 12 joint-pressure covariance files against original binaries."
+}
