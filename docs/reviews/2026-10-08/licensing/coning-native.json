@@ -1,0 +1,416 @@
+{
+  "integrator_sha256": "2bd161541efc8e33b96a39e42fcf473e3b22ae2267ddc85338d2bdc7bf462ac4",
+  "executable_sha256": "f88f1a3b1e0056321785efcee2688226e46e6bd4682b4e817e2a06568a17081a",
+  "reference": "Double-precision RK4 quaternion ODE for a linear angular-rate ramp",
+  "px4": "Compiled supplied upstream IntegratorConing header with upstream matrix types",
+  "ardupilot": {
+    "complete": true,
+    "license": "GPL-3.0-or-later",
+    "upstream_revision": "dbe792162d06cab66c3475fd5556bf7a120f119e",
+    "native_source_path": "libraries/AP_InertialSensor/AP_InertialSensor_Backend.cpp",
+    "native_source_sha256": "95a2cb6a5a9dafad54f0dff8430288d959f28d6cbecfdf14ccf2b10b1990f598",
+    "driver_sha256": "23cc440e49d829f989939d87ca45ec65fd097dd1fa10a7896e40d374d01c2035",
+    "license_sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+    "compile_commands_sha256": "3f191049445c5d32adf1ef264b9e228f0f8a21d08100008aeee61d3ea61fb004",
+    "command": [
+      "/nix/store/29qjlshvklnyr67nhpprzgb9igmsfsjj-gcc-wrapper-15.2.0/bin/g++",
+      "-std=gnu++11",
+      "-fdata-sections",
+      "-ffunction-sections",
+      "-fno-exceptions",
+      "-fsigned-char",
+      "-Wall",
+      "-Wextra",
+      "-Wpointer-arith",
+      "-Wno-unused-parameter",
+      "-Wno-missing-field-initializers",
+      "-Wno-redundant-decls",
+      "-Wno-unknown-pragmas",
+      "-Wno-expansion-to-defined",
+      "-Wno-invalid-offsetof",
+      "-Werror=reorder",
+      "-Werror=cast-align",
+      "-Werror=attributes",
+      "-Werror=format-security",
+      "-Werror=format-extra-args",
+      "-Werror=enum-compare",
+      "-Werror=format",
+      "-Werror=array-bounds",
+      "-Werror=uninitialized",
+      "-Werror=init-self",
+      "-Werror=narrowing",
+      "-Werror=return-type",
+      "-Werror=switch",
+      "-Werror=sign-compare",
+      "-Werror=type-limits",
+      "-Werror=undef",
+      "-Werror=unused-result",
+      "-Werror=shadow",
+      "-Werror=unused-value",
+      "-Werror=unused-variable",
+      "-Werror=delete-non-virtual-dtor",
+      "-Wfatal-errors",
+      "-Wno-trigraphs",
+      "-Werror=parentheses",
+      "-DARDUPILOT_BUILD",
+      "-Wuninitialized",
+      "-Warray-bounds",
+      "-Wno-format-contains-nul",
+      "-Werror=unused-but-set-variable",
+      "-fsingle-precision-constant",
+      "-Wno-psabi",
+      "-Werror=suggest-override",
+      "-Werror=implicit-fallthrough",
+      "-Werror=maybe-uninitialized",
+      "-Werror=duplicated-cond",
+      "-Werror=sizeof-pointer-div",
+      "-Werror=use-after-free",
+      "-Wno-error=maybe-uninitialized",
+      "-Wno-error=format-truncation",
+      "-Wno-error=array-bounds",
+      "-D__AP_LINE__=__LINE__",
+      "-DAP_MAVLINK_RALLY_POINT_PROTOCOL_ENABLED=HAL_GCS_ENABLED&&HAL_RALLY_ENABLED",
+      "-DAC_POLYFENCE_FENCE_POINT_PROTOCOL_SUPPORT=HAL_GCS_ENABLED&&AP_FENCE_ENABLED",
+      "-DHAL_NAVEKF2_AVAILABLE=1",
+      "-DCANARD_64_BIT=1",
+      "-Werror=float-equal",
+      "-Werror=missing-declarations",
+      "-DAP_NETWORKING_ENABLED=1",
+      "-O3",
+      "-ffile-prefix-map=../../../ardupilot=../..",
+      "-include",
+      "ap_config.h",
+      "-DHAL_HAVE_AP_ROMFS_EMBEDDED_H",
+      "-include",
+      "ap_config.h",
+      "-Ilibraries",
+      "-Ilibraries/GCS_MAVLink",
+      "-Imodules/DroneCAN/libcanard/dsdlc_generated/include",
+      "-I../../../ardupilot/modules/DroneCAN/libcanard",
+      "-I../../../ardupilot/libraries/AP_DroneCAN/canard",
+      "-I.",
+      "-I../../../ardupilot/libraries",
+      "-I../../../ardupilot/modules/littlefs",
+      "-I../../../ardupilot/libraries/AP_Common/missing",
+      "-I../../../ardupilot/modules/lwip/src/include",
+      "-I../../../ardupilot/libraries/AP_Networking/config",
+      "-I../../../ardupilot/libraries/AP_Networking/lwip_hal/include",
+      "-DAP_BARO_PROBE_EXTERNAL_I2C_BUSES=1",
+      "-DAP_CUSTOMCONTROL_ENABLED=1",
+      "-DAP_DDS_ENABLED=0",
+      "-DAP_SCRIPTING_CHECKS=1",
+      "-DCANARD_ALLOCATE_SEM=1",
+      "-DCANARD_ENABLE_ASSERTS=1",
+      "-DCANARD_ENABLE_CANFD=1",
+      "-DCANARD_ENABLE_DEADLINE=1",
+      "-DCANARD_IFACE_ALL=3",
+      "-DCANARD_MULTI_IFACE=1",
+      "-DCONFIG_HAL_BOARD=HAL_BOARD_SITL",
+      "-DCONFIG_HAL_BOARD_SUBTYPE=HAL_BOARD_SUBTYPE_NONE",
+      "-DDRONECAN_CXX_WRAPPERS=1",
+      "-DENABLE_ONVIF=0",
+      "-DLUA_32BITS=1",
+      "-DUSE_USER_HELPERS=1",
+      "-DAPM_BUILD_DIRECTORY=APM_BUILD_Replay",
+      "-DAP_BUILD_TARGET_NAME=\"Replay\"",
+      "/mnt/scratch/jgoppert/modelica_models/licensing/native-coning-1/native_coning.cpp",
+      "-o",
+      "/mnt/scratch/jgoppert/modelica_models/licensing/native-coning-1/native_coning"
+    ],
+    "directory": "/mnt/scratch/jgoppert/modelica_models/native-innovations/build/ardupilot/sitl",
+    "scope": "Verbatim native coning arithmetic and native AP_Math vector types. Isolated arithmetic oracle, not the complete sensor backend or EKF3. No ESKF objects are linked.",
+    "excluded": [
+      "sensor filtering",
+      "sample-gap reset",
+      "semaphore",
+      "logging"
+    ],
+    "executable_sha256": "f3d0878d1ba8dd0069b0e9782e39413a2ae3f2e20c1acec97183eda9a0f61d9c"
+  },
+  "ardupilot_comparison_performed": true,
+  "priming": "One warm-up interval then packet reset, preserving previous increment",
+  "limitations": [
+    "Finite linear-rate cases; no sensor noise, filtering, clipping, or timestamp jitter",
+    "This probes sensor integration, not the complete EKF2/EKF3 estimators",
+    "Published frozen EKF2 flight replays bypass this sensor integrator",
+    "Does not establish a sculling indexing defect"
+  ],
+  "cases": [
+    {
+      "dt_s": 0.00124999997,
+      "intervals": 2,
+      "px4_angle_rad": [
+        0.000756249938,
+        -0.000490624865,
+        0.000246875425
+      ],
+      "reference_angle_rad": [
+        0.0007562498514898836,
+        -0.0004906243374073535,
+        0.0002468766868577068
+      ],
+      "px4_error_rad": 1.3704462313656993e-09,
+      "reference_refinement_difference_rad": 8.185546896626418e-19,
+      "ardupilot_native_angle_rad": [
+        0.000756249879,
+        -0.000490624341,
+        0.000246876676
+      ],
+      "ardupilot_native_error_rad": 2.979267383843083e-11,
+      "ardupilot_native_closer": true
+    },
+    {
+      "dt_s": 0.00124999997,
+      "intervals": 4,
+      "px4_angle_rad": [
+        0.00152499927,
+        -0.000962496328,
+        0.000487509707
+      ],
+      "reference_angle_rad": [
+        0.0015249989210760586,
+        -0.0009624947694341865,
+        0.00048751353024955273
+      ],
+      "px4_error_rad": 4.143442102165555e-09,
+      "reference_refinement_difference_rad": 1.6117824032161586e-18,
+      "ardupilot_native_angle_rad": [
+        0.00152499881,
+        -0.000962494756,
+        0.00048751352
+      ],
+      "ardupilot_native_error_rad": 1.1235400070366453e-10,
+      "ardupilot_native_closer": true
+    },
+    {
+      "dt_s": 0.00124999997,
+      "intervals": 8,
+      "px4_angle_rad": [
+        0.00309999217,
+        -0.0018499617,
+        0.000950099435
+      ],
+      "reference_angle_rad": [
+        0.003099991588032008,
+        -0.0018499582914850011,
+        0.0009501083112090032
+      ],
+      "px4_error_rad": 9.52595126531522e-09,
+      "reference_refinement_difference_rad": 1.6740306246781548e-17,
+      "ardupilot_native_angle_rad": [
+        0.00309999147,
+        -0.00184995821,
+        0.000950108282
+      ],
+      "ardupilot_native_error_rad": 1.4637119293180288e-10,
+      "ardupilot_native_closer": true
+    },
+    {
+      "dt_s": 0.00249999994,
+      "intervals": 2,
+      "px4_angle_rad": [
+        0.00152499974,
+        -0.000962498714,
+        0.000487503363
+      ],
+      "reference_angle_rad": [
+        0.0015249989210760586,
+        -0.0009624947694341865,
+        0.00048751353024955273
+      ],
+      "px4_error_rad": 1.0936324764108008e-08,
+      "reference_refinement_difference_rad": 1.6117824032161586e-18,
+      "ardupilot_native_angle_rad": [
+        0.00152499892,
+        -0.000962494756,
+        0.000487513491
+      ],
+      "ardupilot_native_error_rad": 4.149894769791523e-11,
+      "ardupilot_native_closer": true
+    },
+    {
+      "dt_s": 0.00249999994,
+      "intervals": 4,
+      "px4_angle_rad": [
+        0.0030999938,
+        -0.00184997008,
+        0.000950077898
+      ],
+      "reference_angle_rad": [
+        0.003099991588032008,
+        -0.0018499582914850011,
+        0.0009501083112090032
+      ],
+      "px4_error_rad": 3.2692891737289726e-08,
+      "reference_refinement_difference_rad": 1.6740306246781548e-17,
+      "ardupilot_native_angle_rad": [
+        0.00309999147,
+        -0.00184995832,
+        0.000950108282
+      ],
+      "ardupilot_native_error_rad": 1.2489125626525172e-10,
+      "ardupilot_native_closer": true
+    },
+    {
+      "dt_s": 0.00249999994,
+      "intervals": 8,
+      "px4_angle_rad": [
+        0.00639993884,
+        -0.00339969387,
+        0.00180079555
+      ],
+      "reference_angle_rad": [
+        0.006399933111409676,
+        -0.003399666565848835,
+        0.0018008666116728657
+      ],
+      "px4_error_rad": 7.634195942216172e-08,
+      "reference_refinement_difference_rad": 2.1183878855627844e-17,
+      "ardupilot_native_angle_rad": [
+        0.00639993325,
+        -0.00339966617,
+        0.00180086656
+      ],
+      "ardupilot_native_error_rad": 4.225797713918744e-10,
+      "ardupilot_native_closer": true
+    },
+    {
+      "dt_s": 0.00499999989,
+      "intervals": 2,
+      "px4_angle_rad": [
+        0.00309999776,
+        -0.00184998952,
+        0.000950027024
+      ],
+      "reference_angle_rad": [
+        0.0030999915944319536,
+        -0.001849958294884754,
+        0.0009501083130096506
+      ],
+      "px4_error_rad": 8.729791029252658e-08,
+      "reference_refinement_difference_rad": 2.810573257811611e-18,
+      "ardupilot_native_angle_rad": [
+        0.00309999147,
+        -0.00184995821,
+        0.000950108282
+      ],
+      "ardupilot_native_error_rad": 1.5378664091566848e-10,
+      "ardupilot_native_closer": true
+    },
+    {
+      "dt_s": 0.00499999989,
+      "intervals": 4,
+      "px4_angle_rad": [
+        0.00639995188,
+        -0.00339976023,
+        0.00180062291
+      ],
+      "reference_angle_rad": [
+        0.006399933125009308,
+        -0.0033996665714468477,
+        0.0018008666148780533
+      ],
+      "px4_error_rad": 2.6175511808063924e-07,
+      "reference_refinement_difference_rad": 4.6349611171926565e-17,
+      "ardupilot_native_angle_rad": [
+        0.00639993325,
+        -0.00339966593,
+        0.00180086645
+      ],
+      "ardupilot_native_error_rad": 6.739892464118231e-10,
+      "ardupilot_native_closer": true
+    },
+    {
+      "dt_s": 0.00499999989,
+      "intervals": 8,
+      "px4_angle_rad": [
+        0.0135995103,
+        -0.00559755182,
+        0.00320636458
+      ],
+      "reference_angle_rad": [
+        0.013599464452975359,
+        -0.005597332186536853,
+        0.0032069327511419716
+      ],
+      "px4_error_rad": 6.108676242621999e-07,
+      "reference_refinement_difference_rad": 2.2767213025282562e-17,
+      "ardupilot_native_angle_rad": [
+        0.0135994703,
+        -0.00559732318,
+        0.00320692989
+      ],
+      "ardupilot_native_error_rad": 1.111267459316187e-08,
+      "ardupilot_native_closer": true
+    },
+    {
+      "dt_s": 0.00999999978,
+      "intervals": 2,
+      "px4_angle_rad": [
+        0.00639998307,
+        -0.00339991646,
+        0.00180021662
+      ],
+      "reference_angle_rad": [
+        0.006399933125009308,
+        -0.0033996665714468477,
+        0.0018008666148780533
+      ],
+      "px4_error_rad": 6.981633996332606e-07,
+      "reference_refinement_difference_rad": 4.6349611171926565e-17,
+      "ardupilot_native_angle_rad": [
+        0.00639993325,
+        -0.0033996664,
+        0.00180086656
+      ],
+      "ardupilot_native_error_rad": 2.191535886998221e-10,
+      "ardupilot_native_closer": true
+    },
+    {
+      "dt_s": 0.00999999978,
+      "intervals": 4,
+      "px4_angle_rad": [
+        0.0135996165,
+        -0.00559808314,
+        0.00320498296
+      ],
+      "reference_angle_rad": [
+        0.013599464452975359,
+        -0.005597332186536853,
+        0.0032069327511419716
+      ],
+      "px4_error_rad": 2.0949307622986816e-06,
+      "reference_refinement_difference_rad": 2.2767213025282562e-17,
+      "ardupilot_native_angle_rad": [
+        0.0135994684,
+        -0.00559732597,
+        0.00320693082
+      ],
+      "ardupilot_native_error_rad": 7.612729029526132e-09,
+      "ardupilot_native_closer": true
+    },
+    {
+      "dt_s": 0.00999999978,
+      "intervals": 8,
+      "px4_angle_rad": [
+        0.0303960834,
+        -0.00638041645,
+        0.00485091656
+      ],
+      "reference_angle_rad": [
+        0.030395672381560147,
+        -0.006378632274745662,
+        0.004855449734705429
+      ],
+      "px4_error_rad": 4.888955962782944e-06,
+      "reference_refinement_difference_rad": 5.819085879030068e-17,
+      "ardupilot_native_angle_rad": [
+        0.0303957425,
+        -0.00637848349,
+        0.00485539623
+      ],
+      "ardupilot_native_error_rad": 1.7296314535878196e-07,
+      "ardupilot_native_closer": true
+    }
+  ]
+}

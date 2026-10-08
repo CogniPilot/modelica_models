@@ -26,8 +26,12 @@ tools/estimator_comparison/imu_coning.cpp compiles the actual external PX4
 v1.17.0 Integrator.hpp with upstream float32 matrix types. The test warms
 one interval, resets the published packet, then integrates a linear angular
 rate ramp over 2, 4 or 8 intervals at four sample periods. ArduPilot's
-backend recurrence is transcribed into the probe; the full backend is not
-compiled. No upstream implementation source is added to modelica_models.
+backend recurrence was transcribed into the historical probe; the full backend
+was not compiled. That transcription was removed on 8 October 2026. The new
+comparison executes separate native probes, extracting ArduPilot's actual
+arithmetic only into an external GPL-marked build directory with COPYING.txt.
+The new oracle uses native AP_Math types, without linking any ESKF object.
+See docs/estimator-licensing.txt and the new licensing/native-coning receipt.
 check_imu_coning.py independently integrates the quaternion ODE with
 double-precision RK4 and checks agreement after doubling reference steps.
 All 12 cases have lower angular error with the ArduPilot recurrence.

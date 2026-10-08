@@ -1,0 +1,57 @@
+Estimator source and validation licensing boundaries
+8 October 2026
+
+CogniPilot ESKF, its Lie/preintegration implementation, and independent
+comparison orchestration are maintained under this repository's Apache-2.0
+license. Implement changes from our derivations and published mathematics,
+with reproducible independent numerical checks and Lean proofs where applicable.
+Do not translate, copy, or adapt ArduPilot estimator implementation into ESKF.
+Reading a reference implementation to audit comparison fidelity does not make
+an implementation a clean-room implementation; no clean-room claim is made.
+
+Native PX4 and ArduPilot remain pinned Git submodules for validation. Their
+licenses remain applicable to their source and combined native executables.
+A submodule reference is not a license conversion. Derived Modelica ports
+remain in their separately licensed repositories and are not ESKF dependencies.
+External replay adapters are maintained in the GPL-licensed estimator-comparison
+repository. Instrumented native worktrees, extracted native oracle source and
+binaries belong in owned external build directories under $HOME/scratch.
+
+ESKF and the native firmware comparison programs execute separately. Analysis
+exchanges ordinary sensor captures, state/covariance traces and score data.
+ESKF production artifacts must not link native ArduPilot objects or include its
+implementation headers. Native builds retain their own notices and license;
+do not distribute them as Apache-only ESKF artifacts.
+
+The old imu_coning.cpp contained a transcribed ArduPilot recurrence inside an
+auxiliary comparison probe. That transcription was removed on 8 October 2026.
+Historical receipts describe that old probe and do not validate the new tool.
+The replacement build_native_coning.py extracts the pinned native arithmetic
+at run time into a fresh external GPL-marked source file, compiles it with actual
+AP_Math headers and copies COPYING.txt alongside it. check_imu_coning.py executes
+that oracle separately from the PX4 probe. The Apache tool contains orchestration
+and original test inputs, not the ArduPilot coning implementation. Its output
+is still an isolated arithmetic comparison, not a complete sensor backend.
+The native source, generated oracle, executable, license and commands are hashed.
+
+RGB-D SLAM integration uses CogniPilot's Apache-licensed slam_web sources or
+independently implemented interfaces. Review licenses and provenance of any
+additional visual front end before importing or linking it. A commonly used
+SLAM package is not automatically permissively licensed.
+
+This records the engineering boundary and the scoped source review. A source
+scan, benchmark, proof, or Apache LICENSE file does not certify all provenance,
+all patent questions, historical commits, or every possible distribution.
+
+Primary license references:
+https://www.apache.org/licenses/LICENSE-2.0
+https://ardupilot.org/dev/docs/license-gplv3.html
+
+Native coning oracle example, after a matching owned ArduPilot Replay build:
+  python tools/estimator_comparison/build_native_coning.py \
+    --upstream "$ardupilot_source" \
+    --compile-commands "$ardupilot_build/sitl/compile_commands.json" \
+    --work "$HOME/scratch/modelica_models/native-coning-oracle"
+
+The build directory must be fresh and outside both source checkouts. This
+does not copy native oracle source or binaries into modelica_models.

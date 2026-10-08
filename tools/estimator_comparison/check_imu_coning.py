@@ -1,4 +1,4 @@
-"""Probe an external PX4 header against an independent linear-rate attitude ODE."""
+"""Compare separately executed native coning probes with an attitude ODE."""
 
 import argparse
 import hashlib
@@ -46,16 +46,41 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--executable", type=Path, required=True)
     parser.add_argument("--integrator", type=Path, required=True)
+    parser.add_argument("--ardupilot-executable", type=Path)
+    parser.add_argument("--ardupilot-provenance", type=Path)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
+    if bool(args.ardupilot_executable) != bool(args.ardupilot_provenance):
+        parser.error("Supply both ArduPilot executable and provenance")
     rows = np.loadtxt(
         subprocess.check_output(
             [str(args.executable.resolve())], text=True
         ).splitlines(),
         delimiter=",",
     )
+    if rows.shape != (12, 5) or not np.isfinite(rows).all():
+        raise ValueError("Expected twelve finite PX4 probe rows with five fields")
+    ardupilot = None
+    provenance = None
+    if args.ardupilot_executable:
+        ardupilot = np.loadtxt(
+            subprocess.check_output(
+                [str(args.ardupilot_executable.resolve())], text=True
+            ).splitlines(),
+            delimiter=",",
+        )
+        if (
+            ardupilot.shape != rows.shape
+            or not np.isfinite(ardupilot).all()
+            or not np.array_equal(ardupilot[:, :2], rows[:, :2])
+        ):
+            raise ValueError("Native coning probes use different sample schedules")
+        provenance = json.loads(args.ardupilot_provenance.read_text())
+        actual = hashlib.sha256(args.ardupilot_executable.read_bytes()).hexdigest()
+        if not provenance["complete"] or provenance["executable_sha256"] != actual:
+            raise ValueError("ArduPilot executable differs from its build provenance")
     cases = []
-    for row in rows:
+    for number, row in enumerate(rows):
         dt, intervals = row[:2]
         duration = dt * intervals
         reference = reference_angle(duration)
@@ -63,26 +88,30 @@ def main():
         difference = float(np.linalg.norm(refined - reference))
         assert difference < 1e-12
         px4_error = float(np.linalg.norm(row[2:5] - refined))
-        ardupilot_error = float(np.linalg.norm(row[5:8] - refined))
-        cases.append(
-            dict(
-                dt_s=float(dt),
-                intervals=int(intervals),
-                px4_angle_rad=row[2:5].tolist(),
-                ardupilot_recurrence_angle_rad=row[5:8].tolist(),
-                reference_angle_rad=refined.tolist(),
-                px4_error_rad=px4_error,
-                ardupilot_recurrence_error_rad=ardupilot_error,
-                reference_refinement_difference_rad=difference,
-                ardupilot_recurrence_closer=ardupilot_error < px4_error,
-            )
+        case = dict(
+            dt_s=float(dt),
+            intervals=int(intervals),
+            px4_angle_rad=row[2:5].tolist(),
+            reference_angle_rad=refined.tolist(),
+            px4_error_rad=px4_error,
+            reference_refinement_difference_rad=difference,
         )
+        if ardupilot is not None:
+            angle = ardupilot[number, 2:5]
+            error = float(np.linalg.norm(angle - refined))
+            case.update(
+                ardupilot_native_angle_rad=angle.tolist(),
+                ardupilot_native_error_rad=error,
+                ardupilot_native_closer=error < px4_error,
+            )
+        cases.append(case)
     result = dict(
         integrator_sha256=hashlib.sha256(args.integrator.read_bytes()).hexdigest(),
         executable_sha256=hashlib.sha256(args.executable.read_bytes()).hexdigest(),
         reference="Double-precision RK4 quaternion ODE for a linear angular-rate ramp",
         px4="Compiled supplied upstream IntegratorConing header with upstream matrix types",
-        ardupilot="Transcribed backend recurrence; not a compiled full sensor backend",
+        ardupilot=provenance,
+        ardupilot_comparison_performed=ardupilot is not None,
         priming="One warm-up interval then packet reset, preserving previous increment",
         limitations=[
             "Finite linear-rate cases; no sensor noise, filtering, clipping, or timestamp jitter",
@@ -98,9 +127,7 @@ def main():
         json.dumps(
             {
                 "cases": len(cases),
-                "ardupilot_recurrence_closer": sum(
-                    c["ardupilot_recurrence_closer"] for c in cases
-                ),
+                "ardupilot_comparison_performed": ardupilot is not None,
             }
         )
     )
