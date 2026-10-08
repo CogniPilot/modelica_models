@@ -16,14 +16,7 @@ from native_consistency import check
 from native_release import SOURCE_PINS
 
 
-def run(args):
-    if args.work.exists() or args.output.exists():
-        raise ValueError("Choose new owned work and evidence paths")
-    reference = json.loads(args.reference.read_text())
-    if reference.get("native_campaign") != "stable-releases":
-        raise ValueError("Use the completed stable release comparison")
-    if digest(args.transport_trace) != reference["binary_sha256"]["transport_trace"]:
-        raise ValueError("Frozen packet transport executable changed")
+def verify_observers(args):
     observers = {}
     for name in ("px4", "ardupilot"):
         source = getattr(args, name + "_source")
@@ -46,6 +39,18 @@ def run(args):
         ):
             raise ValueError("Native observer source changed after instrumentation")
         observers[name] = evidence
+    return observers
+
+
+def run(args):
+    if args.work.exists() or args.output.exists():
+        raise ValueError("Choose new owned work and evidence paths")
+    reference = json.loads(args.reference.read_text())
+    if reference.get("native_campaign") != "stable-releases":
+        raise ValueError("Use the completed stable release comparison")
+    if digest(args.transport_trace) != reference["binary_sha256"]["transport_trace"]:
+        raise ValueError("Frozen packet transport executable changed")
+    observers = verify_observers(args)
     args.work.mkdir(parents=True)
     base_work = args.work
     args.imu_noise_density = reference["imu_noise_density"]

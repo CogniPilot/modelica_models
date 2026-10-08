@@ -1,0 +1,9 @@
+{
+  "reports_reproduce_byte_for_byte": true,
+  "failures_retained_with_explicit_denominators": true,
+  "incomplete_rejected": "Require completed campaigns on the frozen stable reference",
+  "observer_parity_rejected": "Sensor-informed native observer parity failed",
+  "duplicate_condition_rejected": "Duplicated comparison condition",
+  "estimator_unit_tests_passed": 34,
+  "ruff_check": "passed"
+}

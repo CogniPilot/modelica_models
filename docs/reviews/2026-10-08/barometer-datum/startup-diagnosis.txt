@@ -1,0 +1,24 @@
+Startup translation diagnosis
+=============================
+
+All sixteen GPS-denied reruns reproduced the frozen pressure-study state
+CSVs byte for byte. No filter, noise, arrival or scoring setting changed.
+startup-diagnosis.json records executable/reference provenance, initial
+position/velocity/attitude errors and the exact horizontal MSE decomposition:
+
+  mean(|e(t)|^2) = |e(13)|^2 + mean(|e(t)-e(13)|^2)
+                   + 2 e(13) dot mean(e(t)-e(13)).
+
+The hypothesis that the horizontal regression is only a startup translation
+is rejected. For seed 7 at 2 m, horizon displacement RMS grows from 0.04592
+to 0.06170 m; at 4 m it grows from 0.05084 to 0.07417 m. These are diagnostic
+translation-aligned errors, not absolute navigation accuracy and not a new
+ranking. Published raw RMS is retained and reconstructed by the decomposition.
+Attitude, subsequent velocity and cross coupling still require investigation.
+The startup pressure option remains disabled.
+
+Reproduce with tools/estimator_comparison/diagnose_startup_datum.py using
+--study frozen-replays.json, --reference the stable native-exposure.json,
+--cases the frozen native case directory, --build the four audited pressure
+replay executables and fresh owned --work/--output paths under $HOME/scratch.
+The tool refuses altered capture, arrival, executable or output hashes.

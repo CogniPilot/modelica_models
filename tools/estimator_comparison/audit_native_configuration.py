@@ -15,6 +15,7 @@ from pymavlink import DFReader
 import native_delay
 from compare_delay import PROFILES
 from score import metrics, read
+from native_aiding_noise import sensor_informed_noise
 
 
 def digest(path):
@@ -103,6 +104,8 @@ def probe(args, capture, arrivals, scenario, variant):
         if Path(path) == args.work / "ardupilot-run":
             logs = sorted((Path(path) / "logs").glob("*.BIN"))
             result.update(diagnostics(logs[-1]))
+            if getattr(args, "retain_native_run", False):
+                return None
         return original_remove(path, *positional, **keywords)
 
     native_delay.load_module = load
@@ -127,7 +130,8 @@ def probe(args, capture, arrivals, scenario, variant):
         after_return=metrics(estimate, truth, 40, 60),
         **details,
     )
-    output.unlink()
+    if not getattr(args, "retain_output", False):
+        output.unlink()
     return result
 
 
@@ -148,6 +152,16 @@ def prepare_px4(args):
                     p->ekf2_gyr_noise, p->ekf2_acc_noise);
             }
 """
+    if getattr(args, "sensor_informed_noise", False):
+        values = "".join(
+            f'fprintf(stderr,"NATIVE_PARAM {name} %.12g\\n", (double)p->{name});\n'
+            for name in sensor_informed_noise()["px4"]
+        )
+        injection += (
+            "static bool reported_parameters = false;\n"
+            "if (!reported_parameters && s.t >= 13) {\n"
+            "reported_parameters = true;\n" + values + "}\n"
+        )
 
     def instrument(text, before, after):
         result = replace(text, before, after)
@@ -224,7 +238,23 @@ def probe_px4(args, binary, capture, scenario):
             if not line.startswith("AUDIT ")
         ),
     )
-    output.unlink()
+    if getattr(args, "sensor_informed_noise", False):
+        observed = {
+            line.split()[1]: float(line.split()[2])
+            for line in completed.stderr.splitlines()
+            if line.startswith("NATIVE_PARAM ")
+        }
+        expected = sensor_informed_noise()["px4"]
+        if observed.keys() != expected.keys() or any(
+            not np.isclose(observed[key], value, rtol=1e-6, atol=0)
+            for key, value in expected.items()
+        ):
+            raise ValueError(
+                "Actual PX4 noise parameters differ from the declared profile"
+            )
+        result["native_parameter_values"] = observed
+    if not getattr(args, "retain_output", False):
+        output.unlink()
     return result
 
 

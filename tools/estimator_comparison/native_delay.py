@@ -15,6 +15,7 @@ import numpy as np
 from compare_delay import PROFILES
 from native_phase import flight_phase_writer
 from native_noise import native_noise, PREDICTION_PERIOD_S
+from native_aiding_noise import sensor_informed_noise
 from flow_native import ardupilot_rates, px4_source, verify_dataflash
 from score import POSITION, QUATERNION, VELOCITY, metrics, read, transition
 
@@ -130,6 +131,16 @@ def prepare_px4(args):
         )
     if getattr(args, "exposure_flow", False):
         text = px4_source(text, replace_once)
+    if getattr(args, "sensor_informed_noise", False):
+        parameters = sensor_informed_noise()["px4"]
+        text = replace_once(
+            text,
+            "\tif (!use_gps) p->ekf2_gps_ctrl = 0;",
+            "".join(
+                f"\tp->{name} = {value:.12e}f;\n" for name, value in parameters.items()
+            )
+            + "\tif (!use_gps) p->ekf2_gps_ctrl = 0;",
+        )
     if getattr(args, "px4_release", None):
         from native_release import px4_release_adapter
 
@@ -290,6 +301,8 @@ def run_ardupilot(args, capture, arrivals, delay_profile, scenario, output):
             ("EK3_GYRO_P_NSE", gyro_noise),
             ("EK3_ACC_P_NSE", accel_noise),
         ]
+    if getattr(args, "sensor_informed_noise", False):
+        options.param += list(sensor_informed_noise()["ekf3"].items())
     converter.convert(options)
     flow_serialization = (
         verify_dataflash(dataflash, flow)

@@ -1,0 +1,330 @@
+{
+  "cases_per_method": 12,
+  "native_observer_pairs_identical": 24,
+  "covariance_failures": [
+    {
+      "estimator": "ekf3_sensor_informed",
+      "seed": 101,
+      "frequency": 0.85,
+      "climb_height_m": 2,
+      "scenario": "gps",
+      "reason": "Matrix is not positive definite"
+    },
+    {
+      "estimator": "ekf3_sensor_informed",
+      "seed": 101,
+      "frequency": 0.85,
+      "climb_height_m": 2,
+      "scenario": "transition",
+      "reason": "Matrix is not positive definite"
+    },
+    {
+      "estimator": "ekf3_sensor_informed",
+      "seed": 101,
+      "frequency": 0.85,
+      "climb_height_m": 4,
+      "scenario": "gps",
+      "reason": "Matrix is not positive definite"
+    },
+    {
+      "estimator": "ekf3_sensor_informed",
+      "seed": 101,
+      "frequency": 0.85,
+      "climb_height_m": 4,
+      "scenario": "transition",
+      "reason": "Matrix is not positive definite"
+    }
+  ],
+  "state_validity_failures": [
+    {
+      "estimator": "ekf3_sensor_informed",
+      "seed": 101,
+      "frequency": 0.85,
+      "climb_height_m": 4,
+      "scenario": "gps",
+      "invalid_windows": [
+        "flight",
+        "after_return"
+      ]
+    }
+  ],
+  "lower_rmse_than_both_native": [
+    {
+      "estimator": "eskf_horizon_control",
+      "native_configuration": "published",
+      "window": "flight",
+      "eligible_conditions": 12,
+      "horizontal_position_rmse_m": 12,
+      "vertical_position_rmse_m": 0,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "eskf_horizon_control",
+      "native_configuration": "published",
+      "window": "outage_window",
+      "eligible_conditions": 12,
+      "horizontal_position_rmse_m": 12,
+      "vertical_position_rmse_m": 0,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "eskf_horizon_control",
+      "native_configuration": "published",
+      "window": "after_return",
+      "eligible_conditions": 12,
+      "horizontal_position_rmse_m": 11,
+      "vertical_position_rmse_m": 0,
+      "velocity_3d_rmse_m_s": 11,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "eskf_horizon_control",
+      "native_configuration": "sensor_informed",
+      "window": "flight",
+      "eligible_conditions": 11,
+      "horizontal_position_rmse_m": 11,
+      "vertical_position_rmse_m": 3,
+      "velocity_3d_rmse_m_s": 11,
+      "attitude_rmse_deg": 10,
+      "yaw_rmse_deg": 8
+    },
+    {
+      "estimator": "eskf_horizon_control",
+      "native_configuration": "sensor_informed",
+      "window": "outage_window",
+      "eligible_conditions": 12,
+      "horizontal_position_rmse_m": 12,
+      "vertical_position_rmse_m": 6,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "eskf_horizon_control",
+      "native_configuration": "sensor_informed",
+      "window": "after_return",
+      "eligible_conditions": 11,
+      "horizontal_position_rmse_m": 11,
+      "vertical_position_rmse_m": 1,
+      "velocity_3d_rmse_m_s": 8,
+      "attitude_rmse_deg": 11,
+      "yaw_rmse_deg": 11
+    },
+    {
+      "estimator": "eskf_horizon_candidate",
+      "native_configuration": "published",
+      "window": "flight",
+      "eligible_conditions": 12,
+      "horizontal_position_rmse_m": 10,
+      "vertical_position_rmse_m": 10,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "eskf_horizon_candidate",
+      "native_configuration": "published",
+      "window": "outage_window",
+      "eligible_conditions": 12,
+      "horizontal_position_rmse_m": 12,
+      "vertical_position_rmse_m": 10,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "eskf_horizon_candidate",
+      "native_configuration": "published",
+      "window": "after_return",
+      "eligible_conditions": 12,
+      "horizontal_position_rmse_m": 10,
+      "vertical_position_rmse_m": 6,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "eskf_horizon_candidate",
+      "native_configuration": "sensor_informed",
+      "window": "flight",
+      "eligible_conditions": 11,
+      "horizontal_position_rmse_m": 9,
+      "vertical_position_rmse_m": 9,
+      "velocity_3d_rmse_m_s": 11,
+      "attitude_rmse_deg": 10,
+      "yaw_rmse_deg": 8
+    },
+    {
+      "estimator": "eskf_horizon_candidate",
+      "native_configuration": "sensor_informed",
+      "window": "outage_window",
+      "eligible_conditions": 12,
+      "horizontal_position_rmse_m": 10,
+      "vertical_position_rmse_m": 11,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "eskf_horizon_candidate",
+      "native_configuration": "sensor_informed",
+      "window": "after_return",
+      "eligible_conditions": 11,
+      "horizontal_position_rmse_m": 9,
+      "vertical_position_rmse_m": 9,
+      "velocity_3d_rmse_m_s": 8,
+      "attitude_rmse_deg": 11,
+      "yaw_rmse_deg": 11
+    },
+    {
+      "estimator": "eskf_retrodiction_control",
+      "native_configuration": "published",
+      "window": "flight",
+      "eligible_conditions": 12,
+      "horizontal_position_rmse_m": 12,
+      "vertical_position_rmse_m": 0,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "eskf_retrodiction_control",
+      "native_configuration": "published",
+      "window": "outage_window",
+      "eligible_conditions": 12,
+      "horizontal_position_rmse_m": 10,
+      "vertical_position_rmse_m": 0,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "eskf_retrodiction_control",
+      "native_configuration": "published",
+      "window": "after_return",
+      "eligible_conditions": 12,
+      "horizontal_position_rmse_m": 9,
+      "vertical_position_rmse_m": 0,
+      "velocity_3d_rmse_m_s": 8,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "eskf_retrodiction_control",
+      "native_configuration": "sensor_informed",
+      "window": "flight",
+      "eligible_conditions": 11,
+      "horizontal_position_rmse_m": 11,
+      "vertical_position_rmse_m": 5,
+      "velocity_3d_rmse_m_s": 9,
+      "attitude_rmse_deg": 8,
+      "yaw_rmse_deg": 7
+    },
+    {
+      "estimator": "eskf_retrodiction_control",
+      "native_configuration": "sensor_informed",
+      "window": "outage_window",
+      "eligible_conditions": 12,
+      "horizontal_position_rmse_m": 12,
+      "vertical_position_rmse_m": 6,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "eskf_retrodiction_control",
+      "native_configuration": "sensor_informed",
+      "window": "after_return",
+      "eligible_conditions": 11,
+      "horizontal_position_rmse_m": 11,
+      "vertical_position_rmse_m": 3,
+      "velocity_3d_rmse_m_s": 7,
+      "attitude_rmse_deg": 10,
+      "yaw_rmse_deg": 10
+    },
+    {
+      "estimator": "eskf_retrodiction_candidate",
+      "native_configuration": "published",
+      "window": "flight",
+      "eligible_conditions": 12,
+      "horizontal_position_rmse_m": 11,
+      "vertical_position_rmse_m": 11,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "eskf_retrodiction_candidate",
+      "native_configuration": "published",
+      "window": "outage_window",
+      "eligible_conditions": 12,
+      "horizontal_position_rmse_m": 10,
+      "vertical_position_rmse_m": 10,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "eskf_retrodiction_candidate",
+      "native_configuration": "published",
+      "window": "after_return",
+      "eligible_conditions": 12,
+      "horizontal_position_rmse_m": 10,
+      "vertical_position_rmse_m": 7,
+      "velocity_3d_rmse_m_s": 9,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "eskf_retrodiction_candidate",
+      "native_configuration": "sensor_informed",
+      "window": "flight",
+      "eligible_conditions": 11,
+      "horizontal_position_rmse_m": 11,
+      "vertical_position_rmse_m": 9,
+      "velocity_3d_rmse_m_s": 10,
+      "attitude_rmse_deg": 8,
+      "yaw_rmse_deg": 7
+    },
+    {
+      "estimator": "eskf_retrodiction_candidate",
+      "native_configuration": "sensor_informed",
+      "window": "outage_window",
+      "eligible_conditions": 12,
+      "horizontal_position_rmse_m": 12,
+      "vertical_position_rmse_m": 12,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "eskf_retrodiction_candidate",
+      "native_configuration": "sensor_informed",
+      "window": "after_return",
+      "eligible_conditions": 11,
+      "horizontal_position_rmse_m": 11,
+      "vertical_position_rmse_m": 9,
+      "velocity_3d_rmse_m_s": 7,
+      "attitude_rmse_deg": 10,
+      "yaw_rmse_deg": 10
+    }
+  ],
+  "source_sha256": {
+    "study": "5f29a900e4e86b24d2a11ec10dc0085076bcee30a208cf00cc236849a34e23e5",
+    "reference": "43a83e162f38e1dca7a1382bcb154bc965cdd0e70dfa8fddfe5f946234693429",
+    "observers": "f65444fab6882a6c5adeaef5a0235bb191ec8f1dea7aa3fe90e58175da547802",
+    "eskf": "5f38c785224a016163c0bf1d943c3f38453f8fbe72a3c9a00f30f30ac242198a"
+  },
+  "scope": "Sensor-informed native configuration ablation on unchanged captures and arrivals. Native enforced floors, priors and source policies remain unequal to ESKF. Not a fully matched R/Q or NIS study.",
+  "limitations": [
+    "Native 0.05 rad/s flow and 1 microtesla magnetic floors exceed this capture's physical noise; ESKF covariance still follows the physical packet metadata.",
+    "EKF3 terrain fusion uses EK3_RNG_M_NSE directly as variance; its height fusion squares a clamped value. The variance mapping requires barometric height and disabled range height, as in this campaign. It is not a deployment parameter recommendation.",
+    "Initial priors, height/magnetic source selection, terrain models, dynamic noise additions, state inhibition and gating remain native policies, not matched quantities.",
+    "Bias process PSD mapping uses the observed prediction periods; it does not override native state inhibition or covariance constraints."
+  ]
+}

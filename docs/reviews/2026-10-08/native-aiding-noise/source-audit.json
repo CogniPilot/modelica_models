@@ -1,0 +1,107 @@
+{
+  "native_source_pins": {
+    "px4": "d6f12ad1c4f70ad3230afd7d86e971421e02fef4",
+    "ardupilot": "dbe792162d06cab66c3475fd5556bf7a120f119e"
+  },
+  "findings": [
+    {
+      "estimator": "px4",
+      "file": "src/modules/ekf2/EKF/common.h",
+      "line_numbers": [
+        308,
+        336,
+        337,
+        368,
+        375,
+        420,
+        460,
+        461
+      ],
+      "file_sha256": "c8a42d108b113e1191df2d84b749ea416737394ee1da8989d2357ca549cd3fb5",
+      "finding": "Baseline defaults include conservative aiding noise; adapter overrides must be distinguished from these defaults."
+    },
+    {
+      "estimator": "px4",
+      "file": "src/modules/ekf2/EKF/aid_sources/optical_flow/optical_flow_fusion.cpp",
+      "line_numbers": [
+        167,
+        168
+      ],
+      "file_sha256": "df0c21263186800a36ecf57e9321b77ead564d97043ae628b0ce372406cf5cc6",
+      "finding": "Optical-flow best/worst standard deviations are floored at 0.05 rad/s."
+    },
+    {
+      "estimator": "px4",
+      "file": "src/modules/ekf2/EKF/aid_sources/magnetometer/mag_control.cpp",
+      "line_numbers": [
+        134
+      ],
+      "file_sha256": "71cae9f167678b371dc12ac3c8b5f292cc8187b7c0b6f446ca1e878ef642880e",
+      "finding": "Vector magnetic observation variance is floored at (0.01 Gauss)^2."
+    },
+    {
+      "estimator": "px4",
+      "file": "src/modules/ekf2/EKF/covariance.cpp",
+      "line_numbers": [
+        147,
+        161
+      ],
+      "file_sha256": "87e07b212e32beb7787f2a0ac8b653c543a2ba3f180a829ee6fd1ddb9a46e74c",
+      "finding": "Bias rate covariance increments scale as (prediction dt times native noise parameter)^2 before native inhibition and constraints."
+    },
+    {
+      "estimator": "ekf3",
+      "file": "libraries/AP_NavEKF3/AP_NavEKF3.cpp",
+      "line_numbers": [
+        286,
+        293
+      ],
+      "file_sha256": "9cc8bbbd9b2669d0c58ce4a31362be481f8c1c54aa8851d499b521a4cd40ba35",
+      "finding": "Range parameter is documented as RMS noise in metres with advertised range 0.1 to 10; default is 0.5."
+    },
+    {
+      "estimator": "ekf3",
+      "file": "libraries/AP_NavEKF3/AP_NavEKF3_OptFlowFusion.cpp",
+      "line_numbers": [
+        64,
+        124,
+        128,
+        131,
+        204
+      ],
+      "file_sha256": "47f8af8d792c0f251c5b9589861f8511332459a0922da4307e439759d1683c40",
+      "finding": "Flow standard deviation floor is 0.05 rad/s. Terrain range fusion consumes _rngNoise directly as observation variance, without squaring or the height-path clamp."
+    },
+    {
+      "estimator": "ekf3",
+      "file": "libraries/AP_NavEKF3/AP_NavEKF3_PosVelFusion.cpp",
+      "line_numbers": [
+        1347
+      ],
+      "file_sha256": "5d2668e2889c8e879f5d63f9e334d7b50ae47fd66286dcb8b8551a58cee8c0f2",
+      "finding": "Range height fusion squares _rngNoise after clamping its standard deviation to 0.1 through 10. This differs dimensionally from terrain fusion."
+    },
+    {
+      "estimator": "ekf3",
+      "file": "libraries/AP_NavEKF3/AP_NavEKF3_MagFusion.cpp",
+      "line_numbers": [
+        244,
+        309,
+        519
+      ],
+      "file_sha256": "b5a1809af3a86a26f1a4a75dd21fb4d1e0bb69ccc1a7f5219a03c815d2a3be52",
+      "finding": "Heading standard deviation floor is 0.05 rad; vector magnetic floor is 0.01 Gauss, plus a motion-dependent variance."
+    },
+    {
+      "estimator": "ekf3",
+      "file": "libraries/AP_NavEKF3/AP_NavEKF3_core.cpp",
+      "line_numbers": [
+        1047,
+        1053
+      ],
+      "file_sha256": "c23b4a8d0e6ae99215396233d4b59c1dbee637be1f86ca4fd35389d8e783d74f",
+      "finding": "Integrated bias covariance increments scale as (dt squared times native process-noise parameter)^2. Dividing by dt squared yields common bias-rate covariance."
+    }
+  ],
+  "scope": "Read-only audit of the pinned upstream releases. No upstream implementation is copied into this repository."
+}

@@ -1,0 +1,424 @@
+{
+  "study_sha256": "5f38c785224a016163c0bf1d943c3f38453f8fbe72a3c9a00f30f30ac242198a",
+  "reference_sha256": "43a83e162f38e1dca7a1382bcb154bc965cdd0e70dfa8fddfe5f946234693429",
+  "scope": "Diagnostic decomposition only. Raw scores are unchanged. Translation-aligned displacement is not absolute position accuracy or a replacement ranking.",
+  "scores": [
+    {
+      "name": "horizon",
+      "variant": "control",
+      "seed": 7,
+      "frequency": 0.6,
+      "climb_height_m": 2,
+      "output_sha256": "fc778f8f803cf7bb81d3fd2eae7e3e724779c073734cfb35197769fbb30c0f51",
+      "first_flight_epoch_s": 13.0,
+      "initial_position_error_m": [
+        -0.0332407653,
+        -0.0333740823,
+        0.0660031438
+      ],
+      "initial_velocity_error_m_s": [
+        -0.0019761154,
+        -0.00462856796,
+        0.000289927237
+      ],
+      "initial_attitude_error_deg": 0.6557260829706401,
+      "initial_yaw_error_deg": -0.6238486700406479,
+      "horizontal_rmse_m": 0.04550370495682623,
+      "horizontal_displacement_rmse_m": 0.04592201596500766,
+      "startup_offset_squared_m2": 0.002218777847096858,
+      "displacement_mean_squared_m2": 0.0021088315502904185,
+      "offset_displacement_cross_term_m2": -0.0022570222325894057
+    },
+    {
+      "name": "horizon",
+      "variant": "candidate",
+      "seed": 7,
+      "frequency": 0.6,
+      "climb_height_m": 2,
+      "output_sha256": "8597d8feb08d86b40299fde0243c87792b655be1556ffba7e4649d963e342678",
+      "first_flight_epoch_s": 13.0,
+      "initial_position_error_m": [
+        0.0152228381,
+        -0.0106250327,
+        0.000134530943
+      ],
+      "initial_velocity_error_m_s": [
+        -0.00195840187,
+        -0.00462798076,
+        6.89765438e-05
+      ],
+      "initial_attitude_error_deg": 0.6741428158881523,
+      "initial_yaw_error_deg": -0.6409050504768833,
+      "horizontal_rmse_m": 0.07744039638074973,
+      "horizontal_displacement_rmse_m": 0.0616953022648752,
+      "startup_offset_squared_m2": 0.0003446261196948809,
+      "displacement_mean_squared_m2": 0.003806310321554315,
+      "offset_displacement_cross_term_m2": 0.0018460785503584438
+    },
+    {
+      "name": "retrodiction",
+      "variant": "control",
+      "seed": 7,
+      "frequency": 0.6,
+      "climb_height_m": 2,
+      "output_sha256": "c33b41dd304cfc02d67904fce136f5c80df370f0dc8ab5ffdaac30d599c1ec41",
+      "first_flight_epoch_s": 13.0,
+      "initial_position_error_m": [
+        0.032200709,
+        -0.0265329294,
+        0.0646829754
+      ],
+      "initial_velocity_error_m_s": [
+        0.000157488568,
+        -0.00373869436,
+        -1.41113997e-05
+      ],
+      "initial_attitude_error_deg": 0.10869971224702374,
+      "initial_yaw_error_deg": 0.04877467583044409,
+      "horizontal_rmse_m": 0.04926230895660374,
+      "horizontal_displacement_rmse_m": 0.0569145192428748,
+      "startup_offset_squared_m2": 0.0017408820026480654,
+      "displacement_mean_squared_m2": 0.0032392625006475656,
+      "offset_displacement_cross_term_m2": -0.0025533694195597353
+    },
+    {
+      "name": "retrodiction",
+      "variant": "candidate",
+      "seed": 7,
+      "frequency": 0.6,
+      "climb_height_m": 2,
+      "output_sha256": "977a520dc10a9cd514086c33393a4f0119b153b0fc36be8631ab7fcb145557fb",
+      "first_flight_epoch_s": 13.0,
+      "initial_position_error_m": [
+        0.0196885075,
+        -0.00371452514,
+        -3.17359809e-06
+      ],
+      "initial_velocity_error_m_s": [
+        0.000156620561,
+        -0.0037372089,
+        -0.000144153833
+      ],
+      "initial_attitude_error_deg": 0.10533822594197839,
+      "initial_yaw_error_deg": 0.044481569527403224,
+      "horizontal_rmse_m": 0.046984291918006287,
+      "horizontal_displacement_rmse_m": 0.058729420568564054,
+      "startup_offset_squared_m2": 0.0004014350245932483,
+      "displacement_mean_squared_m2": 0.003449144840319275,
+      "offset_displacement_cross_term_m2": -0.0016430561778760888
+    },
+    {
+      "name": "horizon",
+      "variant": "control",
+      "seed": 7,
+      "frequency": 0.6,
+      "climb_height_m": 4,
+      "output_sha256": "fc3f66522349ae7a4587f477d45729340c734b885d1ead0f85086dd5388778f6",
+      "first_flight_epoch_s": 13.0,
+      "initial_position_error_m": [
+        -0.0332407653,
+        -0.0333740823,
+        0.0660031438
+      ],
+      "initial_velocity_error_m_s": [
+        -0.0019761154,
+        -0.00462856796,
+        0.000289927237
+      ],
+      "initial_attitude_error_deg": 0.6557260829706401,
+      "initial_yaw_error_deg": -0.6238486700406479,
+      "horizontal_rmse_m": 0.04215412583772447,
+      "horizontal_displacement_rmse_m": 0.05084280356445188,
+      "startup_offset_squared_m2": 0.002218777847096858,
+      "displacement_mean_squared_m2": 0.0025849906742934406,
+      "offset_displacement_cross_term_m2": -0.003026798196247597
+    },
+    {
+      "name": "horizon",
+      "variant": "candidate",
+      "seed": 7,
+      "frequency": 0.6,
+      "climb_height_m": 4,
+      "output_sha256": "02aee64d53e1a8b643073a54d4ccf3a304cf28ba55ed68447e52004650dd12eb",
+      "first_flight_epoch_s": 13.0,
+      "initial_position_error_m": [
+        0.0152228381,
+        -0.0106250327,
+        0.000134530943
+      ],
+      "initial_velocity_error_m_s": [
+        -0.00195840187,
+        -0.00462798076,
+        6.89765438e-05
+      ],
+      "initial_attitude_error_deg": 0.6741428158881523,
+      "initial_yaw_error_deg": -0.6409050504768833,
+      "horizontal_rmse_m": 0.08940502198024454,
+      "horizontal_displacement_rmse_m": 0.07417035079335198,
+      "startup_offset_squared_m2": 0.0003446261196948809,
+      "displacement_mean_squared_m2": 0.0055012409368088875,
+      "offset_displacement_cross_term_m2": 0.002147390898784247
+    },
+    {
+      "name": "retrodiction",
+      "variant": "control",
+      "seed": 7,
+      "frequency": 0.6,
+      "climb_height_m": 4,
+      "output_sha256": "f0237534a54cecb5bd563c42e65db73418ca99984e65278adc6493d3de23c4dd",
+      "first_flight_epoch_s": 13.0,
+      "initial_position_error_m": [
+        0.032200709,
+        -0.0265329294,
+        0.0646829754
+      ],
+      "initial_velocity_error_m_s": [
+        0.000157488568,
+        -0.00373869436,
+        -1.41113997e-05
+      ],
+      "initial_attitude_error_deg": 0.10869971224702374,
+      "initial_yaw_error_deg": 0.04877467583044409,
+      "horizontal_rmse_m": 0.05166476784759778,
+      "horizontal_displacement_rmse_m": 0.059897241031508106,
+      "startup_offset_squared_m2": 0.0017408820026480654,
+      "displacement_mean_squared_m2": 0.0035876794831865783,
+      "offset_displacement_cross_term_m2": -0.002659313249088458
+    },
+    {
+      "name": "retrodiction",
+      "variant": "candidate",
+      "seed": 7,
+      "frequency": 0.6,
+      "climb_height_m": 4,
+      "output_sha256": "b59676d6a58b88d34ec59e1f5e773d20ba615d92c226046c100d16c2e5597d58",
+      "first_flight_epoch_s": 13.0,
+      "initial_position_error_m": [
+        0.0196885075,
+        -0.00371452514,
+        -3.17359809e-06
+      ],
+      "initial_velocity_error_m_s": [
+        0.000156620561,
+        -0.0037372089,
+        -0.000144153833
+      ],
+      "initial_attitude_error_deg": 0.10533822594197839,
+      "initial_yaw_error_deg": 0.044481569527403224,
+      "horizontal_rmse_m": 0.043504832560605014,
+      "horizontal_displacement_rmse_m": 0.052572679032196014,
+      "startup_offset_squared_m2": 0.0004014350245932483,
+      "displacement_mean_squared_m2": 0.0027638865806223025,
+      "offset_displacement_cross_term_m2": -0.0012726511490892714
+    },
+    {
+      "name": "horizon",
+      "variant": "control",
+      "seed": 101,
+      "frequency": 0.85,
+      "climb_height_m": 2,
+      "output_sha256": "5153635743a5ac81833ebab35d203987bb978b5a5c7b112373431bfd820a9fc7",
+      "first_flight_epoch_s": 13.0,
+      "initial_position_error_m": [
+        0.000608995906,
+        -0.000534695864,
+        0.0236004759
+      ],
+      "initial_velocity_error_m_s": [
+        -0.00245906552,
+        -0.00254493812,
+        -2.93292105e-05
+      ],
+      "initial_attitude_error_deg": 0.2349650457315478,
+      "initial_yaw_error_deg": 0.19936462220481724,
+      "horizontal_rmse_m": 0.027807924726659522,
+      "horizontal_displacement_rmse_m": 0.028322727163929525,
+      "startup_offset_squared_m2": 6.567756805034674e-07,
+      "displacement_mean_squared_m2": 0.0008021768740023913,
+      "offset_displacement_cross_term_m2": -2.955297207933248e-05
+    },
+    {
+      "name": "horizon",
+      "variant": "candidate",
+      "seed": 101,
+      "frequency": 0.85,
+      "climb_height_m": 2,
+      "output_sha256": "2d1d26441c23cdd725e0e7e97608eb6c2b4fd767699773937f57a914a150256f",
+      "first_flight_epoch_s": 13.0,
+      "initial_position_error_m": [
+        -0.00201924006,
+        0.00116216496,
+        6.27531608e-06
+      ],
+      "initial_velocity_error_m_s": [
+        -0.00245865341,
+        -0.00254451972,
+        0.000157236122
+      ],
+      "initial_attitude_error_deg": 0.22961511723395794,
+      "initial_yaw_error_deg": 0.1942128216909556,
+      "horizontal_rmse_m": 0.028359118472377553,
+      "horizontal_displacement_rmse_m": 0.02815785887596139,
+      "startup_offset_squared_m2": 5.427957814160606e-06,
+      "displacement_mean_squared_m2": 0.0007928650164785577,
+      "offset_displacement_cross_term_m2": 5.946626237627795e-06
+    },
+    {
+      "name": "retrodiction",
+      "variant": "control",
+      "seed": 101,
+      "frequency": 0.85,
+      "climb_height_m": 2,
+      "output_sha256": "f2bc2d11b25e3ba22e5b06bde82eb997a8814bf1494f18a362872fd2dc84c171",
+      "first_flight_epoch_s": 13.0,
+      "initial_position_error_m": [
+        -0.013437002,
+        -0.00182097952,
+        0.0414700583
+      ],
+      "initial_velocity_error_m_s": [
+        -0.00216911524,
+        -0.00130671321,
+        0.000164061785
+      ],
+      "initial_attitude_error_deg": 0.07256926105829666,
+      "initial_yaw_error_deg": -0.007044135772107621,
+      "horizontal_rmse_m": 0.04740960875285499,
+      "horizontal_displacement_rmse_m": 0.039228200468952125,
+      "startup_offset_squared_m2": 0.00018386898916026342,
+      "displacement_mean_squared_m2": 0.0015388517120322957,
+      "offset_displacement_cross_term_m2": 0.0005249503009062251
+    },
+    {
+      "name": "retrodiction",
+      "variant": "candidate",
+      "seed": 101,
+      "frequency": 0.85,
+      "climb_height_m": 2,
+      "output_sha256": "31ccf7835ab010ab65be0896fd222c2696a7e642b574abd6753ae157be95889c",
+      "first_flight_epoch_s": 13.0,
+      "initial_position_error_m": [
+        -0.000345826236,
+        0.00105557579,
+        -2.04876415e-05
+      ],
+      "initial_velocity_error_m_s": [
+        -0.00217187498,
+        -0.00130796235,
+        -2.29924917e-05
+      ],
+      "initial_attitude_error_deg": 0.0727428947735227,
+      "initial_yaw_error_deg": -0.014773490794922356,
+      "horizontal_rmse_m": 0.05585928428516329,
+      "horizontal_displacement_rmse_m": 0.055568685257864125,
+      "startup_offset_squared_m2": 1.2338360339400519e-06,
+      "displacement_mean_squared_m2": 0.0030878787812875655,
+      "offset_displacement_cross_term_m2": 3.114702352918498e-05
+    },
+    {
+      "name": "horizon",
+      "variant": "control",
+      "seed": 101,
+      "frequency": 0.85,
+      "climb_height_m": 4,
+      "output_sha256": "e216f99737b54b222fb34e2c8c7944b8bf3610ea733d5dd2e6e0d198dce6e9b4",
+      "first_flight_epoch_s": 13.0,
+      "initial_position_error_m": [
+        0.000608995906,
+        -0.000534695864,
+        0.0236004759
+      ],
+      "initial_velocity_error_m_s": [
+        -0.00245906552,
+        -0.00254493812,
+        -2.93292105e-05
+      ],
+      "initial_attitude_error_deg": 0.2349650457315478,
+      "initial_yaw_error_deg": 0.19936462220481724,
+      "horizontal_rmse_m": 0.035605908756666485,
+      "horizontal_displacement_rmse_m": 0.036234704203119195,
+      "startup_offset_squared_m2": 6.567756805034674e-07,
+      "displacement_mean_squared_m2": 0.001312953788687544,
+      "offset_displacement_cross_term_m2": -4.582982597998853e-05
+    },
+    {
+      "name": "horizon",
+      "variant": "candidate",
+      "seed": 101,
+      "frequency": 0.85,
+      "climb_height_m": 4,
+      "output_sha256": "f23f8777379f390a2e462aab555501cab4a7d24396dc47097b52da1592192e38",
+      "first_flight_epoch_s": 13.0,
+      "initial_position_error_m": [
+        -0.00201924006,
+        0.00116216496,
+        6.27531608e-06
+      ],
+      "initial_velocity_error_m_s": [
+        -0.00245865341,
+        -0.00254451972,
+        0.000157236122
+      ],
+      "initial_attitude_error_deg": 0.22961511723395794,
+      "initial_yaw_error_deg": 0.1942128216909556,
+      "horizontal_rmse_m": 0.03128449070404274,
+      "horizontal_displacement_rmse_m": 0.03046946329555344,
+      "startup_offset_squared_m2": 5.427957814160606e-06,
+      "displacement_mean_squared_m2": 0.0009283881935190784,
+      "offset_displacement_cross_term_m2": 4.49032072780979e-05
+    },
+    {
+      "name": "retrodiction",
+      "variant": "control",
+      "seed": 101,
+      "frequency": 0.85,
+      "climb_height_m": 4,
+      "output_sha256": "9d210e249b96d5986c649535e03e631775b9926b1beaf3b0ef827d270b833b45",
+      "first_flight_epoch_s": 13.0,
+      "initial_position_error_m": [
+        -0.013437002,
+        -0.00182097952,
+        0.0414700583
+      ],
+      "initial_velocity_error_m_s": [
+        -0.00216911524,
+        -0.00130671321,
+        0.000164061785
+      ],
+      "initial_attitude_error_deg": 0.07256926105829666,
+      "initial_yaw_error_deg": -0.007044135772107621,
+      "horizontal_rmse_m": 0.047866942001960226,
+      "horizontal_displacement_rmse_m": 0.041112535727400125,
+      "startup_offset_squared_m2": 0.00018386898916026342,
+      "displacement_mean_squared_m2": 0.001690240593936752,
+      "offset_displacement_cross_term_m2": 0.00041713455352200725
+    },
+    {
+      "name": "retrodiction",
+      "variant": "candidate",
+      "seed": 101,
+      "frequency": 0.85,
+      "climb_height_m": 4,
+      "output_sha256": "594370d70195290b1aaa20da6a0dd8da46fcd73f0ddb28240c483681151819b0",
+      "first_flight_epoch_s": 13.0,
+      "initial_position_error_m": [
+        -0.000345826236,
+        0.00105557579,
+        -2.04876415e-05
+      ],
+      "initial_velocity_error_m_s": [
+        -0.00217187498,
+        -0.00130796235,
+        -2.29924917e-05
+      ],
+      "initial_attitude_error_deg": 0.0727428947735227,
+      "initial_yaw_error_deg": -0.014773490794922356,
+      "horizontal_rmse_m": 0.05727082002772393,
+      "horizontal_displacement_rmse_m": 0.05691641872256625,
+      "startup_offset_squared_m2": 1.2338360339400519e-06,
+      "displacement_mean_squared_m2": 0.0032394787202024906,
+      "offset_displacement_cross_term_m2": 3.923427041151277e-05
+    }
+  ],
+  "complete": true
+}

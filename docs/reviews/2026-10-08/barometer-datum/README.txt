@@ -38,6 +38,12 @@ for flight horizontal RMS in 12/12 cases, whereas the candidate does in
 tradeoff is why the feature stays disabled. paired-flight.csv exposes every
 candidate/control metric, including regressions.
 
+startup-diagnosis.txt/json/csv record sixteen additional GPS-denied reruns,
+all byte-identical to the frozen outputs. An exact MSE decomposition rejects
+the hypothesis that startup translation alone explains the horizontal
+regressions: translation-aligned displacement error also worsens. Those
+aligned errors are diagnostic and do not replace absolute navigation scores.
+
 comparison.csv includes flight, outage-time and after-return-time RMS and
 common-coordinate 15D NEES, plus preflight NEES. The named outage/return
 windows also apply to continuously aided/denied controls; their names do not

@@ -8,6 +8,16 @@ same commit failed at the same stage, again reporting cancellation without
 a Modelica diagnostic. This is not a green CI result.
 https://github.com/CogniPilot/modelica_models/actions/runs/37726702908
 
+Follow-up main 9163845 also passed Modelica Regression Tests and CUBS2, but
+RDD2 again terminated during manual-flight simulation. GitHub run
+37729385989 is terminal failure. main-9163845-rdd2.txt retains the decisive
+log lines: simulation starts at 05:06:08 UTC, then the operation is canceled
+at 05:07:20 UTC with a resource-tracker semaphore warning. There is no
+hosted OOM diagnostic or BrokenProcessPool traceback in that log, so its
+precise termination cause is not proven by the hosted evidence. Serialization
+and launcher failure handling did not resolve this CI failure.
+https://github.com/CogniPilot/modelica_models/actions/runs/37729385989
+
 An isolated local checkout at that commit reproduced excessive memory
 growth with unmodified Rumoca 0.10.2. The local earlyoom service terminated
 the owned worker at 52169 MiB RSS. The surrounding multiprocessing.Pool
