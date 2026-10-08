@@ -1,0 +1,98 @@
+{
+  "horizon": {
+    "command": [
+      "/nix/store/29qjlshvklnyr67nhpprzgb9igmsfsjj-gcc-wrapper-15.2.0/bin/gcc",
+      "-pipe",
+      "-O2",
+      "-DEQUIVARIANT_MAGNETOMETER",
+      "-DGEOMETRIC_ALIGNMENT",
+      "-DDECLARED_REST_BAROMETER",
+      "-DCOMPARE_HORIZON",
+      "-I/home/jgoppert/scratch/modelica_models/joint-barometer/build-v2/Vehicles_Rdd2_NavigationEstimator/Vehicles_Rdd2_NavigationEstimator/ProductionCode",
+      "-I/home/jgoppert/scratch/modelica_models/joint-barometer/build-v2/Tests_PreintegrationReplay/Tests_PreintegrationReplay/ProductionCode",
+      "-I/home/jgoppert/scratch/modelica_models/joint-barometer/build-v2/Estimation_FusionHorizon_OutputPredictor/Estimation_FusionHorizon_OutputPredictor/ProductionCode",
+      "-I/home/jgoppert/scratch/modelica_models/joint-barometer/build-v2/Estimation_FusionHorizon_AidingBuffer/Estimation_FusionHorizon_AidingBuffer/ProductionCode",
+      "/home/jgoppert/git/modelica_models/tools/estimator_comparison/replay.c",
+      "/home/jgoppert/scratch/modelica_models/magnetic-jacobian/predicted.o",
+      "/home/jgoppert/scratch/modelica_models/joint-barometer/build-v2/Tests_PreintegrationReplay.o",
+      "/home/jgoppert/scratch/modelica_models/joint-barometer/build-v2/Estimation_FusionHorizon_OutputPredictor.o",
+      "/home/jgoppert/scratch/modelica_models/joint-barometer/build-v2/Estimation_FusionHorizon_AidingBuffer.o",
+      "/home/jgoppert/scratch/modelica_models/joint-barometer/build-v2/rumoca_galec_kernels.o",
+      "-lm",
+      "-o",
+      "/home/jgoppert/scratch/modelica_models/magnetic-jacobian/horizon-rest"
+    ],
+    "binary_sha256": "0360c4f3338383d2d5fd201219b4393c1145bc2621aae0e4abb5ed7f9109906b",
+    "object_sha256": "d97edc5f8a9362197e0c33783b32d8d3ef9b430fe6b00bcb0f07628d42d1fdb9"
+  },
+  "retrodiction": {
+    "command": [
+      "/nix/store/29qjlshvklnyr67nhpprzgb9igmsfsjj-gcc-wrapper-15.2.0/bin/gcc",
+      "-pipe",
+      "-O2",
+      "-DEQUIVARIANT_MAGNETOMETER",
+      "-DGEOMETRIC_ALIGNMENT",
+      "-DDECLARED_REST_BAROMETER",
+      "-I/home/jgoppert/scratch/modelica_models/joint-barometer/build-v2/Vehicles_Rdd2_NavigationEstimator/Vehicles_Rdd2_NavigationEstimator/ProductionCode",
+      "-I/home/jgoppert/scratch/modelica_models/joint-barometer/build-v2/Tests_PreintegrationReplay/Tests_PreintegrationReplay/ProductionCode",
+      "/home/jgoppert/git/modelica_models/tools/estimator_comparison/replay.c",
+      "/home/jgoppert/scratch/modelica_models/magnetic-jacobian/predicted.o",
+      "/home/jgoppert/scratch/modelica_models/joint-barometer/build-v2/Tests_PreintegrationReplay.o",
+      "/home/jgoppert/scratch/modelica_models/joint-barometer/build-v2/rumoca_galec_kernels.o",
+      "-lm",
+      "-o",
+      "/home/jgoppert/scratch/modelica_models/magnetic-jacobian/retrodiction-rest"
+    ],
+    "binary_sha256": "702a61b0b4da18e412b14e799da4e731e7651a1c4c723e20f1817bbcb6aff4a2",
+    "object_sha256": "d97edc5f8a9362197e0c33783b32d8d3ef9b430fe6b00bcb0f07628d42d1fdb9"
+  },
+  "horizon_joint": {
+    "command": [
+      "/nix/store/29qjlshvklnyr67nhpprzgb9igmsfsjj-gcc-wrapper-15.2.0/bin/gcc",
+      "-pipe",
+      "-O2",
+      "-DEQUIVARIANT_MAGNETOMETER",
+      "-DGEOMETRIC_ALIGNMENT",
+      "-DDECLARED_REST_BAROMETER",
+      "-DJOINT_BAROMETER_BIAS",
+      "-DCOMPARE_HORIZON",
+      "-I/home/jgoppert/scratch/modelica_models/joint-barometer/build-v2/Vehicles_Rdd2_NavigationEstimator/Vehicles_Rdd2_NavigationEstimator/ProductionCode",
+      "-I/home/jgoppert/scratch/modelica_models/joint-barometer/build-v2/Tests_PreintegrationReplay/Tests_PreintegrationReplay/ProductionCode",
+      "-I/home/jgoppert/scratch/modelica_models/joint-barometer/build-v2/Estimation_FusionHorizon_OutputPredictor/Estimation_FusionHorizon_OutputPredictor/ProductionCode",
+      "-I/home/jgoppert/scratch/modelica_models/joint-barometer/build-v2/Estimation_FusionHorizon_AidingBuffer/Estimation_FusionHorizon_AidingBuffer/ProductionCode",
+      "/home/jgoppert/git/modelica_models/tools/estimator_comparison/replay.c",
+      "/home/jgoppert/scratch/modelica_models/magnetic-jacobian/predicted.o",
+      "/home/jgoppert/scratch/modelica_models/joint-barometer/build-v2/Tests_PreintegrationReplay.o",
+      "/home/jgoppert/scratch/modelica_models/joint-barometer/build-v2/Estimation_FusionHorizon_OutputPredictor.o",
+      "/home/jgoppert/scratch/modelica_models/joint-barometer/build-v2/Estimation_FusionHorizon_AidingBuffer.o",
+      "/home/jgoppert/scratch/modelica_models/joint-barometer/build-v2/rumoca_galec_kernels.o",
+      "-lm",
+      "-o",
+      "/home/jgoppert/scratch/modelica_models/magnetic-jacobian/horizon-rest-joint"
+    ],
+    "binary_sha256": "b456a4b83d1c3041162c766dc828638c0901a4f9ba010c3fd76ecaa89aaf5a2e",
+    "object_sha256": "d97edc5f8a9362197e0c33783b32d8d3ef9b430fe6b00bcb0f07628d42d1fdb9"
+  },
+  "retrodiction_joint": {
+    "command": [
+      "/nix/store/29qjlshvklnyr67nhpprzgb9igmsfsjj-gcc-wrapper-15.2.0/bin/gcc",
+      "-pipe",
+      "-O2",
+      "-DEQUIVARIANT_MAGNETOMETER",
+      "-DGEOMETRIC_ALIGNMENT",
+      "-DDECLARED_REST_BAROMETER",
+      "-DJOINT_BAROMETER_BIAS",
+      "-I/home/jgoppert/scratch/modelica_models/joint-barometer/build-v2/Vehicles_Rdd2_NavigationEstimator/Vehicles_Rdd2_NavigationEstimator/ProductionCode",
+      "-I/home/jgoppert/scratch/modelica_models/joint-barometer/build-v2/Tests_PreintegrationReplay/Tests_PreintegrationReplay/ProductionCode",
+      "/home/jgoppert/git/modelica_models/tools/estimator_comparison/replay.c",
+      "/home/jgoppert/scratch/modelica_models/magnetic-jacobian/predicted.o",
+      "/home/jgoppert/scratch/modelica_models/joint-barometer/build-v2/Tests_PreintegrationReplay.o",
+      "/home/jgoppert/scratch/modelica_models/joint-barometer/build-v2/rumoca_galec_kernels.o",
+      "-lm",
+      "-o",
+      "/home/jgoppert/scratch/modelica_models/magnetic-jacobian/retrodiction-rest-joint"
+    ],
+    "binary_sha256": "6af7e2bca577713ccb3f05caeac4111f21a67bfa4c6e32211b6ab67da849c957",
+    "object_sha256": "d97edc5f8a9362197e0c33783b32d8d3ef9b430fe6b00bcb0f07628d42d1fdb9"
+  }
+}

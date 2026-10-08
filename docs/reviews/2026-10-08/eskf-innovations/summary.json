@@ -1,0 +1,1049 @@
+{
+  "complete": true,
+  "captures": 8,
+  "replay_cases": 96,
+  "state_and_full_covariance_parity_cases": 96,
+  "raw_evaluations": 520304,
+  "unique_candidates": 453584,
+  "invalid_observations": 0,
+  "capture_manifest_sha256": "02cf7635dd1a61e5838062c030bf683a67f934a8f14ba51359e0c970561b99c7",
+  "qualification_campaign_sha256": "cdaa00509a03fcbf1ab73ef23a5e7690e578e687fa69ac04fa9c4e2e4bb930d4",
+  "qualifications": [
+    {
+      "condition": "20271009-0.45-2m",
+      "sha256": "e5e784b6b21f6dacd28be653c53da3386ed8e966bdaa6fe561f935fec9febcbd"
+    },
+    {
+      "condition": "20271009-0.45-4m",
+      "sha256": "f1343e21e195aa2a25a840c9969d91357226cb55e8b8f6d034ae72e69d09d885"
+    },
+    {
+      "condition": "20271009-0.85-2m",
+      "sha256": "be2672b7d0683dc2118bee54389a4beedcc61cf0b66cc9893d83bb935d6917d4"
+    },
+    {
+      "condition": "20271009-0.85-4m",
+      "sha256": "2fdf095d52ed0d52feb60a091722b9d52d20bcd86a662f04b50d5b16cf20668b"
+    },
+    {
+      "condition": "20271010-0.45-2m",
+      "sha256": "5bd2d45d8089b7972a580dea7ba05f8095d264be7956893475733e3390590e74"
+    },
+    {
+      "condition": "20271010-0.45-4m",
+      "sha256": "a2fff17774129b6b80b9715e9b476856f0fc5da45f830fdb8660ade148a8077b"
+    },
+    {
+      "condition": "20271010-0.85-2m",
+      "sha256": "f26d14d10f236cf3d5a7151e03aa56ca1d8474f8fa68bae6ffc199e77817d6c8"
+    },
+    {
+      "condition": "20271010-0.85-4m",
+      "sha256": "c067d58f42155c64d17a3d526ae98ef6e754b44f37eb24a0c29e7f5d4e0dca7a"
+    }
+  ],
+  "analyses": [
+    {
+      "condition": "20271009-0.45-2m",
+      "scenario": "gps",
+      "name": "horizon",
+      "sha256": "c19e1cee1cc54ded4badd37b14ed72d73e9ad9061631557a36328d33367e1d63",
+      "raw_rows": 7183,
+      "unique_candidates": 5257,
+      "repeated_evaluations": {
+        "gps": 1458,
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271009-0.45-2m",
+      "scenario": "gps",
+      "name": "retrodiction",
+      "sha256": "9fdb605f488fc913a81a7f00275e2d27505788bc6f867169b296ad32bf5b7e96",
+      "raw_rows": 5265,
+      "unique_candidates": 5265,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271009-0.45-2m",
+      "scenario": "gps",
+      "name": "horizon_joint",
+      "sha256": "5dd631fc6bdfe46e3c67244c0ab6f0f04adb4e38faab02cca86ac030ac0af715",
+      "raw_rows": 7183,
+      "unique_candidates": 5257,
+      "repeated_evaluations": {
+        "gps": 1458,
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271009-0.45-2m",
+      "scenario": "gps",
+      "name": "retrodiction_joint",
+      "sha256": "0a4793fa9e8f898f467af1c4e8450b7a52f320f98e3fc7c46e19d2fd73fcd224",
+      "raw_rows": 5265,
+      "unique_candidates": 5265,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271009-0.45-2m",
+      "scenario": "denied",
+      "name": "horizon",
+      "sha256": "7513216831b8f9093acd4fc6d47e66fba8e3a3fa76eb170271b89fc5f3ab4dfe",
+      "raw_rows": 4267,
+      "unique_candidates": 3799,
+      "repeated_evaluations": {
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271009-0.45-2m",
+      "scenario": "denied",
+      "name": "retrodiction",
+      "sha256": "f6c81e0c6b50ed968253537fad0a60dc43146e9d7c718dc933777dc9468001ef",
+      "raw_rows": 3806,
+      "unique_candidates": 3806,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271009-0.45-2m",
+      "scenario": "denied",
+      "name": "horizon_joint",
+      "sha256": "60a3458054d0e2e2beeded98ffe34e376fa7c4b65fc5bce941f5852d6883c297",
+      "raw_rows": 4267,
+      "unique_candidates": 3799,
+      "repeated_evaluations": {
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271009-0.45-2m",
+      "scenario": "denied",
+      "name": "retrodiction_joint",
+      "sha256": "4af1f822aeafae3d75b3149cc49065833796e646a014b160e4b4bb38019c7832",
+      "raw_rows": 3806,
+      "unique_candidates": 3806,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271009-0.45-2m",
+      "scenario": "transition",
+      "name": "horizon",
+      "sha256": "619732329f352edd5499dd81708f7a9150fcbda576edd10fde659d7404a07b4b",
+      "raw_rows": 6883,
+      "unique_candidates": 5107,
+      "repeated_evaluations": {
+        "gps": 1308,
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271009-0.45-2m",
+      "scenario": "transition",
+      "name": "retrodiction",
+      "sha256": "0dd740f636628b4e7d3a5778fd5c316491b9de4804baab85d8bcaf1c6cc9bdd8",
+      "raw_rows": 5115,
+      "unique_candidates": 5115,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271009-0.45-2m",
+      "scenario": "transition",
+      "name": "horizon_joint",
+      "sha256": "c3a0f6393c29956d2d29d437b034d837dcd526e0bba69eeeb1bd8cd3dcd169c1",
+      "raw_rows": 6883,
+      "unique_candidates": 5107,
+      "repeated_evaluations": {
+        "gps": 1308,
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271009-0.45-2m",
+      "scenario": "transition",
+      "name": "retrodiction_joint",
+      "sha256": "1d5adf2c362c598c05a490f3e246ec3faeb38c4194f465c8c0e64233c5c4358e",
+      "raw_rows": 5115,
+      "unique_candidates": 5115,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271009-0.45-4m",
+      "scenario": "gps",
+      "name": "horizon",
+      "sha256": "ce5a229c8bacc67fc7ea605d890d221a4f2c0e16a86e5ff6fa1c6bd1466cff28",
+      "raw_rows": 7183,
+      "unique_candidates": 5257,
+      "repeated_evaluations": {
+        "gps": 1458,
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271009-0.45-4m",
+      "scenario": "gps",
+      "name": "retrodiction",
+      "sha256": "07352c14e94ac7869b8258eb6c13fb0974ff00a5a1945ba78ad9cd494c1a962d",
+      "raw_rows": 5265,
+      "unique_candidates": 5265,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271009-0.45-4m",
+      "scenario": "gps",
+      "name": "horizon_joint",
+      "sha256": "1d35a47d7644cce25df56de017ce1fb2732cf0d20bd1f7486baaf292213ffc67",
+      "raw_rows": 7183,
+      "unique_candidates": 5257,
+      "repeated_evaluations": {
+        "gps": 1458,
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271009-0.45-4m",
+      "scenario": "gps",
+      "name": "retrodiction_joint",
+      "sha256": "50f1847f644bbd58c228ce974b7aa7ab397630292d794b23a57a2c7cf95b704a",
+      "raw_rows": 5265,
+      "unique_candidates": 5265,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271009-0.45-4m",
+      "scenario": "denied",
+      "name": "horizon",
+      "sha256": "e642b8e00d27265f0a21dafe22610dd85e00a4a8d08ac4b75c05b94b18c35757",
+      "raw_rows": 4267,
+      "unique_candidates": 3799,
+      "repeated_evaluations": {
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271009-0.45-4m",
+      "scenario": "denied",
+      "name": "retrodiction",
+      "sha256": "b00de3ade12203805f12fa091a814861d38b6273d992d0ac0e27d4adf57a64ce",
+      "raw_rows": 3806,
+      "unique_candidates": 3806,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271009-0.45-4m",
+      "scenario": "denied",
+      "name": "horizon_joint",
+      "sha256": "1084fa42920721b4f0f25907e8767e407b21320b4c6af5b330168ebe8fc92ebe",
+      "raw_rows": 4267,
+      "unique_candidates": 3799,
+      "repeated_evaluations": {
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271009-0.45-4m",
+      "scenario": "denied",
+      "name": "retrodiction_joint",
+      "sha256": "d26ee084d579db9f8862476d5f1fe29308ac6feb1c4903064a9ca82b70bd64db",
+      "raw_rows": 3806,
+      "unique_candidates": 3806,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271009-0.45-4m",
+      "scenario": "transition",
+      "name": "horizon",
+      "sha256": "e7ed54617c237b14ab2787a178ce1d856bee93baf4d7e10f37bd01e25bab96b4",
+      "raw_rows": 6883,
+      "unique_candidates": 5107,
+      "repeated_evaluations": {
+        "gps": 1308,
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271009-0.45-4m",
+      "scenario": "transition",
+      "name": "retrodiction",
+      "sha256": "246185e113298ea22a255ddeecfee252c44f710b9f277bd7a65cd58065bdfcbc",
+      "raw_rows": 5115,
+      "unique_candidates": 5115,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271009-0.45-4m",
+      "scenario": "transition",
+      "name": "horizon_joint",
+      "sha256": "2c25d6381ecdc5059c4168072ec822a8294f354b82749b3c604a24683d537b17",
+      "raw_rows": 6883,
+      "unique_candidates": 5107,
+      "repeated_evaluations": {
+        "gps": 1308,
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271009-0.45-4m",
+      "scenario": "transition",
+      "name": "retrodiction_joint",
+      "sha256": "2958e150b6d633e4d05af403cd72e3e84115ebba38a4d166f16c1aa93661453e",
+      "raw_rows": 5115,
+      "unique_candidates": 5115,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271009-0.85-2m",
+      "scenario": "gps",
+      "name": "horizon",
+      "sha256": "9ae0e1fa3a46f791267c235c3a2975eefab27b5db58541c663fc682e746bed62",
+      "raw_rows": 7183,
+      "unique_candidates": 5257,
+      "repeated_evaluations": {
+        "gps": 1458,
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271009-0.85-2m",
+      "scenario": "gps",
+      "name": "retrodiction",
+      "sha256": "fea7a6f508fc14758727a4f4216087ef8d30dd9f50d6abf8401b9aece8a4c0c5",
+      "raw_rows": 5265,
+      "unique_candidates": 5265,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271009-0.85-2m",
+      "scenario": "gps",
+      "name": "horizon_joint",
+      "sha256": "22373fa064d9e0926ed7c901cd41d6e9e416829e5947d5f7f56a075351446039",
+      "raw_rows": 7183,
+      "unique_candidates": 5257,
+      "repeated_evaluations": {
+        "gps": 1458,
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271009-0.85-2m",
+      "scenario": "gps",
+      "name": "retrodiction_joint",
+      "sha256": "f92d28a0024c86a9b167a59c7e7b6fc6baca256add47b6492959e0dd8c7c5024",
+      "raw_rows": 5265,
+      "unique_candidates": 5265,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271009-0.85-2m",
+      "scenario": "denied",
+      "name": "horizon",
+      "sha256": "05c10dc63142eed47c57f69a08b460eb17fb44cd76a898681a9b28088f0c6ac0",
+      "raw_rows": 4267,
+      "unique_candidates": 3799,
+      "repeated_evaluations": {
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271009-0.85-2m",
+      "scenario": "denied",
+      "name": "retrodiction",
+      "sha256": "2db484fad73afe59007f4a4a111b2c2c67b9290944170a191b6071dc6384aeb3",
+      "raw_rows": 3806,
+      "unique_candidates": 3806,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271009-0.85-2m",
+      "scenario": "denied",
+      "name": "horizon_joint",
+      "sha256": "380470fd5839aa4c35ca15973d03354cb91b2bda4b19b38646645e89c57b417d",
+      "raw_rows": 4267,
+      "unique_candidates": 3799,
+      "repeated_evaluations": {
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271009-0.85-2m",
+      "scenario": "denied",
+      "name": "retrodiction_joint",
+      "sha256": "0521cf7a89f9a2847eda51550fdf59c7b074034d32a9f6e61f097e08407bd816",
+      "raw_rows": 3806,
+      "unique_candidates": 3806,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271009-0.85-2m",
+      "scenario": "transition",
+      "name": "horizon",
+      "sha256": "5c08ab631a6b984f29088cd9e8eebc97c277dd2949c3907facfc50dd4045651f",
+      "raw_rows": 6883,
+      "unique_candidates": 5107,
+      "repeated_evaluations": {
+        "gps": 1308,
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271009-0.85-2m",
+      "scenario": "transition",
+      "name": "retrodiction",
+      "sha256": "4ff34b77a043658d823d7f8c6ccb38df5b10613eeb6a8a0709e6ad6620439f06",
+      "raw_rows": 5115,
+      "unique_candidates": 5115,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271009-0.85-2m",
+      "scenario": "transition",
+      "name": "horizon_joint",
+      "sha256": "ce64bc2c3746b372c0b80758441dbe09a7587473cd03250ea6ea58e6e135ec03",
+      "raw_rows": 6883,
+      "unique_candidates": 5107,
+      "repeated_evaluations": {
+        "gps": 1308,
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271009-0.85-2m",
+      "scenario": "transition",
+      "name": "retrodiction_joint",
+      "sha256": "863d0617e357aa4733a771ec579b515ca9e8b3b4649894723db3a83001dfe660",
+      "raw_rows": 5115,
+      "unique_candidates": 5115,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271009-0.85-4m",
+      "scenario": "gps",
+      "name": "horizon",
+      "sha256": "7bfbf07e9d82f37cb1dae16c67f09306e340f88a6a3807f74f7760b617981fac",
+      "raw_rows": 7183,
+      "unique_candidates": 5257,
+      "repeated_evaluations": {
+        "gps": 1458,
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271009-0.85-4m",
+      "scenario": "gps",
+      "name": "retrodiction",
+      "sha256": "b46131f280611b3985199c07ee77dc4ee23f5ff06d7c54b608d4bdb2275acdbc",
+      "raw_rows": 5265,
+      "unique_candidates": 5265,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271009-0.85-4m",
+      "scenario": "gps",
+      "name": "horizon_joint",
+      "sha256": "75fc77f674c4abd0a6f0389c0d8d646864dd1c94d7d12341e8e21812d13f63b8",
+      "raw_rows": 7183,
+      "unique_candidates": 5257,
+      "repeated_evaluations": {
+        "gps": 1458,
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271009-0.85-4m",
+      "scenario": "gps",
+      "name": "retrodiction_joint",
+      "sha256": "cf01c75bcbaddfecda54e613b8d67c70c04d5ea23220a7d48fafaaa7a0b86813",
+      "raw_rows": 5265,
+      "unique_candidates": 5265,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271009-0.85-4m",
+      "scenario": "denied",
+      "name": "horizon",
+      "sha256": "90a701942d208c693222d85d07b58a5f9f085ff76becbd4465bbc72ffabd65a7",
+      "raw_rows": 4267,
+      "unique_candidates": 3799,
+      "repeated_evaluations": {
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271009-0.85-4m",
+      "scenario": "denied",
+      "name": "retrodiction",
+      "sha256": "0f65833fb451cf669c0e26bc215cf23fe86c0806dbb70d18256b7a866c2d86e8",
+      "raw_rows": 3806,
+      "unique_candidates": 3806,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271009-0.85-4m",
+      "scenario": "denied",
+      "name": "horizon_joint",
+      "sha256": "5da2e0c5b48f272675e25efcafa30ff8501a63f824ad5e75b5e4464bc57ac2e3",
+      "raw_rows": 4267,
+      "unique_candidates": 3799,
+      "repeated_evaluations": {
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271009-0.85-4m",
+      "scenario": "denied",
+      "name": "retrodiction_joint",
+      "sha256": "a06904bb04a4f71772cc30034b1ae68af8cf55d9e8c66730ebbef00e614695ee",
+      "raw_rows": 3806,
+      "unique_candidates": 3806,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271009-0.85-4m",
+      "scenario": "transition",
+      "name": "horizon",
+      "sha256": "b910f5311dc83da629cd27f02024cec2ec5dbbe70697aab2df813862c465878d",
+      "raw_rows": 6883,
+      "unique_candidates": 5107,
+      "repeated_evaluations": {
+        "gps": 1308,
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271009-0.85-4m",
+      "scenario": "transition",
+      "name": "retrodiction",
+      "sha256": "f32688be02eff985597b3cbac2c91f4f89d3a861def679f154882248cc9300af",
+      "raw_rows": 5115,
+      "unique_candidates": 5115,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271009-0.85-4m",
+      "scenario": "transition",
+      "name": "horizon_joint",
+      "sha256": "7a3e1f9dc08f703d35f771b7c18126a3fd77dec873eb4378b6aafeb06ca48fab",
+      "raw_rows": 6883,
+      "unique_candidates": 5107,
+      "repeated_evaluations": {
+        "gps": 1308,
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271009-0.85-4m",
+      "scenario": "transition",
+      "name": "retrodiction_joint",
+      "sha256": "0ae5ad87420d1c25579b14fd228aaef796d5d558e0d93640d0c2f0c0750cdddf",
+      "raw_rows": 5115,
+      "unique_candidates": 5115,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271010-0.45-2m",
+      "scenario": "gps",
+      "name": "horizon",
+      "sha256": "c4c352e4862f43c4287ea99b7e42432bd6df47a35d7854fde9d681ba463c764d",
+      "raw_rows": 7183,
+      "unique_candidates": 5257,
+      "repeated_evaluations": {
+        "gps": 1458,
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271010-0.45-2m",
+      "scenario": "gps",
+      "name": "retrodiction",
+      "sha256": "43664fa7f16b5a841f6c2872ec22d5c8ffa4d6da42b0891be52f57585606f0f3",
+      "raw_rows": 5265,
+      "unique_candidates": 5265,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271010-0.45-2m",
+      "scenario": "gps",
+      "name": "horizon_joint",
+      "sha256": "98b2012cd21452e1a9aacf94c81b8a2a43ea2b8d2e8c8e0414112e4d12d5150d",
+      "raw_rows": 7183,
+      "unique_candidates": 5257,
+      "repeated_evaluations": {
+        "gps": 1458,
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271010-0.45-2m",
+      "scenario": "gps",
+      "name": "retrodiction_joint",
+      "sha256": "f09b60df3966f66f3657a5e724ce88cca061e8417b3e55168ab12b839c810fab",
+      "raw_rows": 5265,
+      "unique_candidates": 5265,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271010-0.45-2m",
+      "scenario": "denied",
+      "name": "horizon",
+      "sha256": "31bd3f89a76f8e87520e87295d7afc01f44c25d4775c0a8b62fc535c3d6c64e3",
+      "raw_rows": 4267,
+      "unique_candidates": 3799,
+      "repeated_evaluations": {
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271010-0.45-2m",
+      "scenario": "denied",
+      "name": "retrodiction",
+      "sha256": "d53c1efa95f043fad7f714ed6d39cc958bab90da1e9f8bf4144238cf713205b2",
+      "raw_rows": 3806,
+      "unique_candidates": 3806,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271010-0.45-2m",
+      "scenario": "denied",
+      "name": "horizon_joint",
+      "sha256": "54e8d72ca76bde8234729a46623a5cb3a1dfa6cea151e417640c58a4e7b68131",
+      "raw_rows": 4267,
+      "unique_candidates": 3799,
+      "repeated_evaluations": {
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271010-0.45-2m",
+      "scenario": "denied",
+      "name": "retrodiction_joint",
+      "sha256": "d38a3cd6d5916ef2038462c88f1188a1aba67930dad26d2c438e6bc017c08a5b",
+      "raw_rows": 3806,
+      "unique_candidates": 3806,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271010-0.45-2m",
+      "scenario": "transition",
+      "name": "horizon",
+      "sha256": "0b3a68b95802b77e0c4f2fde050c89066c0017169ade998584d0441f90625535",
+      "raw_rows": 6883,
+      "unique_candidates": 5107,
+      "repeated_evaluations": {
+        "gps": 1308,
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271010-0.45-2m",
+      "scenario": "transition",
+      "name": "retrodiction",
+      "sha256": "42c5756aa047854754a5330f2e6dc334194fa2ba60e4fb26bec20286b3f2da70",
+      "raw_rows": 5115,
+      "unique_candidates": 5115,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271010-0.45-2m",
+      "scenario": "transition",
+      "name": "horizon_joint",
+      "sha256": "7dff9fe91d3b01b3edcbc47e5f9d082df4d8a9c926e9889a65dfea83e2372f69",
+      "raw_rows": 6883,
+      "unique_candidates": 5107,
+      "repeated_evaluations": {
+        "gps": 1308,
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271010-0.45-2m",
+      "scenario": "transition",
+      "name": "retrodiction_joint",
+      "sha256": "d40830571962a9a01eb105e9bf0d0b5bd32587ebd39b91f524b3c1f04272fc9f",
+      "raw_rows": 5115,
+      "unique_candidates": 5115,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271010-0.45-4m",
+      "scenario": "gps",
+      "name": "horizon",
+      "sha256": "61ff9dcc87910d468cec731ff9c8986d0a5a91f1303224637fb9cfe30a4e06c9",
+      "raw_rows": 7183,
+      "unique_candidates": 5257,
+      "repeated_evaluations": {
+        "gps": 1458,
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271010-0.45-4m",
+      "scenario": "gps",
+      "name": "retrodiction",
+      "sha256": "c89fe8880dddeac9d52a0d8007b19b519724175f3022ee4444b5776ab5bfada3",
+      "raw_rows": 5265,
+      "unique_candidates": 5265,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271010-0.45-4m",
+      "scenario": "gps",
+      "name": "horizon_joint",
+      "sha256": "b517111c885e058cded040f5fa0e383b4edf69d751266316479fdad0a6af8c56",
+      "raw_rows": 7183,
+      "unique_candidates": 5257,
+      "repeated_evaluations": {
+        "gps": 1458,
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271010-0.45-4m",
+      "scenario": "gps",
+      "name": "retrodiction_joint",
+      "sha256": "fc17856fef40e54207ad79466783999ffec44b572ff2dcdf3dda923711ca7922",
+      "raw_rows": 5265,
+      "unique_candidates": 5265,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271010-0.45-4m",
+      "scenario": "denied",
+      "name": "horizon",
+      "sha256": "a6e1ca43bd0e2273ce8322f36e4e97a065c4415c5d44f99b1945e1367205d704",
+      "raw_rows": 4267,
+      "unique_candidates": 3799,
+      "repeated_evaluations": {
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271010-0.45-4m",
+      "scenario": "denied",
+      "name": "retrodiction",
+      "sha256": "fa4cb0b543c66e225206d175c5318ed8d5a45d434f26ab3453b419a69800f8f8",
+      "raw_rows": 3806,
+      "unique_candidates": 3806,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271010-0.45-4m",
+      "scenario": "denied",
+      "name": "horizon_joint",
+      "sha256": "73e284fd398136005be11d6d7897d553ebf125655afb4405f3ffbf5f43a43add",
+      "raw_rows": 4267,
+      "unique_candidates": 3799,
+      "repeated_evaluations": {
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271010-0.45-4m",
+      "scenario": "denied",
+      "name": "retrodiction_joint",
+      "sha256": "90150e0e86968b4cd25978cda52d9cfe386868b42c97719f12e1bf5d4f0ed842",
+      "raw_rows": 3806,
+      "unique_candidates": 3806,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271010-0.45-4m",
+      "scenario": "transition",
+      "name": "horizon",
+      "sha256": "25d81ad6a8951a26dca76a9b83e11da60908d49f100b5bba805aa0dccdc2bab7",
+      "raw_rows": 6883,
+      "unique_candidates": 5107,
+      "repeated_evaluations": {
+        "gps": 1308,
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271010-0.45-4m",
+      "scenario": "transition",
+      "name": "retrodiction",
+      "sha256": "d2e46c9b7100051ce6c7beb02901a9049cd7e0358aa9670122d0c4cd81d6d357",
+      "raw_rows": 5115,
+      "unique_candidates": 5115,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271010-0.45-4m",
+      "scenario": "transition",
+      "name": "horizon_joint",
+      "sha256": "334b53cfbaaa0a50dfce2e15178701354bc4e1dcaad4128f30b0bbf1a698b9bf",
+      "raw_rows": 6883,
+      "unique_candidates": 5107,
+      "repeated_evaluations": {
+        "gps": 1308,
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271010-0.45-4m",
+      "scenario": "transition",
+      "name": "retrodiction_joint",
+      "sha256": "c41c24edc9748e4f505a38d26166cebaf0937a9ed9c098bbc20b756c82b605a5",
+      "raw_rows": 5115,
+      "unique_candidates": 5115,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271010-0.85-2m",
+      "scenario": "gps",
+      "name": "horizon",
+      "sha256": "32ef9acc0d21a9e5e3776f8b66771c7dcc9a654d1caff58d9cc17bc34cf4ec61",
+      "raw_rows": 7183,
+      "unique_candidates": 5257,
+      "repeated_evaluations": {
+        "gps": 1458,
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271010-0.85-2m",
+      "scenario": "gps",
+      "name": "retrodiction",
+      "sha256": "bbc1c82fe571e2e03c8d7c7a73697c6ffc7fa9f95e4138a6575c13092b9bcf7f",
+      "raw_rows": 5265,
+      "unique_candidates": 5265,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271010-0.85-2m",
+      "scenario": "gps",
+      "name": "horizon_joint",
+      "sha256": "1b40c58348cff37402ca24e47753c2b4925031023d802f1640adc5c8605cc58d",
+      "raw_rows": 7183,
+      "unique_candidates": 5257,
+      "repeated_evaluations": {
+        "gps": 1458,
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271010-0.85-2m",
+      "scenario": "gps",
+      "name": "retrodiction_joint",
+      "sha256": "8fb4a19edcfa44a8f85b36269a33146a3a6473676f76d81288a6afc1a99dcf87",
+      "raw_rows": 5265,
+      "unique_candidates": 5265,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271010-0.85-2m",
+      "scenario": "denied",
+      "name": "horizon",
+      "sha256": "4b0cc5fa3e957754e4631609bf7a6ab91a25c8479411964ae5469d1dbfb4de24",
+      "raw_rows": 4267,
+      "unique_candidates": 3799,
+      "repeated_evaluations": {
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271010-0.85-2m",
+      "scenario": "denied",
+      "name": "retrodiction",
+      "sha256": "746c7e56e8de43ecef2aeb21ac02d31d2710aba9b9be2542f6871991700162fb",
+      "raw_rows": 3806,
+      "unique_candidates": 3806,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271010-0.85-2m",
+      "scenario": "denied",
+      "name": "horizon_joint",
+      "sha256": "350ed04d385c0de1e44d27a63338bcfb226f85bf37becb3d7e206f2a0e6b483e",
+      "raw_rows": 4267,
+      "unique_candidates": 3799,
+      "repeated_evaluations": {
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271010-0.85-2m",
+      "scenario": "denied",
+      "name": "retrodiction_joint",
+      "sha256": "94aeb133686e190c414c161a8bf06870a1eafc9bd1eab765785704aa101b1ae9",
+      "raw_rows": 3806,
+      "unique_candidates": 3806,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271010-0.85-2m",
+      "scenario": "transition",
+      "name": "horizon",
+      "sha256": "8023cc69fb3a846d3e9300df9298abd3c186a332e185ef2f37217dddb199e1b8",
+      "raw_rows": 6883,
+      "unique_candidates": 5107,
+      "repeated_evaluations": {
+        "gps": 1308,
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271010-0.85-2m",
+      "scenario": "transition",
+      "name": "retrodiction",
+      "sha256": "a29fccb4662eb5f5a9374a0d29ff5fbe9e07482c112c5e88024b62b127aec22b",
+      "raw_rows": 5115,
+      "unique_candidates": 5115,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271010-0.85-2m",
+      "scenario": "transition",
+      "name": "horizon_joint",
+      "sha256": "9774cb6dc0b15093fee61aab6e18e7a64ed44de928df69456295c9b740c69ff8",
+      "raw_rows": 6883,
+      "unique_candidates": 5107,
+      "repeated_evaluations": {
+        "gps": 1308,
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271010-0.85-2m",
+      "scenario": "transition",
+      "name": "retrodiction_joint",
+      "sha256": "53a7ac721209c25e32b5f937c560d3b2102074d03bcb2ce07eb389e9836cf2e8",
+      "raw_rows": 5115,
+      "unique_candidates": 5115,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271010-0.85-4m",
+      "scenario": "gps",
+      "name": "horizon",
+      "sha256": "ed146620b6c91bc4081e03f958d85dc1945ab1ee75b7bebfff0c93e326e94062",
+      "raw_rows": 7183,
+      "unique_candidates": 5257,
+      "repeated_evaluations": {
+        "gps": 1458,
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271010-0.85-4m",
+      "scenario": "gps",
+      "name": "retrodiction",
+      "sha256": "5311ac1a455950869c3000e05bc74d95b1d4547076d5ce1a25488a9a302dd9be",
+      "raw_rows": 5265,
+      "unique_candidates": 5265,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271010-0.85-4m",
+      "scenario": "gps",
+      "name": "horizon_joint",
+      "sha256": "a266a8109b3e9d5c35b13fef904706fc0d68f9fceeacded4407c3b78aafdd74f",
+      "raw_rows": 7183,
+      "unique_candidates": 5257,
+      "repeated_evaluations": {
+        "gps": 1458,
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271010-0.85-4m",
+      "scenario": "gps",
+      "name": "retrodiction_joint",
+      "sha256": "3d9b5c0ddcc49a8fd23b458449d43024e334cdeeefb4aa283d8ec31ebdab8431",
+      "raw_rows": 5265,
+      "unique_candidates": 5265,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271010-0.85-4m",
+      "scenario": "denied",
+      "name": "horizon",
+      "sha256": "0b5c267e4327d9b53fb65cfa946f0d68827c6f62480269cc0fc6234b78f6c71d",
+      "raw_rows": 4267,
+      "unique_candidates": 3799,
+      "repeated_evaluations": {
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271010-0.85-4m",
+      "scenario": "denied",
+      "name": "retrodiction",
+      "sha256": "3bf1c25f436346b03a9dee50c8d6c9eac7d1e018e53463b2e6ef2194209ed06f",
+      "raw_rows": 3806,
+      "unique_candidates": 3806,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271010-0.85-4m",
+      "scenario": "denied",
+      "name": "horizon_joint",
+      "sha256": "d1b2f429a14ddd25223afff8934e782249e6d5a14365401f5b4eb25d6f5f6246",
+      "raw_rows": 4267,
+      "unique_candidates": 3799,
+      "repeated_evaluations": {
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271010-0.85-4m",
+      "scenario": "denied",
+      "name": "retrodiction_joint",
+      "sha256": "8d6e28c70e718d1888882cbeb287465e90fe9d8343b8818d8619d4ba353e4ba1",
+      "raw_rows": 3806,
+      "unique_candidates": 3806,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271010-0.85-4m",
+      "scenario": "transition",
+      "name": "horizon",
+      "sha256": "0f6db6911191b5d644433f1e1a1ff3a1fd16e72ef8b8a33a8251cb9b152a439d",
+      "raw_rows": 6883,
+      "unique_candidates": 5107,
+      "repeated_evaluations": {
+        "gps": 1308,
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271010-0.85-4m",
+      "scenario": "transition",
+      "name": "retrodiction",
+      "sha256": "e4fc678d5b095e2e8c9e6aa90bdfa53827202ff78c3b6df726b80a506aa383df",
+      "raw_rows": 5115,
+      "unique_candidates": 5115,
+      "repeated_evaluations": {}
+    },
+    {
+      "condition": "20271010-0.85-4m",
+      "scenario": "transition",
+      "name": "horizon_joint",
+      "sha256": "602db6364a1a2eb5e96f765295de666e192f846d98d2f14c079f20e5362b5715",
+      "raw_rows": 6883,
+      "unique_candidates": 5107,
+      "repeated_evaluations": {
+        "gps": 1308,
+        "barometer": 468
+      }
+    },
+    {
+      "condition": "20271010-0.85-4m",
+      "scenario": "transition",
+      "name": "retrodiction_joint",
+      "sha256": "e647537c5a1d8beb2756719e17275eddf5ad744c19ed051937769f0316567fee",
+      "raw_rows": 5115,
+      "unique_candidates": 5115,
+      "repeated_evaluations": {}
+    }
+  ],
+  "source_sha256": {
+    "report_eskf_innovations.py": "8a3b4d973c1413e36082b623756d24ae8d1dd1156b86ea74a89ab75e1c6977f4",
+    "eskf_innovations.py": "84da6026a0449e019c031750789ab67d345050345ea6244e72ba7127763e9b0e",
+    "replay_eskf_innovations.py": "7b89b824acbaae1a5aad1cda4832322557a6b1277ca905ea16c653f3986cb599",
+    "instrument_eskf_innovations.py": "fe0026c9fb8f44c8f5c92a68d897d31a7300867ccfaa4972bae2f28cd1e00a7d",
+    "eskf_innovation_dump.h": "6bf3b6ec8ff849d56af0b07ee2ba7fd655b35b72255434353a10987cdec870b8"
+  },
+  "summary_sha256": "08a7be5745007c4746807ef512061e0eb52c5754bb74ad16f244e68926303ef8",
+  "records_sha256": "9aaeae7064c52d483b090faa38623cedf5e5661878156715d7248dfb6815f69b",
+  "scope": "Every declared case retained. Joint vector NIS divided by dimension, summarized first within capture then across eight capture conditions (only two independent sensor seeds). Candidate/accepted/rejected statistics are separate in records.json. Identical repeated generated evaluations are audited and counted once; raw trace hashes retain every evaluation. These results do not establish matching effective native Q/R, independent temporal trials, or superiority of an estimator. States and all raw covariance output bytes match their frozen baselines."
+}

@@ -1,0 +1,1041 @@
+{
+  "valid": true,
+  "raw_rows": 5115,
+  "unique_candidates": 5115,
+  "repeated_identical_evaluations": {},
+  "invalid_rows": 0,
+  "failures": [],
+  "innovations_sha256": "7bac9fc4f2480c39580b7af4c1ec4a5df056567df16c0b2492a82f4cf3b6833a",
+  "analyzer_sha256": "84da6026a0449e019c031750789ab67d345050345ea6244e72ba7127763e9b0e",
+  "records": [
+    {
+      "sensor": "barometer",
+      "window": "after_return",
+      "attempted_rows": 197,
+      "prelinear_rejected_rows": 0,
+      "accepted_rows": 196,
+      "outcomes": {
+        "1": 196,
+        "2": 0,
+        "3": 1,
+        "4": 0,
+        "5": 0,
+        "6": 0
+      },
+      "computed_rows": 197,
+      "all_candidates": {
+        "rows": 197,
+        "mean_joint_nis_per_dimension": 0.9894866937181782,
+        "median_joint_nis_per_dimension": 0.45205837989773207,
+        "p95_joint_nis_per_dimension": 4.232321654722596,
+        "max_reconstruction_error": 5.349525968867397e-07,
+        "mean_cholesky_whitened_residual": [
+          0.0004565801940173439
+        ],
+        "rms_cholesky_whitened_residual": [
+          0.9947294575502317
+        ],
+        "median_effective_noise_diagonal": [
+          0.01126704178750515
+        ]
+      },
+      "accepted": {
+        "rows": 196,
+        "mean_joint_nis_per_dimension": 0.9612726718029247,
+        "median_joint_nis_per_dimension": 0.45182399473548235,
+        "p95_joint_nis_per_dimension": 4.066562616008918,
+        "max_reconstruction_error": 5.349525968867397e-07,
+        "mean_cholesky_whitened_residual": [
+          -0.012568225146280126
+        ],
+        "rms_cholesky_whitened_residual": [
+          0.9804451396192062
+        ],
+        "median_effective_noise_diagonal": [
+          0.011265413835644722
+        ]
+      },
+      "rejected": {
+        "rows": 1,
+        "mean_joint_nis_per_dimension": 6.519434989107843,
+        "median_joint_nis_per_dimension": 6.519434989107843,
+        "p95_joint_nis_per_dimension": 6.519434989107843,
+        "max_reconstruction_error": 4.166233580349399e-07,
+        "mean_cholesky_whitened_residual": [
+          2.5533184268923144
+        ],
+        "rms_cholesky_whitened_residual": [
+          2.5533184268923144
+        ],
+        "median_effective_noise_diagonal": [
+          0.011316978372633457
+        ]
+      }
+    },
+    {
+      "sensor": "barometer",
+      "window": "flight",
+      "attempted_rows": 467,
+      "prelinear_rejected_rows": 0,
+      "accepted_rows": 463,
+      "outcomes": {
+        "1": 463,
+        "2": 0,
+        "3": 4,
+        "4": 0,
+        "5": 0,
+        "6": 0
+      },
+      "computed_rows": 467,
+      "all_candidates": {
+        "rows": 467,
+        "mean_joint_nis_per_dimension": 1.0021559581218358,
+        "median_joint_nis_per_dimension": 0.4737083016092533,
+        "p95_joint_nis_per_dimension": 3.9487016205137784,
+        "max_reconstruction_error": 5.349525968867397e-07,
+        "mean_cholesky_whitened_residual": [
+          -0.036592791373718084
+        ],
+        "rms_cholesky_whitened_residual": [
+          1.001077398666974
+        ],
+        "median_effective_noise_diagonal": [
+          0.01121517550200224
+        ]
+      },
+      "accepted": {
+        "rows": 463,
+        "mean_joint_nis_per_dimension": 0.9517269527856825,
+        "median_joint_nis_per_dimension": 0.4684158381482567,
+        "p95_joint_nis_per_dimension": 3.734703792762666,
+        "max_reconstruction_error": 5.349525968867397e-07,
+        "mean_cholesky_whitened_residual": [
+          -0.025371382417599366
+        ],
+        "rms_cholesky_whitened_residual": [
+          0.9755649403221103
+        ],
+        "median_effective_noise_diagonal": [
+          0.01121517550200224
+        ]
+      },
+      "rejected": {
+        "rows": 4,
+        "mean_joint_nis_per_dimension": 6.839313325781593,
+        "median_joint_nis_per_dimension": 6.676097122262773,
+        "p95_joint_nis_per_dimension": 7.749866748340003,
+        "max_reconstruction_error": 4.166233580349399e-07,
+        "mean_cholesky_whitened_residual": [
+          -1.3354708780444582
+        ],
+        "rms_cholesky_whitened_residual": [
+          2.6152080846046633
+        ],
+        "median_effective_noise_diagonal": [
+          0.010883995797485113
+        ]
+      }
+    },
+    {
+      "sensor": "barometer",
+      "window": "outage",
+      "attempted_rows": 150,
+      "prelinear_rejected_rows": 0,
+      "accepted_rows": 149,
+      "outcomes": {
+        "1": 149,
+        "2": 0,
+        "3": 1,
+        "4": 0,
+        "5": 0,
+        "6": 0
+      },
+      "computed_rows": 150,
+      "all_candidates": {
+        "rows": 150,
+        "mean_joint_nis_per_dimension": 1.0196187125452658,
+        "median_joint_nis_per_dimension": 0.49952728108211314,
+        "p95_joint_nis_per_dimension": 3.5932755705599475,
+        "max_reconstruction_error": 4.938565014711571e-07,
+        "mean_cholesky_whitened_residual": [
+          -0.05275582159535801
+        ],
+        "rms_cholesky_whitened_residual": [
+          1.009761710774015
+        ],
+        "median_effective_noise_diagonal": [
+          0.011619784403592348
+        ]
+      },
+      "accepted": {
+        "rows": 149,
+        "mean_joint_nis_per_dimension": 0.9855668259750339,
+        "median_joint_nis_per_dimension": 0.49205097583421,
+        "p95_joint_nis_per_dimension": 3.3328199510673215,
+        "max_reconstruction_error": 4.938565014711571e-07,
+        "mean_cholesky_whitened_residual": [
+          -0.03654296705164936
+        ],
+        "rms_cholesky_whitened_residual": [
+          0.9927571837942216
+        ],
+        "median_effective_noise_diagonal": [
+          0.011614843271672726
+        ]
+      },
+      "rejected": {
+        "rows": 1,
+        "mean_joint_nis_per_dimension": 6.09334981150983,
+        "median_joint_nis_per_dimension": 6.09334981150983,
+        "p95_joint_nis_per_dimension": 6.09334981150983,
+        "max_reconstruction_error": 3.547227205302761e-07,
+        "mean_cholesky_whitened_residual": [
+          -2.4684711486079456
+        ],
+        "rms_cholesky_whitened_residual": [
+          2.4684711486079456
+        ],
+        "median_effective_noise_diagonal": [
+          0.012250925414264202
+        ]
+      }
+    },
+    {
+      "sensor": "gps",
+      "window": "after_return",
+      "attempted_rows": 196,
+      "prelinear_rejected_rows": 0,
+      "accepted_rows": 196,
+      "outcomes": {
+        "1": 196,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0
+      },
+      "computed_rows": 196,
+      "all_candidates": {
+        "rows": 196,
+        "mean_joint_nis_per_dimension": 0.9984793591083235,
+        "median_joint_nis_per_dimension": 0.9375177893775442,
+        "p95_joint_nis_per_dimension": 1.9840521488721006,
+        "max_reconstruction_error": 2.4588306715145336e-06,
+        "mean_cholesky_whitened_residual": [
+          0.09814968654196593,
+          0.03019204727929335,
+          0.059354727214995406,
+          -0.032765675006918606,
+          -0.06204263610657285,
+          -0.028399740148511033
+        ],
+        "rms_cholesky_whitened_residual": [
+          1.0412261355251318,
+          1.032925616290476,
+          1.0108005606102757,
+          1.013015014552584,
+          0.9763234021954363,
+          0.9157862096836744
+        ],
+        "median_effective_noise_diagonal": [
+          0.0406454224139452,
+          0.040453433990478516,
+          0.12152953818440437,
+          0.002525810501538217,
+          0.0025185381527990103,
+          0.005589601816609502
+        ]
+      },
+      "accepted": {
+        "rows": 196,
+        "mean_joint_nis_per_dimension": 0.9984793591083235,
+        "median_joint_nis_per_dimension": 0.9375177893775442,
+        "p95_joint_nis_per_dimension": 1.9840521488721006,
+        "max_reconstruction_error": 2.4588306715145336e-06,
+        "mean_cholesky_whitened_residual": [
+          0.09814968654196593,
+          0.03019204727929335,
+          0.059354727214995406,
+          -0.032765675006918606,
+          -0.06204263610657285,
+          -0.028399740148511033
+        ],
+        "rms_cholesky_whitened_residual": [
+          1.0412261355251318,
+          1.032925616290476,
+          1.0108005606102757,
+          1.013015014552584,
+          0.9763234021954363,
+          0.9157862096836744
+        ],
+        "median_effective_noise_diagonal": [
+          0.0406454224139452,
+          0.040453433990478516,
+          0.12152953818440437,
+          0.002525810501538217,
+          0.0025185381527990103,
+          0.005589601816609502
+        ]
+      },
+      "rejected": {
+        "rows": 0
+      }
+    },
+    {
+      "sensor": "gps",
+      "window": "before_takeoff",
+      "attempted_rows": 30,
+      "prelinear_rejected_rows": 0,
+      "accepted_rows": 30,
+      "outcomes": {
+        "1": 30,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0
+      },
+      "computed_rows": 30,
+      "all_candidates": {
+        "rows": 30,
+        "mean_joint_nis_per_dimension": 0.8327416674350236,
+        "median_joint_nis_per_dimension": 0.7378512559425325,
+        "p95_joint_nis_per_dimension": 1.586360544513053,
+        "max_reconstruction_error": 1.040393426521291e-06,
+        "mean_cholesky_whitened_residual": [
+          -0.18154322888584046,
+          0.2120184275399312,
+          0.2789127821101283,
+          -0.06721184523495388,
+          -0.0023663135957943827,
+          -0.0773844577670311
+        ],
+        "rms_cholesky_whitened_residual": [
+          0.9689858586501573,
+          0.816416548784849,
+          0.8856358376693184,
+          0.8881191968721771,
+          0.8983847621281786,
+          1.005374906975092
+        ],
+        "median_effective_noise_diagonal": [
+          0.04000033996999264,
+          0.040000030770897865,
+          0.12249968573451042,
+          0.0025013753911480308,
+          0.0025013636332005262,
+          0.005626349709928036
+        ]
+      },
+      "accepted": {
+        "rows": 30,
+        "mean_joint_nis_per_dimension": 0.8327416674350236,
+        "median_joint_nis_per_dimension": 0.7378512559425325,
+        "p95_joint_nis_per_dimension": 1.586360544513053,
+        "max_reconstruction_error": 1.040393426521291e-06,
+        "mean_cholesky_whitened_residual": [
+          -0.18154322888584046,
+          0.2120184275399312,
+          0.2789127821101283,
+          -0.06721184523495388,
+          -0.0023663135957943827,
+          -0.0773844577670311
+        ],
+        "rms_cholesky_whitened_residual": [
+          0.9689858586501573,
+          0.816416548784849,
+          0.8856358376693184,
+          0.8881191968721771,
+          0.8983847621281786,
+          1.005374906975092
+        ],
+        "median_effective_noise_diagonal": [
+          0.04000033996999264,
+          0.040000030770897865,
+          0.12249968573451042,
+          0.0025013753911480308,
+          0.0025013636332005262,
+          0.005626349709928036
+        ]
+      },
+      "rejected": {
+        "rows": 0
+      }
+    },
+    {
+      "sensor": "gps",
+      "window": "flight",
+      "attempted_rows": 317,
+      "prelinear_rejected_rows": 0,
+      "accepted_rows": 317,
+      "outcomes": {
+        "1": 317,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0
+      },
+      "computed_rows": 317,
+      "all_candidates": {
+        "rows": 317,
+        "mean_joint_nis_per_dimension": 1.0043797682693536,
+        "median_joint_nis_per_dimension": 0.9364416742660505,
+        "p95_joint_nis_per_dimension": 2.0389162675817714,
+        "max_reconstruction_error": 2.4588306715145336e-06,
+        "mean_cholesky_whitened_residual": [
+          0.04958773370043175,
+          0.017857933513902607,
+          0.010610593784753135,
+          0.0030878364325693745,
+          -0.050457664725445585,
+          0.016073658873569173
+        ],
+        "rms_cholesky_whitened_residual": [
+          1.0537215074973807,
+          0.9665215374900621,
+          1.0371771358250652,
+          1.048139196493664,
+          0.955000082377586,
+          0.9462707689533422
+        ],
+        "median_effective_noise_diagonal": [
+          0.04054684564471245,
+          0.04033640772104263,
+          0.12168707698583603,
+          0.002522076480090618,
+          0.002514105523005128,
+          0.005595569498836994
+        ]
+      },
+      "accepted": {
+        "rows": 317,
+        "mean_joint_nis_per_dimension": 1.0043797682693536,
+        "median_joint_nis_per_dimension": 0.9364416742660505,
+        "p95_joint_nis_per_dimension": 2.0389162675817714,
+        "max_reconstruction_error": 2.4588306715145336e-06,
+        "mean_cholesky_whitened_residual": [
+          0.04958773370043175,
+          0.017857933513902607,
+          0.010610593784753135,
+          0.0030878364325693745,
+          -0.050457664725445585,
+          0.016073658873569173
+        ],
+        "rms_cholesky_whitened_residual": [
+          1.0537215074973807,
+          0.9665215374900621,
+          1.0371771358250652,
+          1.048139196493664,
+          0.955000082377586,
+          0.9462707689533422
+        ],
+        "median_effective_noise_diagonal": [
+          0.04054684564471245,
+          0.04033640772104263,
+          0.12168707698583603,
+          0.002522076480090618,
+          0.002514105523005128,
+          0.005595569498836994
+        ]
+      },
+      "rejected": {
+        "rows": 0
+      }
+    },
+    {
+      "sensor": "gps",
+      "window": "outage",
+      "attempted_rows": 1,
+      "prelinear_rejected_rows": 0,
+      "accepted_rows": 1,
+      "outcomes": {
+        "1": 1,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0
+      },
+      "computed_rows": 1,
+      "all_candidates": {
+        "rows": 1,
+        "mean_joint_nis_per_dimension": 1.0598390167548803,
+        "median_joint_nis_per_dimension": 1.0598390167548803,
+        "p95_joint_nis_per_dimension": 1.0598390167548803,
+        "max_reconstruction_error": 5.159345555227901e-07,
+        "mean_cholesky_whitened_residual": [
+          0.36931864376826645,
+          0.3571462154234607,
+          -1.2567412696927178,
+          1.5665803719231717,
+          -0.1607794857630846,
+          -1.426766167603192
+        ],
+        "rms_cholesky_whitened_residual": [
+          0.36931864376826645,
+          0.3571462154234607,
+          1.2567412696927178,
+          1.5665803719231717,
+          0.1607794857630846,
+          1.426766167603192
+        ],
+        "median_effective_noise_diagonal": [
+          0.04118757322430611,
+          0.04047078639268875,
+          0.12084166705608368,
+          0.00254634628072381,
+          0.002519195433706045,
+          0.005563545972108841
+        ]
+      },
+      "accepted": {
+        "rows": 1,
+        "mean_joint_nis_per_dimension": 1.0598390167548803,
+        "median_joint_nis_per_dimension": 1.0598390167548803,
+        "p95_joint_nis_per_dimension": 1.0598390167548803,
+        "max_reconstruction_error": 5.159345555227901e-07,
+        "mean_cholesky_whitened_residual": [
+          0.36931864376826645,
+          0.3571462154234607,
+          -1.2567412696927178,
+          1.5665803719231717,
+          -0.1607794857630846,
+          -1.426766167603192
+        ],
+        "rms_cholesky_whitened_residual": [
+          0.36931864376826645,
+          0.3571462154234607,
+          1.2567412696927178,
+          1.5665803719231717,
+          0.1607794857630846,
+          1.426766167603192
+        ],
+        "median_effective_noise_diagonal": [
+          0.04118757322430611,
+          0.04047078639268875,
+          0.12084166705608368,
+          0.00254634628072381,
+          0.002519195433706045,
+          0.005563545972108841
+        ]
+      },
+      "rejected": {
+        "rows": 0
+      }
+    },
+    {
+      "sensor": "magnetic_vector",
+      "window": "after_return",
+      "attempted_rows": 197,
+      "prelinear_rejected_rows": 0,
+      "accepted_rows": 197,
+      "outcomes": {
+        "1": 197,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0
+      },
+      "computed_rows": 197,
+      "all_candidates": {
+        "rows": 197,
+        "mean_joint_nis_per_dimension": 0.9817090263658712,
+        "median_joint_nis_per_dimension": 0.8183993089754713,
+        "p95_joint_nis_per_dimension": 2.5289640522244663,
+        "max_reconstruction_error": 1.3431012924058905e-06,
+        "mean_cholesky_whitened_residual": [
+          -0.019860547618539733,
+          -0.11827995599766798,
+          0.03938072959210606
+        ],
+        "rms_cholesky_whitened_residual": [
+          1.0036525414220947,
+          1.005409531869433,
+          0.9627877899208483
+        ],
+        "median_effective_noise_diagonal": [
+          0.0003704392584040761,
+          0.0003704392584040761,
+          0.0003704392584040761
+        ]
+      },
+      "accepted": {
+        "rows": 197,
+        "mean_joint_nis_per_dimension": 0.9817090263658712,
+        "median_joint_nis_per_dimension": 0.8183993089754713,
+        "p95_joint_nis_per_dimension": 2.5289640522244663,
+        "max_reconstruction_error": 1.3431012924058905e-06,
+        "mean_cholesky_whitened_residual": [
+          -0.019860547618539733,
+          -0.11827995599766798,
+          0.03938072959210606
+        ],
+        "rms_cholesky_whitened_residual": [
+          1.0036525414220947,
+          1.005409531869433,
+          0.9627877899208483
+        ],
+        "median_effective_noise_diagonal": [
+          0.0003704392584040761,
+          0.0003704392584040761,
+          0.0003704392584040761
+        ]
+      },
+      "rejected": {
+        "rows": 0
+      }
+    },
+    {
+      "sensor": "magnetic_vector",
+      "window": "before_takeoff",
+      "attempted_rows": 30,
+      "prelinear_rejected_rows": 0,
+      "accepted_rows": 30,
+      "outcomes": {
+        "1": 30,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0
+      },
+      "computed_rows": 30,
+      "all_candidates": {
+        "rows": 30,
+        "mean_joint_nis_per_dimension": 0.9724785408956824,
+        "median_joint_nis_per_dimension": 0.8878881377353738,
+        "p95_joint_nis_per_dimension": 1.9019978271853932,
+        "max_reconstruction_error": 1.2034233627389312e-06,
+        "mean_cholesky_whitened_residual": [
+          -0.15496411598705148,
+          -0.07479716948440306,
+          -0.06056496441202166
+        ],
+        "rms_cholesky_whitened_residual": [
+          0.9997390837621734,
+          0.8522426664727987,
+          1.091622565051104
+        ],
+        "median_effective_noise_diagonal": [
+          0.0003704392584040761,
+          0.0003704392584040761,
+          0.0003704392584040761
+        ]
+      },
+      "accepted": {
+        "rows": 30,
+        "mean_joint_nis_per_dimension": 0.9724785408956824,
+        "median_joint_nis_per_dimension": 0.8878881377353738,
+        "p95_joint_nis_per_dimension": 1.9019978271853932,
+        "max_reconstruction_error": 1.2034233627389312e-06,
+        "mean_cholesky_whitened_residual": [
+          -0.15496411598705148,
+          -0.07479716948440306,
+          -0.06056496441202166
+        ],
+        "rms_cholesky_whitened_residual": [
+          0.9997390837621734,
+          0.8522426664727987,
+          1.091622565051104
+        ],
+        "median_effective_noise_diagonal": [
+          0.0003704392584040761,
+          0.0003704392584040761,
+          0.0003704392584040761
+        ]
+      },
+      "rejected": {
+        "rows": 0
+      }
+    },
+    {
+      "sensor": "magnetic_vector",
+      "window": "flight",
+      "attempted_rows": 467,
+      "prelinear_rejected_rows": 0,
+      "accepted_rows": 467,
+      "outcomes": {
+        "1": 467,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0
+      },
+      "computed_rows": 467,
+      "all_candidates": {
+        "rows": 467,
+        "mean_joint_nis_per_dimension": 0.9934929692343443,
+        "median_joint_nis_per_dimension": 0.8219775827036727,
+        "p95_joint_nis_per_dimension": 2.4578144546052534,
+        "max_reconstruction_error": 1.7688672446780629e-06,
+        "mean_cholesky_whitened_residual": [
+          -0.04003513613417678,
+          -0.07840299252405014,
+          0.041730932383848694
+        ],
+        "rms_cholesky_whitened_residual": [
+          1.0260888583474554,
+          1.0008368312538531,
+          0.9622609831454217
+        ],
+        "median_effective_noise_diagonal": [
+          0.0003704392584040761,
+          0.0003704392584040761,
+          0.0003704392584040761
+        ]
+      },
+      "accepted": {
+        "rows": 467,
+        "mean_joint_nis_per_dimension": 0.9934929692343443,
+        "median_joint_nis_per_dimension": 0.8219775827036727,
+        "p95_joint_nis_per_dimension": 2.4578144546052534,
+        "max_reconstruction_error": 1.7688672446780629e-06,
+        "mean_cholesky_whitened_residual": [
+          -0.04003513613417678,
+          -0.07840299252405014,
+          0.041730932383848694
+        ],
+        "rms_cholesky_whitened_residual": [
+          1.0260888583474554,
+          1.0008368312538531,
+          0.9622609831454217
+        ],
+        "median_effective_noise_diagonal": [
+          0.0003704392584040761,
+          0.0003704392584040761,
+          0.0003704392584040761
+        ]
+      },
+      "rejected": {
+        "rows": 0
+      }
+    },
+    {
+      "sensor": "magnetic_vector",
+      "window": "outage",
+      "attempted_rows": 150,
+      "prelinear_rejected_rows": 0,
+      "accepted_rows": 150,
+      "outcomes": {
+        "1": 150,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0
+      },
+      "computed_rows": 150,
+      "all_candidates": {
+        "rows": 150,
+        "mean_joint_nis_per_dimension": 1.0162956142654251,
+        "median_joint_nis_per_dimension": 0.8305066545010232,
+        "p95_joint_nis_per_dimension": 2.442667484475379,
+        "max_reconstruction_error": 8.794364294573143e-07,
+        "mean_cholesky_whitened_residual": [
+          -0.1447426529492069,
+          0.025210032787915875,
+          -0.03590227534007557
+        ],
+        "rms_cholesky_whitened_residual": [
+          1.0325591858983816,
+          1.0020381315598574,
+          0.989256262711122
+        ],
+        "median_effective_noise_diagonal": [
+          0.0003704392584040761,
+          0.0003704392584040761,
+          0.0003704392584040761
+        ]
+      },
+      "accepted": {
+        "rows": 150,
+        "mean_joint_nis_per_dimension": 1.0162956142654251,
+        "median_joint_nis_per_dimension": 0.8305066545010232,
+        "p95_joint_nis_per_dimension": 2.442667484475379,
+        "max_reconstruction_error": 8.794364294573143e-07,
+        "mean_cholesky_whitened_residual": [
+          -0.1447426529492069,
+          0.025210032787915875,
+          -0.03590227534007557
+        ],
+        "rms_cholesky_whitened_residual": [
+          1.0325591858983816,
+          1.0020381315598574,
+          0.989256262711122
+        ],
+        "median_effective_noise_diagonal": [
+          0.0003704392584040761,
+          0.0003704392584040761,
+          0.0003704392584040761
+        ]
+      },
+      "rejected": {
+        "rows": 0
+      }
+    },
+    {
+      "sensor": "optical_flow",
+      "window": "after_return",
+      "attempted_rows": 197,
+      "prelinear_rejected_rows": 0,
+      "accepted_rows": 196,
+      "outcomes": {
+        "1": 196,
+        "2": 0,
+        "3": 1,
+        "4": 0,
+        "5": 0,
+        "6": 0
+      },
+      "computed_rows": 197,
+      "all_candidates": {
+        "rows": 197,
+        "mean_joint_nis_per_dimension": 1.0214222595555285,
+        "median_joint_nis_per_dimension": 0.7028539200505202,
+        "p95_joint_nis_per_dimension": 3.318706850588899,
+        "max_reconstruction_error": 7.404114228393155e-07,
+        "mean_cholesky_whitened_residual": [
+          0.004363687507011078,
+          -0.023031835054900945
+        ],
+        "rms_cholesky_whitened_residual": [
+          1.0341864276619936,
+          0.986561174966246
+        ],
+        "median_effective_noise_diagonal": [
+          0.0025168894790112972,
+          0.002525628311559558
+        ]
+      },
+      "accepted": {
+        "rows": 196,
+        "mean_joint_nis_per_dimension": 0.9898643052217971,
+        "median_joint_nis_per_dimension": 0.6961346372385928,
+        "p95_joint_nis_per_dimension": 3.24157375927849,
+        "max_reconstruction_error": 7.404114228393155e-07,
+        "mean_cholesky_whitened_residual": [
+          0.016701054380611997,
+          -0.00819825431458214
+        ],
+        "rms_cholesky_whitened_residual": [
+          1.022385791067602,
+          0.9666725943496414
+        ],
+        "median_effective_noise_diagonal": [
+          0.002516964334063232,
+          0.002525521209463477
+        ]
+      },
+      "rejected": {
+        "rows": 1,
+        "mean_joint_nis_per_dimension": 7.206781308966914,
+        "median_joint_nis_per_dimension": 7.206781308966914,
+        "p95_joint_nis_per_dimension": 7.206781308966914,
+        "max_reconstruction_error": 1.567243756994685e-07,
+        "mean_cholesky_whitened_residual": [
+          -2.4137602197187684,
+          -2.93041366015739
+        ],
+        "rms_cholesky_whitened_residual": [
+          2.4137602197187684,
+          2.93041366015739
+        ],
+        "median_effective_noise_diagonal": [
+          0.002503280993551016,
+          0.0025532261934131384
+        ]
+      }
+    },
+    {
+      "sensor": "optical_flow",
+      "window": "before_takeoff",
+      "attempted_rows": 30,
+      "prelinear_rejected_rows": 0,
+      "accepted_rows": 30,
+      "outcomes": {
+        "1": 30,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0
+      },
+      "computed_rows": 30,
+      "all_candidates": {
+        "rows": 30,
+        "mean_joint_nis_per_dimension": 1.1794679229303646,
+        "median_joint_nis_per_dimension": 0.8632199414297441,
+        "p95_joint_nis_per_dimension": 2.759809174343979,
+        "max_reconstruction_error": 6.251659092626483e-07,
+        "mean_cholesky_whitened_residual": [
+          0.377358566335596,
+          0.29443458938720646
+        ],
+        "rms_cholesky_whitened_residual": [
+          0.883527270749076,
+          1.2563102354527793
+        ],
+        "median_effective_noise_diagonal": [
+          0.0025000012246891856,
+          0.002500007161870599
+        ]
+      },
+      "accepted": {
+        "rows": 30,
+        "mean_joint_nis_per_dimension": 1.1794679229303646,
+        "median_joint_nis_per_dimension": 0.8632199414297441,
+        "p95_joint_nis_per_dimension": 2.759809174343979,
+        "max_reconstruction_error": 6.251659092626483e-07,
+        "mean_cholesky_whitened_residual": [
+          0.377358566335596,
+          0.29443458938720646
+        ],
+        "rms_cholesky_whitened_residual": [
+          0.883527270749076,
+          1.2563102354527793
+        ],
+        "median_effective_noise_diagonal": [
+          0.0025000012246891856,
+          0.002500007161870599
+        ]
+      },
+      "rejected": {
+        "rows": 0
+      }
+    },
+    {
+      "sensor": "optical_flow",
+      "window": "flight",
+      "attempted_rows": 467,
+      "prelinear_rejected_rows": 0,
+      "accepted_rows": 466,
+      "outcomes": {
+        "1": 466,
+        "2": 0,
+        "3": 1,
+        "4": 0,
+        "5": 0,
+        "6": 0
+      },
+      "computed_rows": 467,
+      "all_candidates": {
+        "rows": 467,
+        "mean_joint_nis_per_dimension": 1.038127627172882,
+        "median_joint_nis_per_dimension": 0.7506554085152433,
+        "p95_joint_nis_per_dimension": 3.44210651237332,
+        "max_reconstruction_error": 1.1097070924392938e-06,
+        "mean_cholesky_whitened_residual": [
+          -0.006230639015152251,
+          -0.012202893742816292
+        ],
+        "rms_cholesky_whitened_residual": [
+          1.0327139317053315,
+          1.0048667521654202
+        ],
+        "median_effective_noise_diagonal": [
+          0.0025167770218104124,
+          0.0025253817439079285
+        ]
+      },
+      "accepted": {
+        "rows": 466,
+        "mean_joint_nis_per_dimension": 1.0248901729201054,
+        "median_joint_nis_per_dimension": 0.7425151912307534,
+        "p95_joint_nis_per_dimension": 3.3906404646491084,
+        "max_reconstruction_error": 1.1097070924392938e-06,
+        "mean_cholesky_whitened_residual": [
+          -0.0010642665243719535,
+          -0.005940638879265712
+        ],
+        "rms_cholesky_whitened_residual": [
+          1.0277567950092714,
+          0.9967428535748228
+        ],
+        "median_effective_noise_diagonal": [
+          0.00251681765075773,
+          0.0025253493804484606
+        ]
+      },
+      "rejected": {
+        "rows": 1,
+        "mean_joint_nis_per_dimension": 7.206781308966914,
+        "median_joint_nis_per_dimension": 7.206781308966914,
+        "p95_joint_nis_per_dimension": 7.206781308966914,
+        "max_reconstruction_error": 1.567243756994685e-07,
+        "mean_cholesky_whitened_residual": [
+          -2.4137602197187684,
+          -2.93041366015739
+        ],
+        "rms_cholesky_whitened_residual": [
+          2.4137602197187684,
+          2.93041366015739
+        ],
+        "median_effective_noise_diagonal": [
+          0.002503280993551016,
+          0.0025532261934131384
+        ]
+      }
+    },
+    {
+      "sensor": "optical_flow",
+      "window": "outage",
+      "attempted_rows": 150,
+      "prelinear_rejected_rows": 0,
+      "accepted_rows": 150,
+      "outcomes": {
+        "1": 150,
+        "2": 0,
+        "3": 0,
+        "4": 0,
+        "5": 0,
+        "6": 0
+      },
+      "computed_rows": 150,
+      "all_candidates": {
+        "rows": 150,
+        "mean_joint_nis_per_dimension": 1.0095526429862856,
+        "median_joint_nis_per_dimension": 0.7531443918879519,
+        "p95_joint_nis_per_dimension": 3.45375495521223,
+        "max_reconstruction_error": 8.554481603084696e-07,
+        "mean_cholesky_whitened_residual": [
+          -0.007114120001801966,
+          -0.0837557752106652
+        ],
+        "rms_cholesky_whitened_residual": [
+          1.0144339242660818,
+          0.9950020599328867
+        ],
+        "median_effective_noise_diagonal": [
+          0.0025159218348562717,
+          0.002527191652916372
+        ]
+      },
+      "accepted": {
+        "rows": 150,
+        "mean_joint_nis_per_dimension": 1.0095526429862856,
+        "median_joint_nis_per_dimension": 0.7531443918879519,
+        "p95_joint_nis_per_dimension": 3.45375495521223,
+        "max_reconstruction_error": 8.554481603084696e-07,
+        "mean_cholesky_whitened_residual": [
+          -0.007114120001801966,
+          -0.0837557752106652
+        ],
+        "rms_cholesky_whitened_residual": [
+          1.0144339242660818,
+          0.9950020599328867
+        ],
+        "median_effective_noise_diagonal": [
+          0.0025159218348562717,
+          0.002527191652916372
+        ]
+      },
+      "rejected": {
+        "rows": 0
+      }
+    }
+  ],
+  "scope": "Joint candidate NIS reconstructed in float64 from actual float32 r and S. Every raw function evaluation is checked; repeated evaluations with identical sensor/state/sample epochs must match every field and contribute once to statistics. Raw traces and repeat counts remain retained. Rumoca may repeat pure-function evaluation while assembling downstream record arguments; this is not evidence of repeated physical fusion. State epoch is sample plus age (fusion epoch in horizon mode), not publication time. Prelinear timestamp rejections never count as zero NIS. Accepted and rejected selections stay separate. Temporal samples are correlated; summaries are descriptive, not independent chi-square confidence tests. Native sequential scalar NIS is a different statistic. Invalid observations remain disclosed and invalidate this reconstruction."
+}

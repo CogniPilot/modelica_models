@@ -1,0 +1,14 @@
+{
+  "original_sha256": "00a276a6de880a24beb407bb489cbe47eddda96c9c9bfcc65cb2c30dd31cede6",
+  "observed_sha256": "2a10b4d89f4c2665596865fc2cdb3e5bfac8083c68dde5be06f2927a66f5a6c5",
+  "header_sha256": "6bf3b6ec8ff849d56af0b07ee2ba7fd655b35b72255434353a10987cdec870b8",
+  "functions": [
+    "correctGps",
+    "correctGpsPosition",
+    "correctGpsVelocity",
+    "correctOpticalFlow",
+    "correctBarometer",
+    "correctMagnetometer"
+  ],
+  "scope": "Read-only generated dense ESKF update observations. Capture actual residual/S before the SPD solve and NIS/outcome after each leaf. Root mode rejected. State and full-covariance parity must be verified separately."
+}

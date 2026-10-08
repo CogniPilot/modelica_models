@@ -36,7 +36,13 @@ native per-sensor scalar NIS, GPS recovery and instrumented ESKF timing.
 plot_readiness_campaign.py exports all horizontal-position pairs as PNG/PDF/SVG.
 replay_px4_magnetics.py observes public magnetic-state getters through a separate
 adapter and requires frozen published-state and innovation byte parity.
-ESKF per-sensor NIS and a complete match of native effective Q/R remain open.
+The per-sensor ESKF NIS audit is in docs/reviews/2026-10-08/eskf-innovations.
+instrument_eskf_innovations.py observes an owned generated-C copy;
+replay_eskf_innovations.py requires frozen state and complete covariance byte
+parity; eskf_innovations.py reconstructs joint NIS from the actual residual/S.
+report_eskf_innovations.py requires all 96 ESKF cases of the matched campaign.
+Repeated identical pure-function evaluations are audited and counted once.
+A complete match of native effective Q/R remains open.
 
 PX4 innovation observer times include a 1 s clock epoch offset, as already
 accounted for by native_consistency.py. native_innovations.py and

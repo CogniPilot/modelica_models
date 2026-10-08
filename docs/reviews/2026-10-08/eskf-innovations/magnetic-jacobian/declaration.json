@@ -1,0 +1,26 @@
+{
+  "created_utc": "2026-10-08T09:34:36.485134+00:00",
+  "hypothesis": "The symmetric SO(3) magnetic observation Jacobian depends on the current measurement noise. A predicted-field-only Jacobian is the local right-error derivative at the prior and removes that noise dependence. Test whether this reduces denied yaw/attitude bias without changing physical noise, gates, delay method or covariance policy. NIS near one does not establish optimal state error.",
+  "scope": "Development ablation on known seed 911. Generated-C one-expression replacement equivalent to replacing wedge(.5*(predictedField+measuredField)) with wedge(predictedField) in magnetometerVectorObservation.mo. Not yet exported from modified Modelica; not a production change or untouched validation.",
+  "original_generated_sha256": "00a276a6de880a24beb407bb489cbe47eddda96c9c9bfcc65cb2c30dd31cede6",
+  "candidate_generated_sha256": "1dcd0c619868ae756c4613f606376df760a357f4026ad95cf1fa3213ec4dabc2",
+  "original_modelica_sha256": "f519f0b8384eb3c4544d596b958823219f3f3c8626752d0fad8814b418b78be6",
+  "generated_replacement": {
+    "old": "(0.5f * ((*predictedField)[rumoca_argument_value_8_0 - 1] + (*measuredField)[rumoca_argument_value_8_0 - 1]))",
+    "new": "(*predictedField)[rumoca_argument_value_8_0 - 1]"
+  },
+  "pilot_sha256": "024e16afbf21e221503104c13f7c604835959bc6ca4b1041ff471155fa50cf8e",
+  "variants": [
+    "horizon",
+    "retrodiction",
+    "horizon_joint",
+    "retrodiction_joint"
+  ],
+  "scenarios": [
+    "gps",
+    "denied",
+    "transition"
+  ],
+  "decision": "Reject as a general replacement if materially worse on yaw/attitude or denied position. A promising result requires all eight existing development captures then fresh independent validation; do not tune on their noise realizations.",
+  "planned_replays": 12
+}
