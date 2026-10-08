@@ -1,8 +1,0 @@
-{
-  "seed": 20271009,
-  "cases": 1000,
-  "byte_identical": 999,
-  "signed_zero_only": 1,
-  "nonzero_values_bit_identical": true,
-  "scope": "Actual old/new generated float32 QR primitive; 15 by 30 anisotropic inputs, every tenth case with only 15 active columns."
-}

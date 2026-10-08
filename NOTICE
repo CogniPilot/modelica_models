@@ -2,17 +2,8 @@ modelica_models (CogniPilot Modelica Models)
 Copyright 2026 CogniPilot Foundation
 
 This product includes software developed by the CogniPilot Foundation.
-This repository is licensed under the Apache License, Version 2.0; see the
-root LICENSE file. Every Modelica source here is original CogniPilot content
-under that license.
-
-CogniPilot repositories carry no third-party-derived source. Ekf2/, a
-statement-for-statement transcription of PX4-Autopilot's ekf2 module and
-therefore BSD-3-Clause rather than Apache-2.0, was relocated out of this
-repository for that reason. It is maintained separately as a PX4-parity
-oracle, consumed only as an external comparator whose outputs are compared,
-never as in-tree source. It was not referenced by any package here and was
-not part of the released library archive.
+Project-authored code uses the Apache License, Version 2.0; see the root
+LICENSE file.
 
 This NOTICE records the remaining third-party content redistributed in this
 repository and the license each is under. It is the top-level index; the

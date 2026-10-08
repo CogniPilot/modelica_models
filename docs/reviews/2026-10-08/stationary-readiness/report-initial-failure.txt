@@ -1,6 +1,0 @@
-Traceback (most recent call last):
-  File "/home/jgoppert/git/modelica_models/tools/estimator_comparison/report_eskf_ablation.py", line 309, in <module>
-    report(parser.parse_args())
-  File "/home/jgoppert/git/modelica_models/tools/estimator_comparison/report_eskf_ablation.py", line 172, in report
-    raise ValueError("Require the complete declared campaign, retaining failures")
-ValueError: Require the complete declared campaign, retaining failures

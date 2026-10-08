@@ -357,15 +357,12 @@ nonzero latency, actual camera integration/texture limits, range dropout/terrain
 vibration, GPS outliers and longer outages. Then run an independently measured real-flight capture and closed-loop
 trials. This baseline uses calibrated body flow velocity to manufacture native camera observations; it does not
 test image formation or visual odometry.</li></ol>
-<h2>Reproduction and paper review</h2><p>
+<h2>Reproduction</h2><p>
 <a href="estimator-scores.json">High-rate per-run scores</a> ·
 <a href="estimator-scores-lower-rates.json">Lower-rate per-run scores</a> ·
 <a href="estimator-metrics.csv">All scored phases CSV</a> ·
 <a href="capture-manifest.json">Input/output and implementation hashes</a> ·
-<a href="preintegration-paper-review.txt">Paper review</a> ·
-<a href="rumoca-codegen-review.txt">Compiler compatibility findings</a> ·
-<a href="validation.txt">Validation evidence</a> ·
-<a href="../../../tools/estimator_comparison/README.txt">Reproduction instructions</a>.</p>
+<a href="https://github.com/CogniPilot/modelica_models/blob/main/tools/estimator_comparison/README.md">Reproduction instructions</a>.</p>
 <p>Modelica sources and replay generator/scorer are original project code. Native replay harness changes live
 in the separate estimator-comparison repository branch workspace/matched-sensor-replay. Its EKF3 Modelica
 directory contains scaffolding only; no completed EKF3 Modelica port was found or published. The existing

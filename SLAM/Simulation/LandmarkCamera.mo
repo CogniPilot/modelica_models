@@ -27,4 +27,37 @@ algorithm
       landmarksWorld_m, rotationBodyCamera, cameraPositionBody_m, intrinsics,
       imageSize_pixels, depthRange_m, measurementError, detected, available);
   end when;
+  annotation(Documentation(info = "<html>
+    <p>Sampled pinhole RGB-D camera. Supply a fixed landmark scene, true
+    world-ENU position and unit body-to-world quaternion. The default optical
+    axis points downward for a level FLU body.</p>
+    <h4>Geometry</h4>
+    <p>Configure horizontal/vertical <code>fieldOfView_rad</code>,
+    <code>imageSize_pixels</code> and optical-axis <code>depthRange_m</code>.
+    Default focal lengths are width/(2 tan(horizontalFov/2)) and
+    height/(2 tan(verticalFov/2)); measured <code>intrinsics</code> may override
+    them. <code>rotationBodyCamera</code> maps optical-camera vectors to body
+    FLU; <code>cameraPositionBody_m</code> is the lever arm.</p>
+    <h4>Observations and visibility</h4>
+    <p>Each observation row is {pixel u, pixel v, optical depth in metres}.
+    Both ideal and noisy observations must lie inside the image's half-open
+    bounds and inclusive depth range. <code>visible</code> is authoritative:
+    invisible rows contain zeros and must not be fused. <code>landmarkIds</code>
+    are stable row indices; preserve an external feature-ID mapping if rows
+    from a captured map are reordered.</p>
+    <p>Supply additive <code>measurementError</code> explicitly to share noise
+    across experiments. The caller owns its covariance and timestamps.
+    <code>detected</code> supplies per-row dropout; <code>available</code>
+    disables the camera. The model does not infer occlusion, distortion,
+    rolling shutter or association ambiguity.</p>
+    <h4>Example</h4>
+    <pre>
+SLAM.Simulation.LandmarkCamera camera(
+  landmarkCount=4,
+  landmarksWorld_m=SLAM.Simulation.landmarkGrid(2, 2, 2.0),
+  positionWorld_m=truthPositionWorld_m,
+  quaternionWorldBody=truthQuaternionWorldBody,
+  fieldOfView_rad={1.4, 1.0}, depthRange_m={0.2, 8.0});
+    </pre>
+    </html>"));
 end LandmarkCamera;

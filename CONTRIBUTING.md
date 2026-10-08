@@ -50,9 +50,16 @@ This library follows the conventions used by the Modelica Standard Library
 
 ## Documentation and tests
 
+- Start at [tools/README.md](tools/README.md) for maintained automation and
+  estimator comparison entry points.
 - Give every public class a one-line description. Add `Documentation(info=...)`
   when frame conventions, equations, initialization, timing, or limitations
   cannot be understood from the declaration alone.
+- Keep library explanations in that HTML documentation, with `modelica://`
+  links between classes. Use `docs/` for concise user workflows, not a second
+  library reference or a development diary.
+- Put temporary notes and reports in ignored `dev/`. Keep large generated
+  outputs, downloads and caches in owned directories under `$HOME/scratch`.
 - Add assertions for mathematical invariants and regression tests for compiler
   boundaries. A Rumoca-only rejection of valid Modelica that OpenModelica
   accepts should be minimized and fixed in Rumoca, not hidden by scalarizing a

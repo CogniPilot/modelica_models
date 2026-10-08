@@ -24,6 +24,12 @@ package ESKF
     "{position,velocity,attitude,gyro bias,accelerometer bias} error";
   type Covariance = Real[15, 15];
   annotation(Documentation(info = "<html>
+    <p>Use <a href=\"modelica://Estimation.StrapdownINS.ESKF.Estimator\">Estimator</a>
+    for sampled sensor fusion, or the prediction and correction functions for
+    an explicit replay. The optional stationary-IMU mode requires a trustworthy
+    <code>vehicleAtRest</code> signal; it does not detect rest. Optional
+    square-root covariance changes numerical representation and has additional
+    runtime and storage costs. Validate each mode for the intended vehicle.</p>
     <p>The nominal extended pose is propagated by
     <code>LieGroups.SE23.Quat.exp_mixed</code>. Covariance lives in a
     body-local right-perturbation error ordered as position, velocity,

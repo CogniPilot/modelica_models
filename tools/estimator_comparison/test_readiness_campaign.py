@@ -1,28 +1,73 @@
 """Guard matched evidence joins and retain invalid or missing comparison pairs."""
 
 import copy
-import json
-from pathlib import Path
 import unittest
 
-from manifest import digest
 from report_readiness_campaign import METRICS, comparisons, innovation_summary, join
 
 
 class ReadinessCampaignTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        root = Path(__file__).resolve().parents[2]
-        review = root / "docs/reviews/2026-10-08/ekf3-imu-integrity"
-        pilot_path = review / "late-fix-pilot.json"
-        cls.pilot = json.loads(pilot_path.read_text())
-        cls.covariance = json.loads(
-            (review / "late-fix-native-covariance.json").read_text()
+        cls.plan = dict(
+            filters=[
+                "horizon",
+                "retrodiction",
+                "horizon_joint",
+                "retrodiction_joint",
+                "px4",
+                "ekf3",
+            ],
+            scenarios=["gps", "denied", "transition"],
+            gps_fix_after_s=21,
         )
-        cls.pilot_sha256 = digest(pilot_path)
-        cls.plan = json.loads((review / "declaration.json").read_text())[
-            "held_out_plan"
+        accuracy = dict(
+            **{metric: 0.1 for metric in METRICS},
+            rows=100,
+            row_coverage=1,
+            finite_fraction=1,
+            position_valid_fraction=1,
+            attitude_valid_fraction=1,
+        )
+        statistics = {
+            window: dict(valid=True, mean_nees_15d=15)
+            for window in ("flight", "outage", "after_return")
+        }
+        scores = [
+            dict(
+                name=name,
+                scenario=scenario,
+                output_sha256=f"state-{name}-{scenario}",
+                arrival_trace_sha256=f"packets-{scenario}",
+                consistency=copy.deepcopy(statistics),
+                **{
+                    window: dict(accuracy)
+                    for window in ("flight", "outage_window", "after_return")
+                },
+            )
+            for name in cls.plan["filters"]
+            for scenario in cls.plan["scenarios"]
         ]
+        cls.pilot_sha256 = "pilot-digest"
+        cls.pilot = dict(
+            complete=True,
+            origin=dict(seed=911, speed=0.6, gps_fix_after_s=21),
+            input_sha256="capture-digest",
+            scores=scores,
+        )
+        cls.covariance = dict(
+            complete=True,
+            pilot_sha256=cls.pilot_sha256,
+            scores=[
+                dict(
+                    score,
+                    output_identical=True,
+                    consistency=dict(valid=True, windows=copy.deepcopy(statistics)),
+                )
+                for score in scores
+                if score["name"] in ("px4", "ekf3")
+            ],
+        )
         cls.capture = dict(
             name="diagnostic",
             seed=911,

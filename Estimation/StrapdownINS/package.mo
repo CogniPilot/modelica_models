@@ -53,6 +53,26 @@ package StrapdownINS
   constant Integer RecoveryMisconfigured = 3;
 
   annotation(Documentation(info = "<html>
+    <h4>Choose a filter</h4>
+    <p><a href=\"modelica://Estimation.StrapdownINS.ESKF.Estimator\">ESKF.Estimator</a>
+    implements the 15-state right-error filter;
+    <a href=\"modelica://Estimation.StrapdownINS.UKF.Estimator\">UKF.Estimator</a>
+    implements a manifold UKF. Both use
+    <a href=\"modelica://Estimation.StrapdownINS.PartialEstimator\">PartialEstimator</a>
+    and publish <a href=\"modelica://Avionics.NavigationEstimate\">NavigationEstimate</a>.</p>
+    <h4>Deliver sensor samples</h4>
+    <p>Use world ENU and body FLU coordinates. Set sensor timestamps to capture
+    time in the estimator clock; hold <code>valid</code> while a sample is usable
+    and pulse <code>fresh</code> for one estimator tick per new arrival. Supply
+    covariance matching the actual sensor noise. A held sample must not be
+    fused repeatedly as independent data.</p>
+    <h4>Delayed aiding</h4>
+    <p>The direct ESKF retrodicts with a held IMU input; see
+    <a href=\"modelica://Estimation.StrapdownINS.ESKF.correctGps\">correctGps</a>.
+    <a href=\"modelica://Estimation.FusionHorizon.HorizonEstimator\">HorizonEstimator</a>
+    instead buffers measurements, filters in the past and predicts a separate
+    current-time output. Pair covariance diagnostics with state and truth at
+    the same epoch and in the same tangent convention.</p>
     <p>This namespace groups alternative estimators for the same navigation
     problem: attitude, velocity, position, gyroscope bias, and accelerometer
     bias from an IMU plus external aiding. Algorithm names are nested below

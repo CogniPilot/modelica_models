@@ -1,5 +1,0 @@
-RDD2 Mission Qualification	Run RDD2 qualification	2026-10-08T05:27:46.4482214Z simulating rumoca-scenario.manual-flight.toml...
-RDD2 Mission Qualification	Run RDD2 qualification	2026-10-08T05:29:04.0611903Z /nix/store/30hpb8xig9cxshlzygysly6fz4gwb75s-python3-3.12.13-env/lib/python3.12/multiprocessing/resource_tracker.py:279: UserWarning: resource_tracker: There appear to be 5 leaked semaphore objects to clean up at shutdown
-RDD2 Mission Qualification	Run RDD2 qualification	2026-10-08T05:29:04.0613124Z   warnings.warn('resource_tracker: There appear to be %d '
-RDD2 Mission Qualification	Run RDD2 qualification	2026-10-08T05:29:04.1750688Z ##[error]The operation was canceled.
-RDD2 Mission Qualification	Complete job	﻿2026-10-08T05:29:04.2123116Z Cleaning up orphan processes

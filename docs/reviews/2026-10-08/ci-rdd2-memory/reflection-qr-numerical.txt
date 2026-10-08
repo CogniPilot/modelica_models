@@ -1,5 +1,0 @@
-    Build generated C covariance-root regression
-    Independent covariance-root regression, seed 20271007
-{"cases": 206, "normalized_covariance_error": 4.770026512048047e-07, "normalized_root_error": 3.7149049968113033e-07, "worst_relative_nees_error": 0.0001795534095585527, "nees_relative_error": 8.416659591503617e-10}
-    Independent covariance-root regression, seed 20271008
-{"cases": 206, "normalized_covariance_error": 6.213248207242179e-07, "normalized_root_error": 3.410195188646875e-07, "worst_relative_nees_error": 0.0001795534095585527, "nees_relative_error": 3.197598030801885e-08}

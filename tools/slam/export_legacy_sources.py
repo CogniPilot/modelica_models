@@ -25,7 +25,7 @@ def export(args):
         ["git", "-C", str(repository), "rev-parse", args.revision + "^{commit}"],
         text=True,
     ).strip()
-    manifest = json.loads(read("docs/slam-source-provenance.json"))
+    manifest = json.loads(read("tools/slam/source-manifest.json"))
     groups = {}
     for entry in manifest["classes"]:
         data = read(entry["destination"]).decode().split("\n", 1)[1]

@@ -63,7 +63,7 @@ block HorizonEstimator
      release rate it is derived from. It is forwarded to the predictor, whose
      existing budget assertion then compares it against the measured fold
      budget -- and at the flight lattice that comparison FAILS, which is the
-     honest outcome and is discussed in docs/delayed-fusion-horizon-wcet.md.";
+     honest outcome and is discussed in Estimation.FusionHorizon.HorizonEstimator documentation.";
   parameter Real maximumSourceDelay_s(unit = "s", min = 0.0) = 0.11
     "Worst end-to-end age any aiding source is declared to deliver at. The
      horizon must cover it with headroom; see
@@ -380,42 +380,33 @@ equation
   filter.opticalFlow = aiding.opticalFlowAtHorizon;
 
   annotation(Documentation(info = "<html>
-    <p>The composition the architecture exists for. The filter runs AT the
-    fusion horizon, where every aiding measurement has already arrived, so it
-    never fuses a delayed measurement and never transports a measurement
-    Jacobian backwards in time. The state control consumes is the horizon state
-    composed with the buffered deltas, republished at the inertial rate.</p>
-    <p><b>What this replaces.</b> Measurement-age alignment over the whole
-    transport latency of a sensor. <code>Estimation.FusionHorizon.AidingBuffer</code>
-    holds every aiding packet until the fusion instant reaches its own
-    timestamp, so the filter's measurement age is a residual inside one
-    release window instead of the age the packet happened to arrive with. The
-    interval <code>Estimation.StrapdownINS.ESKF.retrodict</code> and the
-    <code>Phi(-age)</code> Jacobian transport run over therefore falls from
-    <code>maximumAidingDelay_s</code>, a quarter of a second, to
-    <code>fusionPeriod_s</code>, ten milliseconds. Neither function is removed
-    and neither is wrong; the argument is that what they are asked to cover is
-    now twenty-five times smaller and is a parameter of the release lattice
-    rather than a property of a driver. The residual actually achieved is
-    published as <code>worstAidingResidualAge_s</code>. Sensor transport
-    latency is not removed by anything here; it is where the horizon length
-    comes from.</p>
-    <p><b>Both halves are required.</b> The predictor alone moves the filter's
-    epoch back to <code>t - D</code> and leaves the aiding at the live edge,
-    which does not fuse delayed measurements: every sensor packet is then
-    stamped AHEAD of the instant the filter stands on, and a negative age is
-    refused by the filter's own timestamp rule. The queues are what make the
-    delayed epoch usable.</p>
-    <p><b>What is generic and what is not.</b> The filter enters through
-    <code>Estimation.StrapdownINS.PartialEstimator</code> and is used only
-    through the algorithm-neutral part of that boundary: it is handed an
-    <code>Avionics.ImuSample</code> and the aiding streams, and it returns a
-    pose, two bias vectors, and a correction outcome. The horizon never reads
-    <code>navigationCovarianceLocal</code>, never constructs a tangent vector,
-    and never asks for an injection, so an additive-bias ESKF, a manifold UKF,
-    and a filter with an entirely different uncertainty representation are
-    interchangeable here by redeclaration alone. The buffer, the composition,
-    and the re-base are bit-identical across that swap, which is the property
-    that makes two filters measured in this harness comparable.</p>
-  </html>"));
+    <p>Buffer aiding measurements, run the selected filter at a delayed fusion
+    instant, then predict its corrected state to the present. The default
+    filter is the ESKF; alternatives implement
+    <a href=\"modelica://Estimation.StrapdownINS.PartialEstimator\">PartialEstimator</a>.</p>
+    <h4>Output epochs</h4>
+    <p><code>predictedEstimate</code> is the current-time state for control and
+    guidance. <code>horizonEstimate</code> is the delayed state described by
+    the filter covariance. Use the latter and its timestamp for NEES and
+    covariance diagnostics. No matching current-time covariance is propagated.</p>
+    <h4>Timing and delivery</h4>
+    <p>Default intervals are 1.25 ms for IMU sampling, 10 ms for fusion and
+    200 ms for horizon lag. The fusion interval must contain an integral number
+    of IMU intervals; the horizon must contain an integral number of fusion
+    intervals and cover <code>maximumSourceDelay_s</code> plus
+    <code>horizonJitterMargin_s</code>. Set each source's period to its shortest
+    delivery interval so the bounded queues have sufficient capacity.</p>
+    <p>Use capture timestamps and one-tick fresh pulses. Wait for
+    <code>horizonReady</code>; monitor <code>aidingRefused</code>,
+    <code>aidingRefusedLateCount</code>, <code>worstAidingResidualAge_s</code>
+    and <code>biasMoveExceeded</code>. The remaining measurement-age alignment
+    is bounded by <code>maximumResidualAge_s</code>.</p>
+    <h4>Runtime budget</h4>
+    <p>The default 100 Hz correction budget exceeds the predictor's default
+    7.3 Hz fold budget and fails its budget assertion. Configure the budget
+    from measurements of generated code on the intended target; increasing
+    the parameter alone does not improve runtime. Accepted corrections can
+    shift the state at every fusion release, even with slower individual
+    sensors.</p>
+    </html>"));
 end HorizonEstimator;

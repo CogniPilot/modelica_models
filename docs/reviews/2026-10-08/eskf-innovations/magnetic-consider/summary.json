@@ -1,9 +1,0 @@
-{
-  "complete": true,
-  "replays": 12,
-  "all_common15_covariance_windows_valid": true,
-  "flight_yaw_improved": 12,
-  "denied_horizontal_improved": 0,
-  "decision": "Rejected as a general replacement: substantial denied horizontal/velocity regressions despite improved yaw. Keep the complete tradeoff visible, and retain the existing magnetic vector algorithm.",
-  "scope": "Known-seed generated-C development ablation. Not fresh validation, theoretical dominance, full tangent-group EqF or full 16D covariance qualification."
-}

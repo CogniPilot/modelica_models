@@ -57,7 +57,7 @@ package HorizonRefusals
     // because a record-valued call is materialized once per component. When
     // that lands the budget rises by about the same factor and this
     // configuration stops being refused; see
-    // docs/delayed-fusion-horizon-wcet.md.
+    // Estimation.FusionHorizon.HorizonEstimator documentation.
     extends Tests.HorizonRefusals.Driver(
       fusionHorizon_s=0.05,
       correctionRateBudget_hz=100.0);

@@ -30,8 +30,7 @@ end if;
 // comment claimed it did. What tools/ci.py lowers is
 // Estimation.FusionHorizon.OutputPredictor, the horizon block on its own. The
 // composed model is unbalanced by fourteen equations per harness, for a reason
-// that has nothing to do with this package and is recorded in
-// tools/rumoca-repros/connector-boolean-balance/.
+// that concerns Boolean inputs of a wrapped estimator.
 reports := {
   checkModel(Tests.HorizonPredictorTests),
   checkModel(Tests.HorizonInterfaceTests),

@@ -9,7 +9,7 @@ from .common import ToolError
 
 def library_files(root: Path, pattern: str) -> list[Path]:
     excluded = (
-        root / "tools" / "rumoca-repros",
+        root / "dev",
         root / "tools" / "estimator_comparison" / "upstream",
     )
     return sorted(

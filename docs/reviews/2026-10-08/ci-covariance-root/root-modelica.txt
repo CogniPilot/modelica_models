@@ -1,4 +1,0 @@
-Simulating Tests.CovarianceRootTests to t=0...
-Simulation complete: 1 time points, 27 variables
-Projection fallbacks: 0 over 0 projection calls at 0 sites
-$HOME/scratch/modelica_models/rumoca-ci/contract-probes/root-tests-vector.html

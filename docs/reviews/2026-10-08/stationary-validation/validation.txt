@@ -1,8 +1,0 @@
-82 estimator-comparison Python tests pass.
-Ruff passes for all three changed public reporting/plotting tools.
-All 1,440 comparison rows and 192 candidate replays retained.
-All 96 joint-pressure cases and 477,120 raw float32 matrices qualify.
-Every fresh native readiness and common-15 covariance check qualifies.
-All 48 candidate/native flight velocity pairs favor stationary joint horizon against each stack.
-Figure labels visually inspected; every capture is retained, including losses.
-No native code or estimator defaults changed.

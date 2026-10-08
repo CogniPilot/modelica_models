@@ -1,3 +1,0 @@
-Joint report reproduces byte-identically from the frozen JSON inputs.
-Existing consider report, comparison CSV, paired CSV and summary reproduce byte-identically with the default CLI policy.
-All 96 replay records complete; 48 control state CSVs byte-identical; all four NEES windows valid.

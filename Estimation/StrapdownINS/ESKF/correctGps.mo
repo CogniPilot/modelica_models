@@ -94,4 +94,30 @@ algorithm
         innovationGate, zeros(3), measurementStateCrossCovariance, false,
           useSemiDirectBias);
   end if;
+  annotation(Documentation(info = "<html>
+    <p>Retrodict the nominal state to GPS capture time using the latest held
+    IMU input. That input is noisy and correlated with the current state it
+    just predicted. When packet uncertainty is supplied, the update accounts
+    for both observation variance and state/observation cross-covariance.</p>
+    <pre>
+H = Hd Phi(-age)
+J = Hd B(-age)
+R = Rgps + J Q J'
+C = B(dt) Q J'
+S = H P H' + H C + C' H' + R
+K = (P H' + C) S^-1
+F = I - K H
+Pposterior = F P F' + K R K' - F C K' - K C' F'
+    </pre>
+    <p><code>B</code> is
+    <a href=\"modelica://Estimation.StrapdownINS.ESKF.heldInputJacobian\">heldInputJacobian</a>;
+    <code>Q</code> is the covariance of the packet's mean gyro/accelerometer
+    input. The generalized Joseph form also supports a constrained gain.
+    Optional packet covariance defaults to zero.</p>
+    <p>Retrodiction assumes constant input during the delay. Use a delayed
+    fusion wrapper when motion varies substantially within that interval.
+    <a href=\"modelica://Tests.CorrelatedGpsTests\">CorrelatedGpsTests</a>
+    checks the covariance, gain and innovation statistic against independent
+    linear-Gaussian values.</p>
+    </html>"));
 end correctGps;

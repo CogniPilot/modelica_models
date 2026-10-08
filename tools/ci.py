@@ -691,8 +691,7 @@ def check_ukf_native(repository: Path, rumoca: str, output: Path) -> None:
 #
 # The 0.10.2 pin reaches canonical DAE construction, where a fast sampled
 # consumer cannot read a slower sampled producer. This ordinary discrete
-# model is incorrectly treated as a cross-clock read. The minimal reproducer
-# and the earlier Boolean balance boundary are in tools/rumoca-repros/.
+# model is incorrectly treated as a cross-clock read.
 # Diagnostic identities and source locations deliberately belong to this pin:
 # changing the compiler or this assignment requires reviewing the boundary.
 PIN_DEPENDENT_MODELS = (

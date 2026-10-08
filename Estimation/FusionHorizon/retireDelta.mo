@@ -19,11 +19,7 @@ protected
   Real positionCoupling[3, 3];
 algorithm
   // THE LEFT FACTOR DIVIDES OUT IN CLOSED FORM, and every block of it is
-  // exact rather than first order. That is worth stating plainly because the
-  // design record says otherwise: docs/delayed-fusion-horizon.md rejects the
-  // peel partly on the grounds that "the peel's bias Jacobians are only first
-  // order through the inverse, which is a silent error". For the composition
-  // this package actually uses, they are not. The derivation is below and
+  // exact rather than first order. The derivation is below and
   // Tests.HorizonPredictorTests measures the residual at floating point.
   //
   // The reason is structural. Read composeDelta as a map from `second` to

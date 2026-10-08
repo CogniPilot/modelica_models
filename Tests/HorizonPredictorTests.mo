@@ -127,10 +127,7 @@ model HorizonPredictorTests
   // (f) A composed window divided by its own earliest factor returns the rest
   // of the window EXACTLY. This is the enabling fact for maintaining the
   // window product across releases instead of refolding the ring on every
-  // correction, and it is measured rather than assumed because the design
-  // record asserts the opposite: docs/delayed-fusion-horizon.md rejects the
-  // peel partly because "the peel's bias Jacobians are only first order
-  // through the inverse, which is a silent error".
+  // correction. The assertions check the complete composed result.
   //
   // For the composition this package uses they are exact, and the reason is
   // structural rather than lucky. Read composeDelta as a map from the second

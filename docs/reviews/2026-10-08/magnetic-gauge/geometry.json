@@ -1,8 +1,0 @@
-{
-  "cases": 1000,
-  "max_gauge_sensitivity": 2.0689077556528787e-16,
-  "max_shortest_rotation_cayley_residual_error": 1.1986424564952127e-15,
-  "max_noisy_gauge_sensitivity": 1.910737078320172e-16,
-  "max_noisy_symmetric_jacobian_sensitivity": 0.5180300988101326,
-  "scope": "Independent float64 Rodrigues/Cayley and nullspace algebra sanity checks, not a general theorem, estimator convergence proof or superiority claim. Prototype floating-point Modelica correspondence remains unverified."
-}

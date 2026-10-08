@@ -47,7 +47,7 @@ model HorizonInterfaceTests
   // velocity with a steady yaw rate makes composition ORDER matter, and three
   // incommensurate force frequencies make every window differ from every
   // other, so which slots are folded matters too. Same stream as
-  // Tests.HorizonChecks.syntheticImu and tools/wcet/driver_horizon.c.
+  // Tests.HorizonChecks.syntheticImu.
   Real angularVelocityStream_rad_s[3];
   Real specificForceStream_m_s2[3];
 

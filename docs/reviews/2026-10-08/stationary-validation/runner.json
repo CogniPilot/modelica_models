@@ -1,7 +1,0 @@
-{
-  "created_utc": "2026-10-08T10:11:28.141464+00:00",
-  "runner_sha256": "93c134b3bb568d70a9af9dac2e93c164eacb692aaf8613202221fcfbbe285bbe",
-  "capture_manifest_sha256": "9dbb78f7ada2d03911d60e465a26f81df0846a1aff677cf6d8e14f491d7bce83",
-  "declaration_sha256": "666d8f18b65aedf35f96ab3ff7a63a7bd63f37f5bdd9511b8451771b8c46dcae",
-  "all_16_independent_capture_audits_passed": true
-}

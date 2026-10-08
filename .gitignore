@@ -1,5 +1,6 @@
 /artifacts/
 /.ci-cache/
+# Local development notes and reports, including agent handoffs.
 /dev/
 __pycache__/
 *.py[cod]

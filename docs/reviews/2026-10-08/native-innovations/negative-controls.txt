@@ -1,4 +1,0 @@
-changed reference: rejected (Native observer references differ)
-duplicate condition: rejected (Native observer conditions are duplicated or differ)
-changed trajectory: rejected (Native innovation/covariance observer trajectories differ)
-changed native baseline: rejected (Native observer baseline differs from its pinned source)

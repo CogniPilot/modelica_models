@@ -48,9 +48,6 @@ def check(args):
     version = subprocess.check_output([str(args.lean), "--version"], text=True).strip()
     if "version 4.29.1," not in version:
         raise ValueError("Use GNC's pinned Lean 4.29.1")
-    source_root = (
-        Path(__file__).resolve().parents[2] / "docs/reviews/2026-10-08/bounded-error"
-    )
     libraries = args.build / "lib/lean"
     libraries.mkdir(parents=True)
     cached = args.cache / "build/lib/lean"
@@ -99,7 +96,7 @@ def check(args):
         compile_module(dependency, args.gnc)
     for name, count in MODULES.items():
         module = "GNC.Estimation." + name
-        source = compile_module(module, source_root)
+        source = compile_module(module, args.gnc)
         declarations = re.findall(r"^theorem\s+(\S+)", source.read_text(), re.MULTILINE)
         if len(declarations) != count:
             raise ValueError(f"Unexpected public theorem inventory: {module}")

@@ -61,11 +61,8 @@ block OutputPredictor
      at the bias move this block declares it will tolerate: seven times the
      whole budget, in a configuration the parameters said was legal";
   parameter Real foldBudget_hz(unit = "1/s", min = 0.0) = 7.3
-    "Buffer folds per second the flight target can afford, from
-     docs/delayed-fusion-horizon-wcet.md: 600 MHz against the 82 million
-     instructions one re-base costs as generated today. A property of the code
-     generator, not of the architecture, and the first number to change when
-     that is fixed";
+    "Configured buffer-fold budget. Measure generated code on the intended
+     target before deployment; see Estimation.FusionHorizon.HorizonEstimator documentation";
   parameter Real correctionRateBudget_hz(unit = "1/s", min = 0.0) = 5.0
     "The share of foldBudget_hz reserved for accepted corrections, which are
      the folds the design exists to perform. Five per second covers a 5 Hz GPS

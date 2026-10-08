@@ -123,8 +123,7 @@ model HorizonEstimatorWiring
     their equations. <code>Avionics.PartialNavigationEstimator</code> declares
     six input connectors carrying fourteen Booleans between them, so a wrapper
     around one estimator is over by fourteen and this model, which holds two, is
-    over by twenty-eight. A seventeen-line reproducer and the bisection are in
-    <code>tools/rumoca-repros/connector-boolean-balance/</code>. Nothing in
+    over by twenty-eight. Nothing in
     <code>Estimation.FusionHorizon</code> is implicated, and the fix is
     upstream.</p>
     </html>"));

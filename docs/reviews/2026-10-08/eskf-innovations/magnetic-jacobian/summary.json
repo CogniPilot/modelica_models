@@ -1,9 +1,0 @@
-{
-  "complete": true,
-  "replays": 12,
-  "all_common15_covariance_windows_valid": true,
-  "flight_yaw_improved": 0,
-  "flight_attitude_improved": 0,
-  "decision": "Rejected as a general replacement: flight yaw and attitude worsen in all twelve known-seed pilot cases, and horizontal position and velocity worsen in all four denied cases. Vertical RMS improves slightly but does not compensate for the targeted regressions. No defaults or Modelica source changed.",
-  "scope": "Known-seed generated-C development ablation. Not an independent confirmation, a proof that all predicted Jacobians are inferior, or a full 16D covariance qualification."
-}

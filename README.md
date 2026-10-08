@@ -9,6 +9,10 @@ certification. The checked rules and their MSL rationale are documented in
 Reusable Modelica building blocks for rigid-body simulation, estimation,
 control, and verification.
 
+Browse the [Modelica library reference](https://cognipilot.github.io/modelica_models/)
+for embedded package and component help. The [project guides](docs/README.md)
+cover validation commands and consumer exports.
+
 This repository is the aerospace engineering workspace for CogniPilot vehicle
 development. Vehicle physics, flight-control source models, named vehicle
 parameterizations, avionics-facing plant interfaces, missions, and
@@ -49,7 +53,7 @@ artifacts; they do not own alternate copies of these models.
   flight-control models, avionics plant interfaces, and qualification missions.
   RDD2 includes both its cascaded sampled controller and a thin vehicle
   parameterization of the reusable log-linear controller.
-- `tools/`: non-library Python orchestration for validation, qualification,
+- [`tools/`](tools/README.md): non-library Python orchestration for validation, qualification,
   export, CI caching, and reports. Nothing under this directory is part of the
   Modelica package API.
 
@@ -59,8 +63,9 @@ the same separation used by the
 The structure check validates `within` declarations, `package.order` coverage,
 and package metadata without requiring Nix.
 
-The [SLAM source migration](docs/slam-models.txt) records the canonical package
-layout and compatibility export for `slam_web`. Local visual comparison
+Library help is embedded in Modelica HTML documentation. The
+[project guides](docs/README.md) cover validation and the
+[compatibility export](docs/slam-export.md) for `slam_web`. Local visual comparison
 algorithms are Modelica; native probes only supply inputs and collect outputs.
 
 ## Navigation estimator boundary
@@ -87,77 +92,17 @@ filter would overstate its mathematics. Both filters accept identical sensor,
 noise, initialization, and terrain-plane assumptions so their closed-loop
 comparison is meaningful.
 
-The [FOH paper review](docs/reviews/2026-10-07/preintegration-paper-review.txt)
-documents the physical bias-Jacobian correction. The accompanying
-[estimator replay comparison](docs/reviews/2026-10-07/estimator-comparison.html)
-covers GPS, optical-flow flight without GPS, and GPS loss/recovery against
-native PX4 EKF2 and ArduPilot EKF3, including observed scheduling and generated
-UKF runtime limitations.
-
-A later [native readiness audit](docs/reviews/2026-10-08/native-innovations/README.txt)
-found that EKF3 had not begun GPS fusion before the outage in any of the four
-stable-release transition cases. Those results describe startup and GPS
-acquisition; a comparison of established GPS loss and recovery still requires
-a common warmup that satisfies each native filter's readiness checks.
-
-The [common-warmup pilot](docs/reviews/2026-10-08/readiness-benchmark/README.txt)
-establishes GPS before flight and verifies actual loss/recovery for both native
-filters. It includes matched position RMS, native scalar NIS and common-state
-NEES, with six native covariance replays reproducing the state outputs byte for
-byte. ESKF leads on position RMS in this capture; broader scenarios and matched
-effective covariance and magnetic policies remain necessary for a general ranking.
-
-A [common sensor-noise follow-up](docs/reviews/2026-10-08/common-sensor-noise/README.txt)
-aligns nominal GPS velocity, magnetic and optical-flow noise with the native
-floors and checks actual scalar observation variances. ESKF retains its position
-RMS lead on the valid reference cases; EKF3's GPS and transition covariances fail
-under this experimental configuration and are excluded from win counts.
-
-A [native covariance operation trace](docs/reviews/2026-10-08/ekf3-covariance-stages/README.txt)
-isolates EKF3's first failure to a GPS velocity update with suppressed bias
-gains and a simplified covariance correction. Read-only observers preserve
-every published state and full covariance snapshot. ESKF's existing Joseph
-update passes the recorded gain witness; the earlier bad-IMU trigger and the
-broader comparison remain open.
-
-The [bad-IMU trigger audit](docs/reviews/2026-10-08/ekf3-imu-integrity/README.txt)
-finds an early one-sigma noise event in stationary preflight. A matched
-21-second GPS first-fix control avoids the latched detector state and restores
-valid native covariances without changing firmware or noise draws. EKF3 GPS
-position accuracy then approaches ESKF in this pilot; a declared independent
-campaign is testing the remaining performance differences.
-
-The completed [eight-capture comparison](docs/reviews/2026-10-08/matched-campaign/README.txt)
-retains 144 state replays and 48 native covariance checks. ESKF leads horizontal
-RMS in all GPS and loss/return captures, while GPS-denied position and heading
-still have losses. It reports every paired metric, native scalar NIS, common
-15D NEES and horizon/retrodiction CPU costs, with exported comparison figures.
-The [magnetic-policy ablation](docs/reviews/2026-10-08/magnetic-policy/README.txt)
-rejects replacing vector fusion with the existing heading-only update after
-96 matched replays; velocity and attitude regressions remain visible.
-The [stationary-IMU follow-up](docs/reviews/2026-10-08/stationary-readiness/README.txt)
-adds 96 development replays of the existing optional rest model. Joint-horizon
-ESKF leads both native filters on horizontal and velocity RMS in all 24
-conditions; denied yaw and vertical losses remain.
-The [fresh sixteen-condition validation](docs/reviews/2026-10-08/stationary-validation/README.txt)
-completes 480 state replays and 96 native covariance checks. Stationary joint-horizon
-ESKF has lower velocity RMS than both native filters in all 48 flight pairs,
-and lower horizontal RMS in every GPS and loss/return condition. Denied horizontal
-wins fall to 12/16 against each native stack; vertical and yaw gaps remain.
-All five RMS components, NEES, native NIS, delay variants and losses are retained;
-this does not establish superiority across all scenarios or change defaults.
-
 Sensor `timestamp_s` is capture time. `valid` may remain true while a usable
 sample is held; `fresh` pulses for one estimator tick when a new sample arrives,
-preventing a slow sensor value from being fused repeatedly. Latency compensation
-belongs in a reusable fixed-lag wrapper over a private estimator-backend contract:
-the wrapper buffers backend snapshots and IMU increments, corrects at the capture
-time, and replays prediction to the present. This keeps replay logic shared while
-allowing each backend to retain its own opaque state and uncertainty model.
+preventing a slow sensor value from being fused repeatedly.
+`Estimation.FusionHorizon.HorizonEstimator` wraps the same filter backend with
+delayed aiding queues and inertial buffers, then predicts its corrected state to
+the present. Direct retrodiction and delayed fusion share ESKF prediction and
+correction functions; they are different timing strategies, not separate filters.
 The current ESKF accounts for the [uncertainty and correlation of the held IMU
-packet](docs/delayed-gps-held-input.md) used by its delayed GPS approximation.
+packet](Estimation/StrapdownINS/ESKF/correctGps.mo) used by its delayed GPS approximation.
 The paired GPS-to-Mocap missions [measure the survey offset against an ideal
-control mission](docs/handoff-qualification.md) while retaining each source's
+control mission](Vehicles/Rdd2/Test/package.mo) while retaining each source's
 flight and consistency limits.
 
 The CUBS2 deployment boundary is intentionally narrower than the closed-loop
@@ -554,19 +499,6 @@ singular or locally reversed offset curve.
 
 ## License
 
-This repository is licensed under the Apache License, Version 2.0. See
-[LICENSE](LICENSE). Every Modelica source here is original CogniPilot content
-under that license; the repository carries no third-party-derived source.
-
-`Ekf2/`, a statement-for-statement transcription of PX4-Autopilot's ekf2
-module and therefore BSD-3-Clause, was relocated out of this repository for
-that reason. It is maintained separately, outside CogniPilot, as a PX4-parity
-oracle for cross-validating the estimators here. Oracles are consumed only as
-external comparators, checked out at benchmark time with only their outputs
-compared, never vendored back in. The estimators in this repository derive
-from papers and specifications, with citations, and not from that
-transcription.
-
-[NOTICE](NOTICE) indexes the third-party content redistributed here: the
-NOAA/NCEI and BGS World Magnetic Model in `Geodesy/WMM2025/`, and the
-CogniPilot Python implementations that three packages follow.
+Project-authored code uses the [Apache-2.0 license](LICENSE).
+[NOTICE](NOTICE) records source attributions and third-party material.
+See [estimator licensing](docs/licensing.md) for native validation boundaries.

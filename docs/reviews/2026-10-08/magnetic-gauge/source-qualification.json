@@ -1,8 +1,0 @@
-{
-  "original_sha256": "00a276a6de880a24beb407bb489cbe47eddda96c9c9bfcc65cb2c30dd31cede6",
-  "candidate_sha256": "df8c36e551b2154d51674cb5cb229eade74caad41c0ed2663e80fbd803948f27",
-  "only_two_declared_insertions": true,
-  "patch_sha256": "bd8e52a674155e0db19bc9ffbfad7377863884b36442d9bef5ae3c8684468262",
-  "original_context_patch_sha256": "48b5f1551cff0971513e3f712ff508712c9cc58a592e89c21532d258935a62f7",
-  "review_patch_context_lines": 0
-}
