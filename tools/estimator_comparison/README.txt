@@ -44,6 +44,14 @@ report_eskf_innovations.py requires all 96 ESKF cases of the matched campaign.
 Repeated identical pure-function evaluations are audited and counted once.
 A complete match of native effective Q/R remains open.
 
+The stationary-IMU development ablation is in
+docs/reviews/2026-10-08/stationary-readiness. report_eskf_ablation.py verifies
+frozen captures, delivery, binaries and generated objects before joining all
+96 candidate replays to the original controls/native results. It retains every
+RMS window and loss, common-15 consistency, full-16 pressure checks and timing.
+The optional stationary model improves denied horizontal/yaw accuracy, with
+other component regressions. Fresh validation is pending; defaults are unchanged.
+
 PX4 innovation observer times include a 1 s clock epoch offset, as already
 accounted for by native_consistency.py. native_innovations.py and
 diagnose_native_readiness.py now remove it too. The older frozen innovation

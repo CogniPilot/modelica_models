@@ -126,6 +126,10 @@ still have losses. It reports every paired metric, native scalar NIS, common
 The [magnetic-policy ablation](docs/reviews/2026-10-08/magnetic-policy/README.txt)
 rejects replacing vector fusion with the existing heading-only update after
 96 matched replays; velocity and attitude regressions remain visible.
+The [stationary-IMU follow-up](docs/reviews/2026-10-08/stationary-readiness/README.txt)
+adds 96 development replays of the existing optional rest model. Joint-horizon
+ESKF leads both native filters on horizontal and velocity RMS in all 24
+conditions; denied yaw and vertical losses remain. Fresh validation is pending.
 
 Sensor `timestamp_s` is capture time. `valid` may remain true while a usable
 sample is held; `fresh` pulses for one estimator tick when a new sample arrives,

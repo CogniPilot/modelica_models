@@ -1,0 +1,12 @@
+{
+  "created_utc": "2026-10-08T09:51:24.265446+00:00",
+  "hypothesis": "Re-evaluate the existing Lie-group stationary IMU model with the readiness-qualified 120 s warmup and matched physical noise. Earlier stationary ablations used 13 s warmup and older noise. This model observes gyro bias and coupled gravity/accelerometer bias during the common declared-rest interval and returns to ordinary inertial prediction at takeoff.",
+  "scope": "Known-seed development pilot of an existing optional algorithm; not a new default, new independent sensor, held-out result, rest-detector qualification, or dominance proof. Same rest/arm information, physical captures, noise, gates and delays as the reference. All four ESKF delay/pressure variants and all three GPS scenarios retained.",
+  "reference_sha256": "024e16afbf21e221503104c13f7c604835959bc6ca4b1041ff471155fa50cf8e",
+  "replay_driver_sha256": "bb918603c018d29712c2c60c47cb21ab43be0f90b5972a7c998ffa37f25bb970",
+  "planned_replays": 12,
+  "changed_definitions": [
+    "-DSTATIONARY_IMU_MODEL"
+  ],
+  "decision": "Require valid covariance and retain every metric/window. A promising known-seed result requires all eight existing development conditions and fresh independent validation before default adoption."
+}
