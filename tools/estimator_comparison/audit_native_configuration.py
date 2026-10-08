@@ -10,7 +10,6 @@ from pathlib import Path
 import subprocess
 
 import numpy as np
-from pymavlink import DFReader
 
 import native_delay
 from compare_delay import PROFILES
@@ -23,6 +22,8 @@ def digest(path):
 
 
 def diagnostics(path):
+    from pymavlink import DFReader
+
     log = DFReader.DFReader_binary(str(path))
     selections = Counter()
     statuses = Counter()

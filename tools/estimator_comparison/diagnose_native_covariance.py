@@ -6,7 +6,7 @@ from pathlib import Path
 
 import numpy as np
 
-from compare_exposure import digest
+from manifest import digest
 from native_consistency import common_state_and_jacobian
 
 
