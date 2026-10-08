@@ -1,6 +1,6 @@
 {
   "lean": "Lean (version 4.29.1, x86_64-unknown-linux-gnu, commit f72c35b3f637c8c6571d353742168ab66cc22c00, Release)",
-  "gnc_source_head": "0c01537b94677d38c0547a72c1dc12a7e87db234",
+  "gnc_source_head": "1a96a32666e47d0662b56c17dcd6a4a4fbb7e888",
   "checker_sha256": "5ff18c646d3053443e61a3eecdb35b0d5789bfac0afe494bf7780cffe31a4fb4",
   "source_sha256": {
     "GNC.Analysis.LinearODE": "3e490096f24a3897701dac61b2a808e915dc9e9cbd606e7614b553a4582a4a92",
@@ -9,7 +9,7 @@
     "GNC.Estimation.InertialBias": "c90d3085849713ab4ece4d0aded5e1a7d1cee96fa5008aa5ce69a317662d5789",
     "GNC.Dynamics.LieErrorReconstruction": "9dc37e58e844daa60b637c76e537864b274d5f9537d967420274cdea373b2289",
     "GNC.Estimation.SampledErrorBound": "2fbfe389b95fb071589146c4611644a59929bbf5369d7601cd1751ed142fe0c7",
-    "GNC.Estimation.GpsDeniedGeometry": "5acf2aee1ffb869e75e980250e7f4bcf1e18f5b5986aba35757321a4fad60a98",
+    "GNC.Estimation.GpsDeniedGeometry": "d33f4f993111fd20f6dd38b3105103b6a4feb002966208090f0aaaef1e678bf4",
     "GNC.Estimation.LieErrorEnvelope": "8b1960c40acb7d75a80b10d6827d6a609a29a6e860d6ccb244a03a0c9d581332"
   },
   "artifact_sha256": {
@@ -19,7 +19,7 @@
     "GNC.Estimation.InertialBias": "2b473a7c61c4ee1526cd5bf37294e8bd09388b95e2439a849c459fea58709a64",
     "GNC.Dynamics.LieErrorReconstruction": "fa4af1bce4a03734445051f941c03938f6de8675a96535ecc911a98825108ae5",
     "GNC.Estimation.SampledErrorBound": "09d0014cc82f2be329afa8f4b1fe1d3c065a9976963aa336879d39dcfd8b2cc1",
-    "GNC.Estimation.GpsDeniedGeometry": "539c073dce826df6256da1ad95df36e16af08c0f0fd04d07bfe9add3c9b3fb07",
+    "GNC.Estimation.GpsDeniedGeometry": "522cab3045563ab212701721bf8eb5a04f6439aa7e642afe2cd3d8003f750313",
     "GNC.Estimation.LieErrorEnvelope": "1c06463a8ab686f52cc901fea1249036639193ef915948c694485610ce1fd064"
   },
   "audit_source_sha256": "2708796c3cdd847a173d95476aeab47fb9f43a6cbf3ffa07ba3b8c409a1706bf",
@@ -31,7 +31,7 @@
         "--tstack=65536",
         "GNC/Analysis/LinearODE.lean",
         "-o",
-        "/mnt/scratch/jgoppert/gnc_lean/estimator-boundedness/public-check-2/lib/lean/GNC/Analysis/LinearODE.olean"
+        "/mnt/scratch/jgoppert/gnc_lean/estimator-boundedness/public-check-3/lib/lean/GNC/Analysis/LinearODE.olean"
       ],
       "cwd": "/mnt/scratch/jgoppert/gnc_lean/estimator-boundedness/source"
     },
@@ -42,7 +42,7 @@
         "--tstack=65536",
         "GNC/Analysis/TaylorCertificate.lean",
         "-o",
-        "/mnt/scratch/jgoppert/gnc_lean/estimator-boundedness/public-check-2/lib/lean/GNC/Analysis/TaylorCertificate.olean"
+        "/mnt/scratch/jgoppert/gnc_lean/estimator-boundedness/public-check-3/lib/lean/GNC/Analysis/TaylorCertificate.olean"
       ],
       "cwd": "/mnt/scratch/jgoppert/gnc_lean/estimator-boundedness/source"
     },
@@ -53,7 +53,7 @@
         "--tstack=65536",
         "GNC/Estimation/RemainderStability.lean",
         "-o",
-        "/mnt/scratch/jgoppert/gnc_lean/estimator-boundedness/public-check-2/lib/lean/GNC/Estimation/RemainderStability.olean"
+        "/mnt/scratch/jgoppert/gnc_lean/estimator-boundedness/public-check-3/lib/lean/GNC/Estimation/RemainderStability.olean"
       ],
       "cwd": "/mnt/scratch/jgoppert/gnc_lean/estimator-boundedness/source"
     },
@@ -64,7 +64,7 @@
         "--tstack=65536",
         "GNC/Estimation/InertialBias.lean",
         "-o",
-        "/mnt/scratch/jgoppert/gnc_lean/estimator-boundedness/public-check-2/lib/lean/GNC/Estimation/InertialBias.olean"
+        "/mnt/scratch/jgoppert/gnc_lean/estimator-boundedness/public-check-3/lib/lean/GNC/Estimation/InertialBias.olean"
       ],
       "cwd": "/mnt/scratch/jgoppert/gnc_lean/estimator-boundedness/source"
     },
@@ -75,7 +75,7 @@
         "--tstack=65536",
         "GNC/Dynamics/LieErrorReconstruction.lean",
         "-o",
-        "/mnt/scratch/jgoppert/gnc_lean/estimator-boundedness/public-check-2/lib/lean/GNC/Dynamics/LieErrorReconstruction.olean"
+        "/mnt/scratch/jgoppert/gnc_lean/estimator-boundedness/public-check-3/lib/lean/GNC/Dynamics/LieErrorReconstruction.olean"
       ],
       "cwd": "/mnt/scratch/jgoppert/gnc_lean/estimator-boundedness/source"
     },
@@ -86,7 +86,7 @@
         "--tstack=65536",
         "GNC/Estimation/SampledErrorBound.lean",
         "-o",
-        "/mnt/scratch/jgoppert/gnc_lean/estimator-boundedness/public-check-2/lib/lean/GNC/Estimation/SampledErrorBound.olean"
+        "/mnt/scratch/jgoppert/gnc_lean/estimator-boundedness/public-check-3/lib/lean/GNC/Estimation/SampledErrorBound.olean"
       ],
       "cwd": "/home/jgoppert/git/modelica_models/docs/reviews/2026-10-08/bounded-error"
     },
@@ -97,7 +97,7 @@
         "--tstack=65536",
         "GNC/Estimation/GpsDeniedGeometry.lean",
         "-o",
-        "/mnt/scratch/jgoppert/gnc_lean/estimator-boundedness/public-check-2/lib/lean/GNC/Estimation/GpsDeniedGeometry.olean"
+        "/mnt/scratch/jgoppert/gnc_lean/estimator-boundedness/public-check-3/lib/lean/GNC/Estimation/GpsDeniedGeometry.olean"
       ],
       "cwd": "/home/jgoppert/git/modelica_models/docs/reviews/2026-10-08/bounded-error"
     },
@@ -108,7 +108,7 @@
         "--tstack=65536",
         "GNC/Estimation/LieErrorEnvelope.lean",
         "-o",
-        "/mnt/scratch/jgoppert/gnc_lean/estimator-boundedness/public-check-2/lib/lean/GNC/Estimation/LieErrorEnvelope.olean"
+        "/mnt/scratch/jgoppert/gnc_lean/estimator-boundedness/public-check-3/lib/lean/GNC/Estimation/LieErrorEnvelope.olean"
       ],
       "cwd": "/home/jgoppert/git/modelica_models/docs/reviews/2026-10-08/bounded-error"
     },
@@ -116,7 +116,7 @@
       "command": [
         "/home/jgoppert/.elan/toolchains/leanprover--lean4---v4.29.1/bin/lean",
         "--threads=1",
-        "/mnt/scratch/jgoppert/gnc_lean/estimator-boundedness/public-check-2/Audit.lean"
+        "/mnt/scratch/jgoppert/gnc_lean/estimator-boundedness/public-check-3/Audit.lean"
       ],
       "cwd": "/home/jgoppert/git/modelica_models"
     }
