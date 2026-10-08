@@ -1,0 +1,125 @@
+{
+  "physical_declination_deg": -4.536419564991768,
+  "physical_field_ned_gauss": [
+    0.20040000000000002,
+    -0.0159,
+    0.4791
+  ],
+  "physical_magnetic_body_bias_gauss": [
+    0,
+    0,
+    0
+  ],
+  "pilot_sha256": "024e16afbf21e221503104c13f7c604835959bc6ca4b1041ff471155fa50cf8e",
+  "observer_sha256": "240bde3ecc0c8bce05ec07cef7f66735e10432b98d17d9c556e850554bc77f80",
+  "results": [
+    {
+      "scenario": "gps",
+      "trace_sha256": "97cab762c24199c6ebcff1647c20f6cc1df01ca291526da600a9d844cbcd817a",
+      "rows": 16701,
+      "first_3D_publication_s": 121.38625,
+      "first_3D_followed_by_heading_rows": 0,
+      "flight": {
+        "rows": 4670,
+        "mag_3D_fraction": 0.9704496788008565,
+        "mag_heading_fraction": 0.02955032119914347,
+        "declination_constraint_fraction": 0.0017130620985010706,
+        "configured_declination_deg": [
+          -4.53641939163208,
+          -4.53641939163208
+        ],
+        "wmm_declination_deg": [
+          -4.412660121917725,
+          -4.412660121917725
+        ],
+        "estimated_field_declination_deg": [
+          -6.827224781682976,
+          -4.359282568389929
+        ],
+        "estimated_declination_terminal_deg": -6.769829690452749,
+        "estimated_body_bias_terminal_gauss": [
+          -0.0016585428966209292,
+          -0.0023798930924385786,
+          -0.0015809440519660711
+        ],
+        "published_yaw_rmse_deg": 2.6438580659706408,
+        "published_yaw_mean_deg": 2.4866445149500236,
+        "correlation_yaw_error_with_field_declination": -0.164629118651741
+      }
+    },
+    {
+      "scenario": "denied",
+      "trace_sha256": "96b46a5177729d81ae25e9af843ce9d40bb8c7a683ff0ac5d5c0dff500345162",
+      "rows": 16701,
+      "first_3D_publication_s": 121.38625,
+      "first_3D_followed_by_heading_rows": 0,
+      "flight": {
+        "rows": 4670,
+        "mag_3D_fraction": 0.9704496788008565,
+        "mag_heading_fraction": 0.02955032119914347,
+        "declination_constraint_fraction": 1.0,
+        "configured_declination_deg": [
+          -4.53641939163208,
+          -4.53641939163208
+        ],
+        "wmm_declination_deg": [
+          -4.412660121917725,
+          -4.412660121917725
+        ],
+        "estimated_field_declination_deg": [
+          -4.499708543651589,
+          -4.250100313706133
+        ],
+        "estimated_declination_terminal_deg": -4.447136693475577,
+        "estimated_body_bias_terminal_gauss": [
+          0.0031121359206736088,
+          -0.0025873729027807713,
+          -0.0025735991075634956
+        ],
+        "published_yaw_rmse_deg": 0.8642095700987728,
+        "published_yaw_mean_deg": -0.7250850836185236,
+        "correlation_yaw_error_with_field_declination": 0.7956016197480525
+      }
+    },
+    {
+      "scenario": "transition",
+      "trace_sha256": "3a3ef60c9c4655b425ec91bacc4debc1dde2222eb8bd5be3c261d4f6765b615a",
+      "rows": 16701,
+      "first_3D_publication_s": 121.38625,
+      "first_3D_followed_by_heading_rows": 0,
+      "flight": {
+        "rows": 4670,
+        "mag_3D_fraction": 0.9704496788008565,
+        "mag_heading_fraction": 0.02955032119914347,
+        "declination_constraint_fraction": 0.1987152034261242,
+        "configured_declination_deg": [
+          -4.53641939163208,
+          -4.53641939163208
+        ],
+        "wmm_declination_deg": [
+          -4.412660121917725,
+          -4.412660121917725
+        ],
+        "estimated_field_declination_deg": [
+          -6.995195662175363,
+          -4.359282568389929
+        ],
+        "estimated_declination_terminal_deg": -6.905382072795867,
+        "estimated_body_bias_terminal_gauss": [
+          -0.002179050352424383,
+          -0.0024276275653392076,
+          -0.0014971562195569277
+        ],
+        "published_yaw_rmse_deg": 2.7940078463836513,
+        "published_yaw_mean_deg": 2.6409530900043667,
+        "correlation_yaw_error_with_field_declination": -0.2447025262627377
+      }
+    }
+  ],
+  "limitations": [
+    "Known-seed causal investigation, not an independent campaign or native repair.",
+    "Correlation of drifting field direction and yaw error is not causal proof or an isolated source of error.",
+    "Public magnetic getters describe delayed native magnetic states; yaw error here uses the published output at the same publication time, not a joint fusion-epoch error.",
+    "Manual configured declination and WMM initialization are separate native branches. Automatic field and body-bias learning differs from ESKF calibrated fixed-vector fusion."
+  ]
+}

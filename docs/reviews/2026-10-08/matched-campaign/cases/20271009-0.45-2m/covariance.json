@@ -1,0 +1,1291 @@
+{
+  "complete": true,
+  "pilot_complete": true,
+  "pilot_sha256": "a36499024545c763b502d935860cd854631827da3f877c26e3f3c8116b927117",
+  "observer_manifests": {
+    "px4": {
+      "native_revision": "d6f12ad1c4f70ad3230afd7d86e971421e02fef4",
+      "file": "src/modules/ekf2/EKF/ekf.cpp",
+      "before_sha256": "57ffc109531632abd90129e50f43bc808e03a7fd175d484d7926fbd8302822e1",
+      "after_sha256": "e72e3f4022618b04df76871e875d3647b16c7a9c0c7bbc78d2ef49d34a18ecb8",
+      "observer_sha256": "175a06c2750481c0c2462d2238357a5a3556731fb2edeaff93a2552c620a3114",
+      "scope": "Read-only state and full native covariance export; published-state parity must be verified separately."
+    },
+    "ardupilot": {
+      "native_revision": "dbe792162d06cab66c3475fd5556bf7a120f119e",
+      "file": "libraries/AP_NavEKF3/AP_NavEKF3_Logging.cpp",
+      "before_sha256": "be0f332667fe52c063b96480a7d0692170bef2d31b8912a3273a112ed5c09dd9",
+      "after_sha256": "b1d02594adb6130e2d9ba11b776948c7b0dd78f2b6182d7ae8b261da2d873e85",
+      "observer_sha256": "175a06c2750481c0c2462d2238357a5a3556731fb2edeaff93a2552c620a3114",
+      "scope": "Read-only state and full native covariance export; published-state parity must be verified separately."
+    }
+  },
+  "binary_sha256": {
+    "px4": "3aaabdbfd4a70feef2f21338667188bd83a997fbae6dd60add765a31655b2a52",
+    "ekf3": "3b3c3cbe794a05d17217e6d4de0bfc20a1eab6d2630cf472d635a9c437f48937"
+  },
+  "scores": [
+    {
+      "name": "px4",
+      "scenario": "gps",
+      "output_identical": true,
+      "output_sha256": "19f58f88e86d6c1356a1d77047d9ed47263ba10e5527330d4805e1e006af2026",
+      "arrival_trace_sha256": "77f6f2e178e7a0c3e2627e2fac8537d1b8b21dba1b18404460e90b6ae42a0b51",
+      "consistency": {
+        "valid": true,
+        "filter": "px4",
+        "raw_rows": 16701,
+        "unscored_early_rows": 11720,
+        "unscored_early_repeated_epochs": 19,
+        "scored_observer_rows": 4981,
+        "unique_fusion_epochs": 4981,
+        "repeated_identical_rows": 0,
+        "repeated_changed_posterior_rows": 0,
+        "changed_posterior_publication_s": [],
+        "fusion_delay_s": [
+          0.19,
+          0.19
+        ],
+        "covariance_sha256": "6168b6295ae181c5df7614d7c9fb75431695693509b1cb385c64a91f662f26e3",
+        "truth_sha256": "8775ac41758a6db2ea5c1bb0190fc439dd4bf7115926371be85a2426809f1260",
+        "windows": {
+          "before_takeoff": {
+            "start_s": 117,
+            "end_s": 120,
+            "rows": 300,
+            "mean_nees_15d": 66.74787362213983,
+            "median_nees_15d": 64.20500603212251,
+            "p95_nees_15d": 79.75607581393443,
+            "max_covariance_asymmetry": 4.0657581468206416e-20,
+            "mean_squared_error_over_marginal_variance": [
+              0.3520428352550976,
+              0.1345753296613492,
+              32.944044686795195,
+              1.0376708774413486,
+              0.14668556150686965,
+              0.8649749879959568,
+              0.07146710404434566,
+              0.13829205653548768,
+              0.04831691110675029,
+              0.31256546424579695,
+              1.790812778900082,
+              0.005624728016338097,
+              0.13247372681623232,
+              0.08308519562235181,
+              1.9089242127354964
+            ],
+            "terminal_bias_error": [
+              -6.10573058947917e-06,
+              4.249074310064315e-05,
+              9.494643658399774e-07,
+              0.0264166528172791,
+              0.019451919719576834,
+              -0.0032353071868419653
+            ],
+            "gyroscope_bias_truth": [
+              0.0008,
+              -0.0005,
+              0.0004
+            ],
+            "accelerometer_bias_truth": [
+              0.02,
+              -0.01,
+              0.015
+            ],
+            "note": "Local first-order right-error coordinates. Flight samples are correlated; these statistics are descriptive, not independent Monte Carlo draws. Root diagnostics, when present, are authoritative; dense rounding failures are counted separately."
+          },
+          "flight": {
+            "start_s": 120,
+            "end_s": 166.7,
+            "rows": 4670,
+            "mean_nees_15d": 337.2626792720285,
+            "median_nees_15d": 339.43791391983723,
+            "p95_nees_15d": 480.07287388157687,
+            "max_covariance_asymmetry": 1.6051274350468991e-19,
+            "mean_squared_error_over_marginal_variance": [
+              8.993622885842688,
+              8.207538720640406,
+              2.157004672501256,
+              15.712166440909169,
+              15.968966751659954,
+              1.4316952604582487,
+              12.584236638759759,
+              15.383015292128448,
+              190.24036394441785,
+              0.8769819108272514,
+              2.3995017234284184,
+              0.011014969748048695,
+              7.489438236317354,
+              0.7588741002632235,
+              2.483641394080358
+            ],
+            "terminal_bias_error": [
+              -2.2846370283514223e-05,
+              3.6074687261134376e-05,
+              1.2191750202327986e-05,
+              -0.009947871342301368,
+              -0.0023461168073117735,
+              -0.004279219210147858
+            ],
+            "gyroscope_bias_truth": [
+              0.0008,
+              -0.0005,
+              0.0004
+            ],
+            "accelerometer_bias_truth": [
+              0.02,
+              -0.01,
+              0.015
+            ],
+            "note": "Local first-order right-error coordinates. Flight samples are correlated; these statistics are descriptive, not independent Monte Carlo draws. Root diagnostics, when present, are authoritative; dense rounding failures are counted separately."
+          },
+          "outage": {
+            "start_s": 132,
+            "end_s": 147,
+            "rows": 1500,
+            "mean_nees_15d": 310.06566263130196,
+            "median_nees_15d": 305.9027742221747,
+            "p95_nees_15d": 395.302748585392,
+            "max_covariance_asymmetry": 1.129730193400423e-19,
+            "mean_squared_error_over_marginal_variance": [
+              6.263560274916652,
+              6.05484543455101,
+              0.6611202929295354,
+              17.81719553308542,
+              14.57675456908614,
+              2.1113027494055148,
+              16.96421604143722,
+              25.1387571500543,
+              205.7489639508019,
+              0.7239134951353904,
+              3.1664743569371616,
+              0.006995845907946127,
+              12.822738838508798,
+              0.7497593687820081,
+              1.3367358661501227
+            ],
+            "terminal_bias_error": [
+              6.163954660296444e-05,
+              8.518757577985524e-05,
+              -3.858604840934257e-06,
+              -0.016257926374673843,
+              0.0011430091783404348,
+              -0.004184460863471032
+            ],
+            "gyroscope_bias_truth": [
+              0.0008,
+              -0.0005,
+              0.0004
+            ],
+            "accelerometer_bias_truth": [
+              0.02,
+              -0.01,
+              0.015
+            ],
+            "note": "Local first-order right-error coordinates. Flight samples are correlated; these statistics are descriptive, not independent Monte Carlo draws. Root diagnostics, when present, are authoritative; dense rounding failures are counted separately."
+          },
+          "after_return": {
+            "start_s": 147,
+            "end_s": 166.7,
+            "rows": 1970,
+            "mean_nees_15d": 457.8131676458452,
+            "median_nees_15d": 467.3766669056978,
+            "p95_nees_15d": 491.8771079842038,
+            "max_covariance_asymmetry": 1.5704520237686762e-19,
+            "mean_squared_error_over_marginal_variance": [
+              9.716697962406617,
+              7.134229259782896,
+              1.363198035907508,
+              16.869295517759635,
+              17.83926751695539,
+              0.301776153392588,
+              15.2752413546938,
+              13.093203255768866,
+              259.024790570922,
+              1.0765698968022799,
+              1.8131780712605194,
+              0.01768008796653466,
+              3.6456378614814833,
+              0.3249330954738159,
+              1.9568264472906485
+            ],
+            "terminal_bias_error": [
+              -2.2846370283514223e-05,
+              3.6074687261134376e-05,
+              1.2191750202327986e-05,
+              -0.009947871342301368,
+              -0.0023461168073117735,
+              -0.004279219210147858
+            ],
+            "gyroscope_bias_truth": [
+              0.0008,
+              -0.0005,
+              0.0004
+            ],
+            "accelerometer_bias_truth": [
+              0.02,
+              -0.01,
+              0.015
+            ],
+            "note": "Local first-order right-error coordinates. Flight samples are correlated; these statistics are descriptive, not independent Monte Carlo draws. Root diagnostics, when present, are authoritative; dense rounding failures are counted separately."
+          }
+        },
+        "scope": "Full native 24x24 covariance transformed into the common 15x15 navigation/bias marginal; not 24D NEES or NIS.",
+        "sampling": "Every observer row at/after fusion time 117 s is retained, including repeated epochs and changed posteriors. NEES uses each row's fusion epoch; repeated observations are correlated. Startup rows are retained in the raw trace but outside the declared scoring windows.",
+        "conventions": "Native attitude error is LEFT/NED (confirmed in fuse and symbolic derivation); position/velocity NED and bias rates FRD."
+      }
+    },
+    {
+      "name": "ekf3",
+      "scenario": "gps",
+      "output_identical": true,
+      "output_sha256": "7ff11e9dad11da74488ffdb5bd3c95af4654e875d49837345c93b8b848523dcf",
+      "arrival_trace_sha256": "77f6f2e178e7a0c3e2627e2fac8537d1b8b21dba1b18404460e90b6ae42a0b51",
+      "consistency": {
+        "valid": true,
+        "filter": "ekf3",
+        "raw_rows": 16700,
+        "unscored_early_rows": 11719,
+        "unscored_early_repeated_epochs": 2414,
+        "scored_observer_rows": 4981,
+        "unique_fusion_epochs": 3985,
+        "repeated_identical_rows": 996,
+        "repeated_changed_posterior_rows": 0,
+        "changed_posterior_publication_s": [],
+        "fusion_delay_s": [
+          0.199999,
+          0.211
+        ],
+        "covariance_sha256": "85857f807a5793d182272a71d0cfac391d2e5b3bd13869c84e50e7d515ff384c",
+        "truth_sha256": "8775ac41758a6db2ea5c1bb0190fc439dd4bf7115926371be85a2426809f1260",
+        "windows": {
+          "before_takeoff": {
+            "start_s": 117,
+            "end_s": 120,
+            "rows": 300,
+            "mean_nees_15d": 38.05827493699448,
+            "median_nees_15d": 37.539309891000464,
+            "p95_nees_15d": 41.650045078065084,
+            "max_covariance_asymmetry": 8.673617379884035e-19,
+            "mean_squared_error_over_marginal_variance": [
+              0.44038285047840975,
+              0.22561849456596675,
+              2.139632970328957,
+              1.0287333963611591,
+              0.5602639174377475,
+              0.22808240870665472,
+              1.9987745604677638,
+              7.341323571077338,
+              0.40619763162144085,
+              0.048867786382140725,
+              1.6636875555521018,
+              0.22718067923349367,
+              0.012272106914159394,
+              0.013759759479704708,
+              0.08892905402091832
+            ],
+            "terminal_bias_error": [
+              -1.0218311198818657e-05,
+              5.440998077566007e-05,
+              2.5979385277661205e-05,
+              0.028562323286288046,
+              0.09062700646103199,
+              0.00499126985560331
+            ],
+            "gyroscope_bias_truth": [
+              0.0008,
+              -0.0005,
+              0.0004
+            ],
+            "accelerometer_bias_truth": [
+              0.02,
+              -0.01,
+              0.015
+            ],
+            "note": "Local first-order right-error coordinates. Flight samples are correlated; these statistics are descriptive, not independent Monte Carlo draws. Root diagnostics, when present, are authoritative; dense rounding failures are counted separately."
+          },
+          "flight": {
+            "start_s": 120,
+            "end_s": 166.7,
+            "rows": 4670,
+            "mean_nees_15d": 42.57584085025812,
+            "median_nees_15d": 42.909043828304426,
+            "p95_nees_15d": 56.59078698938757,
+            "max_covariance_asymmetry": 1.734723475976807e-18,
+            "mean_squared_error_over_marginal_variance": [
+              1.1981442470895525,
+              1.6355774018024383,
+              3.900460890376003,
+              0.8172296238439016,
+              1.2670816111340395,
+              0.7656322514195312,
+              1.528871204771174,
+              1.7562270523838333,
+              0.31191699220818286,
+              0.08414215317508926,
+              0.9911077914837026,
+              0.16740542727118507,
+              1.1550657132795745,
+              1.2629875288004184,
+              0.7893169332178144
+            ],
+            "terminal_bias_error": [
+              -1.591499635420488e-05,
+              7.354066165628269e-05,
+              1.4723070579475222e-05,
+              0.050154732846087985,
+              -0.038068484578105466,
+              0.09774720923711536
+            ],
+            "gyroscope_bias_truth": [
+              0.0008,
+              -0.0005,
+              0.0004
+            ],
+            "accelerometer_bias_truth": [
+              0.02,
+              -0.01,
+              0.015
+            ],
+            "note": "Local first-order right-error coordinates. Flight samples are correlated; these statistics are descriptive, not independent Monte Carlo draws. Root diagnostics, when present, are authoritative; dense rounding failures are counted separately."
+          },
+          "outage": {
+            "start_s": 132,
+            "end_s": 147,
+            "rows": 1500,
+            "mean_nees_15d": 46.704042317259294,
+            "median_nees_15d": 47.73183043604164,
+            "p95_nees_15d": 59.003599417112774,
+            "max_covariance_asymmetry": 1.734723475976807e-18,
+            "mean_squared_error_over_marginal_variance": [
+              2.04214831575303,
+              3.473409563264098,
+              3.585845014773958,
+              1.0373158640833275,
+              1.6700341032121357,
+              0.49109099817814544,
+              1.3453378016445094,
+              1.746003390248961,
+              0.14673619966875984,
+              0.07793922399040912,
+              1.0892131069596551,
+              0.08016795970846781,
+              1.530521618934311,
+              1.4424941036740444,
+              0.6262208308067518
+            ],
+            "terminal_bias_error": [
+              -2.0096373587082648e-05,
+              6.147544997327594e-05,
+              2.02028402237888e-05,
+              0.023025835725078596,
+              -0.010926406734587547,
+              -0.004635858067828274
+            ],
+            "gyroscope_bias_truth": [
+              0.0008,
+              -0.0005,
+              0.0004
+            ],
+            "accelerometer_bias_truth": [
+              0.02,
+              -0.01,
+              0.015
+            ],
+            "note": "Local first-order right-error coordinates. Flight samples are correlated; these statistics are descriptive, not independent Monte Carlo draws. Root diagnostics, when present, are authoritative; dense rounding failures are counted separately."
+          },
+          "after_return": {
+            "start_s": 147,
+            "end_s": 166.7,
+            "rows": 1970,
+            "mean_nees_15d": 40.36592855209213,
+            "median_nees_15d": 42.295229653403055,
+            "p95_nees_15d": 52.733451786242064,
+            "max_covariance_asymmetry": 1.734723475976807e-18,
+            "mean_squared_error_over_marginal_variance": [
+              0.5886860940755614,
+              0.470298639607355,
+              5.573052418143101,
+              0.8294851947933181,
+              0.8458678041835914,
+              1.0901075901653072,
+              0.8458584386406464,
+              0.7495844358018633,
+              0.04867117502089984,
+              0.10209239614461676,
+              0.6837470625915807,
+              0.06043646811822214,
+              0.8332613866680508,
+              1.0098975626592042,
+              1.1108312613967481
+            ],
+            "terminal_bias_error": [
+              -1.591499635420488e-05,
+              7.354066165628269e-05,
+              1.4723070579475222e-05,
+              0.050154732846087985,
+              -0.038068484578105466,
+              0.09774720923711536
+            ],
+            "gyroscope_bias_truth": [
+              0.0008,
+              -0.0005,
+              0.0004
+            ],
+            "accelerometer_bias_truth": [
+              0.02,
+              -0.01,
+              0.015
+            ],
+            "note": "Local first-order right-error coordinates. Flight samples are correlated; these statistics are descriptive, not independent Monte Carlo draws. Root diagnostics, when present, are authoritative; dense rounding failures are counted separately."
+          }
+        },
+        "scope": "Full native 24x24 covariance transformed into the common 15x15 navigation/bias marginal; not 24D NEES or NIS.",
+        "sampling": "Every observer row at/after fusion time 117 s is retained, including repeated epochs and changed posteriors. NEES uses each row's fusion epoch; repeated observations are correlated. Startup rows are retained in the raw trace but outside the declared scoring windows.",
+        "conventions": "Native additive quaternion covariance mapped through normalized right-log differential; bias increments divided by dtEkfAvg. Fusion epoch has millisecond resolution."
+      }
+    },
+    {
+      "name": "px4",
+      "scenario": "denied",
+      "output_identical": true,
+      "output_sha256": "9444c4ef18231602b2e332e2554282981f09964b8d0844450da736abf2317d78",
+      "arrival_trace_sha256": "53d213f7b000525d682eccee8a1a6a0f87bb16485f4bcf75407ea0245cb1d7cc",
+      "consistency": {
+        "valid": true,
+        "filter": "px4",
+        "raw_rows": 16701,
+        "unscored_early_rows": 11720,
+        "unscored_early_repeated_epochs": 19,
+        "scored_observer_rows": 4981,
+        "unique_fusion_epochs": 4981,
+        "repeated_identical_rows": 0,
+        "repeated_changed_posterior_rows": 0,
+        "changed_posterior_publication_s": [],
+        "fusion_delay_s": [
+          0.19,
+          0.19
+        ],
+        "covariance_sha256": "46551046b90b196d4f5936cfa4ef5cd3d260bae7cb871bc56004a0533f952a4c",
+        "truth_sha256": "8775ac41758a6db2ea5c1bb0190fc439dd4bf7115926371be85a2426809f1260",
+        "windows": {
+          "before_takeoff": {
+            "start_s": 117,
+            "end_s": 120,
+            "rows": 300,
+            "mean_nees_15d": 63.11147576380483,
+            "median_nees_15d": 60.28654923626232,
+            "p95_nees_15d": 80.68597468795055,
+            "max_covariance_asymmetry": 2.168404344971009e-19,
+            "mean_squared_error_over_marginal_variance": [
+              1.6552725181528578,
+              0.6483374329903195,
+              31.820591772533014,
+              1.6605129274737853,
+              0.929986060917109,
+              1.0537870694884126,
+              0.001011404511760173,
+              0.16166906847738757,
+              0.18489170357046433,
+              0.06769823135148222,
+              1.9244853049655846,
+              0.00395025390056499,
+              0.17092047053009526,
+              0.0002652501280180894,
+              1.7004133083207325
+            ],
+            "terminal_bias_error": [
+              9.107307251542845e-06,
+              4.466724395751952e-05,
+              1.4724638313056955e-07,
+              0.030289945639669896,
+              0.0005480495840311048,
+              -0.0031477740406990057
+            ],
+            "gyroscope_bias_truth": [
+              0.0008,
+              -0.0005,
+              0.0004
+            ],
+            "accelerometer_bias_truth": [
+              0.02,
+              -0.01,
+              0.015
+            ],
+            "note": "Local first-order right-error coordinates. Flight samples are correlated; these statistics are descriptive, not independent Monte Carlo draws. Root diagnostics, when present, are authoritative; dense rounding failures are counted separately."
+          },
+          "flight": {
+            "start_s": 120,
+            "end_s": 166.7,
+            "rows": 4670,
+            "mean_nees_15d": 26.42454029289809,
+            "median_nees_15d": 22.63732811704451,
+            "p95_nees_15d": 54.514874366011426,
+            "max_covariance_asymmetry": 2.0383000842727483e-17,
+            "mean_squared_error_over_marginal_variance": [
+              0.5053765129825458,
+              1.2781153103566392,
+              1.9166972654504788,
+              0.9891779286951503,
+              0.6963896897420974,
+              0.4682863345651971,
+              0.48484429344587066,
+              0.717411078667862,
+              0.2827431068088938,
+              0.04701840310128097,
+              1.7602106343380632,
+              0.009977908248333334,
+              1.4572821811776666,
+              0.6420090442633486,
+              2.1764724723837254
+            ],
+            "terminal_bias_error": [
+              -1.2836224213242492e-05,
+              6.942569790408014e-05,
+              1.8010740960016866e-05,
+              -0.004122018367052078,
+              -0.005328099001199007,
+              -0.005195920020341874
+            ],
+            "gyroscope_bias_truth": [
+              0.0008,
+              -0.0005,
+              0.0004
+            ],
+            "accelerometer_bias_truth": [
+              0.02,
+              -0.01,
+              0.015
+            ],
+            "note": "Local first-order right-error coordinates. Flight samples are correlated; these statistics are descriptive, not independent Monte Carlo draws. Root diagnostics, when present, are authoritative; dense rounding failures are counted separately."
+          },
+          "outage": {
+            "start_s": 132,
+            "end_s": 147,
+            "rows": 1500,
+            "mean_nees_15d": 29.03399630537739,
+            "median_nees_15d": 28.454144691330423,
+            "p95_nees_15d": 37.66846169663186,
+            "max_covariance_asymmetry": 1.1980434005964824e-17,
+            "mean_squared_error_over_marginal_variance": [
+              0.4360875625341722,
+              2.083594444606427,
+              1.1649264291498767,
+              0.5971891280969184,
+              1.2746084272948979,
+              0.7750903466704668,
+              0.9025900358212966,
+              0.457675548031358,
+              0.4527829622518357,
+              0.04256718033307724,
+              0.9447326590316716,
+              0.001987315675257913,
+              2.4772881225960335,
+              0.8282813528588688,
+              1.3258659495026557
+            ],
+            "terminal_bias_error": [
+              2.2524820640683558e-06,
+              4.744078079238533e-05,
+              3.773583658039589e-06,
+              -0.012780323177576065,
+              -0.009469750502612442,
+              -0.0055429587513208395
+            ],
+            "gyroscope_bias_truth": [
+              0.0008,
+              -0.0005,
+              0.0004
+            ],
+            "accelerometer_bias_truth": [
+              0.02,
+              -0.01,
+              0.015
+            ],
+            "note": "Local first-order right-error coordinates. Flight samples are correlated; these statistics are descriptive, not independent Monte Carlo draws. Root diagnostics, when present, are authoritative; dense rounding failures are counted separately."
+          },
+          "after_return": {
+            "start_s": 147,
+            "end_s": 166.7,
+            "rows": 1970,
+            "mean_nees_15d": 19.933201074887172,
+            "median_nees_15d": 20.044590743183157,
+            "p95_nees_15d": 25.251803949333397,
+            "max_covariance_asymmetry": 2.0383000842727483e-17,
+            "mean_squared_error_over_marginal_variance": [
+              0.5182952734187225,
+              1.233815415414974,
+              0.9487980732211253,
+              1.6964485603901227,
+              0.1697612055354103,
+              0.30568251851237727,
+              0.21696170300948425,
+              0.5589911110656421,
+              0.026805835765704267,
+              0.06004711539778041,
+              2.7995344252619003,
+              0.01944381404407824,
+              0.5512208343287897,
+              0.6849469353714236,
+              1.809217431059835
+            ],
+            "terminal_bias_error": [
+              -1.2836224213242492e-05,
+              6.942569790408014e-05,
+              1.8010740960016866e-05,
+              -0.004122018367052078,
+              -0.005328099001199007,
+              -0.005195920020341874
+            ],
+            "gyroscope_bias_truth": [
+              0.0008,
+              -0.0005,
+              0.0004
+            ],
+            "accelerometer_bias_truth": [
+              0.02,
+              -0.01,
+              0.015
+            ],
+            "note": "Local first-order right-error coordinates. Flight samples are correlated; these statistics are descriptive, not independent Monte Carlo draws. Root diagnostics, when present, are authoritative; dense rounding failures are counted separately."
+          }
+        },
+        "scope": "Full native 24x24 covariance transformed into the common 15x15 navigation/bias marginal; not 24D NEES or NIS.",
+        "sampling": "Every observer row at/after fusion time 117 s is retained, including repeated epochs and changed posteriors. NEES uses each row's fusion epoch; repeated observations are correlated. Startup rows are retained in the raw trace but outside the declared scoring windows.",
+        "conventions": "Native attitude error is LEFT/NED (confirmed in fuse and symbolic derivation); position/velocity NED and bias rates FRD."
+      }
+    },
+    {
+      "name": "ekf3",
+      "scenario": "denied",
+      "output_identical": true,
+      "output_sha256": "0c463174fba9c44e477e9c7a36684ee43ba9cb49a5af0bdee80be23d31109fa1",
+      "arrival_trace_sha256": "53d213f7b000525d682eccee8a1a6a0f87bb16485f4bcf75407ea0245cb1d7cc",
+      "consistency": {
+        "valid": true,
+        "filter": "ekf3",
+        "raw_rows": 16700,
+        "unscored_early_rows": 11719,
+        "unscored_early_repeated_epochs": 2414,
+        "scored_observer_rows": 4981,
+        "unique_fusion_epochs": 3985,
+        "repeated_identical_rows": 996,
+        "repeated_changed_posterior_rows": 0,
+        "changed_posterior_publication_s": [],
+        "fusion_delay_s": [
+          0.199999,
+          0.211
+        ],
+        "covariance_sha256": "d1872001854eafaae678c6d062ea9532cdcf74b7e20fe2d386699fed1b9c5203",
+        "truth_sha256": "8775ac41758a6db2ea5c1bb0190fc439dd4bf7115926371be85a2426809f1260",
+        "windows": {
+          "before_takeoff": {
+            "start_s": 117,
+            "end_s": 120,
+            "rows": 300,
+            "mean_nees_15d": 41.55373310471089,
+            "median_nees_15d": 41.51633572705995,
+            "p95_nees_15d": 45.034993261580816,
+            "max_covariance_asymmetry": 1.734723475976807e-18,
+            "mean_squared_error_over_marginal_variance": [
+              0.7583630847627446,
+              0.25204346246540266,
+              1.343206086338348,
+              1.5800054169180358,
+              1.4313550918614288,
+              0.49858509921136357,
+              1.5369561030118277,
+              6.55414485861109,
+              0.41373596897048714,
+              0.014973106700884954,
+              1.8447691241440312,
+              0.2381870885646768,
+              0.013938333482832185,
+              0.01101119524228355,
+              0.13262115848945272
+            ],
+            "terminal_bias_error": [
+              -8.48206184114839e-06,
+              5.618823960893684e-05,
+              2.653237187697524e-05,
+              -0.05456928577952498,
+              0.08504096682751992,
+              0.006874441595644935
+            ],
+            "gyroscope_bias_truth": [
+              0.0008,
+              -0.0005,
+              0.0004
+            ],
+            "accelerometer_bias_truth": [
+              0.02,
+              -0.01,
+              0.015
+            ],
+            "note": "Local first-order right-error coordinates. Flight samples are correlated; these statistics are descriptive, not independent Monte Carlo draws. Root diagnostics, when present, are authoritative; dense rounding failures are counted separately."
+          },
+          "flight": {
+            "start_s": 120,
+            "end_s": 166.7,
+            "rows": 4670,
+            "mean_nees_15d": 42.536501417988774,
+            "median_nees_15d": 43.457749104581346,
+            "p95_nees_15d": 55.84336699924181,
+            "max_covariance_asymmetry": 2.0328790734103208e-17,
+            "mean_squared_error_over_marginal_variance": [
+              0.6929573871471152,
+              1.185318372745023,
+              1.6394985724420903,
+              1.0128845728932256,
+              1.1540002172412815,
+              0.7501832237410742,
+              1.5772304722503228,
+              1.3269315385162317,
+              0.33012314764148865,
+              0.12063933725156185,
+              1.6473757288029347,
+              0.1764936285857252,
+              0.5640787562381995,
+              1.253263799908283,
+              0.6956221426972724
+            ],
+            "terminal_bias_error": [
+              -3.1671059703858436e-05,
+              0.00010856042916081827,
+              8.931139589857305e-06,
+              0.05026166864836377,
+              0.05527071472037157,
+              0.01045102209644539
+            ],
+            "gyroscope_bias_truth": [
+              0.0008,
+              -0.0005,
+              0.0004
+            ],
+            "accelerometer_bias_truth": [
+              0.02,
+              -0.01,
+              0.015
+            ],
+            "note": "Local first-order right-error coordinates. Flight samples are correlated; these statistics are descriptive, not independent Monte Carlo draws. Root diagnostics, when present, are authoritative; dense rounding failures are counted separately."
+          },
+          "outage": {
+            "start_s": 132,
+            "end_s": 147,
+            "rows": 1500,
+            "mean_nees_15d": 43.18522137642738,
+            "median_nees_15d": 43.211834489809064,
+            "p95_nees_15d": 54.0943992679998,
+            "max_covariance_asymmetry": 1.7564075194265172e-17,
+            "mean_squared_error_over_marginal_variance": [
+              0.1316928834178153,
+              1.9070744390655845,
+              1.9309044347449604,
+              1.0037129488038312,
+              0.6446341707078513,
+              0.7114387707799701,
+              1.259001310889358,
+              1.0650671607659121,
+              0.12706263681930705,
+              0.06123651658369194,
+              1.6298485275831944,
+              0.07798016752088519,
+              0.7712661454280921,
+              0.7809024331779288,
+              0.6331176605444115
+            ],
+            "terminal_bias_error": [
+              -1.6831201135975742e-05,
+              8.823807325242044e-05,
+              1.831738651452276e-06,
+              0.0010009555529986967,
+              -0.04193407832999554,
+              -0.01716463555400248
+            ],
+            "gyroscope_bias_truth": [
+              0.0008,
+              -0.0005,
+              0.0004
+            ],
+            "accelerometer_bias_truth": [
+              0.02,
+              -0.01,
+              0.015
+            ],
+            "note": "Local first-order right-error coordinates. Flight samples are correlated; these statistics are descriptive, not independent Monte Carlo draws. Root diagnostics, when present, are authoritative; dense rounding failures are counted separately."
+          },
+          "after_return": {
+            "start_s": 147,
+            "end_s": 166.7,
+            "rows": 1970,
+            "mean_nees_15d": 41.57315229960983,
+            "median_nees_15d": 43.89960242751785,
+            "p95_nees_15d": 59.48073683055252,
+            "max_covariance_asymmetry": 2.0328790734103208e-17,
+            "mean_squared_error_over_marginal_variance": [
+              0.9540899949903927,
+              1.213935016311584,
+              1.8092176891595122,
+              1.099445486450897,
+              0.5701169006714,
+              0.8144683275031417,
+              1.149230823007256,
+              0.14315059879535694,
+              0.04740726035121898,
+              0.20988212534443945,
+              1.8739907677548868,
+              0.025137667243504414,
+              0.3920238058277637,
+              0.8409143188839082,
+              0.7421477493102226
+            ],
+            "terminal_bias_error": [
+              -3.1671059703858436e-05,
+              0.00010856042916081827,
+              8.931139589857305e-06,
+              0.05026166864836377,
+              0.05527071472037157,
+              0.01045102209644539
+            ],
+            "gyroscope_bias_truth": [
+              0.0008,
+              -0.0005,
+              0.0004
+            ],
+            "accelerometer_bias_truth": [
+              0.02,
+              -0.01,
+              0.015
+            ],
+            "note": "Local first-order right-error coordinates. Flight samples are correlated; these statistics are descriptive, not independent Monte Carlo draws. Root diagnostics, when present, are authoritative; dense rounding failures are counted separately."
+          }
+        },
+        "scope": "Full native 24x24 covariance transformed into the common 15x15 navigation/bias marginal; not 24D NEES or NIS.",
+        "sampling": "Every observer row at/after fusion time 117 s is retained, including repeated epochs and changed posteriors. NEES uses each row's fusion epoch; repeated observations are correlated. Startup rows are retained in the raw trace but outside the declared scoring windows.",
+        "conventions": "Native additive quaternion covariance mapped through normalized right-log differential; bias increments divided by dtEkfAvg. Fusion epoch has millisecond resolution."
+      }
+    },
+    {
+      "name": "px4",
+      "scenario": "transition",
+      "output_identical": true,
+      "output_sha256": "7743eb59de1234add5bb4a4b5c23d091c78cec4dca8a889c7c24d056db80e984",
+      "arrival_trace_sha256": "70b3325bf4f5e331d6d726ac00063143ad1012c5c6934946bf7d6bec4f3d8deb",
+      "consistency": {
+        "valid": true,
+        "filter": "px4",
+        "raw_rows": 16701,
+        "unscored_early_rows": 11720,
+        "unscored_early_repeated_epochs": 19,
+        "scored_observer_rows": 4981,
+        "unique_fusion_epochs": 4981,
+        "repeated_identical_rows": 0,
+        "repeated_changed_posterior_rows": 0,
+        "changed_posterior_publication_s": [],
+        "fusion_delay_s": [
+          0.19,
+          0.19
+        ],
+        "covariance_sha256": "cf92a01adf09da3bd88acf151edd4637d66530e05c5ec2218d356fc50b57307e",
+        "truth_sha256": "8775ac41758a6db2ea5c1bb0190fc439dd4bf7115926371be85a2426809f1260",
+        "windows": {
+          "before_takeoff": {
+            "start_s": 117,
+            "end_s": 120,
+            "rows": 300,
+            "mean_nees_15d": 66.74787362213983,
+            "median_nees_15d": 64.20500603212251,
+            "p95_nees_15d": 79.75607581393443,
+            "max_covariance_asymmetry": 4.0657581468206416e-20,
+            "mean_squared_error_over_marginal_variance": [
+              0.3520428352550976,
+              0.1345753296613492,
+              32.944044686795195,
+              1.0376708774413486,
+              0.14668556150686965,
+              0.8649749879959568,
+              0.07146710404434566,
+              0.13829205653548768,
+              0.04831691110675029,
+              0.31256546424579695,
+              1.790812778900082,
+              0.005624728016338097,
+              0.13247372681623232,
+              0.08308519562235181,
+              1.9089242127354964
+            ],
+            "terminal_bias_error": [
+              -6.10573058947917e-06,
+              4.249074310064315e-05,
+              9.494643658399774e-07,
+              0.0264166528172791,
+              0.019451919719576834,
+              -0.0032353071868419653
+            ],
+            "gyroscope_bias_truth": [
+              0.0008,
+              -0.0005,
+              0.0004
+            ],
+            "accelerometer_bias_truth": [
+              0.02,
+              -0.01,
+              0.015
+            ],
+            "note": "Local first-order right-error coordinates. Flight samples are correlated; these statistics are descriptive, not independent Monte Carlo draws. Root diagnostics, when present, are authoritative; dense rounding failures are counted separately."
+          },
+          "flight": {
+            "start_s": 120,
+            "end_s": 166.7,
+            "rows": 4670,
+            "mean_nees_15d": 225.03412140118948,
+            "median_nees_15d": 222.90627200617865,
+            "p95_nees_15d": 296.5760577527257,
+            "max_covariance_asymmetry": 4.30970363562988e-18,
+            "mean_squared_error_over_marginal_variance": [
+              6.331633297829577,
+              6.314666420825274,
+              2.349690131356088,
+              12.201274977817754,
+              9.65243879860502,
+              1.3950082935531538,
+              8.938001692532737,
+              12.51058081614135,
+              102.00283950340119,
+              0.7175956211954132,
+              2.5185305603639048,
+              0.02703336553736094,
+              6.657689186851469,
+              1.3169938402723498,
+              2.5521587468236326
+            ],
+            "terminal_bias_error": [
+              -1.8662752863019666e-05,
+              2.8216944076120843e-05,
+              -2.3351648356765317e-06,
+              -0.011280167400836944,
+              -0.004226967450231314,
+              -0.00419689029455185
+            ],
+            "gyroscope_bias_truth": [
+              0.0008,
+              -0.0005,
+              0.0004
+            ],
+            "accelerometer_bias_truth": [
+              0.02,
+              -0.01,
+              0.015
+            ],
+            "note": "Local first-order right-error coordinates. Flight samples are correlated; these statistics are descriptive, not independent Monte Carlo draws. Root diagnostics, when present, are authoritative; dense rounding failures are counted separately."
+          },
+          "outage": {
+            "start_s": 132,
+            "end_s": 147,
+            "rows": 1500,
+            "mean_nees_15d": 217.39910250811985,
+            "median_nees_15d": 215.98233633509219,
+            "p95_nees_15d": 238.37628822162375,
+            "max_covariance_asymmetry": 4.30970363562988e-18,
+            "mean_squared_error_over_marginal_variance": [
+              0.47325644156709473,
+              2.4128680424827476,
+              0.9280625197413034,
+              3.3655611538984096,
+              4.546583109786552,
+              1.9009009561741765,
+              9.45474453859511,
+              16.32464461958528,
+              111.50908023424381,
+              0.651291924796933,
+              2.0589287631564157,
+              0.006374239105650994,
+              10.260667537204483,
+              0.5870523890524154,
+              1.282284741644499
+            ],
+            "terminal_bias_error": [
+              5.26571732014418e-05,
+              6.556658819317817e-05,
+              -5.783415772020798e-06,
+              -0.02123840481042862,
+              -0.006381883276626468,
+              -0.00599287323653698
+            ],
+            "gyroscope_bias_truth": [
+              0.0008,
+              -0.0005,
+              0.0004
+            ],
+            "accelerometer_bias_truth": [
+              0.02,
+              -0.01,
+              0.015
+            ],
+            "note": "Local first-order right-error coordinates. Flight samples are correlated; these statistics are descriptive, not independent Monte Carlo draws. Root diagnostics, when present, are authoritative; dense rounding failures are counted separately."
+          },
+          "after_return": {
+            "start_s": 147,
+            "end_s": 166.7,
+            "rows": 1970,
+            "mean_nees_15d": 262.3211108625198,
+            "median_nees_15d": 268.6625072915794,
+            "p95_nees_15d": 316.5023214222595,
+            "max_covariance_asymmetry": 4.1470733097570545e-18,
+            "mean_squared_error_over_marginal_variance": [
+              7.8146293018477735,
+              5.4084405224453285,
+              1.6167462962274568,
+              19.545428367740517,
+              10.509001775180451,
+              0.3765534337512767,
+              12.351440813943464,
+              12.994709493634904,
+              121.63018688588083,
+              0.7542957534826383,
+              2.938399335058984,
+              0.05612563618708102,
+              3.6244669734060873,
+              1.7710721517886348,
+              2.161153000977768
+            ],
+            "terminal_bias_error": [
+              -1.8662752863019666e-05,
+              2.8216944076120843e-05,
+              -2.3351648356765317e-06,
+              -0.011280167400836944,
+              -0.004226967450231314,
+              -0.00419689029455185
+            ],
+            "gyroscope_bias_truth": [
+              0.0008,
+              -0.0005,
+              0.0004
+            ],
+            "accelerometer_bias_truth": [
+              0.02,
+              -0.01,
+              0.015
+            ],
+            "note": "Local first-order right-error coordinates. Flight samples are correlated; these statistics are descriptive, not independent Monte Carlo draws. Root diagnostics, when present, are authoritative; dense rounding failures are counted separately."
+          }
+        },
+        "scope": "Full native 24x24 covariance transformed into the common 15x15 navigation/bias marginal; not 24D NEES or NIS.",
+        "sampling": "Every observer row at/after fusion time 117 s is retained, including repeated epochs and changed posteriors. NEES uses each row's fusion epoch; repeated observations are correlated. Startup rows are retained in the raw trace but outside the declared scoring windows.",
+        "conventions": "Native attitude error is LEFT/NED (confirmed in fuse and symbolic derivation); position/velocity NED and bias rates FRD."
+      }
+    },
+    {
+      "name": "ekf3",
+      "scenario": "transition",
+      "output_identical": true,
+      "output_sha256": "1dcf10b4dd0093222d2591e2da92e0ecdb5f4859116dfc0f8f6d7bcd1d4abcf3",
+      "arrival_trace_sha256": "70b3325bf4f5e331d6d726ac00063143ad1012c5c6934946bf7d6bec4f3d8deb",
+      "consistency": {
+        "valid": true,
+        "filter": "ekf3",
+        "raw_rows": 16700,
+        "unscored_early_rows": 11719,
+        "unscored_early_repeated_epochs": 2414,
+        "scored_observer_rows": 4981,
+        "unique_fusion_epochs": 3985,
+        "repeated_identical_rows": 996,
+        "repeated_changed_posterior_rows": 0,
+        "changed_posterior_publication_s": [],
+        "fusion_delay_s": [
+          0.199999,
+          0.211
+        ],
+        "covariance_sha256": "15f7e05acb706c99289d8eac4f50b9f7c014d034189ed6ce383a28cfd04dd138",
+        "truth_sha256": "8775ac41758a6db2ea5c1bb0190fc439dd4bf7115926371be85a2426809f1260",
+        "windows": {
+          "before_takeoff": {
+            "start_s": 117,
+            "end_s": 120,
+            "rows": 300,
+            "mean_nees_15d": 38.05827493699448,
+            "median_nees_15d": 37.539309891000464,
+            "p95_nees_15d": 41.650045078065084,
+            "max_covariance_asymmetry": 8.673617379884035e-19,
+            "mean_squared_error_over_marginal_variance": [
+              0.44038285047840975,
+              0.22561849456596675,
+              2.139632970328957,
+              1.0287333963611591,
+              0.5602639174377475,
+              0.22808240870665472,
+              1.9987745604677638,
+              7.341323571077338,
+              0.40619763162144085,
+              0.048867786382140725,
+              1.6636875555521018,
+              0.22718067923349367,
+              0.012272106914159394,
+              0.013759759479704708,
+              0.08892905402091832
+            ],
+            "terminal_bias_error": [
+              -1.0218311198818657e-05,
+              5.440998077566007e-05,
+              2.5979385277661205e-05,
+              0.028562323286288046,
+              0.09062700646103199,
+              0.00499126985560331
+            ],
+            "gyroscope_bias_truth": [
+              0.0008,
+              -0.0005,
+              0.0004
+            ],
+            "accelerometer_bias_truth": [
+              0.02,
+              -0.01,
+              0.015
+            ],
+            "note": "Local first-order right-error coordinates. Flight samples are correlated; these statistics are descriptive, not independent Monte Carlo draws. Root diagnostics, when present, are authoritative; dense rounding failures are counted separately."
+          },
+          "flight": {
+            "start_s": 120,
+            "end_s": 166.7,
+            "rows": 4670,
+            "mean_nees_15d": 42.779272537109776,
+            "median_nees_15d": 43.196983601895475,
+            "p95_nees_15d": 55.790368185153646,
+            "max_covariance_asymmetry": 1.3322676295501878e-14,
+            "mean_squared_error_over_marginal_variance": [
+              1.0920507474603678,
+              1.9629410668387235,
+              2.891934840192815,
+              0.6566423482727922,
+              1.161401240726457,
+              0.7253365547659475,
+              1.4137534283355824,
+              2.0575741034537334,
+              0.40925252344674506,
+              0.05115273396816132,
+              0.7996844585910335,
+              0.2143961259783249,
+              1.1747895841409433,
+              1.1522621399703525,
+              0.5919574630974352
+            ],
+            "terminal_bias_error": [
+              -3.1908748978124834e-05,
+              2.3902547223790928e-05,
+              4.5305217350530193e-05,
+              0.025948664086052353,
+              -0.03246699374026905,
+              0.008218900033244754
+            ],
+            "gyroscope_bias_truth": [
+              0.0008,
+              -0.0005,
+              0.0004
+            ],
+            "accelerometer_bias_truth": [
+              0.02,
+              -0.01,
+              0.015
+            ],
+            "note": "Local first-order right-error coordinates. Flight samples are correlated; these statistics are descriptive, not independent Monte Carlo draws. Root diagnostics, when present, are authoritative; dense rounding failures are counted separately."
+          },
+          "outage": {
+            "start_s": 132,
+            "end_s": 147,
+            "rows": 1500,
+            "mean_nees_15d": 46.07161991914696,
+            "median_nees_15d": 48.97497529369869,
+            "p95_nees_15d": 54.96483597207383,
+            "max_covariance_asymmetry": 6.938893903907228e-18,
+            "mean_squared_error_over_marginal_variance": [
+              0.7831444050302928,
+              4.4539036338211,
+              1.8058939882797935,
+              0.4108677984405629,
+              1.4983980385807203,
+              0.41105592330126456,
+              1.2010422424756348,
+              1.8033662474608472,
+              0.17470324119602568,
+              0.05401971128234024,
+              0.9759368132448535,
+              0.08510260676854095,
+              0.6779433447934523,
+              1.3829090244251117,
+              0.5988947086719916
+            ],
+            "terminal_bias_error": [
+              -1.0815465099785356e-05,
+              5.954311524637983e-05,
+              1.6465846063530175e-05,
+              0.03481662845328626,
+              -0.0812315114371417,
+              -0.0410487771293777
+            ],
+            "gyroscope_bias_truth": [
+              0.0008,
+              -0.0005,
+              0.0004
+            ],
+            "accelerometer_bias_truth": [
+              0.02,
+              -0.01,
+              0.015
+            ],
+            "note": "Local first-order right-error coordinates. Flight samples are correlated; these statistics are descriptive, not independent Monte Carlo draws. Root diagnostics, when present, are authoritative; dense rounding failures are counted separately."
+          },
+          "after_return": {
+            "start_s": 147,
+            "end_s": 166.7,
+            "rows": 1970,
+            "mean_nees_15d": 41.329715138267645,
+            "median_nees_15d": 40.50105051279503,
+            "p95_nees_15d": 57.64963528552593,
+            "max_covariance_asymmetry": 1.3322676295501878e-14,
+            "mean_squared_error_over_marginal_variance": [
+              1.2958176792612444,
+              0.49976422838090656,
+              4.537575202602864,
+              0.925794596593859,
+              0.726033675830153,
+              1.0555247013039288,
+              0.6828347446300452,
+              1.4202679092427735,
+              0.2581160321748049,
+              0.042101879071392984,
+              0.3162178625730153,
+              0.16807331703813636,
+              1.5291892486649359,
+              0.7927859144546306,
+              0.6637858084728679
+            ],
+            "terminal_bias_error": [
+              -3.1908748978124834e-05,
+              2.3902547223790928e-05,
+              4.5305217350530193e-05,
+              0.025948664086052353,
+              -0.03246699374026905,
+              0.008218900033244754
+            ],
+            "gyroscope_bias_truth": [
+              0.0008,
+              -0.0005,
+              0.0004
+            ],
+            "accelerometer_bias_truth": [
+              0.02,
+              -0.01,
+              0.015
+            ],
+            "note": "Local first-order right-error coordinates. Flight samples are correlated; these statistics are descriptive, not independent Monte Carlo draws. Root diagnostics, when present, are authoritative; dense rounding failures are counted separately."
+          }
+        },
+        "scope": "Full native 24x24 covariance transformed into the common 15x15 navigation/bias marginal; not 24D NEES or NIS.",
+        "sampling": "Every observer row at/after fusion time 117 s is retained, including repeated epochs and changed posteriors. NEES uses each row's fusion epoch; repeated observations are correlated. Startup rows are retained in the raw trace but outside the declared scoring windows.",
+        "conventions": "Native additive quaternion covariance mapped through normalized right-log differential; bias increments divided by dtEkfAvg. Fusion epoch has millisecond resolution."
+      }
+    }
+  ],
+  "scope": "Native 15D marginal NEES at physical fusion epochs. Every published state CSV must match the separate innovation-observer replay byte for byte. Native covariance and priors remain stack-specific.",
+  "covariance_valid": true
+}

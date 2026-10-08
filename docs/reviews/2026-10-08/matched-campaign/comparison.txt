@@ -1,0 +1,99 @@
+Matched ESKF / native EKF2 / native EKF3 campaign
+
+Completed captures: 8/8; failed: 0
+State replays: 144; native covariance replays: 48
+Invalid scoring rows: 0
+
+Flight RMS: median across capture-level RMS, followed by the worst capture.
+scenario estimator               H median/max m    V median/max m   velocity median/max m/s   attitude median/max deg   yaw median/max deg
+gps        horizon                     0.04445/0.05249        0.03259/0.03424        0.01820/0.01854        0.10562/0.16734        0.09320/0.15711
+gps        retrodiction                0.04523/0.05284        0.03601/0.03649        0.01834/0.02079        0.12468/0.14907        0.11119/0.14027
+gps        horizon_joint               0.04454/0.05246        0.02747/0.02825        0.01645/0.01783        0.10596/0.16684        0.09354/0.15593
+gps        retrodiction_joint          0.04519/0.05277        0.02572/0.02696        0.01756/0.01900        0.12480/0.14979        0.11151/0.14005
+gps        px4                         0.17219/0.22950        0.04755/0.08594        0.13308/0.19496        2.70993/3.58418        2.69741/3.57578
+gps        ekf3                        0.05460/0.06533        0.05644/0.05762        0.04824/0.05925        0.24610/0.70943        0.18578/0.69401
+denied     horizon                     0.37485/0.51738        0.03831/0.03952        0.04310/0.05326        0.34724/0.41443        0.33338/0.39332
+denied     retrodiction                0.37698/0.51967        0.04155/0.04335        0.04219/0.05245        0.34266/0.40730        0.33059/0.38713
+denied     horizon_joint               0.35891/0.50033        0.03264/0.03432        0.04242/0.05352        0.35334/0.38247        0.33640/0.36202
+denied     retrodiction_joint          0.35980/0.50359        0.03603/0.03791        0.04144/0.05256        0.34488/0.37645        0.33214/0.35693
+denied     px4                         0.40394/0.51554        0.03157/0.08527        0.05817/0.08512        1.00698/1.24330        0.99127/1.22418
+denied     ekf3                        0.41904/0.69110        0.07278/0.07774        0.12588/0.15365        0.22086/0.69003        0.15613/0.66712
+transition horizon                     0.11887/0.16090        0.03287/0.03413        0.02586/0.02886        0.11785/0.17757        0.10760/0.16709
+transition retrodiction                0.11461/0.15262        0.03614/0.03624        0.02513/0.03008        0.12570/0.15154        0.11405/0.13534
+transition horizon_joint               0.11826/0.16129        0.02991/0.03060        0.02410/0.02808        0.11826/0.17665        0.10777/0.16539
+transition retrodiction_joint          0.11463/0.15234        0.02904/0.03210        0.02423/0.02782        0.12562/0.15125        0.11414/0.13585
+transition px4                         0.27465/0.32126        0.04956/0.08538        0.13694/0.19586        2.78785/3.66245        2.77369/3.65380
+transition ekf3                        0.15687/0.24907        0.06141/0.06760        0.07380/0.08886        0.26918/0.72822        0.21138/0.71172
+
+Paired flight counts where the left estimator has lower RMS; all capture pairs retained.
+scenario left/right                         H     V   vel   att   yaw    valid/declared
+gps        horizon/px4                          8     5     8     8     8    8/8
+gps        horizon/ekf3                         8     8     8     8     7    8/8
+gps        retrodiction/px4                     8     5     8     8     8    8/8
+gps        retrodiction/ekf3                    8     8     8     8     5    8/8
+gps        horizon_joint/px4                    8     5     8     8     8    8/8
+gps        horizon_joint/ekf3                   8     8     8     8     7    8/8
+gps        retrodiction_joint/px4               8     7     8     8     8    8/8
+gps        retrodiction_joint/ekf3              8     8     8     8     5    8/8
+gps        horizon/retrodiction                 6     8     5     6     6    8/8
+gps        horizon_joint/retrodiction_joint     6     2     6     6     6    8/8
+gps        horizon_joint/horizon                6     8     8     3     2    8/8
+gps        retrodiction_joint/retrodiction      6     8     8     0     1    8/8
+denied     horizon/px4                          5     3     8     8     8    8/8
+denied     horizon/ekf3                         4     8     8     2     2    8/8
+denied     retrodiction/px4                     4     3     8     8     8    8/8
+denied     retrodiction/ekf3                    4     8     8     2     2    8/8
+denied     horizon_joint/px4                    7     3     8     8     8    8/8
+denied     horizon_joint/ekf3                   5     8     8     2     2    8/8
+denied     retrodiction_joint/px4               6     3     8     8     8    8/8
+denied     retrodiction_joint/ekf3              5     8     8     2     2    8/8
+denied     horizon/retrodiction                 8     8     0     0     0    8/8
+denied     horizon_joint/retrodiction_joint     7     8     0     0     1    8/8
+denied     horizon_joint/horizon                8     8     4     4     4    8/8
+denied     retrodiction_joint/retrodiction      8     8     4     4     4    8/8
+transition horizon/px4                          8     5     8     8     8    8/8
+transition horizon/ekf3                         8     8     8     8     4    8/8
+transition retrodiction/px4                     8     5     8     8     8    8/8
+transition retrodiction/ekf3                    8     8     8     7     5    8/8
+transition horizon_joint/px4                    8     6     8     8     8    8/8
+transition horizon_joint/ekf3                   8     8     8     8     4    8/8
+transition retrodiction_joint/px4               8     7     8     8     8    8/8
+transition retrodiction_joint/ekf3              8     8     8     7     5    8/8
+transition horizon/retrodiction                 2     8     4     3     3    8/8
+transition horizon_joint/retrodiction_joint     2     4     4     3     3    8/8
+transition horizon_joint/horizon                7     8     6     5     6    8/8
+transition retrodiction_joint/retrodiction      6     8     5     3     2    8/8
+
+Flight mean common 15D NEES: capture-level median / maximum.
+gps        horizon                6.959 / 8.140
+gps        retrodiction           7.370 / 8.918
+gps        horizon_joint          7.078 / 7.852
+gps        retrodiction_joint     7.460 / 8.635
+gps        px4                    1421.651 / 2783.515
+gps        ekf3                   42.944 / 143.053
+denied     horizon                6.021 / 6.494
+denied     retrodiction           6.037 / 6.520
+denied     horizon_joint          6.170 / 6.689
+denied     retrodiction_joint     6.187 / 6.633
+denied     px4                    26.403 / 41.066
+denied     ekf3                   41.390 / 46.749
+transition horizon                6.569 / 7.917
+transition retrodiction           6.608 / 8.088
+transition horizon_joint          6.672 / 7.630
+transition retrodiction_joint     6.797 / 7.764
+transition px4                    886.211 / 1807.986
+transition ekf3                   42.570 / 97.088
+
+ESKF instrumented whole-capture CPU microseconds per IMU tick: median / maximum.
+horizon                11.812 / 12.373
+retrodiction           6.191 / 6.367
+horizon_joint          15.495 / 16.027
+retrodiction_joint     9.162 / 9.484
+
+Two independent noise seeds, two frequencies, two heights; finite synthetic domain.
+Same physical noise and delivered packets, with stack-specific effective Q/R, priors, height, terrain and magnetic policies.
+NEES is a common 15D marginal at each filter's own state epoch. Temporal samples are correlated; no independent chi-square confidence claim.
+Native scalar NIS is conditional on observed candidates/updates with incomplete coverage. ESKF NIS is unavailable in this campaign.
+Native CPU is not compared: innovation observers and CSV I/O change measured work. ESKF CPU is thread time for instrumented replay, not flight-only WCET.
+Capture failures stay in the summary and prevent a complete campaign claim; invalid state/covariance/readiness pairs are explicitly counted.
+Once inspected, this campaign is development evidence for future tuning, not an untouched validation set for later changes.

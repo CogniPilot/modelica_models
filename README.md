@@ -118,6 +118,15 @@ valid native covariances without changing firmware or noise draws. EKF3 GPS
 position accuracy then approaches ESKF in this pilot; a declared independent
 campaign is testing the remaining performance differences.
 
+The completed [eight-capture comparison](docs/reviews/2026-10-08/matched-campaign/README.txt)
+retains 144 state replays and 48 native covariance checks. ESKF leads horizontal
+RMS in all GPS and loss/return captures, while GPS-denied position and heading
+still have losses. It reports every paired metric, native scalar NIS, common
+15D NEES and horizon/retrodiction CPU costs, with exported comparison figures.
+The [magnetic-policy ablation](docs/reviews/2026-10-08/magnetic-policy/README.txt)
+rejects replacing vector fusion with the existing heading-only update after
+96 matched replays; velocity and attitude regressions remain visible.
+
 Sensor `timestamp_s` is capture time. `valid` may remain true while a usable
 sample is held; `fresh` pulses for one estimator tick when a new sample arrives,
 preventing a slow sensor value from being fused repeatedly. Latency compensation

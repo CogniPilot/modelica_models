@@ -27,6 +27,17 @@ compare_readiness_covariance.py requires matching native published-state bytes
 before joining full-covariance NEES. These drivers use the externally instrumented
 native validation cores; no native source is added here.
 
+The completed eight-capture campaign is in
+docs/reviews/2026-10-08/matched-campaign. report_readiness_campaign.py binds its
+declaration, capture manifest, completed results and frozen source snapshot;
+it retains invalid covariance/readiness conditions and failed captures in the
+paired denominator. Its CSVs cover all RMS components, common 15D NEES,
+native per-sensor scalar NIS, GPS recovery and instrumented ESKF timing.
+plot_readiness_campaign.py exports all horizontal-position pairs as PNG/PDF/SVG.
+replay_px4_magnetics.py observes public magnetic-state getters through a separate
+adapter and requires frozen published-state and innovation byte parity.
+ESKF per-sensor NIS and a complete match of native effective Q/R remain open.
+
 PX4 innovation observer times include a 1 s clock epoch offset, as already
 accounted for by native_consistency.py. native_innovations.py and
 diagnose_native_readiness.py now remove it too. The older frozen innovation

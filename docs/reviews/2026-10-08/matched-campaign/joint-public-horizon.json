@@ -1,0 +1,9 @@
+{
+  "covariance_sha256": "ba31e11023bfd260ad2a8310999269c852d5f2d775b4b7674a38fec3769e9a04",
+  "rows": 4970,
+  "start_s": 117,
+  "end_s": 166.7,
+  "horizon": true,
+  "minimum_datum_schur_variance_m2": 0.00031214329646900296,
+  "scope": "Round-trip-safe 9-digit CSV recovered to actual float32 values. Full 16D Cholesky and pressure Schur checks; no symmetrization, jitter or repair. State-output parity must be verified separately."
+}

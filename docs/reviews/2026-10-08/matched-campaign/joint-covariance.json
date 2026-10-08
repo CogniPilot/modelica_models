@@ -1,0 +1,537 @@
+{
+  "complete": true,
+  "declared_replays": 48,
+  "records": [
+    {
+      "capture": "20271009-0.45-4m",
+      "pilot_sha256": "60479c475e38d55b483606ca25a4e9c076dbb529de13a53095ec371638814435",
+      "records": [
+        {
+          "name": "horizon_joint",
+          "scenario": "gps",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.00031214329646900296,
+          "covariance_sha256": "3d82b826bc55343d314e0c61a3bdb057cf1fdf15f49cff13b94ddbb4b16e5bba",
+          "state_output_identical": true,
+          "binary_sha256": "4c58d4663fbcd1db243159cfaa87ee63eba0c029ff311e5c7d91623a5e759a2b"
+        },
+        {
+          "name": "retrodiction_joint",
+          "scenario": "gps",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.0003132684505544603,
+          "covariance_sha256": "f9972a68502c22c21289044977e0c863b7d194fbe7a1c914fa527e4a3a5c2000",
+          "state_output_identical": true,
+          "binary_sha256": "444c0217cc7f22db029d5bcc1185641070ec1e78691069a5e748869a258d34c2"
+        },
+        {
+          "name": "horizon_joint",
+          "scenario": "denied",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.00031214329646900296,
+          "covariance_sha256": "3f0f4d537ded14fb33d87bd0c13c2905df909c8f75a7736788adaab8f5c393fc",
+          "state_output_identical": true,
+          "binary_sha256": "4c58d4663fbcd1db243159cfaa87ee63eba0c029ff311e5c7d91623a5e759a2b"
+        },
+        {
+          "name": "retrodiction_joint",
+          "scenario": "denied",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.0003132684323931857,
+          "covariance_sha256": "f2c2a11c6f3e4c5c62f3a8a1fc7ad2baaff02ef66a6a210f49b77df0f827b3e3",
+          "state_output_identical": true,
+          "binary_sha256": "444c0217cc7f22db029d5bcc1185641070ec1e78691069a5e748869a258d34c2"
+        },
+        {
+          "name": "horizon_joint",
+          "scenario": "transition",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.00031214329646900296,
+          "covariance_sha256": "f53af84034428953e8e1b404c2d4ff5cdd946c8aaacaae3c8fdce35701d5d0b9",
+          "state_output_identical": true,
+          "binary_sha256": "4c58d4663fbcd1db243159cfaa87ee63eba0c029ff311e5c7d91623a5e759a2b"
+        },
+        {
+          "name": "retrodiction_joint",
+          "scenario": "transition",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.0003132684505544603,
+          "covariance_sha256": "cbc78678e6e00db788a144959c2e48c51a8911b19d0e492e26685d7fd08a8afc",
+          "state_output_identical": true,
+          "binary_sha256": "444c0217cc7f22db029d5bcc1185641070ec1e78691069a5e748869a258d34c2"
+        }
+      ]
+    },
+    {
+      "capture": "20271009-0.45-2m",
+      "pilot_sha256": "a36499024545c763b502d935860cd854631827da3f877c26e3f3c8116b927117",
+      "records": [
+        {
+          "name": "horizon_joint",
+          "scenario": "gps",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.00031214329646900296,
+          "covariance_sha256": "ba31e11023bfd260ad2a8310999269c852d5f2d775b4b7674a38fec3769e9a04",
+          "state_output_identical": true,
+          "binary_sha256": "4c58d4663fbcd1db243159cfaa87ee63eba0c029ff311e5c7d91623a5e759a2b"
+        },
+        {
+          "name": "retrodiction_joint",
+          "scenario": "gps",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.0003132684505544603,
+          "covariance_sha256": "10c60fc7847959a8ca48967d670af06cbc93c57cf2473f7f93ab5b100dbcd9a3",
+          "state_output_identical": true,
+          "binary_sha256": "444c0217cc7f22db029d5bcc1185641070ec1e78691069a5e748869a258d34c2"
+        },
+        {
+          "name": "horizon_joint",
+          "scenario": "denied",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.00031214329646900296,
+          "covariance_sha256": "9f07456046731e533295fd2ed60e14373bdc515bb63dd81d36f827418c66e3a9",
+          "state_output_identical": true,
+          "binary_sha256": "4c58d4663fbcd1db243159cfaa87ee63eba0c029ff311e5c7d91623a5e759a2b"
+        },
+        {
+          "name": "retrodiction_joint",
+          "scenario": "denied",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.0003132684323931857,
+          "covariance_sha256": "1c833673a01d1e9fd68d2b4a566a110d9c3e3066541ab295171f26c2f81b1c87",
+          "state_output_identical": true,
+          "binary_sha256": "444c0217cc7f22db029d5bcc1185641070ec1e78691069a5e748869a258d34c2"
+        },
+        {
+          "name": "horizon_joint",
+          "scenario": "transition",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.00031214329646900296,
+          "covariance_sha256": "24355c4590b34f3bec55a83ce1fa79ab405384250b20a537c780deac62295ad1",
+          "state_output_identical": true,
+          "binary_sha256": "4c58d4663fbcd1db243159cfaa87ee63eba0c029ff311e5c7d91623a5e759a2b"
+        },
+        {
+          "name": "retrodiction_joint",
+          "scenario": "transition",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.0003132684505544603,
+          "covariance_sha256": "9083baf141a618be3c3dce3ab3af2c4ce2334e2b563b6687cc3476659e98b54f",
+          "state_output_identical": true,
+          "binary_sha256": "444c0217cc7f22db029d5bcc1185641070ec1e78691069a5e748869a258d34c2"
+        }
+      ]
+    },
+    {
+      "capture": "20271009-0.85-2m",
+      "pilot_sha256": "a19cf9b70faf88c0d8c087142b648074ff556e49c1bc13acb68975571cd3f056",
+      "records": [
+        {
+          "name": "horizon_joint",
+          "scenario": "gps",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.00031214329646900296,
+          "covariance_sha256": "84bfcbe75b4c7eb77d3d788be64b4cc29b968c6c0ce5f94f636746ec58441462",
+          "state_output_identical": true,
+          "binary_sha256": "4c58d4663fbcd1db243159cfaa87ee63eba0c029ff311e5c7d91623a5e759a2b"
+        },
+        {
+          "name": "retrodiction_joint",
+          "scenario": "gps",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.0003132684505544603,
+          "covariance_sha256": "fe2d5eec5e5d6a4cdb14b16e7b9fb4bafc9be4bd90dba5ff870d2ca27a3582d5",
+          "state_output_identical": true,
+          "binary_sha256": "444c0217cc7f22db029d5bcc1185641070ec1e78691069a5e748869a258d34c2"
+        },
+        {
+          "name": "horizon_joint",
+          "scenario": "denied",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.00031214329646900296,
+          "covariance_sha256": "18efc714f5faac4891e87f85beab3f92fc85917aa5126d80a380a0d6614c0195",
+          "state_output_identical": true,
+          "binary_sha256": "4c58d4663fbcd1db243159cfaa87ee63eba0c029ff311e5c7d91623a5e759a2b"
+        },
+        {
+          "name": "retrodiction_joint",
+          "scenario": "denied",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.0003132684323931896,
+          "covariance_sha256": "541025d903172d8d765d7939ceb17ba2bf8679241777373eb7ff89258bf2fda1",
+          "state_output_identical": true,
+          "binary_sha256": "444c0217cc7f22db029d5bcc1185641070ec1e78691069a5e748869a258d34c2"
+        },
+        {
+          "name": "horizon_joint",
+          "scenario": "transition",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.00031214329646900296,
+          "covariance_sha256": "d239deb9b25988cd50f659f02c8f9518a1640be1446e9680b0383e1c4d8317bb",
+          "state_output_identical": true,
+          "binary_sha256": "4c58d4663fbcd1db243159cfaa87ee63eba0c029ff311e5c7d91623a5e759a2b"
+        },
+        {
+          "name": "retrodiction_joint",
+          "scenario": "transition",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.0003132684505544603,
+          "covariance_sha256": "3785278dadef63e21aa068027eda5bf2842ebdd5c5d24b7837da6940a81ce528",
+          "state_output_identical": true,
+          "binary_sha256": "444c0217cc7f22db029d5bcc1185641070ec1e78691069a5e748869a258d34c2"
+        }
+      ]
+    },
+    {
+      "capture": "20271009-0.85-4m",
+      "pilot_sha256": "2eac32f3584251ef5452eda9ebc590679b5f7cd21cacdb9674af2ada427298b4",
+      "records": [
+        {
+          "name": "horizon_joint",
+          "scenario": "gps",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.00031214329646900296,
+          "covariance_sha256": "21b89c2041b7dce7a5fffe42d6e13ce2be71aeba52de74f116cc43cd2f674e4f",
+          "state_output_identical": true,
+          "binary_sha256": "4c58d4663fbcd1db243159cfaa87ee63eba0c029ff311e5c7d91623a5e759a2b"
+        },
+        {
+          "name": "retrodiction_joint",
+          "scenario": "gps",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.0003132684505544603,
+          "covariance_sha256": "c9e68825846b60cecd1ece0abc3642c46e60a52bd243d2286bcd951e4d5e2312",
+          "state_output_identical": true,
+          "binary_sha256": "444c0217cc7f22db029d5bcc1185641070ec1e78691069a5e748869a258d34c2"
+        },
+        {
+          "name": "horizon_joint",
+          "scenario": "denied",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.00031214329646900296,
+          "covariance_sha256": "6095d591d08c580a7f2ae3c4c25cd595697d75b9233da40071bd99452d312a55",
+          "state_output_identical": true,
+          "binary_sha256": "4c58d4663fbcd1db243159cfaa87ee63eba0c029ff311e5c7d91623a5e759a2b"
+        },
+        {
+          "name": "retrodiction_joint",
+          "scenario": "denied",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.00031326843239318957,
+          "covariance_sha256": "77e1c7227d7693d5a4d1502d9eaf3b0bb007cd3af34a91c22938586c501e4bb1",
+          "state_output_identical": true,
+          "binary_sha256": "444c0217cc7f22db029d5bcc1185641070ec1e78691069a5e748869a258d34c2"
+        },
+        {
+          "name": "horizon_joint",
+          "scenario": "transition",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.00031214329646900296,
+          "covariance_sha256": "c1ff0fd5a0b194cb51cfd01db9684e6697130c57fbc5805f00958a189eab67cf",
+          "state_output_identical": true,
+          "binary_sha256": "4c58d4663fbcd1db243159cfaa87ee63eba0c029ff311e5c7d91623a5e759a2b"
+        },
+        {
+          "name": "retrodiction_joint",
+          "scenario": "transition",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.0003132684505544603,
+          "covariance_sha256": "b9217e69499696ff9fd606afa7bade172c89695f6a65071f32d177c1aec55ab9",
+          "state_output_identical": true,
+          "binary_sha256": "444c0217cc7f22db029d5bcc1185641070ec1e78691069a5e748869a258d34c2"
+        }
+      ]
+    },
+    {
+      "capture": "20271010-0.45-2m",
+      "pilot_sha256": "daf793de774be8357f8bf3a0323c3940cc9a3c5cde8db1018ac742f02aa99cc0",
+      "records": [
+        {
+          "name": "horizon_joint",
+          "scenario": "gps",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.00031214329646900296,
+          "covariance_sha256": "8fbc3693b81def3258bc0d3f1268c01af04ee9d7634bbea2f6732461710495cd",
+          "state_output_identical": true,
+          "binary_sha256": "4c58d4663fbcd1db243159cfaa87ee63eba0c029ff311e5c7d91623a5e759a2b"
+        },
+        {
+          "name": "retrodiction_joint",
+          "scenario": "gps",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.0003132684200700365,
+          "covariance_sha256": "8de2f681e3d7a6be25553e0e9e36cca47db66ded471c55017501bf45080d8c69",
+          "state_output_identical": true,
+          "binary_sha256": "444c0217cc7f22db029d5bcc1185641070ec1e78691069a5e748869a258d34c2"
+        },
+        {
+          "name": "horizon_joint",
+          "scenario": "denied",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.00031214329646900296,
+          "covariance_sha256": "0beea18f6e37e43b60277114f266befaba687590f6ef6e29d5696be6d4ada45a",
+          "state_output_identical": true,
+          "binary_sha256": "4c58d4663fbcd1db243159cfaa87ee63eba0c029ff311e5c7d91623a5e759a2b"
+        },
+        {
+          "name": "retrodiction_joint",
+          "scenario": "denied",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.00031326843229618025,
+          "covariance_sha256": "3fae6bbff9347576578e49323da1da706a2a6e2dd4bce0511c2d7dfc6df2062e",
+          "state_output_identical": true,
+          "binary_sha256": "444c0217cc7f22db029d5bcc1185641070ec1e78691069a5e748869a258d34c2"
+        },
+        {
+          "name": "horizon_joint",
+          "scenario": "transition",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.00031214329646900296,
+          "covariance_sha256": "c3950b52ea37c2420be2a244ba853ba5d0cac61a11d05a107c6c32067cee93ec",
+          "state_output_identical": true,
+          "binary_sha256": "4c58d4663fbcd1db243159cfaa87ee63eba0c029ff311e5c7d91623a5e759a2b"
+        },
+        {
+          "name": "retrodiction_joint",
+          "scenario": "transition",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.0003132684200700365,
+          "covariance_sha256": "a60b563bc7e3a87ae7f176b4e789a5bd0318713b99c3c4d601539af85717eb56",
+          "state_output_identical": true,
+          "binary_sha256": "444c0217cc7f22db029d5bcc1185641070ec1e78691069a5e748869a258d34c2"
+        }
+      ]
+    },
+    {
+      "capture": "20271010-0.45-4m",
+      "pilot_sha256": "41185e698eb07b2ee1c3ba3f5510e9682913f29cefc0f4d12515d171917d4d91",
+      "records": [
+        {
+          "name": "horizon_joint",
+          "scenario": "gps",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.00031214329646900296,
+          "covariance_sha256": "5099c1225df5557ef77fd4a0214536bf11608797ac2aee7babfdae05cdeb7f40",
+          "state_output_identical": true,
+          "binary_sha256": "4c58d4663fbcd1db243159cfaa87ee63eba0c029ff311e5c7d91623a5e759a2b"
+        },
+        {
+          "name": "retrodiction_joint",
+          "scenario": "gps",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.00031326842018498745,
+          "covariance_sha256": "0d362d1c9c9bfbeda04e998148f34621b7b9044cd62e53106d16fbefbd688731",
+          "state_output_identical": true,
+          "binary_sha256": "444c0217cc7f22db029d5bcc1185641070ec1e78691069a5e748869a258d34c2"
+        },
+        {
+          "name": "horizon_joint",
+          "scenario": "denied",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.00031214329646900296,
+          "covariance_sha256": "8570ca37a92c96560d45918e1c73d7eb17fd3b68732de1a8293452da0dd370b1",
+          "state_output_identical": true,
+          "binary_sha256": "4c58d4663fbcd1db243159cfaa87ee63eba0c029ff311e5c7d91623a5e759a2b"
+        },
+        {
+          "name": "retrodiction_joint",
+          "scenario": "denied",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.00031326843229618015,
+          "covariance_sha256": "26601bf35d5f39ae336d400c6e0eb2bfd5582408c9034e9652003c270d6cee3f",
+          "state_output_identical": true,
+          "binary_sha256": "444c0217cc7f22db029d5bcc1185641070ec1e78691069a5e748869a258d34c2"
+        },
+        {
+          "name": "horizon_joint",
+          "scenario": "transition",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.00031214329646900296,
+          "covariance_sha256": "a728504649f0ae8f92aaf9a67124ce6fadcf0a7d0a14b1153cb3f6e5884db47f",
+          "state_output_identical": true,
+          "binary_sha256": "4c58d4663fbcd1db243159cfaa87ee63eba0c029ff311e5c7d91623a5e759a2b"
+        },
+        {
+          "name": "retrodiction_joint",
+          "scenario": "transition",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.00031326842018498745,
+          "covariance_sha256": "6ef8ac4c35d06a71d4e86b8244edcfb444b081d2671e8c5057b627d057dd8688",
+          "state_output_identical": true,
+          "binary_sha256": "444c0217cc7f22db029d5bcc1185641070ec1e78691069a5e748869a258d34c2"
+        }
+      ]
+    },
+    {
+      "capture": "20271010-0.85-4m",
+      "pilot_sha256": "cc870d90df89e7aaf17ffc8b4b980d398874bcc3f9e5064b87c6a5b24c6bf119",
+      "records": [
+        {
+          "name": "horizon_joint",
+          "scenario": "gps",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.00031214329646900296,
+          "covariance_sha256": "bceb49fd63590513a57813e3a81ed58157703eb89f1dbbaadf7abbce44dcd8cb",
+          "state_output_identical": true,
+          "binary_sha256": "4c58d4663fbcd1db243159cfaa87ee63eba0c029ff311e5c7d91623a5e759a2b"
+        },
+        {
+          "name": "retrodiction_joint",
+          "scenario": "gps",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.00031326842018498794,
+          "covariance_sha256": "b59c90ff22668db3d3595bc982edffad07ba6b6e9f75cb1d3a8ebfd4702f473d",
+          "state_output_identical": true,
+          "binary_sha256": "444c0217cc7f22db029d5bcc1185641070ec1e78691069a5e748869a258d34c2"
+        },
+        {
+          "name": "horizon_joint",
+          "scenario": "denied",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.00031214329646900296,
+          "covariance_sha256": "16a61e78b09612a2b3a4ea1f19f247097eeba8ef2f4af65df1fce81c05ac975b",
+          "state_output_identical": true,
+          "binary_sha256": "4c58d4663fbcd1db243159cfaa87ee63eba0c029ff311e5c7d91623a5e759a2b"
+        },
+        {
+          "name": "retrodiction_joint",
+          "scenario": "denied",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.0003132684322961917,
+          "covariance_sha256": "38e706596e68e4a4ea733924fd3ba7f469669c3eb26ae9c6fd145515ea1cd8ac",
+          "state_output_identical": true,
+          "binary_sha256": "444c0217cc7f22db029d5bcc1185641070ec1e78691069a5e748869a258d34c2"
+        },
+        {
+          "name": "horizon_joint",
+          "scenario": "transition",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.00031214329646900296,
+          "covariance_sha256": "95d1c18fcc3b7c230ebd76567107f450e619cd69c31aa53e452de28304d492f1",
+          "state_output_identical": true,
+          "binary_sha256": "4c58d4663fbcd1db243159cfaa87ee63eba0c029ff311e5c7d91623a5e759a2b"
+        },
+        {
+          "name": "retrodiction_joint",
+          "scenario": "transition",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.00031326842018498794,
+          "covariance_sha256": "d9107ff3ca72766be0518f0f2a7c70c0dd2b690d3c5b456e1564b5e78180b8ad",
+          "state_output_identical": true,
+          "binary_sha256": "444c0217cc7f22db029d5bcc1185641070ec1e78691069a5e748869a258d34c2"
+        }
+      ]
+    },
+    {
+      "capture": "20271010-0.85-2m",
+      "pilot_sha256": "55ab0adb8e5f34e56d7365a345a26376c75d571736d4d1681c4b573131014345",
+      "records": [
+        {
+          "name": "horizon_joint",
+          "scenario": "gps",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.00031214329646900296,
+          "covariance_sha256": "87973eb92c83af54c900ac5002cad4a49af3fd77e958393cc430d426d537eb74",
+          "state_output_identical": true,
+          "binary_sha256": "4c58d4663fbcd1db243159cfaa87ee63eba0c029ff311e5c7d91623a5e759a2b"
+        },
+        {
+          "name": "retrodiction_joint",
+          "scenario": "gps",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.0003132684200697567,
+          "covariance_sha256": "33198eaa78a02e8f3282c5d916116181f2789a3ae0f41d9656fd9459bc8ae3fd",
+          "state_output_identical": true,
+          "binary_sha256": "444c0217cc7f22db029d5bcc1185641070ec1e78691069a5e748869a258d34c2"
+        },
+        {
+          "name": "horizon_joint",
+          "scenario": "denied",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.00031214329646900296,
+          "covariance_sha256": "37b90e4899a9efadd66062202250012833bab439697183b43b41ab156b8466fd",
+          "state_output_identical": true,
+          "binary_sha256": "4c58d4663fbcd1db243159cfaa87ee63eba0c029ff311e5c7d91623a5e759a2b"
+        },
+        {
+          "name": "retrodiction_joint",
+          "scenario": "denied",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.00031326843229619175,
+          "covariance_sha256": "c5f8133c9dd4710933e598d24ae14d4c0ced44de63c2e4881567892d3dfd7f47",
+          "state_output_identical": true,
+          "binary_sha256": "444c0217cc7f22db029d5bcc1185641070ec1e78691069a5e748869a258d34c2"
+        },
+        {
+          "name": "horizon_joint",
+          "scenario": "transition",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.00031214329646900296,
+          "covariance_sha256": "7268ae4ad1c5e9a76ff19ee868ad7f74c7c689de213ab8945f6f91408656d27a",
+          "state_output_identical": true,
+          "binary_sha256": "4c58d4663fbcd1db243159cfaa87ee63eba0c029ff311e5c7d91623a5e759a2b"
+        },
+        {
+          "name": "retrodiction_joint",
+          "scenario": "transition",
+          "rows": 4970,
+          "cholesky_failures": 0,
+          "minimum_datum_schur_variance_m2": 0.0003132684200697567,
+          "covariance_sha256": "950e9c2696e91ffa8e93b677dc48360787b91d35db27d0d3cd46c914385029c2",
+          "state_output_identical": true,
+          "binary_sha256": "444c0217cc7f22db029d5bcc1185641070ec1e78691069a5e748869a258d34c2"
+        }
+      ]
+    }
+  ],
+  "failures": [],
+  "scope": "Actual float32 values recovered from round-trip-safe 9-significant-digit CSV, full augmented 16D navigation/pressure covariance, every fusion epoch from117to166.7s. No averaging, symmetrization, jitter or repair; all state outputs byte-identical to the frozen pilot.",
+  "rows": 238560
+}

@@ -1,0 +1,19 @@
+ESKF magnetic-policy development ablation: heading versus vector
+
+96 new heading replays; four vector control binaries byte-identical to the frozen baseline.
+All captures are already inspected development cases, not fresh validation.
+
+Heading medians and wins against vector, eight paired captures per row:
+scenario estimator                  H m       V m     vel m/s   att deg   yaw deg      H/V/vel/att/yaw wins
+gps        horizon                  0.04472   0.03273   0.01907   0.15999   0.13544    [4, 2, 0, 0, 0]
+gps        retrodiction             0.04560   0.03623   0.02046   0.19603   0.15185    [4, 0, 0, 0, 0]
+gps        horizon_joint            0.04464   0.02760   0.01786   0.15982   0.13568    [4, 0, 0, 0, 0]
+gps        retrodiction_joint       0.04556   0.02609   0.01976   0.19588   0.15152    [4, 0, 0, 0, 0]
+denied     horizon                  0.40181   0.03867   0.04865   0.42518   0.40183    [4, 2, 0, 1, 1]
+denied     retrodiction             0.41235   0.04232   0.04706   0.42420   0.39991    [3, 0, 0, 0, 0]
+denied     horizon_joint            0.36843   0.03286   0.04923   0.43404   0.41586    [6, 3, 0, 0, 2]
+denied     retrodiction_joint       0.38144   0.03565   0.04730   0.43216   0.40794    [3, 7, 0, 0, 0]
+transition horizon                  0.11580   0.03299   0.02780   0.19324   0.16961    [4, 4, 3, 0, 0]
+transition retrodiction             0.11015   0.03633   0.02768   0.21270   0.16287    [5, 2, 3, 0, 0]
+transition horizon_joint            0.11505   0.02961   0.02608   0.18790   0.16463    [4, 4, 3, 0, 0]
+transition retrodiction_joint       0.10941   0.02880   0.02633   0.20986   0.16095    [5, 4, 2, 0, 0]
