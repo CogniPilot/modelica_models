@@ -5,13 +5,32 @@ import math
 from native_noise import PREDICTION_PERIOD_S
 
 
-def sensor_informed_noise():
+PARAMETER_GROUPS = {
+    "gps": {
+        "px4": ("ekf2_gps_p_noise", "ekf2_gps_v_noise"),
+        "ekf3": ("EK3_POSNE_M_NSE", "EK3_VELNE_M_NSE", "EK3_VELD_M_NSE"),
+    },
+    "barometer": {"px4": ("ekf2_baro_noise",), "ekf3": ("EK3_ALT_M_NSE",)},
+    "range": {"px4": ("ekf2_rng_noise",), "ekf3": ("EK3_RNG_M_NSE",)},
+    "magnetometer": {
+        "px4": ("ekf2_mag_noise", "ekf2_head_noise"),
+        "ekf3": ("EK3_MAG_M_NSE", "EK3_YAW_M_NSE"),
+    },
+    "flow": {"px4": ("ekf2_of_n_min", "ekf2_of_n_max"), "ekf3": ("EK3_FLOW_M_NSE",)},
+    "bias": {
+        "px4": ("ekf2_gyr_b_noise", "ekf2_acc_b_noise"),
+        "ekf3": ("EK3_GBIAS_P_NSE", "EK3_ABIAS_P_NSE"),
+    },
+}
+
+
+def sensor_informed_noise(groups=None):
     bias_psd = (1e-10, 1e-6)
     bias = {
         name: [math.sqrt(value / period) for value in bias_psd]
         for name, period in PREDICTION_PERIOD_S.items()
     }
-    return dict(
+    profile = dict(
         name="sensor-informed-native-floors",
         targets=dict(
             gps_horizontal_position_std_m=0.2,
@@ -55,3 +74,22 @@ def sensor_informed_noise():
             "Bias process PSD mapping uses the observed prediction periods; it does not override native state inhibition or covariance constraints.",
         ],
     )
+    if groups is None:
+        return profile
+    if len(set(groups)) != len(groups) or not set(groups).issubset(PARAMETER_GROUPS):
+        raise ValueError("Require distinct declared native noise parameter groups")
+    profile["name"] += ":" + (",".join(groups) if groups else "native-default-aiding")
+    profile["selected_groups"] = list(groups)
+    profile["full_profile_targets"] = profile.pop("targets")
+    for estimator in ("px4", "ekf3"):
+        names = {
+            name for group in groups for name in PARAMETER_GROUPS[group][estimator]
+        }
+        profile[estimator] = {
+            name: value for name, value in profile[estimator].items() if name in names
+        }
+    return profile
+
+
+def configured_noise(args):
+    return sensor_informed_noise(getattr(args, "noise_groups", None))

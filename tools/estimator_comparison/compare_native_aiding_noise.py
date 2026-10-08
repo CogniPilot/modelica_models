@@ -13,7 +13,7 @@ from audit_native_configuration import prepare_px4, probe, probe_px4
 from compare_delay import PROFILES
 from compare_exposure import digest
 from compare_native_consistency import verify_observers
-from native_aiding_noise import sensor_informed_noise
+from native_aiding_noise import PARAMETER_GROUPS, configured_noise
 from native_consistency import check
 
 
@@ -41,6 +41,23 @@ def run(args):
         ]
         if any(digest(path) != expected[name] for name, path in paths.items()):
             raise ValueError("Audited stable native core binary changed")
+    selected = []
+    for previous in reference["scores"]:
+        source = (
+            f"{previous['frequency']}_{previous['seed']}_{previous['climb_height_m']}m"
+        )
+        label = source + "_" + previous["scenario"] + "_explicit"
+        if (
+            previous["name"] in ("px4", "ekf3")
+            and previous["explicit_exposure"]
+            and (getattr(args, "estimator", None) in (None, previous["name"]))
+            and (getattr(args, "condition", None) in (None, label))
+        ):
+            selected.append(previous)
+    if not selected:
+        raise ValueError(
+            "Selection must name frozen explicit-exposure native conditions"
+        )
     args.work.mkdir(parents=True)
     base_work = args.work
     shared = dict(
@@ -55,7 +72,9 @@ def run(args):
         retain_native_run=True,
     )
     px4 = {}
-    for variant, paths in binaries.items():
+    for variant, paths in (
+        binaries.items() if any(row["name"] == "px4" for row in selected) else ()
+    ):
         work = base_work / ("px4-adapter-" + variant)
         work.mkdir()
         px4[variant] = prepare_px4(
@@ -64,7 +83,7 @@ def run(args):
     result = dict(
         reference_sha256=digest(args.reference),
         observer_reference_sha256=digest(args.observer_reference),
-        profile=sensor_informed_noise(),
+        profile=configured_noise(args),
         observer_manifests=observers,
         native_core_sha256={
             variant: {name: digest(path) for name, path in paths.items()}
@@ -74,9 +93,7 @@ def run(args):
         scores=[],
         scope="Sensor-informed native configuration ablation on unchanged captures and arrivals. Native enforced floors, priors and source policies remain unequal to ESKF. Not a fully matched R/Q or NIS study.",
     )
-    for previous in reference["scores"]:
-        if previous["name"] not in ("px4", "ekf3") or not previous["explicit_exposure"]:
-            continue
+    for previous in selected:
         name, scenario = previous["name"], previous["scenario"]
         source = (
             f"{previous['frequency']}_{previous['seed']}_{previous['climb_height_m']}m"
@@ -194,13 +211,13 @@ def run(args):
             score["flight"]["horizontal_position_rmse_m"],
             flush=True,
         )
-    if len(result["scores"]) != 24:
-        raise ValueError("Require all twenty-four native conditions")
+    if len(result["scores"]) != len(selected):
+        raise ValueError("Require every declared native condition")
     result["complete"] = True
     args.output.write_text(json.dumps(result, indent=2, allow_nan=False) + "\n")
 
 
-if __name__ == "__main__":
+def arguments():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in (
         "reference",
@@ -221,4 +238,11 @@ if __name__ == "__main__":
     ):
         parser.add_argument("--" + name, type=Path, required=True)
     parser.add_argument("--cxx", default="c++")
-    run(parser.parse_args())
+    parser.add_argument("--noise-groups", choices=tuple(PARAMETER_GROUPS), nargs="*")
+    parser.add_argument("--condition")
+    parser.add_argument("--estimator", choices=("px4", "ekf3"))
+    return parser
+
+
+if __name__ == "__main__":
+    run(arguments().parse_args())

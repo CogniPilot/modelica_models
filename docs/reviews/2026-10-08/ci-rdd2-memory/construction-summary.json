@@ -1,0 +1,17 @@
+{
+  "source_commit": "42779ec0b693730265f471e900254ee3fb217e37",
+  "rumoca_version": "0.10.2",
+  "address_space_limit_GiB": 12,
+  "requested_simulation_duration_s": 0.005,
+  "solve_json_sha256": "a4c54002fc2b02627155ffd8b192ec62ecc485ccc7c3dff7da831d9de9792886",
+  "solve_json_bytes": 42227348,
+  "guarded_assignments": 62,
+  "solve_layout": {
+    "state_scalar_count": 0,
+    "algebraic_scalar_count": 165,
+    "output_scalar_count": 47,
+    "parameter_count": 127,
+    "compiled_parameter_len": 2343
+  },
+  "scope": "Diagnostic only, not passing mission qualification. Structural analysis and Solve-IR export exit 0; minimal, mission and CLI simulation terminate by SIGABRT/134 after explicit allocation failure under RLIMIT_AS. A trailing timer Exit status 0 does not override the process result."
+}

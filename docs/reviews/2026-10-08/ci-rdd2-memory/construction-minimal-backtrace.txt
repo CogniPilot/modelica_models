@@ -1,0 +1,31 @@
+{"stage": "before_compile", "elapsed_s": 1.0300427675247192e-06, "max_rss_KiB": 18508}
+{"stage": "after_compile", "elapsed_s": 1.3775957790203393, "max_rss_KiB": 230196}
+ConstructionProbe — 0 states, 41 algebraic, 0 inputs, 8 outputs, 58 parameters
+{"stage": "before_simulation", "elapsed_s": 1.3776870400179178, "max_rss_KiB": 230196}
+memory allocation of 4 bytes failed
+memory allocation of 1 bytes failed
+skipping backtrace printing to avoid potential recursion
+Command terminated by signal 6
+	Command being timed: "/nix/store/30hpb8xig9cxshlzygysly6fz4gwb75s-python3-3.12.13-env/bin/python3 $HOME/scratch/modelica_models/ci-construction-probe/probe.py --root $HOME/git/modelica_models --mode minimal"
+	User time (seconds): 23.22
+	System time (seconds): 5.56
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:28.84
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 10424340
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 2606054
+	Voluntary context switches: 3158
+	Involuntary context switches: 1075
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 5152
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

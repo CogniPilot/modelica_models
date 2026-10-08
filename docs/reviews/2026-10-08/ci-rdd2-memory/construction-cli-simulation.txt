@@ -1,0 +1,39 @@
+[rumoca] Compiling model through DAE: ConstructionProbe
+[rumoca] Source file: $HOME/scratch/modelica_models/ci-construction-probe/ConstructionProbe.mo
+[rumoca] Loading source root: $HOME/git/modelica_models
+[rumoca] Source root Avionics, Control, Estimation (+9 more): warm cache restore completed.
+[rumoca] Phase 1-2: Parsing and resolving...
+[rumoca] Phase 3-6: Strict-reachable DAE compile...
+[rumoca] DAE compilation complete.
+[rumoca]   States: 0
+[rumoca]   Algebraics: 41
+[rumoca]   Parameters: 58
+[rumoca]   Continuous equations (f_x): 18
+[rumoca]   Balance: 0
+Simulating ConstructionProbe to t=0.005...
+memory allocation of 4080 bytes failed
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+Command terminated by signal 6
+	Command being timed: "/nix/store/3jm89jy56cprn52iw8vanpav58hlcj1v-python3-3.12.13/bin/python3 -c import os,resource,sys; resource.setrlimit(resource.RLIMIT_CORE,(0,0)); resource.setrlimit(resource.RLIMIT_AS,(12*1024**3,12*1024**3)); os.execv(sys.argv[1],sys.argv[1:]) /nix/store/gshrjiwc2s5mdv8p875h9as7qxid94hd-rumoca-0.10.2/bin/rumoca sim $HOME/scratch/modelica_models/ci-construction-probe/ConstructionProbe.mo --model ConstructionProbe --source-root $HOME/git/modelica_models --solver rk-like --t-end .005 --dt .005 --verbose --output $HOME/scratch/modelica_models/ci-construction-probe/probe.html"
+	User time (seconds): 18.49
+	System time (seconds): 20.43
+	Percent of CPU this job got: 100%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:38.66
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 12323828
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 8
+	Minor (reclaiming a frame) page faults: 1039005
+	Voluntary context switches: 1128
+	Involuntary context switches: 2162
+	Swaps: 0
+	File system inputs: 456
+	File system outputs: 5160
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

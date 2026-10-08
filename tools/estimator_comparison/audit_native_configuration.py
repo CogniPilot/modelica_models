@@ -15,7 +15,7 @@ from pymavlink import DFReader
 import native_delay
 from compare_delay import PROFILES
 from score import metrics, read
-from native_aiding_noise import sensor_informed_noise
+from native_aiding_noise import configured_noise
 
 
 def digest(path):
@@ -155,7 +155,7 @@ def prepare_px4(args):
     if getattr(args, "sensor_informed_noise", False):
         values = "".join(
             f'fprintf(stderr,"NATIVE_PARAM {name} %.12g\\n", (double)p->{name});\n'
-            for name in sensor_informed_noise()["px4"]
+            for name in configured_noise(args)["px4"]
         )
         injection += (
             "static bool reported_parameters = false;\n"
@@ -244,7 +244,7 @@ def probe_px4(args, binary, capture, scenario):
             for line in completed.stderr.splitlines()
             if line.startswith("NATIVE_PARAM ")
         }
-        expected = sensor_informed_noise()["px4"]
+        expected = configured_noise(args)["px4"]
         if observed.keys() != expected.keys() or any(
             not np.isclose(observed[key], value, rtol=1e-6, atol=0)
             for key, value in expected.items()

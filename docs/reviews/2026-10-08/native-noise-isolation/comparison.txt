@@ -1,0 +1,36 @@
+One-condition parameter-group isolation, not a tuning search or a validated comparison baseline. Fresh published/full controls must reproduce frozen state CSVs. No physical data, arrival or native core changes.
+
+Condition: 0.85_101_2m_gps_explicit
+
+No variants are removed or selected as a new baseline.
+Covariance failures have undefined NEES; finite RMS does not override them.
+
+estimator variant                  H RMS m   V RMS m   vel RMS   att deg   yaw deg   mean 15D NEES
+px4       published                  0.20359   0.14153   0.16601   3.13404   3.13259 63.496
+ekf3      published                  0.06710   0.04750   0.04470   0.38273   0.36115 1.600
+px4       full                       0.21802   0.10967   0.18506   3.52484   3.51879 2706.474
+ekf3      full                       2.55343   0.10334   1.29311   0.89116   0.69434 undefined
+px4       only_gps                   0.22074   0.10998   0.18786   3.68875   3.68503 1283.116
+ekf3      only_gps                   0.28761   0.26224   0.11254   0.48026   0.46230 5.665
+px4       without_gps                0.19007   0.11690   0.14675   2.81482   2.80854 108.492
+ekf3      without_gps                0.06696   0.05689   0.05170   0.23537   0.18880 15.604
+px4       only_barometer             0.20299   0.11321   0.16572   3.13385   3.13223 95.851
+ekf3      only_barometer             0.07943   0.05775   0.06061   0.27753   0.22789 5.909
+px4       without_barometer          0.21803   0.07407   0.18536   3.52127   3.51188 2672.813
+ekf3      without_barometer          0.06891   0.17038   0.05154   0.32799   0.24427 25.326
+px4       only_range                 0.20345   0.15333   0.16606   3.13403   3.13261 64.620
+ekf3      only_range                 0.13009   0.04730   0.04915   0.26351   0.22275 1.717
+px4       without_range              0.21793   0.11075   0.18523   3.52457   3.51792 2707.950
+ekf3      without_range              1.45749   0.06832   0.78321   0.50701   0.30564 undefined
+px4       only_magnetometer          0.19783   0.15188   0.15293   2.92889   2.92743 63.015
+ekf3      only_magnetometer          0.06371   0.03337   0.02280   0.11959   0.08642 1.903
+px4       without_magnetometer       0.21816   0.10909   0.18603   4.04892   4.04777 2704.198
+ekf3      without_magnetometer       0.13317   0.04376   0.06909   0.74298   0.73141 21.819
+px4       only_flow                  0.20518   0.13980   0.15751   3.02339   3.02166 61.878
+ekf3      only_flow                  0.54281   0.38689   0.21673   3.52643   3.50820 26.874
+px4       without_flow               0.21642   0.10729   0.18611   3.58003   3.57565 2709.705
+ekf3      without_flow               5.19131   0.08499   3.99450   2.86318   2.50355 undefined
+px4       only_bias                  0.20073   0.14202   0.16620   3.13104   3.13003 76.366
+ekf3      only_bias                  0.09708   0.05465   0.04650   0.37993   0.35512 8.496
+px4       without_bias               0.22165   0.10955   0.18537   3.45650   3.44525 1338.500
+ekf3      without_bias               5.69694   0.05108   2.08722   1.46390   1.19515 undefined

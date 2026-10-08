@@ -18,6 +18,11 @@ precise termination cause is not proven by the hosted evidence. Serialization
 and launcher failure handling did not resolve this CI failure.
 https://github.com/CogniPilot/modelica_models/actions/runs/37729385989
 
+Run 37731292272 on subsequent main 42779ec is also terminal failure, with
+Modelica Regression Tests and CUBS2 successful. RDD2 again reports cancellation
+during manual simulation; main-42779ec-rdd2.txt retains its decisive lines.
+https://github.com/CogniPilot/modelica_models/actions/runs/37731292272
+
 An isolated local checkout at that commit reproduced excessive memory
 growth with unmodified Rumoca 0.10.2. The local earlyoom service terminated
 the owned worker at 52169 MiB RSS. The surrounding multiprocessing.Pool
@@ -71,6 +76,19 @@ smaller composed estimator models and determine whether a faithful source
 refactoring or upstream compiler fix can bound it. Native generated-C flight
 replays and their covariance parity checks remain separate evidence; they
 cannot substitute for a closed-loop RDD2 mission qualification.
+
+A smaller reproducer now exists at tools/rumoca-repros/eskf-runtime-memory.
+It extends only the existing ESKF harness. Structural analysis completes at
+about 0.5 GiB RSS, and Solve-IR export completes at about 8.4 GiB RSS. Both
+released CLI and Python simulation abort under an explicit process-local
+12 GiB address-space cap even with a requested span of only 0.005 s. The
+same short request on the actual manual mission also aborts. The paired
+construction-*.txt logs and construction-summary.json retain stages, process
+results and the 41 MiB Solve-IR artifact's hash. This isolates the symptom
+from the full vehicle and long trace, but the exact later simulation
+allocation or initial-event operation is not yet identified. These bounded
+diagnostics do not qualify the original mission and do not change machine
+swap, memory services, source models or acceptance checks.
 
 The disabled startup-rest pressure option and its frozen-data study were
 published separately as 3bf5bfb. Neither that study nor these launcher changes

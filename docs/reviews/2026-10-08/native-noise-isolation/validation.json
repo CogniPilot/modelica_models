@@ -1,0 +1,13 @@
+{
+  "report_reproduces_byte_for_byte": true,
+  "missing_variant_rejected": "Require all declared variants and verified frozen/observer parity",
+  "duplicate_variant_rejected": "Require all declared variants and verified frozen/observer parity",
+  "frozen_control_parity_rejected": "Require all declared variants and verified frozen/observer parity",
+  "observer_parity_rejected": "Require all declared variants and verified frozen/observer parity",
+  "default_noise_profile_unchanged": true,
+  "covariance_witness_reproduces_byte_for_byte": true,
+  "original_control_covariance_failed_rows": 0,
+  "original_control_covariance_sha256": "5070f43e3f049dded9dc5ec6976855d754d5e2711d0d9dc1072616ca28623cd9",
+  "estimator_unit_tests_passed": 34,
+  "ruff_check": "passed"
+}

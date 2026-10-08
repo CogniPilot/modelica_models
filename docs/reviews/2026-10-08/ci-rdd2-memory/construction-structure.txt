@@ -1,0 +1,356 @@
+[rumoca] Compiling model through DAE: ConstructionProbe
+[rumoca] Source file: $HOME/scratch/modelica_models/ci-construction-probe/ConstructionProbe.mo
+[rumoca] Loading source root: $HOME/git/modelica_models
+[rumoca] Source root Avionics, Control, Estimation (+9 more): cold index build completed.
+[rumoca] Phase 1-2: Parsing and resolving...
+[rumoca] Phase 3-6: Strict-reachable DAE compile...
+[rumoca] DAE compilation complete.
+[rumoca]   States: 0
+[rumoca]   Algebraics: 41
+[rumoca]   Parameters: 58
+[rumoca]   Continuous equations (f_x): 18
+[rumoca]   Balance: 0
+structure: model `ConstructionProbe`
+structure: 212 equations, 212 unknowns | 49 BLT block(s), 0 coupled (largest 1)
+
+BLT blocks (evaluation order):
+  [   0] family   36 scalar block(s) (36 point(s) x 1) <- f_x[18] (navigationCovarianceLocal = stateCovariance)
+  [   1] family   3 scalar block(s) (3 point(s) x 1) <- f_x[54] (gyroscopeBiasBodyFlu_rad_s = stateGyroscopeBias)
+  [   2] family   3 scalar block(s) (3 point(s) x 1) <- f_x[57] (accelerometerBiasBodyFlu_m_s2 = stateAccelerometerBias)
+  [   3] family   3 scalar block(s) (3 point(s) x 1) <- f_x[60] (estimator.imu.angularVelocityBodyFlu_rad_s = zeros(3))
+  [   4] family   3 scalar block(s) (3 point(s) x 1) <- f_x[63] (estimator.imu.specificForceBodyFlu_m_s2 = {0.0, 0.0, 9.81)
+  [   5] family   3 scalar block(s) (3 point(s) x 1) <- f_x[66] (estimator.imu.deltaAngleBodyFlu_rad = zeros(3))
+  [   6] family   3 scalar block(s) (3 point(s) x 1) <- f_x[69] (estimator.imu.deltaVelocityBodyFlu_m_s =
+      {0.0, 0.0, 9.81 * estimator.samplePeriod)
+  [   7] family   3 scalar block(s) (3 point(s) x 1) <- f_x[72] (estimator.imu.deltaPositionBodyFlu_m =
+      {0.0, 0.0, 0.5 * 9.81 * estimator.samplePeriod ^ 2)
+  [   8] family   4 scalar block(s) (4 point(s) x 1) <- f_x[75] (estimator.imu.deltaQuaternionBodyFlu = {1.0, 0.0, 0.0, 0.0)
+  [   9] family   3 scalar block(s) (3 point(s) x 1) <- f_x[79] (estimator.imu.gyroscopeBiasLinearizationBodyFlu_rad_s = zeros(3))
+  [  10] family   3 scalar block(s) (3 point(s) x 1) <- f_x[82] (estimator.imu.accelerometerBiasLinearizationBodyFlu_m_s2 = zeros(3))
+  [  11] family   9 scalar block(s) (9 point(s) x 1) <- f_x[85] (estimator.imu.deltaRotationGyroscopeBiasJacobian_s =
+      -identity(3) * estimator.samplePeriod)
+  [  12] family   9 scalar block(s) (9 point(s) x 1) <- f_x[94] (estimator.imu.deltaVelocityGyroscopeBiasJacobian_m = zeros(3, 3))
+  [  13] family   9 scalar block(s) (9 point(s) x 1) <- f_x[103] (estimator.imu.deltaVelocityAccelerometerBiasJacobian_s =
+      -identity(3) * estimator.samplePeriod)
+  [  14] family   9 scalar block(s) (9 point(s) x 1) <- f_x[112] (estimator.imu.deltaPositionGyroscopeBiasJacobian_m_s = zeros(3, 3))
+  [  15] family   9 scalar block(s) (9 point(s) x 1) <- f_x[121] (estimator.imu.deltaPositionAccelerometerBiasJacobian_s2 =
+      -0.5 * identity(3) * estimator.samplePeriod ^ 2)
+  [  16] family   3 scalar block(s) (3 point(s) x 1) <- f_x[130] (estimator.mocap.positionWorldEnu_m = zeros(3))
+  [  17] family   4 scalar block(s) (4 point(s) x 1) <- f_x[133] (estimator.mocap.quaternionWorldBody = {1.0, 0.0, 0.0, 0.0)
+  [  18] family   9 scalar block(s) (9 point(s) x 1) <- f_x[137] (estimator.mocap.positionCovarianceWorld_m2 = identity(3))
+  [  19] family   9 scalar block(s) (9 point(s) x 1) <- f_x[146] (estimator.mocap.attitudeCovarianceBody_rad2 = identity(3))
+  [  20] family   3 scalar block(s) (3 point(s) x 1) <- f_x[155] (estimator.gps.geodetic_deg_m = zeros(3))
+  [  21] family   3 scalar block(s) (3 point(s) x 1) <- f_x[158] (estimator.gps.positionWorldEnu_m = zeros(3))
+  [  22] family   3 scalar block(s) (3 point(s) x 1) <- f_x[161] (estimator.gps.velocityWorldEnu_m_s = zeros(3))
+  [  23] family   9 scalar block(s) (9 point(s) x 1) <- f_x[164] (estimator.gps.positionCovarianceWorld_m2 =
+      gpsPositionVariance_m2 * identity(3))
+  [  24] family   9 scalar block(s) (9 point(s) x 1) <- f_x[173] (estimator.gps.velocityCovarianceWorld_m2_s2 = identity(3))
+  [  25] family   3 scalar block(s) (3 point(s) x 1) <- f_x[182] (estimator.magnetometer.magneticFieldBodyFlu_T =
+      estimator.localMagneticFieldWorldEnu_T)
+  [  26] family   9 scalar block(s) (9 point(s) x 1) <- f_x[185] (estimator.magnetometer.covarianceBody_T2 = identity(3) * 1.0e-12)
+  [  27] family   2 scalar block(s) (2 point(s) x 1) <- f_x[194] (estimator.opticalFlow.integratedLineOfSight_rad = zeros(2))
+  [  28] family   4 scalar block(s) (4 point(s) x 1) <- f_x[196] (estimator.opticalFlow.integratedLineOfSightCovariance_rad2 = identity(2))
+  [  29] family   3 scalar block(s) (3 point(s) x 1) <- f_x[200] (estimator.opticalFlow.integratedGyroscopeBodyFlu_rad = zeros(3))
+  [  30] family   9 scalar block(s) (9 point(s) x 1) <- f_x[203] (estimator.opticalFlow.integratedGyroscopeCovariance_rad2 = identity(3))
+  [  31] scalar   estimator.barometerBias_m <- f_x[0] (barometerBias_m = stateBarometerBias_m)
+  [  32] scalar   estimator.barometerBiasVariance_m2 <- f_x[1] (barometerBiasVariance_m2 = stateBarometerBiasVariance_m2)
+  [  33] scalar   estimator.terrainAltitudeWorldEnu_m <- f_x[2] (terrainAltitudeWorldEnu_m = stateTerrainAltitude_m)
+  [  34] scalar   estimator.terrainAltitudeVariance_m2 <- f_x[3] (terrainAltitudeVariance_m2 = stateTerrainVariance_m2)
+  [  35] scalar   estimator.heightAboveTerrain_m <- f_x[4] (heightAboveTerrain_m = statePosition[3] - stateTerrainAltitude_m)
+  [  36] scalar   estimator.imu.timestamp_s <- f_x[5] (estimator.imu.timestamp_s = time)
+  [  37] scalar   estimator.imu.integrationTime_s <- f_x[6] (estimator.imu.integrationTime_s = estimator.samplePeriod)
+  [  38] scalar   estimator.mocap.timestamp_s <- f_x[7] (estimator.mocap.timestamp_s = time)
+  [  39] scalar   estimator.gps.timestamp_s <- f_x[8] (estimator.gps.timestamp_s = if gpsEnabled then
+      (if time < gpsInvalidTimestampUntil_s then 1.0e31 else 0.0) else time)
+  [  40] scalar   estimator.magnetometer.timestamp_s <- f_x[9] (estimator.magnetometer.timestamp_s = time)
+  [  41] scalar   estimator.barometer.timestamp_s <- f_x[10] (estimator.barometer.timestamp_s = time)
+  [  42] scalar   estimator.barometer.altitudeWorldEnu_m <- f_x[11] (estimator.barometer.altitudeWorldEnu_m = 0.0)
+  [  43] scalar   estimator.barometer.variance_m2 <- f_x[12] (estimator.barometer.variance_m2 = 1.0)
+  [  44] scalar   estimator.opticalFlow.timestamp_s <- f_x[13] (estimator.opticalFlow.timestamp_s = time)
+  [  45] scalar   estimator.opticalFlow.integrationTime_s <- f_x[14] (estimator.opticalFlow.integrationTime_s = 0.5)
+  [  46] scalar   estimator.opticalFlow.groundDistance_m <- f_x[15] (estimator.opticalFlow.groundDistance_m = 1.0)
+  [  47] scalar   estimator.opticalFlow.groundDistanceVariance_m2 <- f_x[16] (estimator.opticalFlow.groundDistanceVariance_m2 = 0.01)
+  [  48] scalar   estimator.opticalFlow.quality <- f_x[17] (estimator.opticalFlow.quality = 1.0)
+
+matching (212):
+  estimator.barometerBias_m                    <- f_x[0] (barometerBias_m = stateBarometerBias_m)
+  estimator.barometerBiasVariance_m2           <- f_x[1] (barometerBiasVariance_m2 = stateBarometerBiasVariance_m2)
+  estimator.terrainAltitudeWorldEnu_m          <- f_x[2] (terrainAltitudeWorldEnu_m = stateTerrainAltitude_m)
+  estimator.terrainAltitudeVariance_m2         <- f_x[3] (terrainAltitudeVariance_m2 = stateTerrainVariance_m2)
+  estimator.heightAboveTerrain_m               <- f_x[4] (heightAboveTerrain_m = statePosition[3] - stateTerrainAltitude_m)
+  estimator.imu.timestamp_s                    <- f_x[5] (estimator.imu.timestamp_s = time)
+  estimator.imu.integrationTime_s              <- f_x[6] (estimator.imu.integrationTime_s = estimator.samplePeriod)
+  estimator.mocap.timestamp_s                  <- f_x[7] (estimator.mocap.timestamp_s = time)
+  estimator.gps.timestamp_s                    <- f_x[8] (estimator.gps.timestamp_s = if gpsEnabled then
+      (if time < gpsInvalidTimestampUntil_s then 1.0e31 else 0.0) else time)
+  estimator.magnetometer.timestamp_s           <- f_x[9] (estimator.magnetometer.timestamp_s = time)
+  estimator.barometer.timestamp_s              <- f_x[10] (estimator.barometer.timestamp_s = time)
+  estimator.barometer.altitudeWorldEnu_m       <- f_x[11] (estimator.barometer.altitudeWorldEnu_m = 0.0)
+  estimator.barometer.variance_m2              <- f_x[12] (estimator.barometer.variance_m2 = 1.0)
+  estimator.opticalFlow.timestamp_s            <- f_x[13] (estimator.opticalFlow.timestamp_s = time)
+  estimator.opticalFlow.integrationTime_s      <- f_x[14] (estimator.opticalFlow.integrationTime_s = 0.5)
+  estimator.opticalFlow.groundDistance_m       <- f_x[15] (estimator.opticalFlow.groundDistance_m = 1.0)
+  estimator.opticalFlow.groundDistanceVariance_m2 <- f_x[16] (estimator.opticalFlow.groundDistanceVariance_m2 = 0.01)
+  estimator.opticalFlow.quality                <- f_x[17] (estimator.opticalFlow.quality = 1.0)
+  estimator.navigationCovarianceLocal[1,1]     <- f_x[18] (navigationCovarianceLocal = stateCovariance)
+  estimator.navigationCovarianceLocal[1,2]     <- f_x[19] (navigationCovarianceLocal = stateCovariance)
+  estimator.navigationCovarianceLocal[1,3]     <- f_x[20] (navigationCovarianceLocal = stateCovariance)
+  estimator.navigationCovarianceLocal[1,4]     <- f_x[21] (navigationCovarianceLocal = stateCovariance)
+  estimator.navigationCovarianceLocal[1,5]     <- f_x[22] (navigationCovarianceLocal = stateCovariance)
+  estimator.navigationCovarianceLocal[1,6]     <- f_x[23] (navigationCovarianceLocal = stateCovariance)
+  estimator.navigationCovarianceLocal[2,1]     <- f_x[24] (navigationCovarianceLocal = stateCovariance)
+  estimator.navigationCovarianceLocal[2,2]     <- f_x[25] (navigationCovarianceLocal = stateCovariance)
+  estimator.navigationCovarianceLocal[2,3]     <- f_x[26] (navigationCovarianceLocal = stateCovariance)
+  estimator.navigationCovarianceLocal[2,4]     <- f_x[27] (navigationCovarianceLocal = stateCovariance)
+  estimator.navigationCovarianceLocal[2,5]     <- f_x[28] (navigationCovarianceLocal = stateCovariance)
+  estimator.navigationCovarianceLocal[2,6]     <- f_x[29] (navigationCovarianceLocal = stateCovariance)
+  estimator.navigationCovarianceLocal[3,1]     <- f_x[30] (navigationCovarianceLocal = stateCovariance)
+  estimator.navigationCovarianceLocal[3,2]     <- f_x[31] (navigationCovarianceLocal = stateCovariance)
+  estimator.navigationCovarianceLocal[3,3]     <- f_x[32] (navigationCovarianceLocal = stateCovariance)
+  estimator.navigationCovarianceLocal[3,4]     <- f_x[33] (navigationCovarianceLocal = stateCovariance)
+  estimator.navigationCovarianceLocal[3,5]     <- f_x[34] (navigationCovarianceLocal = stateCovariance)
+  estimator.navigationCovarianceLocal[3,6]     <- f_x[35] (navigationCovarianceLocal = stateCovariance)
+  estimator.navigationCovarianceLocal[4,1]     <- f_x[36] (navigationCovarianceLocal = stateCovariance)
+  estimator.navigationCovarianceLocal[4,2]     <- f_x[37] (navigationCovarianceLocal = stateCovariance)
+  estimator.navigationCovarianceLocal[4,3]     <- f_x[38] (navigationCovarianceLocal = stateCovariance)
+  estimator.navigationCovarianceLocal[4,4]     <- f_x[39] (navigationCovarianceLocal = stateCovariance)
+  estimator.navigationCovarianceLocal[4,5]     <- f_x[40] (navigationCovarianceLocal = stateCovariance)
+  estimator.navigationCovarianceLocal[4,6]     <- f_x[41] (navigationCovarianceLocal = stateCovariance)
+  estimator.navigationCovarianceLocal[5,1]     <- f_x[42] (navigationCovarianceLocal = stateCovariance)
+  estimator.navigationCovarianceLocal[5,2]     <- f_x[43] (navigationCovarianceLocal = stateCovariance)
+  estimator.navigationCovarianceLocal[5,3]     <- f_x[44] (navigationCovarianceLocal = stateCovariance)
+  estimator.navigationCovarianceLocal[5,4]     <- f_x[45] (navigationCovarianceLocal = stateCovariance)
+  estimator.navigationCovarianceLocal[5,5]     <- f_x[46] (navigationCovarianceLocal = stateCovariance)
+  estimator.navigationCovarianceLocal[5,6]     <- f_x[47] (navigationCovarianceLocal = stateCovariance)
+  estimator.navigationCovarianceLocal[6,1]     <- f_x[48] (navigationCovarianceLocal = stateCovariance)
+  estimator.navigationCovarianceLocal[6,2]     <- f_x[49] (navigationCovarianceLocal = stateCovariance)
+  estimator.navigationCovarianceLocal[6,3]     <- f_x[50] (navigationCovarianceLocal = stateCovariance)
+  estimator.navigationCovarianceLocal[6,4]     <- f_x[51] (navigationCovarianceLocal = stateCovariance)
+  estimator.navigationCovarianceLocal[6,5]     <- f_x[52] (navigationCovarianceLocal = stateCovariance)
+  estimator.navigationCovarianceLocal[6,6]     <- f_x[53] (navigationCovarianceLocal = stateCovariance)
+  estimator.gyroscopeBiasBodyFlu_rad_s[1]      <- f_x[54] (gyroscopeBiasBodyFlu_rad_s = stateGyroscopeBias)
+  estimator.gyroscopeBiasBodyFlu_rad_s[2]      <- f_x[55] (gyroscopeBiasBodyFlu_rad_s = stateGyroscopeBias)
+  estimator.gyroscopeBiasBodyFlu_rad_s[3]      <- f_x[56] (gyroscopeBiasBodyFlu_rad_s = stateGyroscopeBias)
+  estimator.accelerometerBiasBodyFlu_m_s2[1]   <- f_x[57] (accelerometerBiasBodyFlu_m_s2 = stateAccelerometerBias)
+  estimator.accelerometerBiasBodyFlu_m_s2[2]   <- f_x[58] (accelerometerBiasBodyFlu_m_s2 = stateAccelerometerBias)
+  estimator.accelerometerBiasBodyFlu_m_s2[3]   <- f_x[59] (accelerometerBiasBodyFlu_m_s2 = stateAccelerometerBias)
+  estimator.imu.angularVelocityBodyFlu_rad_s[1] <- f_x[60] (estimator.imu.angularVelocityBodyFlu_rad_s = zeros(3))
+  estimator.imu.angularVelocityBodyFlu_rad_s[2] <- f_x[61] (estimator.imu.angularVelocityBodyFlu_rad_s = zeros(3))
+  estimator.imu.angularVelocityBodyFlu_rad_s[3] <- f_x[62] (estimator.imu.angularVelocityBodyFlu_rad_s = zeros(3))
+  estimator.imu.specificForceBodyFlu_m_s2[1]   <- f_x[63] (estimator.imu.specificForceBodyFlu_m_s2 = {0.0, 0.0, 9.81)
+  estimator.imu.specificForceBodyFlu_m_s2[2]   <- f_x[64] (estimator.imu.specificForceBodyFlu_m_s2 = {0.0, 0.0, 9.81)
+  estimator.imu.specificForceBodyFlu_m_s2[3]   <- f_x[65] (estimator.imu.specificForceBodyFlu_m_s2 = {0.0, 0.0, 9.81)
+  estimator.imu.deltaAngleBodyFlu_rad[1]       <- f_x[66] (estimator.imu.deltaAngleBodyFlu_rad = zeros(3))
+  estimator.imu.deltaAngleBodyFlu_rad[2]       <- f_x[67] (estimator.imu.deltaAngleBodyFlu_rad = zeros(3))
+  estimator.imu.deltaAngleBodyFlu_rad[3]       <- f_x[68] (estimator.imu.deltaAngleBodyFlu_rad = zeros(3))
+  estimator.imu.deltaVelocityBodyFlu_m_s[1]    <- f_x[69] (estimator.imu.deltaVelocityBodyFlu_m_s =
+      {0.0, 0.0, 9.81 * estimator.samplePeriod)
+  estimator.imu.deltaVelocityBodyFlu_m_s[2]    <- f_x[70] (estimator.imu.deltaVelocityBodyFlu_m_s =
+      {0.0, 0.0, 9.81 * estimator.samplePeriod)
+  estimator.imu.deltaVelocityBodyFlu_m_s[3]    <- f_x[71] (estimator.imu.deltaVelocityBodyFlu_m_s =
+      {0.0, 0.0, 9.81 * estimator.samplePeriod)
+  estimator.imu.deltaPositionBodyFlu_m[1]      <- f_x[72] (estimator.imu.deltaPositionBodyFlu_m =
+      {0.0, 0.0, 0.5 * 9.81 * estimator.samplePeriod ^ 2)
+  estimator.imu.deltaPositionBodyFlu_m[2]      <- f_x[73] (estimator.imu.deltaPositionBodyFlu_m =
+      {0.0, 0.0, 0.5 * 9.81 * estimator.samplePeriod ^ 2)
+  estimator.imu.deltaPositionBodyFlu_m[3]      <- f_x[74] (estimator.imu.deltaPositionBodyFlu_m =
+      {0.0, 0.0, 0.5 * 9.81 * estimator.samplePeriod ^ 2)
+  estimator.imu.deltaQuaternionBodyFlu[1]      <- f_x[75] (estimator.imu.deltaQuaternionBodyFlu = {1.0, 0.0, 0.0, 0.0)
+  estimator.imu.deltaQuaternionBodyFlu[2]      <- f_x[76] (estimator.imu.deltaQuaternionBodyFlu = {1.0, 0.0, 0.0, 0.0)
+  estimator.imu.deltaQuaternionBodyFlu[3]      <- f_x[77] (estimator.imu.deltaQuaternionBodyFlu = {1.0, 0.0, 0.0, 0.0)
+  estimator.imu.deltaQuaternionBodyFlu[4]      <- f_x[78] (estimator.imu.deltaQuaternionBodyFlu = {1.0, 0.0, 0.0, 0.0)
+  estimator.imu.gyroscopeBiasLinearizationBodyFlu_rad_s[1] <- f_x[79] (estimator.imu.gyroscopeBiasLinearizationBodyFlu_rad_s = zeros(3))
+  estimator.imu.gyroscopeBiasLinearizationBodyFlu_rad_s[2] <- f_x[80] (estimator.imu.gyroscopeBiasLinearizationBodyFlu_rad_s = zeros(3))
+  estimator.imu.gyroscopeBiasLinearizationBodyFlu_rad_s[3] <- f_x[81] (estimator.imu.gyroscopeBiasLinearizationBodyFlu_rad_s = zeros(3))
+  estimator.imu.accelerometerBiasLinearizationBodyFlu_m_s2[1] <- f_x[82] (estimator.imu.accelerometerBiasLinearizationBodyFlu_m_s2 = zeros(3))
+  estimator.imu.accelerometerBiasLinearizationBodyFlu_m_s2[2] <- f_x[83] (estimator.imu.accelerometerBiasLinearizationBodyFlu_m_s2 = zeros(3))
+  estimator.imu.accelerometerBiasLinearizationBodyFlu_m_s2[3] <- f_x[84] (estimator.imu.accelerometerBiasLinearizationBodyFlu_m_s2 = zeros(3))
+  estimator.imu.deltaRotationGyroscopeBiasJacobian_s[1,1] <- f_x[85] (estimator.imu.deltaRotationGyroscopeBiasJacobian_s =
+      -identity(3) * estimator.samplePeriod)
+  estimator.imu.deltaRotationGyroscopeBiasJacobian_s[1,2] <- f_x[86] (estimator.imu.deltaRotationGyroscopeBiasJacobian_s =
+      -identity(3) * estimator.samplePeriod)
+  estimator.imu.deltaRotationGyroscopeBiasJacobian_s[1,3] <- f_x[87] (estimator.imu.deltaRotationGyroscopeBiasJacobian_s =
+      -identity(3) * estimator.samplePeriod)
+  estimator.imu.deltaRotationGyroscopeBiasJacobian_s[2,1] <- f_x[88] (estimator.imu.deltaRotationGyroscopeBiasJacobian_s =
+      -identity(3) * estimator.samplePeriod)
+  estimator.imu.deltaRotationGyroscopeBiasJacobian_s[2,2] <- f_x[89] (estimator.imu.deltaRotationGyroscopeBiasJacobian_s =
+      -identity(3) * estimator.samplePeriod)
+  estimator.imu.deltaRotationGyroscopeBiasJacobian_s[2,3] <- f_x[90] (estimator.imu.deltaRotationGyroscopeBiasJacobian_s =
+      -identity(3) * estimator.samplePeriod)
+  estimator.imu.deltaRotationGyroscopeBiasJacobian_s[3,1] <- f_x[91] (estimator.imu.deltaRotationGyroscopeBiasJacobian_s =
+      -identity(3) * estimator.samplePeriod)
+  estimator.imu.deltaRotationGyroscopeBiasJacobian_s[3,2] <- f_x[92] (estimator.imu.deltaRotationGyroscopeBiasJacobian_s =
+      -identity(3) * estimator.samplePeriod)
+  estimator.imu.deltaRotationGyroscopeBiasJacobian_s[3,3] <- f_x[93] (estimator.imu.deltaRotationGyroscopeBiasJacobian_s =
+      -identity(3) * estimator.samplePeriod)
+  estimator.imu.deltaVelocityGyroscopeBiasJacobian_m[1,1] <- f_x[94] (estimator.imu.deltaVelocityGyroscopeBiasJacobian_m = zeros(3, 3))
+  estimator.imu.deltaVelocityGyroscopeBiasJacobian_m[1,2] <- f_x[95] (estimator.imu.deltaVelocityGyroscopeBiasJacobian_m = zeros(3, 3))
+  estimator.imu.deltaVelocityGyroscopeBiasJacobian_m[1,3] <- f_x[96] (estimator.imu.deltaVelocityGyroscopeBiasJacobian_m = zeros(3, 3))
+  estimator.imu.deltaVelocityGyroscopeBiasJacobian_m[2,1] <- f_x[97] (estimator.imu.deltaVelocityGyroscopeBiasJacobian_m = zeros(3, 3))
+  estimator.imu.deltaVelocityGyroscopeBiasJacobian_m[2,2] <- f_x[98] (estimator.imu.deltaVelocityGyroscopeBiasJacobian_m = zeros(3, 3))
+  estimator.imu.deltaVelocityGyroscopeBiasJacobian_m[2,3] <- f_x[99] (estimator.imu.deltaVelocityGyroscopeBiasJacobian_m = zeros(3, 3))
+  estimator.imu.deltaVelocityGyroscopeBiasJacobian_m[3,1] <- f_x[100] (estimator.imu.deltaVelocityGyroscopeBiasJacobian_m = zeros(3, 3))
+  estimator.imu.deltaVelocityGyroscopeBiasJacobian_m[3,2] <- f_x[101] (estimator.imu.deltaVelocityGyroscopeBiasJacobian_m = zeros(3, 3))
+  estimator.imu.deltaVelocityGyroscopeBiasJacobian_m[3,3] <- f_x[102] (estimator.imu.deltaVelocityGyroscopeBiasJacobian_m = zeros(3, 3))
+  estimator.imu.deltaVelocityAccelerometerBiasJacobian_s[1,1] <- f_x[103] (estimator.imu.deltaVelocityAccelerometerBiasJacobian_s =
+      -identity(3) * estimator.samplePeriod)
+  estimator.imu.deltaVelocityAccelerometerBiasJacobian_s[1,2] <- f_x[104] (estimator.imu.deltaVelocityAccelerometerBiasJacobian_s =
+      -identity(3) * estimator.samplePeriod)
+  estimator.imu.deltaVelocityAccelerometerBiasJacobian_s[1,3] <- f_x[105] (estimator.imu.deltaVelocityAccelerometerBiasJacobian_s =
+      -identity(3) * estimator.samplePeriod)
+  estimator.imu.deltaVelocityAccelerometerBiasJacobian_s[2,1] <- f_x[106] (estimator.imu.deltaVelocityAccelerometerBiasJacobian_s =
+      -identity(3) * estimator.samplePeriod)
+  estimator.imu.deltaVelocityAccelerometerBiasJacobian_s[2,2] <- f_x[107] (estimator.imu.deltaVelocityAccelerometerBiasJacobian_s =
+      -identity(3) * estimator.samplePeriod)
+  estimator.imu.deltaVelocityAccelerometerBiasJacobian_s[2,3] <- f_x[108] (estimator.imu.deltaVelocityAccelerometerBiasJacobian_s =
+      -identity(3) * estimator.samplePeriod)
+  estimator.imu.deltaVelocityAccelerometerBiasJacobian_s[3,1] <- f_x[109] (estimator.imu.deltaVelocityAccelerometerBiasJacobian_s =
+      -identity(3) * estimator.samplePeriod)
+  estimator.imu.deltaVelocityAccelerometerBiasJacobian_s[3,2] <- f_x[110] (estimator.imu.deltaVelocityAccelerometerBiasJacobian_s =
+      -identity(3) * estimator.samplePeriod)
+  estimator.imu.deltaVelocityAccelerometerBiasJacobian_s[3,3] <- f_x[111] (estimator.imu.deltaVelocityAccelerometerBiasJacobian_s =
+      -identity(3) * estimator.samplePeriod)
+  estimator.imu.deltaPositionGyroscopeBiasJacobian_m_s[1,1] <- f_x[112] (estimator.imu.deltaPositionGyroscopeBiasJacobian_m_s = zeros(3, 3))
+  estimator.imu.deltaPositionGyroscopeBiasJacobian_m_s[1,2] <- f_x[113] (estimator.imu.deltaPositionGyroscopeBiasJacobian_m_s = zeros(3, 3))
+  estimator.imu.deltaPositionGyroscopeBiasJacobian_m_s[1,3] <- f_x[114] (estimator.imu.deltaPositionGyroscopeBiasJacobian_m_s = zeros(3, 3))
+  estimator.imu.deltaPositionGyroscopeBiasJacobian_m_s[2,1] <- f_x[115] (estimator.imu.deltaPositionGyroscopeBiasJacobian_m_s = zeros(3, 3))
+  estimator.imu.deltaPositionGyroscopeBiasJacobian_m_s[2,2] <- f_x[116] (estimator.imu.deltaPositionGyroscopeBiasJacobian_m_s = zeros(3, 3))
+  estimator.imu.deltaPositionGyroscopeBiasJacobian_m_s[2,3] <- f_x[117] (estimator.imu.deltaPositionGyroscopeBiasJacobian_m_s = zeros(3, 3))
+  estimator.imu.deltaPositionGyroscopeBiasJacobian_m_s[3,1] <- f_x[118] (estimator.imu.deltaPositionGyroscopeBiasJacobian_m_s = zeros(3, 3))
+  estimator.imu.deltaPositionGyroscopeBiasJacobian_m_s[3,2] <- f_x[119] (estimator.imu.deltaPositionGyroscopeBiasJacobian_m_s = zeros(3, 3))
+  estimator.imu.deltaPositionGyroscopeBiasJacobian_m_s[3,3] <- f_x[120] (estimator.imu.deltaPositionGyroscopeBiasJacobian_m_s = zeros(3, 3))
+  estimator.imu.deltaPositionAccelerometerBiasJacobian_s2[1,1] <- f_x[121] (estimator.imu.deltaPositionAccelerometerBiasJacobian_s2 =
+      -0.5 * identity(3) * estimator.samplePeriod ^ 2)
+  estimator.imu.deltaPositionAccelerometerBiasJacobian_s2[1,2] <- f_x[122] (estimator.imu.deltaPositionAccelerometerBiasJacobian_s2 =
+      -0.5 * identity(3) * estimator.samplePeriod ^ 2)
+  estimator.imu.deltaPositionAccelerometerBiasJacobian_s2[1,3] <- f_x[123] (estimator.imu.deltaPositionAccelerometerBiasJacobian_s2 =
+      -0.5 * identity(3) * estimator.samplePeriod ^ 2)
+  estimator.imu.deltaPositionAccelerometerBiasJacobian_s2[2,1] <- f_x[124] (estimator.imu.deltaPositionAccelerometerBiasJacobian_s2 =
+      -0.5 * identity(3) * estimator.samplePeriod ^ 2)
+  estimator.imu.deltaPositionAccelerometerBiasJacobian_s2[2,2] <- f_x[125] (estimator.imu.deltaPositionAccelerometerBiasJacobian_s2 =
+      -0.5 * identity(3) * estimator.samplePeriod ^ 2)
+  estimator.imu.deltaPositionAccelerometerBiasJacobian_s2[2,3] <- f_x[126] (estimator.imu.deltaPositionAccelerometerBiasJacobian_s2 =
+      -0.5 * identity(3) * estimator.samplePeriod ^ 2)
+  estimator.imu.deltaPositionAccelerometerBiasJacobian_s2[3,1] <- f_x[127] (estimator.imu.deltaPositionAccelerometerBiasJacobian_s2 =
+      -0.5 * identity(3) * estimator.samplePeriod ^ 2)
+  estimator.imu.deltaPositionAccelerometerBiasJacobian_s2[3,2] <- f_x[128] (estimator.imu.deltaPositionAccelerometerBiasJacobian_s2 =
+      -0.5 * identity(3) * estimator.samplePeriod ^ 2)
+  estimator.imu.deltaPositionAccelerometerBiasJacobian_s2[3,3] <- f_x[129] (estimator.imu.deltaPositionAccelerometerBiasJacobian_s2 =
+      -0.5 * identity(3) * estimator.samplePeriod ^ 2)
+  estimator.mocap.positionWorldEnu_m[1]        <- f_x[130] (estimator.mocap.positionWorldEnu_m = zeros(3))
+  estimator.mocap.positionWorldEnu_m[2]        <- f_x[131] (estimator.mocap.positionWorldEnu_m = zeros(3))
+  estimator.mocap.positionWorldEnu_m[3]        <- f_x[132] (estimator.mocap.positionWorldEnu_m = zeros(3))
+  estimator.mocap.quaternionWorldBody[1]       <- f_x[133] (estimator.mocap.quaternionWorldBody = {1.0, 0.0, 0.0, 0.0)
+  estimator.mocap.quaternionWorldBody[2]       <- f_x[134] (estimator.mocap.quaternionWorldBody = {1.0, 0.0, 0.0, 0.0)
+  estimator.mocap.quaternionWorldBody[3]       <- f_x[135] (estimator.mocap.quaternionWorldBody = {1.0, 0.0, 0.0, 0.0)
+  estimator.mocap.quaternionWorldBody[4]       <- f_x[136] (estimator.mocap.quaternionWorldBody = {1.0, 0.0, 0.0, 0.0)
+  estimator.mocap.positionCovarianceWorld_m2[1,1] <- f_x[137] (estimator.mocap.positionCovarianceWorld_m2 = identity(3))
+  estimator.mocap.positionCovarianceWorld_m2[1,2] <- f_x[138] (estimator.mocap.positionCovarianceWorld_m2 = identity(3))
+  estimator.mocap.positionCovarianceWorld_m2[1,3] <- f_x[139] (estimator.mocap.positionCovarianceWorld_m2 = identity(3))
+  estimator.mocap.positionCovarianceWorld_m2[2,1] <- f_x[140] (estimator.mocap.positionCovarianceWorld_m2 = identity(3))
+  estimator.mocap.positionCovarianceWorld_m2[2,2] <- f_x[141] (estimator.mocap.positionCovarianceWorld_m2 = identity(3))
+  estimator.mocap.positionCovarianceWorld_m2[2,3] <- f_x[142] (estimator.mocap.positionCovarianceWorld_m2 = identity(3))
+  estimator.mocap.positionCovarianceWorld_m2[3,1] <- f_x[143] (estimator.mocap.positionCovarianceWorld_m2 = identity(3))
+  estimator.mocap.positionCovarianceWorld_m2[3,2] <- f_x[144] (estimator.mocap.positionCovarianceWorld_m2 = identity(3))
+  estimator.mocap.positionCovarianceWorld_m2[3,3] <- f_x[145] (estimator.mocap.positionCovarianceWorld_m2 = identity(3))
+  estimator.mocap.attitudeCovarianceBody_rad2[1,1] <- f_x[146] (estimator.mocap.attitudeCovarianceBody_rad2 = identity(3))
+  estimator.mocap.attitudeCovarianceBody_rad2[1,2] <- f_x[147] (estimator.mocap.attitudeCovarianceBody_rad2 = identity(3))
+  estimator.mocap.attitudeCovarianceBody_rad2[1,3] <- f_x[148] (estimator.mocap.attitudeCovarianceBody_rad2 = identity(3))
+  estimator.mocap.attitudeCovarianceBody_rad2[2,1] <- f_x[149] (estimator.mocap.attitudeCovarianceBody_rad2 = identity(3))
+  estimator.mocap.attitudeCovarianceBody_rad2[2,2] <- f_x[150] (estimator.mocap.attitudeCovarianceBody_rad2 = identity(3))
+  estimator.mocap.attitudeCovarianceBody_rad2[2,3] <- f_x[151] (estimator.mocap.attitudeCovarianceBody_rad2 = identity(3))
+  estimator.mocap.attitudeCovarianceBody_rad2[3,1] <- f_x[152] (estimator.mocap.attitudeCovarianceBody_rad2 = identity(3))
+  estimator.mocap.attitudeCovarianceBody_rad2[3,2] <- f_x[153] (estimator.mocap.attitudeCovarianceBody_rad2 = identity(3))
+  estimator.mocap.attitudeCovarianceBody_rad2[3,3] <- f_x[154] (estimator.mocap.attitudeCovarianceBody_rad2 = identity(3))
+  estimator.gps.geodetic_deg_m[1]              <- f_x[155] (estimator.gps.geodetic_deg_m = zeros(3))
+  estimator.gps.geodetic_deg_m[2]              <- f_x[156] (estimator.gps.geodetic_deg_m = zeros(3))
+  estimator.gps.geodetic_deg_m[3]              <- f_x[157] (estimator.gps.geodetic_deg_m = zeros(3))
+  estimator.gps.positionWorldEnu_m[1]          <- f_x[158] (estimator.gps.positionWorldEnu_m = zeros(3))
+  estimator.gps.positionWorldEnu_m[2]          <- f_x[159] (estimator.gps.positionWorldEnu_m = zeros(3))
+  estimator.gps.positionWorldEnu_m[3]          <- f_x[160] (estimator.gps.positionWorldEnu_m = zeros(3))
+  estimator.gps.velocityWorldEnu_m_s[1]        <- f_x[161] (estimator.gps.velocityWorldEnu_m_s = zeros(3))
+  estimator.gps.velocityWorldEnu_m_s[2]        <- f_x[162] (estimator.gps.velocityWorldEnu_m_s = zeros(3))
+  estimator.gps.velocityWorldEnu_m_s[3]        <- f_x[163] (estimator.gps.velocityWorldEnu_m_s = zeros(3))
+  estimator.gps.positionCovarianceWorld_m2[1,1] <- f_x[164] (estimator.gps.positionCovarianceWorld_m2 =
+      gpsPositionVariance_m2 * identity(3))
+  estimator.gps.positionCovarianceWorld_m2[1,2] <- f_x[165] (estimator.gps.positionCovarianceWorld_m2 =
+      gpsPositionVariance_m2 * identity(3))
+  estimator.gps.positionCovarianceWorld_m2[1,3] <- f_x[166] (estimator.gps.positionCovarianceWorld_m2 =
+      gpsPositionVariance_m2 * identity(3))
+  estimator.gps.positionCovarianceWorld_m2[2,1] <- f_x[167] (estimator.gps.positionCovarianceWorld_m2 =
+      gpsPositionVariance_m2 * identity(3))
+  estimator.gps.positionCovarianceWorld_m2[2,2] <- f_x[168] (estimator.gps.positionCovarianceWorld_m2 =
+      gpsPositionVariance_m2 * identity(3))
+  estimator.gps.positionCovarianceWorld_m2[2,3] <- f_x[169] (estimator.gps.positionCovarianceWorld_m2 =
+      gpsPositionVariance_m2 * identity(3))
+  estimator.gps.positionCovarianceWorld_m2[3,1] <- f_x[170] (estimator.gps.positionCovarianceWorld_m2 =
+      gpsPositionVariance_m2 * identity(3))
+  estimator.gps.positionCovarianceWorld_m2[3,2] <- f_x[171] (estimator.gps.positionCovarianceWorld_m2 =
+      gpsPositionVariance_m2 * identity(3))
+  estimator.gps.positionCovarianceWorld_m2[3,3] <- f_x[172] (estimator.gps.positionCovarianceWorld_m2 =
+      gpsPositionVariance_m2 * identity(3))
+  estimator.gps.velocityCovarianceWorld_m2_s2[1,1] <- f_x[173] (estimator.gps.velocityCovarianceWorld_m2_s2 = identity(3))
+  estimator.gps.velocityCovarianceWorld_m2_s2[1,2] <- f_x[174] (estimator.gps.velocityCovarianceWorld_m2_s2 = identity(3))
+  estimator.gps.velocityCovarianceWorld_m2_s2[1,3] <- f_x[175] (estimator.gps.velocityCovarianceWorld_m2_s2 = identity(3))
+  estimator.gps.velocityCovarianceWorld_m2_s2[2,1] <- f_x[176] (estimator.gps.velocityCovarianceWorld_m2_s2 = identity(3))
+  estimator.gps.velocityCovarianceWorld_m2_s2[2,2] <- f_x[177] (estimator.gps.velocityCovarianceWorld_m2_s2 = identity(3))
+  estimator.gps.velocityCovarianceWorld_m2_s2[2,3] <- f_x[178] (estimator.gps.velocityCovarianceWorld_m2_s2 = identity(3))
+  estimator.gps.velocityCovarianceWorld_m2_s2[3,1] <- f_x[179] (estimator.gps.velocityCovarianceWorld_m2_s2 = identity(3))
+  estimator.gps.velocityCovarianceWorld_m2_s2[3,2] <- f_x[180] (estimator.gps.velocityCovarianceWorld_m2_s2 = identity(3))
+  estimator.gps.velocityCovarianceWorld_m2_s2[3,3] <- f_x[181] (estimator.gps.velocityCovarianceWorld_m2_s2 = identity(3))
+  estimator.magnetometer.magneticFieldBodyFlu_T[1] <- f_x[182] (estimator.magnetometer.magneticFieldBodyFlu_T =
+      estimator.localMagneticFieldWorldEnu_T)
+  estimator.magnetometer.magneticFieldBodyFlu_T[2] <- f_x[183] (estimator.magnetometer.magneticFieldBodyFlu_T =
+      estimator.localMagneticFieldWorldEnu_T)
+  estimator.magnetometer.magneticFieldBodyFlu_T[3] <- f_x[184] (estimator.magnetometer.magneticFieldBodyFlu_T =
+      estimator.localMagneticFieldWorldEnu_T)
+  estimator.magnetometer.covarianceBody_T2[1,1] <- f_x[185] (estimator.magnetometer.covarianceBody_T2 = identity(3) * 1.0e-12)
+  estimator.magnetometer.covarianceBody_T2[1,2] <- f_x[186] (estimator.magnetometer.covarianceBody_T2 = identity(3) * 1.0e-12)
+  estimator.magnetometer.covarianceBody_T2[1,3] <- f_x[187] (estimator.magnetometer.covarianceBody_T2 = identity(3) * 1.0e-12)
+  estimator.magnetometer.covarianceBody_T2[2,1] <- f_x[188] (estimator.magnetometer.covarianceBody_T2 = identity(3) * 1.0e-12)
+  estimator.magnetometer.covarianceBody_T2[2,2] <- f_x[189] (estimator.magnetometer.covarianceBody_T2 = identity(3) * 1.0e-12)
+  estimator.magnetometer.covarianceBody_T2[2,3] <- f_x[190] (estimator.magnetometer.covarianceBody_T2 = identity(3) * 1.0e-12)
+  estimator.magnetometer.covarianceBody_T2[3,1] <- f_x[191] (estimator.magnetometer.covarianceBody_T2 = identity(3) * 1.0e-12)
+  estimator.magnetometer.covarianceBody_T2[3,2] <- f_x[192] (estimator.magnetometer.covarianceBody_T2 = identity(3) * 1.0e-12)
+  estimator.magnetometer.covarianceBody_T2[3,3] <- f_x[193] (estimator.magnetometer.covarianceBody_T2 = identity(3) * 1.0e-12)
+  estimator.opticalFlow.integratedLineOfSight_rad[1] <- f_x[194] (estimator.opticalFlow.integratedLineOfSight_rad = zeros(2))
+  estimator.opticalFlow.integratedLineOfSight_rad[2] <- f_x[195] (estimator.opticalFlow.integratedLineOfSight_rad = zeros(2))
+  estimator.opticalFlow.integratedLineOfSightCovariance_rad2[1,1] <- f_x[196] (estimator.opticalFlow.integratedLineOfSightCovariance_rad2 = identity(2))
+  estimator.opticalFlow.integratedLineOfSightCovariance_rad2[1,2] <- f_x[197] (estimator.opticalFlow.integratedLineOfSightCovariance_rad2 = identity(2))
+  estimator.opticalFlow.integratedLineOfSightCovariance_rad2[2,1] <- f_x[198] (estimator.opticalFlow.integratedLineOfSightCovariance_rad2 = identity(2))
+  estimator.opticalFlow.integratedLineOfSightCovariance_rad2[2,2] <- f_x[199] (estimator.opticalFlow.integratedLineOfSightCovariance_rad2 = identity(2))
+  estimator.opticalFlow.integratedGyroscopeBodyFlu_rad[1] <- f_x[200] (estimator.opticalFlow.integratedGyroscopeBodyFlu_rad = zeros(3))
+  estimator.opticalFlow.integratedGyroscopeBodyFlu_rad[2] <- f_x[201] (estimator.opticalFlow.integratedGyroscopeBodyFlu_rad = zeros(3))
+  estimator.opticalFlow.integratedGyroscopeBodyFlu_rad[3] <- f_x[202] (estimator.opticalFlow.integratedGyroscopeBodyFlu_rad = zeros(3))
+  estimator.opticalFlow.integratedGyroscopeCovariance_rad2[1,1] <- f_x[203] (estimator.opticalFlow.integratedGyroscopeCovariance_rad2 = identity(3))
+  estimator.opticalFlow.integratedGyroscopeCovariance_rad2[1,2] <- f_x[204] (estimator.opticalFlow.integratedGyroscopeCovariance_rad2 = identity(3))
+  estimator.opticalFlow.integratedGyroscopeCovariance_rad2[1,3] <- f_x[205] (estimator.opticalFlow.integratedGyroscopeCovariance_rad2 = identity(3))
+  estimator.opticalFlow.integratedGyroscopeCovariance_rad2[2,1] <- f_x[206] (estimator.opticalFlow.integratedGyroscopeCovariance_rad2 = identity(3))
+  estimator.opticalFlow.integratedGyroscopeCovariance_rad2[2,2] <- f_x[207] (estimator.opticalFlow.integratedGyroscopeCovariance_rad2 = identity(3))
+  estimator.opticalFlow.integratedGyroscopeCovariance_rad2[2,3] <- f_x[208] (estimator.opticalFlow.integratedGyroscopeCovariance_rad2 = identity(3))
+  estimator.opticalFlow.integratedGyroscopeCovariance_rad2[3,1] <- f_x[209] (estimator.opticalFlow.integratedGyroscopeCovariance_rad2 = identity(3))
+  estimator.opticalFlow.integratedGyroscopeCovariance_rad2[3,2] <- f_x[210] (estimator.opticalFlow.integratedGyroscopeCovariance_rad2 = identity(3))
+  estimator.opticalFlow.integratedGyroscopeCovariance_rad2[3,3] <- f_x[211] (estimator.opticalFlow.integratedGyroscopeCovariance_rad2 = identity(3))
+	Command being timed: "/nix/store/3jm89jy56cprn52iw8vanpav58hlcj1v-python3-3.12.13/bin/python3 -c import os,resource,sys; resource.setrlimit(resource.RLIMIT_CORE,(0,0)); resource.setrlimit(resource.RLIMIT_AS,(12*1024**3,12*1024**3)); os.execv(sys.argv[1],sys.argv[1:]) /nix/store/gshrjiwc2s5mdv8p875h9as7qxid94hd-rumoca-0.10.2/bin/rumoca sim $HOME/scratch/modelica_models/ci-construction-probe/ConstructionProbe.mo --model ConstructionProbe --source-root $HOME/git/modelica_models --solver rk-like --t-end .005 --dt .005 --verbose --inspect structure"
+	User time (seconds): 1.58
+	System time (seconds): 0.95
+	Percent of CPU this job got: 175%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:01.44
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 515416
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 2
+	Minor (reclaiming a frame) page faults: 3083
+	Voluntary context switches: 1728
+	Involuntary context switches: 552
+	Swaps: 0
+	File system inputs: 19176
+	File system outputs: 24128
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

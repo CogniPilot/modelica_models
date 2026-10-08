@@ -1,0 +1,49 @@
+{
+  "filter": "ekf3",
+  "covariance_sha256": "ead8bb0a53ce7314ba39bc32a670cef1175e75c1b8bfb65186cac3c96ffdbd82",
+  "scored_rows": 4970,
+  "unscored_rows": 1030,
+  "unscored_future_fusion_rows": 0,
+  "cholesky_failed_rows": 4272,
+  "first_failure": {
+    "scored_row_index": 690,
+    "publication_s": 17.1,
+    "fusion_s": 16.9,
+    "bias_period_s": 0.012500011362143753,
+    "marginal_eigenvalue_range": [
+      -2.876536167469598e-06,
+      0.03955092562833888
+    ],
+    "marginal_min_diagonal": 9.93736571451024e-08,
+    "marginal_max_asymmetry": 8.673617379884035e-19,
+    "native_eigenvalue_range": [
+      -2.3039814706251922e-08,
+      0.010001195475925047
+    ],
+    "native_min_diagonal": 0.0,
+    "native_max_asymmetry": 0.0,
+    "standardized_marginal_eigenvalue_range": [
+      -0.0019256721191240806,
+      2.1587617902606486
+    ],
+    "standardized_negative_mode_squared_components": {
+      "position_x": 0.2445535033503623,
+      "position_y": 0.22119533419734147,
+      "position_z": 0.004293608734565714,
+      "velocity_x": 0.012457617414687056,
+      "velocity_y": 0.019760654654991473,
+      "velocity_z": 3.1003756864319005e-06,
+      "attitude_x": 0.0011152548921304877,
+      "attitude_y": 0.0014384179464625073,
+      "attitude_z": 0.008405384076520252,
+      "gyro_bias_x": 4.7120383925110734e-05,
+      "gyro_bias_y": 4.423776983486125e-05,
+      "gyro_bias_z": 2.139449238394307e-05,
+      "accel_bias_x": 0.19480017703218794,
+      "accel_bias_y": 0.29186417600366205,
+      "accel_bias_z": 1.8675259306089877e-08
+    }
+  },
+  "minimum_failed_marginal_eigenvalue": -0.07551098377611877,
+  "scope": "Diagnostic only: native 24D and common 15D eigenvalues have mixed physical units. No regularization, covariance repair, epoch removal or NEES replacement."
+}
