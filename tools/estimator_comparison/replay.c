@@ -164,6 +164,8 @@ int main(int argc, char **argv) {
     fprintf(diagnostics, ",fusion_t_s,fusion_ready");
 #endif
     fprintf(diagnostics, ",bgx,bgy,bgz,bax,bay,baz");
+    fprintf(diagnostics, ",barometer_bias_m,barometer_bias_variance_m2,"
+                         "barometer_calibration_samples");
     for (int row = 0; row < 15; ++row)
       for (int column = 0; column < 15; ++column)
         fprintf(diagnostics, ",p%d_%d", row, column);
@@ -199,6 +201,9 @@ int main(int argc, char **argv) {
 #endif
 #ifdef SQUARE_ROOT_COVARIANCE
   estimator.useSquareRootCovariance = true;
+#endif
+#ifdef DECLARED_REST_BAROMETER
+  estimator.useDeclaredRestBarometerCalibration = true;
 #endif
 #else
   // Match RDD2 process noise, retaining UKF's declared initial variances.
@@ -482,6 +487,9 @@ int main(int argc, char **argv) {
         for (int axis = 0; axis < 3; ++axis)
           fprintf(diagnostics, ",%.9g",
                   estimator.accelerometerBiasBodyFlu_m_s2[axis]);
+        fprintf(diagnostics, ",%.9g,%.9g,%d", estimator.barometerBias_m,
+                estimator.barometerBiasVariance_m2,
+                estimator.barometerBiasCalibrationCount);
         for (int row = 0; row < 15; ++row)
           for (int column = 0; column < 15; ++column)
             fprintf(diagnostics, ",%.9g",

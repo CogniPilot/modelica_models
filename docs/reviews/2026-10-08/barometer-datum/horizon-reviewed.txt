@@ -1,0 +1,2 @@
+==> Rumoca composed-model lowering (pin dependent)
+    Estimation.FusionHorizon.HorizonEstimator reaches the recorded multi-rate sampled-read boundary at Estimation/FusionHorizon/HorizonEstimator.mo:259:5 (identity 585 is not owned by clock identity 0)

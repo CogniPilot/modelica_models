@@ -1,0 +1,54 @@
+Declared startup rest pressure calibration: frozen matched-data follow-up
+
+24 fresh ESKF controls reproduce their frozen published outputs byte for byte.
+24 candidate runs use the same captures, arrivals, IMU density and tuning.
+Only startup pressure calibration policy changes; the option defaults off.
+The two seeds are coupled to motion scale; this is not independent Monte Carlo.
+Native effective R/Q, priors and height/magnetic policies remain unequal.
+The datum assumes declared startup rest at the configured initial altitude.
+Native NEES uses full 24x24 covariance mapped to the common 15D marginal.
+ESKF NEES uses its delayed state and covariance at the matching fusion epoch.
+All observed native rows are retained; repeated epochs remain correlated.
+These are descriptive NEES values; lower is not inherently better.
+Per-sensor native NIS and exact joint pressure/navigation covariance are unresolved.
+No universal superiority, complete native port, or deployment qualification claim.
+
+Cases with lower RMSE than BOTH native cores (twelve conditions per row):
+estimator                             window         horizontal vertical velocity attitude yaw
+ESKF horizon control                  flight         12/12  0/12 12/12 12/12 12/12
+ESKF horizon control                  outage_window  12/12  0/12 12/12 12/12 12/12
+ESKF horizon control                  after_return   11/12  0/12 11/12 12/12 12/12
+ESKF horizon declared rest            flight         10/12 10/12 12/12 12/12 12/12
+ESKF horizon declared rest            outage_window  12/12 10/12 12/12 12/12 12/12
+ESKF horizon declared rest            after_return   10/12  6/12 12/12 12/12 12/12
+ESKF retrodiction control             flight         12/12  0/12 12/12 12/12 12/12
+ESKF retrodiction control             outage_window  10/12  0/12 12/12 12/12 12/12
+ESKF retrodiction control             after_return    9/12  0/12  8/12 12/12 12/12
+ESKF retrodiction declared rest       flight         11/12 11/12 12/12 12/12 12/12
+ESKF retrodiction declared rest       outage_window  10/12 10/12 12/12 12/12 12/12
+ESKF retrodiction declared rest       after_return   10/12  7/12  9/12 12/12 12/12
+
+Candidate flight vertical RMSE reduction versus its control: 36.3% to 50.8%
+Candidate flight horizontal RMSE change versus its control: -15.8% to +112.1%
+See paired-flight.csv for every candidate/control pair; the option stays off.
+
+Flight RMSE and NEES medians across seeds/heights:
+scenario   estimator                              vertical m  mean 15D NEES
+gps        ESKF horizon control                      0.06206         9.4838
+gps        ESKF horizon declared rest                0.03534         8.9520
+gps        ESKF retrodiction control                 0.05840        13.2501
+gps        ESKF retrodiction declared rest           0.03263        12.6352
+gps        PX4 EKF2                                  0.10492        47.7041
+gps        ArduPilot EKF3                            0.05200         1.7712
+denied     ESKF horizon control                      0.06710         7.2160
+denied     ESKF horizon declared rest                0.03778         6.4142
+denied     ESKF retrodiction control                 0.06227        11.5360
+denied     ESKF retrodiction declared rest           0.03403        10.5994
+denied     PX4 EKF2                                  0.04692         3.8348
+denied     ArduPilot EKF3                            0.05308         1.2671
+transition ESKF horizon control                      0.06345         9.6834
+transition ESKF horizon declared rest                0.03604         9.1315
+transition ESKF retrodiction control                 0.05987        13.5993
+transition ESKF retrodiction declared rest           0.03312        12.9605
+transition PX4 EKF2                                  0.16387        33.1936
+transition ArduPilot EKF3                            0.05138         1.7712

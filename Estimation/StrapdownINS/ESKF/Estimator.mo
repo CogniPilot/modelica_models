@@ -10,6 +10,7 @@ block Estimator
   output Real errorCovarianceRoot[15, 15](each start=0, each fixed=true);
   output Boolean stationaryImuCorrectionAccepted(start = false, fixed = true);
   input Boolean vehicleAtRest = false;
+  parameter Boolean useDeclaredRestBarometerCalibration = false;
   parameter Real stationaryVelocityVariance_m2_s2(unit = "m2/s2") = 0.01;
 
   parameter Boolean useEquivariantMagnetometer = false
@@ -207,6 +208,7 @@ protected
   discrete Boolean barometerBiasInitialized(start = false, fixed = true);
   discrete Boolean barometerBiasUpdateAccepted(start = false, fixed = true);
   discrete Integer barometerBiasCalibrationCount(start = 0, fixed = true);
+  discrete Boolean barometerBiasCalibrationClosed(start = false, fixed = true);
   discrete Real stateBarometerBias_m(start = 0.0, fixed = true);
   discrete Real stateBarometerBiasVariance_m2(start = 4.0, fixed = true);
   discrete Boolean terrainInitialized(start = false, fixed = true);
@@ -292,7 +294,9 @@ algorithm
     auxiliaryRotationWorldBody := LieGroups.SO3.Quat.to_DCM(
       pre(stateQuaternion));
     auxiliaryPredictedVariance_m2 := max(
-      if not reset and pre(barometerBiasCalibrationCount) > 0 then
+      if not reset and (pre(barometerBiasCalibrationCount) > 0
+          or (useDeclaredRestBarometerCalibration
+            and pre(barometerBiasInitialized))) then
         pre(stateBarometerBiasVariance_m2)
       else initialBarometerBiasVariance_m2, 1.0e-12)
       + max(barometerBiasProcessNoise_m2_s, 0.0) * samplePeriod;
@@ -301,16 +305,25 @@ algorithm
       + auxiliaryObservationVariance_m2;
     auxiliaryObservation_m := barometer.altitudeWorldEnu_m
       - initialPositionWorldEnu_m[3];
+    barometerBiasCalibrationClosed := not reset
+      and (pre(barometerBiasCalibrationClosed)
+        or (useDeclaredRestBarometerCalibration and not vehicleAtRest));
     // Average a finite stationary startup window against the declared local
     // origin. During this window the sample is withheld from the navigation
     // correction, avoiding the positive feedback caused by using the same
     // pressure observation to update both altitude and its datum.
-    if not reset and not pre(barometerBiasInitialized) and barometer.valid
+    if not reset and barometer.valid
+        and ((useDeclaredRestBarometerCalibration
+            and vehicleAtRest and not barometerBiasCalibrationClosed)
+          or (not useDeclaredRestBarometerCalibration
+            and not pre(barometerBiasInitialized)))
         and abs(barometer.timestamp_s)
           < FiniteMagnitudeLimit
         and barometer.timestamp_s
           > pre(barometerBiasTimestampConsumed_s) + 1.0e-9
+        and abs(barometer.altitudeWorldEnu_m) < FiniteMagnitudeLimit
         and barometer.variance_m2 > 0.0
+        and barometer.variance_m2 < FiniteMagnitudeLimit
         and auxiliaryInnovationVariance_m2 > 1.0e-12 then
       auxiliaryGain := auxiliaryPredictedVariance_m2
         / auxiliaryInnovationVariance_m2;
@@ -334,7 +347,10 @@ algorithm
           and pre(barometerBiasCalibrationCount) > 0
         then pre(stateBarometerBias_m) else initialBarometerBias_m;
       stateBarometerBiasVariance_m2 := auxiliaryPredictedVariance_m2;
-      barometerBiasInitialized := not reset and pre(barometerBiasInitialized);
+      barometerBiasInitialized := not reset
+        and (pre(barometerBiasInitialized)
+          or (useDeclaredRestBarometerCalibration
+            and barometerBiasCalibrationClosed));
       barometerBiasCalibrationCount := if reset then 0
         else pre(barometerBiasCalibrationCount);
       barometerBiasUpdateAccepted := false;
@@ -450,6 +466,7 @@ algorithm
         magnetometer,
         Avionics.BarometerSample(
           valid=barometer.valid and pre(barometerBiasInitialized)
+            and not barometerBiasUpdateAccepted
             and barometer.timestamp_s
               > pre(barometerBiasTimestampConsumed_s) + 1.0e-9,
           fresh=barometer.fresh,

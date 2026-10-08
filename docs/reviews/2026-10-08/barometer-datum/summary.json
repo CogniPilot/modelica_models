@@ -1,0 +1,138 @@
+{
+  "cases_per_method": 12,
+  "controls_byte_identical": 24,
+  "vertical_rmse_reduction_percent_range": [
+    36.28057949255019,
+    50.75525364982403
+  ],
+  "lower_rmse_than_both_native": [
+    {
+      "estimator": "ESKF horizon control",
+      "window": "flight",
+      "horizontal_position_rmse_m": 12,
+      "vertical_position_rmse_m": 0,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "ESKF horizon control",
+      "window": "outage_window",
+      "horizontal_position_rmse_m": 12,
+      "vertical_position_rmse_m": 0,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "ESKF horizon control",
+      "window": "after_return",
+      "horizontal_position_rmse_m": 11,
+      "vertical_position_rmse_m": 0,
+      "velocity_3d_rmse_m_s": 11,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "ESKF horizon declared rest",
+      "window": "flight",
+      "horizontal_position_rmse_m": 10,
+      "vertical_position_rmse_m": 10,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "ESKF horizon declared rest",
+      "window": "outage_window",
+      "horizontal_position_rmse_m": 12,
+      "vertical_position_rmse_m": 10,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "ESKF horizon declared rest",
+      "window": "after_return",
+      "horizontal_position_rmse_m": 10,
+      "vertical_position_rmse_m": 6,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "ESKF retrodiction control",
+      "window": "flight",
+      "horizontal_position_rmse_m": 12,
+      "vertical_position_rmse_m": 0,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "ESKF retrodiction control",
+      "window": "outage_window",
+      "horizontal_position_rmse_m": 10,
+      "vertical_position_rmse_m": 0,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "ESKF retrodiction control",
+      "window": "after_return",
+      "horizontal_position_rmse_m": 9,
+      "vertical_position_rmse_m": 0,
+      "velocity_3d_rmse_m_s": 8,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "ESKF retrodiction declared rest",
+      "window": "flight",
+      "horizontal_position_rmse_m": 11,
+      "vertical_position_rmse_m": 11,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "ESKF retrodiction declared rest",
+      "window": "outage_window",
+      "horizontal_position_rmse_m": 10,
+      "vertical_position_rmse_m": 10,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "ESKF retrodiction declared rest",
+      "window": "after_return",
+      "horizontal_position_rmse_m": 10,
+      "vertical_position_rmse_m": 7,
+      "velocity_3d_rmse_m_s": 9,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    }
+  ],
+  "horizontal_rmse_change_percent_range": [
+    -15.794003586860539,
+    112.09079823981169
+  ],
+  "worst_horizontal_regression": {
+    "estimator": "ESKF horizon declared rest",
+    "seed": 7,
+    "frequency": 0.6,
+    "climb_height_m": 4,
+    "scenario": "denied",
+    "metric": "horizontal_position_rmse_m",
+    "control": 0.04215412583772447,
+    "candidate": 0.08940502198024454,
+    "change_percent": 112.09079823981169
+  },
+  "source_sha256": {
+    "study": "5f38c785224a016163c0bf1d943c3f38453f8fbe72a3c9a00f30f30ac242198a",
+    "native": "43a83e162f38e1dca7a1382bcb154bc965cdd0e70dfa8fddfe5f946234693429",
+    "native_covariance": "f65444fab6882a6c5adeaef5a0235bb191ec8f1dea7aa3fe90e58175da547802"
+  }
+}

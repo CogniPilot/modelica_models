@@ -1,0 +1,31 @@
+    Build ESKF generated C Vehicles_Rdd2_NavigationEstimator
+    Build ESKF generated C rumoca_galec_kernels
+    Build ESKF generated C regression eskf_aiding
+    ESKF generated C eskf_aiding
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+Generated C refused nonfinite stationary variance
+Generated C refused nonfinite stationary variance
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+    Build ESKF generated C regression barometer_datum
+    ESKF generated C barometer_datum
+Declared-rest pressure calibration, withholding, duplicates, early takeoff, reset and absent rest passed

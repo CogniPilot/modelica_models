@@ -367,24 +367,42 @@ def check_eskf_native(repository: Path, output: Path) -> None:
     compiler = program("MODELICA_MODELS_CC", None, "cc")
     require_program(compiler, "C99 compiler for the ESKF aiding regression")
     code = output / "rdd2-estimator/Vehicles_Rdd2_NavigationEstimator/ProductionCode"
-    executable = output / "eskf-aiding-test.exe"
-    run_command(
-        [
-            compiler,
-            "-std=c99",
-            "-O2",
-            "-I" + str(code),
-            str(repository / "tools/estimator_comparison/eskf_aiding.c"),
-            str(code / "Vehicles_Rdd2_NavigationEstimator.c"),
-            str(code / "rumoca_galec_kernels.c"),
-            "-lm",
-            "-o",
-            str(executable),
-        ],
-        repository,
-        "Build ESKF generated C aiding regression",
-    )
-    run_command([str(executable)], repository, "ESKF generated C aiding regression")
+    objects = []
+    for source in ("Vehicles_Rdd2_NavigationEstimator", "rumoca_galec_kernels"):
+        object_file = output / (source + ".o")
+        run_command(
+            [
+                compiler,
+                "-std=c99",
+                "-O2",
+                "-I" + str(code),
+                "-c",
+                str(code / (source + ".c")),
+                "-o",
+                str(object_file),
+            ],
+            repository,
+            "Build ESKF generated C " + source,
+        )
+        objects.append(str(object_file))
+    for probe in ("eskf_aiding", "barometer_datum"):
+        executable = output / (probe + "-test.exe")
+        run_command(
+            [
+                compiler,
+                "-std=c99",
+                "-O2",
+                "-I" + str(code),
+                str(repository / "tools/estimator_comparison" / (probe + ".c")),
+                *objects,
+                "-lm",
+                "-o",
+                str(executable),
+            ],
+            repository,
+            "Build ESKF generated C regression " + probe,
+        )
+        run_command([str(executable)], repository, "ESKF generated C " + probe)
 
 
 def check_eskf_correction(
@@ -617,7 +635,7 @@ PIN_DEPENDENT_MODELS = (
     (
         "Estimation/FusionHorizon/HorizonEstimator.mo",
         "Estimation.FusionHorizon.HorizonEstimator",
-        "identity 583 is not owned by clock identity 0",
+        "identity 585 is not owned by clock identity 0",
         "Estimation/FusionHorizon/HorizonEstimator.mo:259:5",
         "filterPositionHeld_m := filter.estimate.positionWorldEnu_m",
     ),

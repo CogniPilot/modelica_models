@@ -111,6 +111,8 @@ def build(args):
                 defines.append("-DEQUIVARIANT_MAGNETOMETER")
             if args.geometric_alignment:
                 defines.append("-DGEOMETRIC_ALIGNMENT")
+            if args.declared_rest_barometer:
+                defines.append("-DDECLARED_REST_BAROMETER")
         subprocess.run(
             [
                 args.cc,
@@ -157,6 +159,7 @@ if __name__ == "__main__":
     parser.add_argument("--cc", default="cc")
     parser.add_argument("--equivariant-magnetometer", action="store_true")
     parser.add_argument("--geometric-alignment", action="store_true")
+    parser.add_argument("--declared-rest-barometer", action="store_true")
     parser.add_argument("--horizon", action="store_true")
     parser.add_argument("--semi-direct-bias", action="store_true")
     parser.add_argument("--stationary-imu", action="store_true")

@@ -77,7 +77,12 @@ def eskf(binary, capture, scenario, options, exposure, transport):
     )
     diagnostics = read(covariance)
     result["consistency"] = {}
-    for window, start, end in (("before_takeoff", 10, 13), ("flight", 13, 59.7)):
+    windows = getattr(
+        options,
+        "consistency_windows",
+        (("before_takeoff", 10, 13), ("flight", 13, 59.7)),
+    )
+    for window, start, end in windows:
         try:
             result["consistency"][window] = dict(
                 valid=True,
@@ -131,7 +136,10 @@ def eskf(binary, capture, scenario, options, exposure, transport):
             )
     if scenario == "transition":
         result["transition"] = transition(estimate, truth)
-    covariance.unlink()
+    if all(row["valid"] for row in result["consistency"].values()) and not getattr(
+        options, "retain_covariance", False
+    ):
+        covariance.unlink()
     return result
 
 
