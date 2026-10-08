@@ -26,6 +26,31 @@ def run(args):
     reference = json.loads(args.reference.read_text())
     if reference.get("native_campaign") != "stable-releases":
         raise ValueError("Use the completed stable-release comparison")
+    datum_reference_path = getattr(args, "control_datum_reference", None)
+    datum_controls = {}
+    if datum_reference_path:
+        datum_reference = json.loads(datum_reference_path.read_text())
+        if not datum_reference.get("complete") or len(datum_reference["scores"]) != 48:
+            raise ValueError("Use a completed frozen datum comparison")
+        for row in datum_reference["scores"]:
+            if row["variant"] == "candidate":
+                key = tuple(
+                    row[field]
+                    for field in (
+                        "name",
+                        "frequency",
+                        "seed",
+                        "climb_height_m",
+                        "scenario",
+                    )
+                )
+                if key in datum_controls:
+                    raise ValueError("Duplicate frozen datum control")
+                datum_controls[key] = row["output_sha256"]
+        if len(datum_controls) != 24 or datum_reference["reference_sha256"] != digest(
+            args.reference
+        ):
+            raise ValueError("Frozen datum controls do not match the native reference")
     if digest(args.transport_trace) != reference["binary_sha256"]["transport_trace"]:
         raise ValueError("Frozen packet transport executable changed")
     binaries = {
@@ -41,8 +66,11 @@ def run(args):
         },
         input_sha256=reference["input_sha256"],
         scores=[],
-        scope="Optional declared startup rest calibration; identical physical captures and arrivals. Effective native R/Q and priors remain unequal. Native scores are frozen references, not freshly replayed here.",
+        scope=getattr(args, "scope", None)
+        or "Optional declared startup rest calibration; identical physical captures and arrivals. Effective native R/Q and priors remain unequal. Native scores are frozen references, not freshly replayed here.",
     )
+    if datum_reference_path:
+        result["control_datum_reference_sha256"] = digest(datum_reference_path)
     args.work.mkdir(parents=True)
     cases = {}
     for previous in reference["scores"]:
@@ -118,7 +146,20 @@ def run(args):
                         rows["barometer_bias_variance_m2"][-1]
                     ),
                 )
-            identical = score["output_sha256"] == previous["output_sha256"]
+            control_key = tuple(
+                previous[field]
+                for field in ("name", "frequency", "seed", "climb_height_m", "scenario")
+            )
+            if datum_reference_path and control_key not in datum_controls:
+                raise ValueError(
+                    "Frozen datum reference is missing a control condition"
+                )
+            expected_control = (
+                datum_controls[control_key]
+                if datum_reference_path
+                else previous["output_sha256"]
+            )
+            identical = score["output_sha256"] == expected_control
             row = dict(
                 **score,
                 **{
@@ -162,4 +203,6 @@ if __name__ == "__main__":
         "output",
     ):
         parser.add_argument("--" + name, type=Path, required=True)
+    parser.add_argument("--control-datum-reference", type=Path)
+    parser.add_argument("--scope")
     run(parser.parse_args())

@@ -13,6 +13,7 @@ algorithm
   when sample(0.0, 0.01) then
     predicted := Estimation.StrapdownINS.ESKF.predict(
       Estimation.StrapdownINS.ESKF.State(
+        barometerBiasCrossCovariance=zeros(15),
         positionWorldEnu_m=zeros(3), velocityWorldEnu_m_s={1.0, -2.0, 0.5},
         quaternionWorldBody={1.0, 0.0, 0.0, 0.0},
         gyroscopeBiasBodyFlu_rad_s=zeros(3),

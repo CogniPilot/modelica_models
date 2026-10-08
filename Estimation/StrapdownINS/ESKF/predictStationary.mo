@@ -28,11 +28,13 @@ algorithm
       LinearAlgebra.transformCovariance(transition, previous.covariance)
         + noise),
     covarianceRoot=previous.covarianceRoot,
+    barometerBiasCrossCovariance=transition * previous.barometerBiasCrossCovariance,
     useSquareRootCovariance=previous.useSquareRootCovariance);
   if previous.useSquareRootCovariance then
     (noiseRoot, factorized) := LinearAlgebra.factorPSD(noise);
     assert(factorized, "Stationary process covariance is not positive semidefinite");
     predicted := withCovarianceRoot(predicted, LinearAlgebra.covarianceRoot(
-      cat(2, transition * previous.covarianceRoot, noiseRoot)));
+      cat(2, transition * previous.covarianceRoot, noiseRoot)),
+      predicted.barometerBiasCrossCovariance);
   end if;
 end predictStationary;

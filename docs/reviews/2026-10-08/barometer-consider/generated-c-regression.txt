@@ -1,0 +1,70 @@
+    Build ESKF generated C Vehicles_Rdd2_NavigationEstimator
+    Build ESKF generated C rumoca_galec_kernels
+    Build ESKF generated C regression eskf_aiding
+    ESKF generated C eskf_aiding
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+Generated C refused nonfinite stationary variance
+Generated C refused nonfinite stationary variance
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+    Build ESKF generated C regression barometer_datum
+    ESKF generated C barometer_datum
+Declared-rest pressure calibration, withholding, duplicates, early takeoff, reset and absent rest passed
+    Build generated pressure-datum consider regression
+    Independent pressure-datum regression, seed 20261008
+{
+  "seed": 20261008,
+  "trials": 48,
+  "counts": {
+    "corrections": 360,
+    "rejections": 26,
+    "transformations": 384,
+    "pressure": 606
+  },
+  "maximum_errors": {
+    "covariance": 1.857754036445883e-06,
+    "cross_covariance": 3.47956838968365e-07,
+    "nis": 3.2176695147012447e-07
+  },
+  "library_sha256": "078d16980181950b4fbf3758e646343da183f0b2d5167ac4b8d8c045afcb39cd",
+  "reference": "Full augmented Gaussian Joseph update with zero datum gain, followed by the matching Lie reset; no covariance repair."
+}
+    Independent pressure-datum regression, seed 911
+{
+  "seed": 911,
+  "trials": 48,
+  "counts": {
+    "corrections": 352,
+    "rejections": 34,
+    "transformations": 384,
+    "pressure": 606
+  },
+  "maximum_errors": {
+    "covariance": 1.803493407962071e-06,
+    "cross_covariance": 6.259653698117823e-07,
+    "nis": 3.211925706366545e-07
+  },
+  "library_sha256": "078d16980181950b4fbf3758e646343da183f0b2d5167ac4b8d8c045afcb39cd",
+  "reference": "Full augmented Gaussian Joseph update with zero datum gain, followed by the matching Lie reset; no covariance repair."
+}
+==> Rumoca composed-model lowering (pin dependent)
+    Estimation.FusionHorizon.HorizonEstimator reaches the recorded multi-rate sampled-read boundary at Estimation/FusionHorizon/HorizonEstimator.mo:259:5 (identity 589 is not owned by clock identity 0)

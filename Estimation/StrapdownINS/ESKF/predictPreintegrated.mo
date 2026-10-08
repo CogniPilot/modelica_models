@@ -80,5 +80,6 @@ algorithm
       previous.accelerometerBiasBodyFlu_m_s2,
     covariance=predicted.covariance,
     covarianceRoot=predicted.covarianceRoot,
+    barometerBiasCrossCovariance=predicted.barometerBiasCrossCovariance,
     useSquareRootCovariance=previous.useSquareRootCovariance);
 end predictPreintegrated;

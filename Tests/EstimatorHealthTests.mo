@@ -107,6 +107,7 @@ model EstimatorHealthTests
       Estimation.StrapdownINS.ESKF.step(
       initialized,
       Estimation.StrapdownINS.ESKF.State(
+        barometerBiasCrossCovariance=zeros(15),
         positionWorldEnu_m=position,
         velocityWorldEnu_m_s=velocity,
         quaternionWorldBody=quaternion,
@@ -352,6 +353,7 @@ model EstimatorHealthTests
       Estimation.StrapdownINS.ESKF.step(
       initialized,
       Estimation.StrapdownINS.ESKF.State(
+        barometerBiasCrossCovariance=zeros(15),
         positionWorldEnu_m=position,
         velocityWorldEnu_m_s=velocity,
         quaternionWorldBody=quaternion,

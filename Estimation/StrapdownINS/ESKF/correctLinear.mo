@@ -28,6 +28,8 @@ function correctLinear
   input Boolean headingOnly = false
     "With a unit attitudeGainAxis, update only heading and gyro bias along that axis";
   input Boolean useSemiDirectBias = false;
+  input Real measurementBarometerCrossCovariance[size(residual, 1)] =
+    zeros(size(residual, 1));
   output State corrected;
   output Boolean accepted;
   output Integer rejectionReason
@@ -56,6 +58,7 @@ protected
   NominalState correctedNominal;
   Covariance correctedCovariance;
   Covariance correctedRoot;
+  Real correctedBarometerCrossCovariance[TangentLength];
   Real noiseStateRoot[TangentLength, size(residual, 1)];
   Real measurementColumns[size(residual, 1), TangentLength];
   Real measurementRoot[size(residual, 1), size(residual, 1)];
@@ -75,7 +78,8 @@ algorithm
   for row in 1:measurementLength loop
     measurementCovarianceUsable := measurementCovarianceUsable
       and measurementCovariance[row, row] > 0.0
-      and measurementCovariance[row, row] < FiniteMagnitudeLimit;
+      and measurementCovariance[row, row] < FiniteMagnitudeLimit
+      and abs(measurementBarometerCrossCovariance[row]) < FiniteMagnitudeLimit;
     for column in 1:measurementLength loop
       measurementCovarianceUsable := measurementCovarianceUsable
         and abs(measurementCovariance[row, column]) < FiniteMagnitudeLimit;
@@ -84,6 +88,8 @@ algorithm
 
   correlatedMeasurement := false;
   for row in 1:TangentLength loop
+    measurementCovarianceUsable := measurementCovarianceUsable
+      and abs(predicted.barometerBiasCrossCovariance[row]) < FiniteMagnitudeLimit;
     for column in 1:measurementLength loop
       measurementCovarianceUsable := measurementCovarianceUsable
         and abs(measurementStateCrossCovariance[row, column]) < FiniteMagnitudeLimit;
@@ -93,6 +99,7 @@ algorithm
   end for;
 
   correctedRoot := predicted.covarianceRoot;
+  correctedBarometerCrossCovariance := predicted.barometerBiasCrossCovariance;
   measurementColumns := zeros(measurementLength, TangentLength);
   measurementRoot := zeros(measurementLength, measurementLength);
   if predicted.useSquareRootCovariance then
@@ -164,6 +171,9 @@ algorithm
     (gain, correction) := constrainGain(
       transpose(augmentedSolution[:, 1:TangentLength]), residual,
       attitudeGainAxis, headingOnly);
+    correctedBarometerCrossCovariance := predicted.barometerBiasCrossCovariance
+      - gain * (H * predicted.barometerBiasCrossCovariance
+        + measurementBarometerCrossCovariance);
 
     nominal := NominalState(
       positionWorldEnu_m=predicted.positionWorldEnu_m,
@@ -191,6 +201,8 @@ algorithm
           cat(2, zeros(6, 9), identity(6)));
       end if;
       correctedRoot := LinearAlgebra.covarianceRoot(resetJacobian * correctedRoot);
+      correctedBarometerCrossCovariance :=
+        resetJacobian * correctedBarometerCrossCovariance;
       correctedCovariance := LinearAlgebra.symmetrize(
         correctedRoot * transpose(correctedRoot));
     else
@@ -214,6 +226,8 @@ algorithm
         resetJacobian := SemiDirectBias.resetJacobian(correction);
         correctedCovariance := LinearAlgebra.symmetrize(
           LinearAlgebra.transformCovariance(resetJacobian, posteriorCovariance));
+        correctedBarometerCrossCovariance :=
+          resetJacobian * correctedBarometerCrossCovariance;
       else
         // The reset Jacobian is the block diagonal diag(J, identity(6)) with
         // literal zeros off the diagonal, so the conjugation is done blockwise in
@@ -225,6 +239,9 @@ algorithm
         correctedCovariance := LinearAlgebra.symmetrize(
           conjugateReset(
             resetRotationJacobian, posteriorCovariance));
+        correctedBarometerCrossCovariance := cat(1,
+          resetRotationJacobian * correctedBarometerCrossCovariance[1:9],
+          correctedBarometerCrossCovariance[10:TangentLength]);
       end if;
     end if;
   else
@@ -249,5 +266,6 @@ algorithm
       correctedNominal.accelerometerBiasBodyFlu_m_s2,
     covariance=correctedCovariance,
     useSquareRootCovariance=predicted.useSquareRootCovariance,
-    covarianceRoot=correctedRoot);
+    covarianceRoot=correctedRoot,
+    barometerBiasCrossCovariance=correctedBarometerCrossCovariance);
 end correctLinear;

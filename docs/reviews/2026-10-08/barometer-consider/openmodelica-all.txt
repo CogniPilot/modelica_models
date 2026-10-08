@@ -1,0 +1,39 @@
+true
+
+"$HOME/scratch/modelica_models/barometer-consider/omc"
+"$HOME/scratch/modelica_models/barometer-consider/omc"
+"Check of Tests.All completed successfully.
+Class Tests.All has 5650 equation(s) and 5650 variable(s).
+2734 of these are trivial equation(s)."
+Check of Tests.All completed successfully.
+Class Tests.All has 5650 equation(s) and 5650 variable(s).
+2734 of these are trivial equation(s).
+Notification: Automatically loaded package LieGroups (default) due to usage.
+Notification: Automatically loaded package Estimation (default) due to usage.
+Notification: Automatically loaded package Avionics (default) due to usage.
+Notification: Automatically loaded package Vehicles (default) due to usage.
+Notification: Automatically loaded package RigidBody (default) due to usage.
+Notification: Automatically loaded package LinearAlgebra (default) due to usage.
+Notification: Automatically loaded package MathUtilities (default) due to usage.
+Notification: Automatically loaded package Planning (default) due to usage.
+Notification: Automatically loaded package Polynomials (default) due to usage.
+Notification: Automatically loaded package Geodesy (default) due to usage.
+Notification: Automatically loaded package Control (default) due to usage.
+
+record SimulationResult
+    resultFile = "$HOME/scratch/modelica_models/barometer-consider/omc/modelica_models_Tests_All_res.mat",
+    simulationOptions = "startTime = 0.0, stopTime = 1.0, numberOfIntervals = 1000, tolerance = 1e-8, method = 'dassl', fileNamePrefix = 'modelica_models_Tests_All', options = '', outputFormat = 'mat', variableFilter = '.*', cflags = '', simflags = ''",
+    messages = "LOG_SUCCESS       | info    | The initialization finished successfully without homotopy method.
+LOG_SUCCESS       | info    | The simulation finished successfully.
+",
+    timeFrontend = 4.467287054,
+    timeBackend = 1.623326093,
+    timeSimCode = 0.456001233,
+    timeTemplates = 1.046351248,
+    timeCompile = 96.421031722,
+    timeSimulation = 2.033255339,
+    timeTotal = 106.047434819
+end SimulationResult;
+"Warning: The initial conditions are not fully specified. For more information set -d=initialization. In OMEdit Tools->Options->Simulation->Show additional information from the initialization process, in OMNotebook call setCommandLineOptions(\"-d=initialization\").
+"
+"$HOME/scratch/modelica_models/barometer-consider/omc/modelica_models_Tests_All_res.mat"

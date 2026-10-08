@@ -11,5 +11,6 @@ algorithm
     accelerometerBiasBodyFlu_m_s2=previous.accelerometerBiasBodyFlu_m_s2,
     covariance=previous.covariance,
     useSquareRootCovariance=previous.useSquareRootCovariance,
-    covarianceRoot=previous.covarianceRoot);
+    covarianceRoot=previous.covarianceRoot,
+    barometerBiasCrossCovariance=previous.barometerBiasCrossCovariance);
 end copyState;

@@ -5,4 +5,5 @@ record State "Nominal state and full local-error tangent covariance"
   Covariance covariance;
   Boolean useSquareRootCovariance;
   Covariance covarianceRoot;
+  Real barometerBiasCrossCovariance[TangentLength];
 end State;

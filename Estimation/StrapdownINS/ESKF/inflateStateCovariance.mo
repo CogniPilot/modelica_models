@@ -19,8 +19,10 @@ algorithm
         - previous.covariance[row, row], 0.0));
     end for;
     inflated := withCovarianceRoot(previous, LinearAlgebra.covarianceRoot(
-      cat(2, previous.covarianceRoot, addendRoot)));
+      cat(2, previous.covarianceRoot, addendRoot)),
+      previous.barometerBiasCrossCovariance);
   else
-    inflated := withDenseCovariance(previous, inflatedCovariance);
+    inflated := withDenseCovariance(previous, inflatedCovariance,
+      previous.barometerBiasCrossCovariance);
   end if;
 end inflateStateCovariance;

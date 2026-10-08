@@ -33,6 +33,8 @@ algorithm
     accelerometerBiasBodyFlu_m_s2=predicted.accelerometerBiasBodyFlu_m_s2,
     covariance=restored,
     covarianceRoot=predicted.covarianceRoot,
+    barometerBiasCrossCovariance=cat(1, zeros(6),
+      predicted.barometerBiasCrossCovariance[7:TangentLength]),
     useSquareRootCovariance=predicted.useSquareRootCovariance);
   if predicted.useSquareRootCovariance then
     root := diagonal(cat(1,
@@ -41,6 +43,7 @@ algorithm
       zeros(TangentLength - 6)));
     root[7:TangentLength, 7:TangentLength] := LinearAlgebra.covarianceRoot(
       predicted.covarianceRoot[7:TangentLength, :]);
-    reseededState := withCovarianceRoot(reseededState, root);
+    reseededState := withCovarianceRoot(reseededState, root,
+      reseededState.barometerBiasCrossCovariance);
   end if;
 end reseed;

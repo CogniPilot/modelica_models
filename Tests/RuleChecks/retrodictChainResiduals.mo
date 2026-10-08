@@ -45,6 +45,7 @@ algorithm
 
     chain := Tests.RuleChecks.retrodictChain(
       Estimation.StrapdownINS.ESKF.State(
+        barometerBiasCrossCovariance=zeros(15),
         positionWorldEnu_m = position,
         velocityWorldEnu_m_s = velocity,
         quaternionWorldBody = quaternion,
@@ -55,6 +56,7 @@ algorithm
       angularVelocity, specificForce, gravity, age_s);
     difference := Tests.RuleChecks.fdRetrodictJacobian(
       Estimation.StrapdownINS.ESKF.State(
+        barometerBiasCrossCovariance=zeros(15),
         positionWorldEnu_m = position,
         velocityWorldEnu_m_s = velocity,
         quaternionWorldBody = quaternion,

@@ -174,6 +174,10 @@ int main(int argc, char **argv) {
       for (int column = 0; column < 15; ++column)
         fprintf(diagnostics, ",l%d_%d", row, column);
 #endif
+#ifndef COMPARE_UKF
+    for (unsigned axis = 0; axis < 15; ++axis)
+      fprintf(diagnostics, ",barometer_cross_%u", axis);
+#endif
     fputc('\n', diagnostics);
   }
   NavigationEstimator_startup(&estimator);
@@ -204,6 +208,9 @@ int main(int argc, char **argv) {
 #endif
 #ifdef DECLARED_REST_BAROMETER
   estimator.useDeclaredRestBarometerCalibration = true;
+#endif
+#ifdef BAROMETER_BIAS_CONSIDER
+  estimator.useBarometerBiasConsider = true;
 #endif
 #else
   // Match RDD2 process noise, retaining UKF's declared initial variances.
@@ -499,6 +506,10 @@ int main(int argc, char **argv) {
           for (int column = 0; column < 15; ++column)
             fprintf(diagnostics, ",%.9g",
                     estimator.errorCovarianceRoot[row][column]);
+#endif
+#ifndef COMPARE_UKF
+        for (unsigned axis = 0; axis < 15; ++axis)
+          fprintf(diagnostics, ",%.9g", estimator.barometerBiasCrossCovariance[axis]);
 #endif
         fputc('\n', diagnostics);
       }

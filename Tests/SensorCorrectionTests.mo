@@ -87,6 +87,7 @@ model SensorCorrectionTests
       "Terrain variance did not contract after a valid range observation");
 
     predicted := Estimation.StrapdownINS.ESKF.State(
+      barometerBiasCrossCovariance=zeros(15),
       positionWorldEnu_m={0.0, 0.0, 2.0},
       velocityWorldEnu_m_s={1.0, 0.0, 0.0},
       quaternionWorldBody={1.0, 0.0, 0.0, 0.0},
@@ -202,6 +203,7 @@ model SensorCorrectionTests
     mocapAge_s := 0.02;
     mocapVelocity_m_s := {5.0, 0.0, 0.0};
     agedPrior := Estimation.StrapdownINS.ESKF.State(
+      barometerBiasCrossCovariance=zeros(15),
       positionWorldEnu_m={10.0, 0.0, 2.0},
       velocityWorldEnu_m_s=mocapVelocity_m_s,
       quaternionWorldBody={1.0, 0.0, 0.0, 0.0},

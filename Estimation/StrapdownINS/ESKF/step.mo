@@ -122,6 +122,7 @@ function step
   output Boolean zeroVelocityCorrectionAccepted;
   output Boolean stationaryImuCorrectionAccepted;
   output Covariance covarianceRootNext;
+  output Real barometerBiasCrossCovarianceNext[TangentLength];
 protected
   State prior;
   State working;
@@ -525,7 +526,9 @@ algorithm
           heldDynamics, tuning.processNoise, dt);
       else
         working := withDenseCovariance(prior,
-          holdCovariance(prior.covariance, dt, tuning.processNoise));
+          holdCovariance(prior.covariance, dt, tuning.processNoise),
+          discreteTransition(continuousTransition(zeros(3), zeros(3)), dt)
+            * prior.barometerBiasCrossCovariance);
       end if;
     else
       // A valid held packet means the high-rate preintegrator is still
@@ -660,7 +663,8 @@ algorithm
           imuAngularVelocityHeldNext_rad_s,
           imuSpecificForceHeldNext_m_s2, gravityWorldEnu_m_s2,
           tuning.maximumAidingDelay_s,
-          tuning.useSemiDirectBias);
+          tuning.useSemiDirectBias, tuning.useBarometerBiasConsider,
+          tuning.barometerBiasProcessNoise_m2_s);
       if not absoluteAidingAttempted and not opticalFlowAttempted then
         correctionAccepted := barometerCorrectionAccepted;
         correctionSource := SourceBarometer;
@@ -798,6 +802,7 @@ algorithm
   accelerometerBiasNext := working.accelerometerBiasBodyFlu_m_s2;
   covarianceNext := working.covariance;
   covarianceRootNext := working.covarianceRoot;
+  barometerBiasCrossCovarianceNext := working.barometerBiasCrossCovariance;
   initializedNext := not alignmentPending;
   estimateValid := initializedNext
     and nominalStateFinite(positionNext, velocityNext, quaternionNext);

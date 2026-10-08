@@ -22,10 +22,12 @@ algorithm
       transition * previous.covarianceRoot,
       sqrt(dt / 6.0) * drivenRoot,
       sqrt(2.0 * dt / 3.0) * discreteTransition(dynamics, 0.5 * dt) * drivenRoot,
-      sqrt(dt / 6.0) * discreteTransition(dynamics, dt) * drivenRoot)));
+      sqrt(dt / 6.0) * discreteTransition(dynamics, dt) * drivenRoot)),
+      transition * previous.barometerBiasCrossCovariance);
   else
     predicted := withDenseCovariance(previous, LinearAlgebra.symmetrize(
       LinearAlgebra.transformCovariance(transition, previous.covariance)
-        + discreteProcessCovariance(dynamics, noiseInputMatrix(), noise, dt)));
+        + discreteProcessCovariance(dynamics, noiseInputMatrix(), noise, dt)),
+      transition * previous.barometerBiasCrossCovariance);
   end if;
 end predictCovariance;

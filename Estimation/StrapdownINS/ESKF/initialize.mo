@@ -29,6 +29,7 @@ algorithm
     accelerometerBiasBodyFlu_m_s2=initialAccelerometerBiasBodyFlu_m_s2,
     covariance=initialCovariance,
     useSquareRootCovariance=useSquareRootCovariance,
+    barometerBiasCrossCovariance=zeros(TangentLength),
     covarianceRoot=if useSquareRootCovariance then diagonal(
       {sqrt(initialCovariance[axis, axis]) for axis in 1:TangentLength})
       else zeros(TangentLength, TangentLength));

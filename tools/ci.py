@@ -266,6 +266,13 @@ def run_rumoca_tests(repository: Path) -> None:
                 "square-root-correction-kernel",
             ),
             (
+                "Tests/BarometerConsiderReplay.mo",
+                "Tests.BarometerConsiderReplay",
+                "--target",
+                "galec-production",
+                "barometer-consider-kernel",
+            ),
+            (
                 "Estimation/FusionHorizon/OutputPredictor.mo",
                 "Estimation.FusionHorizon.OutputPredictor",
                 "--target",
@@ -356,6 +363,7 @@ def run_rumoca_tests(repository: Path) -> None:
             "Reject impossible ESKF error/noise covariances",
         )
         check_covariance_root(repository, output)
+        check_barometer_consider(repository, output)
         check_raw_prediction(repository, output)
         check_horizon_native(repository, output)
         check_ukf_native(repository, rumoca, output)
@@ -385,7 +393,7 @@ def check_eskf_native(repository: Path, output: Path) -> None:
             "Build ESKF generated C " + source,
         )
         objects.append(str(object_file))
-    for probe in ("eskf_aiding", "barometer_datum"):
+    for probe in ("eskf_aiding", "barometer_datum", "barometer_consider_datum"):
         executable = output / (probe + "-test.exe")
         run_command(
             [
@@ -457,6 +465,54 @@ def check_eskf_correction(
             ],
             repository,
             f"Independent ESKF correction regression, seed {seed}",
+        )
+
+
+def check_barometer_consider(repository: Path, output: Path) -> None:
+    compiler = program("MODELICA_MODELS_CC", None, "cc")
+    require_program(compiler, "C99 compiler for pressure-datum regression")
+    code = (
+        output
+        / "barometer-consider-kernel/Tests_BarometerConsiderReplay/ProductionCode"
+    )
+    suffix = {"win32": ".dll", "darwin": ".dylib"}.get(sys.platform, ".so")
+    library = output / ("barometer-consider-kernel" + suffix)
+    run_command(
+        [
+            compiler,
+            "-std=c99",
+            "-O2",
+            "-pipe",
+            "-fPIC",
+            "-dynamiclib" if sys.platform == "darwin" else "-shared",
+            "-I" + str(code),
+            str(repository / "tools/estimator_comparison/barometer_consider.c"),
+            str(code / "Tests_BarometerConsiderReplay.c"),
+            str(code / "rumoca_galec_kernels.c"),
+            "-lm",
+            "-o",
+            str(library),
+        ],
+        repository,
+        "Build generated pressure-datum consider regression",
+    )
+    for seed in (20261008, 911):
+        run_command(
+            [
+                sys.executable,
+                str(
+                    repository
+                    / "tools/estimator_comparison/check_barometer_consider.py"
+                ),
+                "--library",
+                str(library),
+                "--seed",
+                str(seed),
+                "--output",
+                str(output / f"barometer-consider-{seed}.json"),
+            ],
+            repository,
+            f"Independent pressure-datum regression, seed {seed}",
         )
 
 
@@ -635,7 +691,7 @@ PIN_DEPENDENT_MODELS = (
     (
         "Estimation/FusionHorizon/HorizonEstimator.mo",
         "Estimation.FusionHorizon.HorizonEstimator",
-        "identity 585 is not owned by clock identity 0",
+        "identity 589 is not owned by clock identity 0",
         "Estimation/FusionHorizon/HorizonEstimator.mo:259:5",
         "filterPositionHeld_m := filter.estimate.positionWorldEnu_m",
     ),

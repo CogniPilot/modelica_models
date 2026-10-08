@@ -21,6 +21,7 @@ algorithm
     LieGroups.SE23.Quat.exp_map(perturbation[1:9]));
   perturbedVector := Estimation.StrapdownINS.ESKF.retrodict(
     Estimation.StrapdownINS.ESKF.State(
+      barometerBiasCrossCovariance=zeros(15),
       positionWorldEnu_m = perturbedPose[1:3],
       velocityWorldEnu_m_s = perturbedPose[4:6],
       quaternionWorldBody = perturbedPose[7:10],

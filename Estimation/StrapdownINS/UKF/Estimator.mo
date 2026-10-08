@@ -258,6 +258,7 @@ algorithm
      estimate.angularVelocityWorldEnu_rad_s) :=
       Estimation.StrapdownINS.ESKF.navigationEstimate(
         Estimation.StrapdownINS.ESKF.State(
+          barometerBiasCrossCovariance=zeros(15),
           positionWorldEnu_m=statePositionWorldEnu_m,
           velocityWorldEnu_m_s=stateVelocityWorldEnu_m_s,
           quaternionWorldBody=stateQuaternionWorldBody,

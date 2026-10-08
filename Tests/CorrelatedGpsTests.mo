@@ -87,6 +87,7 @@ model CorrelatedGpsTests
     inputCovariance := cat(1, cat(2, zeros(3, 3), zeros(3, 3)),
       cat(2, zeros(3, 3), 3.0 * identity(3)));
     prior := Estimation.StrapdownINS.ESKF.State(
+      barometerBiasCrossCovariance=zeros(15),
       positionWorldEnu_m=zeros(3), velocityWorldEnu_m_s=zeros(3),
       quaternionWorldBody={1.0, 0.0, 0.0, 0.0},
       gyroscopeBiasBodyFlu_rad_s=zeros(3), accelerometerBiasBodyFlu_m_s2=zeros(3),

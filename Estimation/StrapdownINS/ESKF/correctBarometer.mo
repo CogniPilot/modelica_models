@@ -13,6 +13,8 @@ function correctBarometer
   input Real gravityWorldEnu_m_s2[3] = {0.0, 0.0, -9.81};
   input Real maximumAidingDelay_s(unit = "s") = 0.25;
   input Boolean useSemiDirectBias = false;
+  input Boolean useBarometerBiasConsider = false;
+  input Real barometerBiasProcessNoise_m2_s = 0.0;
   output State corrected;
   output Boolean accepted;
   output Integer rejectionReason;
@@ -27,6 +29,9 @@ protected
   Real delayedH[1, TangentLength];
   Real H[1, TangentLength];
   Real measurementCovariance[1, 1];
+  Real measurementStateCrossCovariance[TangentLength, 1];
+  Real measurementBarometerCrossCovariance[1];
+  Real observationBiasVariance_m2;
   Real verticalDirectionLocal[3];
   Real verticalVariance_m2;
   Real covarianceFloor[TangentLength, TangentLength];
@@ -59,17 +64,32 @@ algorithm
   H := delayedH * currentToDelayed;
   measurementCovariance[1, 1] := measurement.variance_m2
     + max(barometerBiasVariance_m2, 0.0);
+  measurementStateCrossCovariance := zeros(TangentLength, 1);
+  measurementBarometerCrossCovariance := zeros(1);
+  observationBiasVariance_m2 := barometerBiasVariance_m2;
+  if useBarometerBiasConsider then
+    observationBiasVariance_m2 := barometerBiasVariance_m2
+      - max(barometerBiasProcessNoise_m2_s, 0.0) * max(measurementAge_s, 0.0);
+    measurementCovariance[1, 1] := measurement.variance_m2
+      + observationBiasVariance_m2;
+    measurementStateCrossCovariance :=
+      transpose({predicted.barometerBiasCrossCovariance});
+    measurementBarometerCrossCovariance[1] := observationBiasVariance_m2;
+  end if;
   candidate := copyState(predicted);
   candidateAccepted := false;
   candidateNis := 0.0;
   if measurementAge_s < -1.0e-6
       or measurementAge_s > maximumAidingDelay_s then
     candidateRejectionReason := CorrectionRejectedTimestamp;
+  elseif useBarometerBiasConsider and not (observationBiasVariance_m2 >= 0.0
+      and observationBiasVariance_m2 < FiniteMagnitudeLimit) then
+    candidateRejectionReason := CorrectionRejectedCovarianceUnusable;
   else
     (candidate, candidateAccepted, candidateRejectionReason, candidateNis) :=
       correctLinear(predicted, residual, H, measurementCovariance,
-        innovationGate, zeros(3), zeros(TangentLength, size(residual, 1)),
-        false, useSemiDirectBias);
+        innovationGate, zeros(3), measurementStateCrossCovariance,
+        false, useSemiDirectBias, measurementBarometerCrossCovariance);
   end if;
   // The learned pressure datum is one common nuisance variable, not a new
   // independent error on every packet. Preserve its posterior uncertainty.
@@ -86,16 +106,18 @@ algorithm
   covarianceFloor := zeros(TangentLength, TangentLength);
   covarianceFloor[1:3, 1:3] := floorIncrement_m2
     * transpose({verticalDirectionLocal}) * {verticalDirectionLocal};
-  if candidate.useSquareRootCovariance then
+  if useBarometerBiasConsider then
+    corrected := copyState(candidate);
+  elseif candidate.useSquareRootCovariance then
     floorColumns := zeros(TangentLength, TangentLength + 1);
     floorColumns[:, 1:TangentLength] := candidate.covarianceRoot;
     floorColumns[:, TangentLength + 1] := cat(1,
       sqrt(floorIncrement_m2) * verticalDirectionLocal, zeros(TangentLength - 3));
     corrected := withCovarianceRoot(candidate,
-      LinearAlgebra.covarianceRoot(floorColumns));
+      LinearAlgebra.covarianceRoot(floorColumns), candidate.barometerBiasCrossCovariance);
   else
     corrected := withDenseCovariance(candidate, LinearAlgebra.symmetrize(
-      candidate.covariance + covarianceFloor));
+      candidate.covariance + covarianceFloor), candidate.barometerBiasCrossCovariance);
   end if;
   accepted := candidateAccepted;
   rejectionReason := candidateRejectionReason;
