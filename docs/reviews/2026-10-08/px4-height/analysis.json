@@ -1,0 +1,68 @@
+{
+  "cases": [
+    {
+      "scenario": "gps",
+      "rows": 4670,
+      "mode_fractions": {
+        "range_height": 0.034903640256959315,
+        "range_terrain": 1.0,
+        "flow_terrain": 0.9629550321199144,
+        "barometer_height": 1.0,
+        "gps_height": 1.0,
+        "in_air": 1.0,
+        "range_kinematic_consistent": 1.0,
+        "range_fault": 0.0
+      },
+      "height_reference_fractions": {
+        "0": 0.9650963597430406,
+        "1": 0.0,
+        "2": 0.034903640256959315,
+        "3": 0.0,
+        "4": 0.0
+      }
+    },
+    {
+      "scenario": "denied",
+      "rows": 4670,
+      "mode_fractions": {
+        "range_height": 0.034903640256959315,
+        "range_terrain": 1.0,
+        "flow_terrain": 0.9629550321199144,
+        "barometer_height": 1.0,
+        "gps_height": 0.0,
+        "in_air": 1.0,
+        "range_kinematic_consistent": 1.0,
+        "range_fault": 0.0
+      },
+      "height_reference_fractions": {
+        "0": 0.9650963597430406,
+        "1": 0.0,
+        "2": 0.034903640256959315,
+        "3": 0.0,
+        "4": 0.0
+      }
+    },
+    {
+      "scenario": "transition",
+      "rows": 4670,
+      "mode_fractions": {
+        "range_height": 0.034903640256959315,
+        "range_terrain": 1.0,
+        "flow_terrain": 0.9629550321199144,
+        "barometer_height": 1.0,
+        "gps_height": 0.6745182012847966,
+        "in_air": 1.0,
+        "range_kinematic_consistent": 1.0,
+        "range_fault": 0.0
+      },
+      "height_reference_fractions": {
+        "0": 0.9650963597430406,
+        "1": 0.0,
+        "2": 0.034903640256959315,
+        "3": 0.0,
+        "4": 0.0
+      }
+    }
+  ],
+  "scope": "Known seed-911 diagnostic. Public post-update mode flags, not accepted fusion counts, accuracy ablation, or attribution of the vertical RMS difference."
+}

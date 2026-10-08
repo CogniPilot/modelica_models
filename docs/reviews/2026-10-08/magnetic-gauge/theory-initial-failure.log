@@ -1,0 +1,81 @@
+/home/jgoppert/scratch/modelica_models/magnetic-gauge/theory/MagneticGauge.lean:66:39: error(lean.unknownIdentifier): Unknown identifier `map_smul₂`
+Try this:
+  [apply] ring_nf
+
+  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.
+
+  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.
+/home/jgoppert/scratch/modelica_models/magnetic-gauge/theory/MagneticGauge.lean:64:66: error: unsolved goals
+case h
+p y : Vec3
+hp : p ⬝ᵥ p = 1
+hy : y ⬝ᵥ y = 1
+hd : 1 + p ⬝ᵥ y ≠ 0
+axis : Fin 3
+⊢ ((1 / 2) • crossProduct (p + y)) ((crossProduct y) p) axis * 2 = p ⬝ᵥ y * y axis - p ⬝ᵥ y * p axis + y axis - p axis
+/home/jgoppert/scratch/modelica_models/magnetic-gauge/theory/MagneticGauge.lean:66:50: warning: This simp argument is unused:
+  smul_smul
+
+Hint: Omit it from the simp argument list.
+  simp only [shortestCayley, map_smul, map_smul₂, s̵m̵u̵l̵_̵s̵m̵u̵l̵,̵
+  ̵ ̵ ̵ ̵ ̵cross_cross_eq_smul_sub_smul', add_dotProduct,
+  ̲  ̲ ̲ ̲dotProduct_add,
+  ̵  ̵ ̵ ̵hp, hy, dotProduct_comm y p]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/home/jgoppert/scratch/modelica_models/magnetic-gauge/theory/MagneticGauge.lean:67:4: warning: This simp argument is unused:
+  cross_cross_eq_smul_sub_smul'
+
+Hint: Omit it from the simp argument list.
+  simp only [shortestCayley, map_smul, map_smul₂, smul_smul, c̵r̵o̵s̵s̵_̵c̵r̵o̵s̵s̵_̵e̵q̵_̵s̵m̵u̵l̵_̵s̵u̵b̵_̵s̵m̵u̵l̵'̵,̵ ̵add_dotProduct, dotProduct_add, hp, hy,
+  ̲  ̲ ̲ ̲dotProduct_comm y p]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/home/jgoppert/scratch/modelica_models/magnetic-gauge/theory/MagneticGauge.lean:67:35: warning: This simp argument is unused:
+  add_dotProduct
+
+Hint: Omit it from the simp argument list.
+  simp only [shortestCayley, map_smul, map_smul₂, smul_smul, cross_cross_eq_smul_sub_smul',
+  ̲  ̲ ̲ ̲a̵d̵d̵_̵d̵o̵t̵P̵r̵o̵d̵u̵c̵t̵,̵ ̵dotProduct_add, hp, hy, dotProduct_comm y p]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/home/jgoppert/scratch/modelica_models/magnetic-gauge/theory/MagneticGauge.lean:67:51: warning: This simp argument is unused:
+  dotProduct_add
+
+Hint: Omit it from the simp argument list.
+  simp only [shortestCayley, map_smul, map_smul₂, smul_smul, cross_cross_eq_smul_sub_smul',
+  ̲  ̲ ̲ ̲add_dotProduct, d̵o̵t̵P̵r̵o̵d̵u̵c̵t̵_̵a̵d̵d̵,̵hp, hy, dotProduct_comm y p]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/home/jgoppert/scratch/modelica_models/magnetic-gauge/theory/MagneticGauge.lean:68:4: warning: This simp argument is unused:
+  hp
+
+Hint: Omit it from the simp argument list.
+  simp only [shortestCayley, map_smul, map_smul₂, smul_smul, cross_cross_eq_smul_sub_smul',
+  ̲  ̲ ̲ ̲add_dotProduct, dotProduct_add, h̵p̵,̵ ̵hy, dotProduct_comm y p]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/home/jgoppert/scratch/modelica_models/magnetic-gauge/theory/MagneticGauge.lean:68:8: warning: This simp argument is unused:
+  hy
+
+Hint: Omit it from the simp argument list.
+  simp only [shortestCayley, map_smul, map_smul₂, smul_smul, cross_cross_eq_smul_sub_smul',
+  ̲  ̲ ̲ ̲add_dotProduct, dotProduct_add, hp, h̵y̵,̵ ̵dotProduct_comm y p]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+/home/jgoppert/scratch/modelica_models/magnetic-gauge/theory/MagneticGauge.lean:68:12: warning: This simp argument is unused:
+  dotProduct_comm y p
+
+Hint: Omit it from the simp argument list.
+  simp only [shortestCayley, map_smul, map_smul₂, smul_smul, cross_cross_eq_smul_sub_smul',
+  ̲  ̲ ̲ ̲add_dotProduct, dotProduct_add, hp, h̵y̵,̵ ̵d̵o̵t̵P̵r̵o̵d̵u̵c̵t̵_̵c̵o̵m̵m̵ ̵y̵ ̵p̵]̵h̲y̲]̲
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+'GNC.MagneticGauge.projected_action' depends on axioms: [propext, Classical.choice, Quot.sound]
+'GNC.MagneticGauge.projected_nullspace' depends on axioms: [propext, Classical.choice, Quot.sound]
+'GNC.MagneticGauge.projected_preserves_transverse_action' depends on axioms: [propext, Classical.choice, Quot.sound]
+'GNC.MagneticGauge.projected_preserves_secant' depends on axioms: [propext, Classical.choice, Quot.sound]
+'GNC.MagneticGauge.projected_zero_direction_information' depends on axioms: [propext, Classical.choice, Quot.sound]
+'GNC.MagneticGauge.stationary_attitude_bias_ambiguity' depends on axioms: [propext, Classical.choice, Quot.sound]
+'GNC.MagneticGauge.shortest_cayley_transverse' depends on axioms: [propext, Classical.choice, Quot.sound]
+'GNC.MagneticGauge.symmetric_cayley_secant' depends on axioms: [propext, sorryAx, Classical.choice, Quot.sound]

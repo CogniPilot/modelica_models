@@ -1,0 +1,208 @@
+{
+  "complete": true,
+  "cases": 24,
+  "paired_metric_rows": 432,
+  "common15_all_windows_valid": true,
+  "full16_cases": 12,
+  "full16_rows": 59640,
+  "full16": [
+    {
+      "name": "horizon_joint",
+      "stationary": false,
+      "scenario": "gps",
+      "covariance_sha256": "75e7b8374edf6d1874885399c6234505a2d3be0e3cdb436a7658651350c601ad",
+      "rows": 4970,
+      "start_s": 117,
+      "end_s": 166.7,
+      "horizon": true,
+      "minimum_datum_schur_variance_m2": 0.00031214329646900296,
+      "scope": "Round-trip-safe 9-digit CSV recovered to actual float32 values. Full 16D Cholesky and pressure Schur checks; no symmetrization, jitter or repair. State-output parity must be verified separately."
+    },
+    {
+      "name": "retrodiction_joint",
+      "stationary": false,
+      "scenario": "gps",
+      "covariance_sha256": "052e9ae13037947019fd692744d7167b1aaf495c6cc84860c02bee42b3e3d32b",
+      "rows": 4970,
+      "start_s": 117,
+      "end_s": 166.7,
+      "horizon": false,
+      "minimum_datum_schur_variance_m2": 0.00031326843920435275,
+      "scope": "Round-trip-safe 9-digit CSV recovered to actual float32 values. Full 16D Cholesky and pressure Schur checks; no symmetrization, jitter or repair. State-output parity must be verified separately."
+    },
+    {
+      "name": "horizon_joint",
+      "stationary": true,
+      "scenario": "gps",
+      "covariance_sha256": "e4fc0cc3c08d1bf3b228a7dbf138014df9c2a2d7bf7fbc28f14972c3d1cd6d55",
+      "rows": 4970,
+      "start_s": 117,
+      "end_s": 166.7,
+      "horizon": true,
+      "minimum_datum_schur_variance_m2": 0.00031214329646900296,
+      "scope": "Round-trip-safe 9-digit CSV recovered to actual float32 values. Full 16D Cholesky and pressure Schur checks; no symmetrization, jitter or repair. State-output parity must be verified separately."
+    },
+    {
+      "name": "retrodiction_joint",
+      "stationary": true,
+      "scenario": "gps",
+      "covariance_sha256": "713bd083c92962d31a7b58e919d7cc4b9ce45f55443ac3b9e62267703cba3b2d",
+      "rows": 4970,
+      "start_s": 117,
+      "end_s": 166.7,
+      "horizon": false,
+      "minimum_datum_schur_variance_m2": 0.00031326844022670406,
+      "scope": "Round-trip-safe 9-digit CSV recovered to actual float32 values. Full 16D Cholesky and pressure Schur checks; no symmetrization, jitter or repair. State-output parity must be verified separately."
+    },
+    {
+      "name": "horizon_joint",
+      "stationary": false,
+      "scenario": "denied",
+      "covariance_sha256": "c6380e22f42b87bb7c3928da9ddc2542942ec7d292cb59b26c55f0c9c66a4afd",
+      "rows": 4970,
+      "start_s": 117,
+      "end_s": 166.7,
+      "horizon": true,
+      "minimum_datum_schur_variance_m2": 0.00031214329646900296,
+      "scope": "Round-trip-safe 9-digit CSV recovered to actual float32 values. Full 16D Cholesky and pressure Schur checks; no symmetrization, jitter or repair. State-output parity must be verified separately."
+    },
+    {
+      "name": "retrodiction_joint",
+      "stationary": false,
+      "scenario": "denied",
+      "covariance_sha256": "1f6224308df8707b4fef059d9b59ff215814525c13c66c5bde0350e217516fa2",
+      "rows": 4970,
+      "start_s": 117,
+      "end_s": 166.7,
+      "horizon": false,
+      "minimum_datum_schur_variance_m2": 0.0003132684302910145,
+      "scope": "Round-trip-safe 9-digit CSV recovered to actual float32 values. Full 16D Cholesky and pressure Schur checks; no symmetrization, jitter or repair. State-output parity must be verified separately."
+    },
+    {
+      "name": "horizon_joint",
+      "stationary": true,
+      "scenario": "denied",
+      "covariance_sha256": "a10ca4017392f2919fe3bf8155e242cf1a8f8f04fdef36ac8164233421c7320c",
+      "rows": 4970,
+      "start_s": 117,
+      "end_s": 166.7,
+      "horizon": true,
+      "minimum_datum_schur_variance_m2": 0.00031214329646900296,
+      "scope": "Round-trip-safe 9-digit CSV recovered to actual float32 values. Full 16D Cholesky and pressure Schur checks; no symmetrization, jitter or repair. State-output parity must be verified separately."
+    },
+    {
+      "name": "retrodiction_joint",
+      "stationary": true,
+      "scenario": "denied",
+      "covariance_sha256": "4a0f9e342e7acef36aa7ef4d524b34f5f5f7ed6099db208678e032c0ebd0f06e",
+      "rows": 4970,
+      "start_s": 117,
+      "end_s": 166.7,
+      "horizon": false,
+      "minimum_datum_schur_variance_m2": 0.0003132684318340752,
+      "scope": "Round-trip-safe 9-digit CSV recovered to actual float32 values. Full 16D Cholesky and pressure Schur checks; no symmetrization, jitter or repair. State-output parity must be verified separately."
+    },
+    {
+      "name": "horizon_joint",
+      "stationary": false,
+      "scenario": "transition",
+      "covariance_sha256": "c558bb4b80ad0f5d56d4ebb4310a52470c27dd41bb911527bbe1c0dd28d9a734",
+      "rows": 4970,
+      "start_s": 117,
+      "end_s": 166.7,
+      "horizon": true,
+      "minimum_datum_schur_variance_m2": 0.00031214329646900296,
+      "scope": "Round-trip-safe 9-digit CSV recovered to actual float32 values. Full 16D Cholesky and pressure Schur checks; no symmetrization, jitter or repair. State-output parity must be verified separately."
+    },
+    {
+      "name": "retrodiction_joint",
+      "stationary": false,
+      "scenario": "transition",
+      "covariance_sha256": "ab3adbdb9336109b8683dcfd8313c3bdbc179cf2d0550b973e90142fc52eb7e8",
+      "rows": 4970,
+      "start_s": 117,
+      "end_s": 166.7,
+      "horizon": false,
+      "minimum_datum_schur_variance_m2": 0.00031326843920435275,
+      "scope": "Round-trip-safe 9-digit CSV recovered to actual float32 values. Full 16D Cholesky and pressure Schur checks; no symmetrization, jitter or repair. State-output parity must be verified separately."
+    },
+    {
+      "name": "horizon_joint",
+      "stationary": true,
+      "scenario": "transition",
+      "covariance_sha256": "4714d65c109e99a9ea30ec7553e6ea974db048a3e73d06c5dc6e9abc7c375c50",
+      "rows": 4970,
+      "start_s": 117,
+      "end_s": 166.7,
+      "horizon": true,
+      "minimum_datum_schur_variance_m2": 0.00031214329646900296,
+      "scope": "Round-trip-safe 9-digit CSV recovered to actual float32 values. Full 16D Cholesky and pressure Schur checks; no symmetrization, jitter or repair. State-output parity must be verified separately."
+    },
+    {
+      "name": "retrodiction_joint",
+      "stationary": true,
+      "scenario": "transition",
+      "covariance_sha256": "5b756a7a4579c8440b86e44e43c0ac02ce198352ddd3f511428d8667bd06eb69",
+      "rows": 4970,
+      "start_s": 117,
+      "end_s": 166.7,
+      "horizon": false,
+      "minimum_datum_schur_variance_m2": 0.00031326844022670406,
+      "scope": "Round-trip-safe 9-digit CSV recovered to actual float32 values. Full 16D Cholesky and pressure Schur checks; no symmetrization, jitter or repair. State-output parity must be verified separately."
+    }
+  ],
+  "flight_changes": {
+    "horizontal_position_rmse_m": {
+      "lower": 11,
+      "higher": 13,
+      "min_percent": -0.20935270794812944,
+      "max_percent": 0.9607743258248647
+    },
+    "vertical_position_rmse_m": {
+      "lower": 17,
+      "higher": 7,
+      "min_percent": -0.1714078475069103,
+      "max_percent": 0.018803827859437128
+    },
+    "position_3d_rmse_m": {
+      "lower": 13,
+      "higher": 11,
+      "min_percent": -0.199308676718013,
+      "max_percent": 0.9143199278921488
+    },
+    "velocity_3d_rmse_m_s": {
+      "lower": 4,
+      "higher": 20,
+      "min_percent": -0.16453889624575835,
+      "max_percent": 0.4941294484596348
+    },
+    "attitude_rmse_deg": {
+      "lower": 0,
+      "higher": 24,
+      "min_percent": 1.845576508029012,
+      "max_percent": 5.557526595629891
+    },
+    "yaw_rmse_deg": {
+      "lower": 0,
+      "higher": 24,
+      "min_percent": 1.766399151926068,
+      "max_percent": 5.48367990480807
+    }
+  },
+  "decision": "Reject as a general replacement: all 24 attitude and yaw RMS values worsen. No Modelica source or vehicle defaults changed.",
+  "scope": "Known seed-911 development factorial, not fresh validation. Physical captures/noise/gates and transport are unchanged; only the declared generated-C Jacobian projection changes within each stationary control.",
+  "source_bindings": {
+    "declaration.json": "18303da71bd890f0717bfa8ce8d67bb57ac89e2096f3d97d12ecf9f688a1b22d",
+    "runner.json": "7a20527e88027059e1adece85745241bfc3a0a84ba1eb9e30d47383f0d0d33c2",
+    "build.json": "000be809e5fb7939871dcec9149131ae588d43820a3b023793151a2714e86823",
+    "pilot.json": "7a3b74ac5c24273e322ca468e32aa9cf1eaf7ee0155b35ee189bb81c50e6fa57",
+    "original-control.json": "024e16afbf21e221503104c13f7c604835959bc6ca4b1041ff471155fa50cf8e",
+    "stationary-control.json": "cc3cb71d7b82151dde059649f92ce3ab75432f4a616afedbc7bd0f3e64a9a0bf",
+    "generated.patch": "bd8e52a674155e0db19bc9ffbfad7377863884b36442d9bef5ae3c8684468262",
+    "source-qualification.json": "e2eb7478d247ad63e127c95027f24eb6b1b6572ed70d4bc50681985f29db3387",
+    "paired-metrics.csv": "a333dbe14397aeb3083c9fe9dea13217c27b3e766164829c9dbd43b1852e1a3b",
+    "MagneticGauge.lean": "6573d2dfb888be37eade8d74d3a8f9ef85fbf8768ee954a79e5f27433bb196c0",
+    "check_theory.py": "cdb36529387bdcf0f79f995d9d9841f72da85b4a8a78ad81a69b8a4613ae5946",
+    "theory.json": "435d9a9702f5dd816af0c6d38e6b644477c0778e5992f351b2557f1f2b724f63"
+  }
+}

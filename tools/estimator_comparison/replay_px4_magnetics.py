@@ -1,4 +1,4 @@
-"""Observe public native magnetic states, requiring frozen state/innovation parity."""
+"""Observe public native states, requiring frozen state/innovation parity."""
 
 import argparse
 import json
@@ -31,15 +31,28 @@ def run(args):
         if digest(args.px4_source / record["file"]) != record["after_sha256"]:
             raise ValueError("Native observer source changed")
     args.work.mkdir(parents=True)
-    header = Path(__file__).with_name("native_magnetic_dump.h")
+    quantity = args.quantity
+    header_name, writer, environment_name = {
+        "magnetic": (
+            "native_magnetic_dump.h",
+            "writeNativeMagneticState",
+            "NATIVE_MAG_STATE_PATH",
+        ),
+        "height": (
+            "native_height_dump.h",
+            "writeNativeHeightState",
+            "NATIVE_HEIGHT_STATE_PATH",
+        ),
+    }[quantity]
+    header = Path(__file__).with_name(header_name)
     staged = args.work / "observer.cpp"
     staged.write_text(
-        '#include "native_magnetic_dump.h"\n'
+        f'#include "{header_name}"\n'
         + replace_once(
             adapter.read_text(),
             "\t\t\t++n_updates;",
             "\t\t\t++n_updates;\n"
-            "            writeNativeMagneticState(s.t - t_start, ekf, p->ekf2_mag_decl);",
+            f"            {writer}(s.t - t_start, ekf, p->ekf2_mag_decl);",
         )
     )
     source = args.px4_source
@@ -92,7 +105,7 @@ def run(args):
         library_sha256=digest(args.px4_library),
         binary_sha256=digest(binary),
         results=[],
-        scope="Read-only public magnetic-state getters after each native update. No native core edits. Every state and innovation byte must match the frozen pilot.",
+        scope=f"Read-only public {quantity}-state getters after each native update. No native core edits. Every state and innovation byte must match the frozen pilot.",
     )
     for score in pilot["scores"]:
         if score["name"] != "px4":
@@ -106,12 +119,13 @@ def run(args):
             raise ValueError("Sensor arrival trace changed")
         work = args.work / scenario
         work.mkdir()
-        magnetic, innovations, estimate = (
-            work / name for name in ("magnetic.csv", "innovations.csv", "estimate.csv")
+        observations, innovations, estimate = (
+            work / name
+            for name in (quantity + ".csv", "innovations.csv", "estimate.csv")
         )
         environment = dict(
             os.environ,
-            NATIVE_MAG_STATE_PATH=str(magnetic.resolve()),
+            **{environment_name: str(observations.resolve())},
             NATIVE_INNOVATION_PATH=str(innovations.resolve()),
         )
         with (work / "run.log").open("w") as log:
@@ -135,7 +149,9 @@ def run(args):
             digest(estimate) != score["output_sha256"]
             or digest(innovations) != score["innovations"]["observer_csv_sha256"]
         ):
-            raise ValueError("Magnetic observer changed native states or innovations")
+            raise ValueError(
+                "Public-state observer changed native states or innovations"
+            )
         evidence["results"].append(
             dict(
                 scenario=scenario,
@@ -143,7 +159,7 @@ def run(args):
                 innovation_parity=True,
                 state_sha256=digest(estimate),
                 innovation_sha256=digest(innovations),
-                magnetic_sha256=digest(magnetic),
+                **{quantity + "_sha256": digest(observations)},
             )
         )
         print(f"Verified {scenario} state and innovation byte parity", flush=True)
@@ -165,4 +181,7 @@ if __name__ == "__main__":
     ):
         parser.add_argument("--" + name, type=Path, required=True)
     parser.add_argument("--cxx", required=True)
+    parser.add_argument(
+        "--quantity", choices=("magnetic", "height"), default="magnetic"
+    )
     run(parser.parse_args())

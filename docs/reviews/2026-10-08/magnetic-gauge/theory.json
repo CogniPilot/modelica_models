@@ -1,0 +1,61 @@
+{
+  "lean": "Lean (version 4.29.1, x86_64-unknown-linux-gnu, commit f72c35b3f637c8c6571d353742168ab66cc22c00, Release)",
+  "command": [
+    "/home/jgoppert/.elan/toolchains/leanprover--lean4---v4.29.1/bin/lean",
+    "/home/jgoppert/git/modelica_models/docs/reviews/2026-10-08/magnetic-gauge/MagneticGauge.lean",
+    "-o",
+    "/mnt/scratch/jgoppert/modelica_models/magnetic-gauge/theory/final-build-v2/MagneticGauge.olean"
+  ],
+  "source_sha256": "6573d2dfb888be37eade8d74d3a8f9ef85fbf8768ee954a79e5f27433bb196c0",
+  "checker_sha256": "cdb36529387bdcf0f79f995d9d9841f72da85b4a8a78ad81a69b8a4613ae5946",
+  "artifact_sha256": "40d4dc8295e015a715e62da1d5fa5c9b9793e47d4c19662c8561fcc2875f2d90",
+  "imported_gnc_geometry_sha256": "c5a35b3253a41340a17bc23547d9638a9fc226f6eb7e32557a3b9810897bf5ba",
+  "audit": {
+    "GNC.MagneticGauge.projected_action": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "GNC.MagneticGauge.projected_nullspace": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "GNC.MagneticGauge.projected_preserves_transverse_action": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "GNC.MagneticGauge.projected_preserves_secant": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "GNC.MagneticGauge.projected_zero_direction_information": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "GNC.MagneticGauge.stationary_attitude_bias_ambiguity": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "GNC.MagneticGauge.shortest_cayley_transverse": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "GNC.MagneticGauge.symmetric_cayley_secant": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ],
+    "GNC.MagneticGauge.projected_cayley_secant": [
+      "propext",
+      "Classical.choice",
+      "Quot.sound"
+    ]
+  },
+  "scope": "Exact-real identities using cached GNC geometry/mathlib. No floating-point refinement, filter convergence, firmware performance or global observability theorem."
+}

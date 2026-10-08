@@ -1,0 +1,11 @@
+{
+  "README.txt": "e2c5f4f625b5e9c3bc9c7a727cb8b4526ce2f1b235e9184453916fdd783a1449",
+  "analysis.json": "677bb45e23c510efa1e8b27557d8ff7b7dd3dfc7235ebbabd69aa0d186ede7e5",
+  "default-magnetic.json": "240bde3ecc0c8bce05ec07cef7f66735e10432b98d17d9c556e850554bc77f80",
+  "denied-height.csv": "35ae991895ef48ee87b28fca589c4056b27fa7898cdad16b084774f41f43846d",
+  "gps-height.csv": "9a776701c3d7ac4368b8da8d26ff96db63c108c2de9329776d40ef7d18a4103d",
+  "observer.json": "e64659cc10c0dd33e4b874d4b404cfe3f1e85d11ad40b6c5497f45f284b703f3",
+  "source-bindings.json": "b0cdbdbf3dccf2acae6931392fe4f393e35a06010907bcb26a01e239874d110c",
+  "summarize.py": "21eb0c9f7af40704749f4e684135f78558b4ec7a9daaf0096581c4aba2cbb58c",
+  "transition-height.csv": "5102ffd571bc8c76192a4130914342ac2688ae6d7bc8da67b5d0c1e6a83a7446"
+}

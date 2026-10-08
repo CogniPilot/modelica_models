@@ -51,6 +51,14 @@ frozen captures, delivery, binaries and generated objects before joining all
 RMS window and loss, common-15 consistency, full-16 pressure checks and timing.
 The optional stationary model improves denied horizontal/yaw accuracy, with
 other component regressions. Fresh validation is pending; defaults are unchanged.
+The magnetic nullspace follow-up in docs/reviews/2026-10-08/magnetic-gauge
+retains nine GNC/Lean identities and rejects a projected Jacobian after all
+24 development cases worsen heading. Geometric identities alone do not prove
+better state estimates; all metric losses and covariance checks remain visible.
+replay_px4_magnetics.py also accepts --quantity height to observe native public
+height/terrain modes with the same strict state/innovation parity requirement.
+The seed-911 audit is in docs/reviews/2026-10-08/px4-height; mode flags are not
+accepted-fusion counts or a causal accuracy ablation.
 
 PX4 innovation observer times include a 1 s clock epoch offset, as already
 accounted for by native_consistency.py. native_innovations.py and

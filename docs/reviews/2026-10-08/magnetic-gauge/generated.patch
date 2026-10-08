@@ -1,0 +1,20 @@
+--- original-generated.c
++++ gauge-generated.c
+@@ -9255,0 +9256,3 @@
++    float magneticGaugeDirection[3];
++    for (unsigned axis = 0; axis < 3; ++axis)
++        magneticGaugeDirection[axis] = (*predictedField)[axis];
+@@ -9313,0 +9317,13 @@
++    }
++    float magneticGaugeMagnitudeSquared = 0.0f;
++    for (unsigned axis = 0; axis < 3; ++axis)
++        magneticGaugeMagnitudeSquared += magneticGaugeDirection[axis] * magneticGaugeDirection[axis];
++    if (magneticGaugeMagnitudeSquared > 1.0e-20f) {
++        for (unsigned row = 0; row < 3; ++row) {
++            float gaugeSensitivity = 0.0f;
++            for (unsigned axis = 0; axis < 3; ++axis)
++                gaugeSensitivity += ctx->attitudeJacobian[row][axis] * magneticGaugeDirection[axis];
++            gaugeSensitivity /= magneticGaugeMagnitudeSquared;
++            for (unsigned column = 0; column < 3; ++column)
++                ctx->attitudeJacobian[row][column] -= gaugeSensitivity * magneticGaugeDirection[column];
++        }

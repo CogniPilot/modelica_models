@@ -1,0 +1,15 @@
+{
+  "created_utc": "2026-10-08T10:11:01.511476+00:00",
+  "hypothesis": "A calibrated magnetic vector is invariant under rotation about that field. Preserve this local nullspace in the existing symmetric SO(3) Jacobian with H_gauge = H_symmetric*(I-p*p^T/(p^T*p)), where p is the predicted body field. This retains the symmetric finite residual for shortest-rotation Cayley coordinates and removes its spurious sensitivity along the physical magnetic gauge direction.",
+  "scope": "Known seed-911 development factorial of projected/nonprojected Jacobians with stationary IMU disabled/enabled, four delay/pressure variants and all GPS scenarios. New gauge cases are generated-C prototypes, not modified Modelica exports. The fresh independent stationary validation does not select or tune this candidate.",
+  "planned_gauge_replays": 24,
+  "original_generated_sha256": "00a276a6de880a24beb407bb489cbe47eddda96c9c9bfcc65cb2c30dd31cede6",
+  "candidate_generated_sha256": "df8c36e551b2154d51674cb5cb229eade74caad41c0ed2663e80fbd803948f27",
+  "function": "magnetometerVectorObservation",
+  "capture_marker": "    /* Modelica trace: Estimation/StrapdownINS/magnetometerVectorObservation.mo:27:3-27:15. */",
+  "capture_insertion": "    float magneticGaugeDirection[3];\n    for (unsigned axis = 0; axis < 3; ++axis)\n        magneticGaugeDirection[axis] = (*predictedField)[axis];\n",
+  "projection_insertion": "    float magneticGaugeMagnitudeSquared = 0.0f;\n    for (unsigned axis = 0; axis < 3; ++axis)\n        magneticGaugeMagnitudeSquared += magneticGaugeDirection[axis] * magneticGaugeDirection[axis];\n    if (magneticGaugeMagnitudeSquared > 1.0e-20f) {\n        for (unsigned row = 0; row < 3; ++row) {\n            float gaugeSensitivity = 0.0f;\n            for (unsigned axis = 0; axis < 3; ++axis)\n                gaugeSensitivity += ctx->attitudeJacobian[row][axis] * magneticGaugeDirection[axis];\n            gaugeSensitivity /= magneticGaugeMagnitudeSquared;\n            for (unsigned column = 0; column < 3; ++column)\n                ctx->attitudeJacobian[row][column] -= gaugeSensitivity * magneticGaugeDirection[column];\n        }\n    }\n",
+  "real_modelica_counterpart": "attitudeJacobian := attitudeJacobian - transpose({attitudeJacobian * predictedField}) * {predictedField} / max(predictedField * predictedField, 1.0e-20);",
+  "physical_noise_and_gates_unchanged": true,
+  "required": "Retain every accuracy/covariance/timing outcome. Full 16D pressure covariance for every joint case. A promising known-seed result requires the eight original development captures and separate future independent validation before any adoption."
+}

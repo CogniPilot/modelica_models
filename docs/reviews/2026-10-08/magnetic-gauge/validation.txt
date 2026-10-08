@@ -1,0 +1,8 @@
+24 candidate replays complete; all common-15 covariance windows valid.
+12 full-16 pressure cases / 59,640 matrices positive definite with no repair.
+9 Lean theorems compile with only propext, Classical.choice, Quot.sound.
+Zero-context review patch reconstructs the measured generated C byte for byte.
+6 public-getter native replays preserve state and innovation bytes.
+Default magnetic adapter and trace bytes reproduce the previous magnetic audit.
+82 estimator-comparison Python tests pass, no skips.
+Ruff checks and independent height-summary reproduction pass.

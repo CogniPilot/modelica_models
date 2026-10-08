@@ -1,0 +1,10 @@
+{
+  "tools/estimator_comparison/replay_px4_magnetics.py": "6bf157d0fd632cedea058db29904b1efcb148c082ac8dfe96986ebdd2d1a5f51",
+  "tools/estimator_comparison/native_height_dump.h": "25448d727537d35dd4b0273f9580b69a5b1a6cd21393d7e5526efc86b6162257",
+  "Estimation/StrapdownINS/ESKF/correctOpticalFlow.mo": "4c7fed538f21beba7b04cf66101d2767577ff0acbcb99fb77d80671d1111595f",
+  "$HOME/scratch/estimator-comparison/matched-sensor-replay/harness/px4/main.cpp": "b09280ae5f59b492aab5b6c573e5ebdf3ae5c4dc47752f1ade9e10757a7495ae",
+  "$HOME/scratch/estimator-comparison/matched-sensor-replay/harness/ardupilot/csv_to_dataflash.py": "1c165fda77af2dd39e2a9c96685441abf65893503618c230e3f436f47750e7eb",
+  "$HOME/scratch/modelica_models/native-innovations/px4/src/modules/ekf2/EKF/aid_sources/range_finder/range_height_control.cpp": "4364f0a39493a8940f1e9ae7d7022afd571c307542f2fe051e0fe0651ffc7bcf",
+  "$HOME/scratch/modelica_models/native-innovations/ardupilot/libraries/AP_NavEKF3/AP_NavEKF3.cpp": "9cc8bbbd9b2669d0c58ce4a31362be481f8c1c54aa8851d499b521a4cd40ba35",
+  "$HOME/scratch/modelica_models/native-innovations/ardupilot/libraries/AP_NavEKF3/AP_NavEKF3_PosVelFusion.cpp": "8d50e584bd748499e5b116cd9c9ec0a3f122ee0f36c40b19d27610178e500839"
+}
