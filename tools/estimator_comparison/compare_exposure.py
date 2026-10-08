@@ -218,7 +218,7 @@ def run(args):
             capture = args.work / "capture"
             capture.mkdir()
             for path in source.glob("*"):
-                if path.is_file():
+                if path.is_file() and path.name != "arrivals.csv":
                     (capture / path.name).symlink_to(path.resolve())
             result["input_sha256"][source.name] = {
                 path.name: digest(path)

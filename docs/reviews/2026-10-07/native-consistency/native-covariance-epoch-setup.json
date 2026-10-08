@@ -1,0 +1,42 @@
+{
+  "observer_manifests": {
+    "px4": {
+      "native_revision": "d6f12ad1c4f70ad3230afd7d86e971421e02fef4",
+      "file": "src/modules/ekf2/EKF/ekf.cpp",
+      "before_sha256": "57ffc109531632abd90129e50f43bc808e03a7fd175d484d7926fbd8302822e1",
+      "after_sha256": "e72e3f4022618b04df76871e875d3647b16c7a9c0c7bbc78d2ef49d34a18ecb8",
+      "observer_sha256": "175a06c2750481c0c2462d2238357a5a3556731fb2edeaff93a2552c620a3114",
+      "scope": "Read-only state and full native covariance export; published-state parity must be verified separately."
+    },
+    "ardupilot": {
+      "native_revision": "dbe792162d06cab66c3475fd5556bf7a120f119e",
+      "file": "libraries/AP_NavEKF3/AP_NavEKF3_Logging.cpp",
+      "before_sha256": "be0f332667fe52c063b96480a7d0692170bef2d31b8912a3273a112ed5c09dd9",
+      "after_sha256": "dfa8aab91a2c6e74f4e0782630d0f57056dd4b6fe0a9f84922e14d39e1d17d33",
+      "observer_sha256": "175a06c2750481c0c2462d2238357a5a3556731fb2edeaff93a2552c620a3114",
+      "scope": "Read-only state and full native covariance export; published-state parity must be verified separately."
+    }
+  },
+  "reference_sha256": "43a83e162f38e1dca7a1382bcb154bc965cdd0e70dfa8fddfe5f946234693429",
+  "binary_sha256": {
+    "px4": "61e211a26b0af8d56ad8cce8eacdb04a43aed2b2aaf0d66993dc29797f88ab2d",
+    "ekf3": "050c6f1eebd275644eb514e8487112382cef371996de85737064ef223b28dba3"
+  },
+  "native_core_sha256": {
+    "px4": "3aaabdbfd4a70feef2f21338667188bd83a997fbae6dd60add765a31655b2a52",
+    "ekf3": "050c6f1eebd275644eb514e8487112382cef371996de85737064ef223b28dba3"
+  },
+  "scores": [
+    {
+      "name": "px4",
+      "seed": 7,
+      "frequency": 0.6,
+      "climb_height_m": 2,
+      "scenario": "gps",
+      "output_sha256": "da1935e62c3be4b8a12454f7b7d6269ac6dfff21cc5935343a7448dedafecb7b",
+      "previous_output_sha256": "da1935e62c3be4b8a12454f7b7d6269ac6dfff21cc5935343a7448dedafecb7b",
+      "output_identical": true
+    }
+  ],
+  "scope": "Native full covariance observer, frozen published-state parity, common 15D marginal NEES at native fusion epochs. No NIS or matched effective R/Q claim."
+}
