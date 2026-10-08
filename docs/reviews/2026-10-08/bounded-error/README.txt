@@ -1,7 +1,7 @@
 Sampled estimator error bounds using gnc_lean
 8 October 2026
 
-The delivered 38 theorems establish conditional error bounds and the precise
+The delivered 42 theorems establish conditional error bounds and the precise
 comparison obligations for ESKF, EKF2 and EKF3. They do not yet establish a
 native-filter superiority result. No estimator tuning or default changes are
 made by this proof package. The formal sources are GNC modules; copies here
@@ -89,6 +89,34 @@ when initial uncertainty and forcing are bounded. Terrain maps, landmarks,
 spatial magnetic maps and a prior GPS history can supply additional information
 and are outside the indistinguishable-state construction.
 
+CorrectionErrorBound: deriving the sampled correction certificate
+
+The correction is represented in a common physical norm as
+  e_next = e - K(e)*(H*e + observationDefect(e) + noise(e)) + resetDefect(e).
+The gain may depend on error/context, so a fixed nominal gain is not assumed.
+Uniform bounds on ||e-K(e)*H*e|| <= a*||e||, ||K(e)|| <= k,
+||observationDefect(e)|| <= b*||e||^2 and ||noise(e)|| <= nu,
+with reset defect <= br*||e||^2+cr*||e||^3+epsilon, give StepBound
+  linear=a, quadratic=k*b+br, cubic=cr, disturbance=k*nu+epsilon.
+correction_map_bound proves this algebraic/norm bridge to the sampled tubes.
+The bounds and the error-map representation remain implementation obligations;
+covariance optimality, a fitted gain or pointwise finite differences do not
+supply them. Noise may be error-correlated inside the uniformly bounded event.
+A state-dependent gain constraint, delayed residual or Lie reset must be
+represented and charged in the certified map rather than silently omitted.
+
+An unobserved nonzero direction H*e=0 is preserved by every linear correction
+I-K*H, so its norm cannot contract by a factor less than one. This gives a
+specific check against assigning fictitious full-state contraction to each
+flow or other partial measurement update. A complete observable aiding window
+may admit a contraction certificate; it must be derived separately.
+
+bounded_implementation_defect transfers a reference StepBound to an actual
+map only if a uniform numerical/implementation error epsilon is supplied.
+Its disturbance becomes d+epsilon. This makes IEEE754/compiler error an
+explicit pending obligation rather than treating exact-real Lean results as
+a generated-code refinement proof.
+
 What would constitute superiority
 
 ordered_envelopes proves ordering of certified upper envelopes. That alone
@@ -131,8 +159,8 @@ Remaining implementation obligations
 
 Verification and reproduction
 
-check_bounded_error.py rebuilds five direct GNC dependencies and all three
-delivered modules into a fresh owned overlay, then audits all 38 public
+check_bounded_error.py rebuilds five direct GNC dependencies and all four
+delivered modules into a fresh owned overlay, then audits all 42 public
 theorems transitively for axioms. Only propext, Classical.choice and Quot.sound
 are accepted. Missing/duplicate audits and sorryAx are rejected. Other GNC and
 mathlib dependencies reuse the pinned checked cache. This is a targeted source

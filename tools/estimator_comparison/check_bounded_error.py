@@ -13,6 +13,7 @@ MODULES = {
     "SampledErrorBound": 21,
     "GpsDeniedGeometry": 4,
     "LieErrorEnvelope": 13,
+    "CorrectionErrorBound": 4,
 }
 DEPENDENCIES = (
     "GNC.Analysis.LinearODE",
@@ -132,7 +133,7 @@ def check(args):
         scope=(
             "Conditional sampled nonlinear error tubes, finite GPS outages, GPS-return "
             "recovery, publication prediction, exact-real SE23 navigation log envelopes "
-            "with explicit nonlinear bias forcing, coordinate conversion and ideal "
+            "with explicit nonlinear bias forcing, adaptive-gain correction/reset/implementation defects, coordinate conversion and ideal "
             "GPS-denied horizontal observability. Comparison theorems distinguish ordered "
             "upper envelopes from uniform-upper/rival-witness worst-case separation. "
             "No certified numeric ESKF/EKF2/EKF3 map constants, compiler refinement, "
