@@ -131,6 +131,12 @@ def run_rumoca_tests(repository: Path) -> None:
             ("Tests/package.mo", "Tests.LieGroupTests.SO2", "0.0", "SO2.html"),
             ("Tests/package.mo", "Tests.LieGroupTests.SE2", "0.0", "SE2.html"),
             (
+                "Tests/package.mo",
+                "Tests.CovarianceRootTests",
+                "0.0",
+                "covariance-root.html",
+            ),
+            (
                 "Vehicles/Rdd2/Test/UkfWaypointMission.mo",
                 "Vehicles.Rdd2.Test.UkfWaypointMission",
                 "0.0",
@@ -147,6 +153,18 @@ def run_rumoca_tests(repository: Path) -> None:
                 "Tests.StrapdownEstimatorInterfaceTests",
                 "0.02",
                 "strapdown-interface.html",
+            ),
+            (
+                "Tests/package.mo",
+                "Tests.StrapdownGpsSeedTests",
+                "0.02",
+                "strapdown-gps-seed.html",
+            ),
+            (
+                "Tests/package.mo",
+                "Tests.StrapdownGpsSeedTimestampTests",
+                "0.02",
+                "strapdown-gps-seed-timestamp.html",
             ),
         ):
             run_command(
@@ -599,7 +617,7 @@ PIN_DEPENDENT_MODELS = (
     (
         "Estimation/FusionHorizon/HorizonEstimator.mo",
         "Estimation.FusionHorizon.HorizonEstimator",
-        "identity 578 is not owned by clock identity 0",
+        "identity 583 is not owned by clock identity 0",
         "Estimation/FusionHorizon/HorizonEstimator.mo:259:5",
         "filterPositionHeld_m := filter.estimate.positionWorldEnu_m",
     ),

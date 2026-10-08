@@ -1,0 +1,4 @@
+Simulating Tests.StrapdownEstimatorInterfaceTests to t=0.02...
+Simulation complete: 21 time points, 1869 variables
+Projection fallbacks: 0 over 0 projection calls at 0 sites
+$HOME/scratch/modelica_models/rumoca-ci/contract-probes/interface-single.html

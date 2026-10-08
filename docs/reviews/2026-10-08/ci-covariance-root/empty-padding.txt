@@ -1,0 +1,3 @@
+Simulating EmptyPadding to t=0.02...
+  [31m[0m [EL005] invalid Solve IR contract: pure-call argument or slot interface is
+  [31m│[0m invalid

@@ -1,0 +1,14 @@
+[
+  {
+    "model": "StrapdownGpsSeedTests",
+    "exit_code": 0,
+    "elapsed_s": 77.69850379007403,
+    "cumulative_child_max_rss_kib": 22636288
+  },
+  {
+    "model": "StrapdownGpsSeedTimestampTests",
+    "exit_code": 0,
+    "elapsed_s": 77.71502761298325,
+    "cumulative_child_max_rss_kib": 22636288
+  }
+]

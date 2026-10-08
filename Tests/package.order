@@ -28,6 +28,8 @@ AlignmentCovarianceTests
 MultisensorAidingTests
 StationaryAidingTests
 StrapdownEstimatorInterfaceTests
+StrapdownGpsSeedTests
+StrapdownGpsSeedTimestampTests
 HorizonPredictorTests
 HorizonInterfaceTests
 HorizonResetTests

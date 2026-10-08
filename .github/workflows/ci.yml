@@ -37,6 +37,14 @@ jobs:
           key: rumoca-runtime-${{ runner.os }}-${{ runner.arch }}-${{ steps.rumoca-runtime.outputs.key }}
       - name: Import or build pinned Rumoca runtime
         run: python -m tools.modelica_models_cli.nix_cache ensure .ci-cache/rumoca-runtime
+      - name: Provide swap for Rumoca solver construction
+        run: |
+          swap_path="$RUNNER_TEMP/modelica-models.swap"
+          sudo fallocate -l 8G "$swap_path"
+          sudo chmod 600 "$swap_path"
+          sudo mkswap "$swap_path"
+          sudo swapon "$swap_path"
+          free -h
       - name: Run tests
         run: nix run . -- test
       - name: Upload planning trajectories

@@ -1,0 +1,21 @@
+true
+true
+true
+"Check of Tests.CovarianceRootTests completed successfully.
+Class Tests.CovarianceRootTests has 27 equation(s) and 27 variable(s).
+27 of these are trivial equation(s)."
+record SimulationResult
+    resultFile = "/mnt/scratch/jgoppert/modelica_models/rumoca-ci/contract-probes/omc/Tests.CovarianceRootTests_res.mat",
+    simulationOptions = "startTime = 0.0, stopTime = 0.01, numberOfIntervals = 1, tolerance = 1e-8, method = 'dassl', fileNamePrefix = 'Tests.CovarianceRootTests', options = '', outputFormat = 'mat', variableFilter = '.*', cflags = '', simflags = ''",
+    messages = "LOG_SUCCESS       | info    | The initialization finished successfully without homotopy method.
+LOG_SUCCESS       | info    | The simulation finished successfully.
+",
+    timeFrontend = 0.00412577,
+    timeBackend = 0.006548059,
+    timeSimCode = 0.0019684900000000003,
+    timeTemplates = 0.00589847,
+    timeCompile = 0.50088716,
+    timeSimulation = 0.012189529000000001,
+    timeTotal = 0.531734088
+end SimulationResult;
+"/mnt/scratch/jgoppert/modelica_models/rumoca-ci/contract-probes/omc/Tests.CovarianceRootTests_res.mat"
