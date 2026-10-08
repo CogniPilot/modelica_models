@@ -1,0 +1,2473 @@
+{
+  "complete": true,
+  "passed": true,
+  "independent_noise_draws": 8,
+  "seeds": [
+    20271061,
+    20271062,
+    20271063,
+    20271064,
+    20271065,
+    20271066,
+    20271067,
+    20271068
+  ],
+  "scenarios": [
+    "gps",
+    "denied",
+    "transition"
+  ],
+  "cases": [
+    {
+      "seed": 20271061,
+      "scenario": "gps",
+      "capture_sha256": "df93d40b16290f490762692f4871217142f2597af360b77c822026da0e9ed47a",
+      "replay_sha256": "f71358796bc5e7f80f6cbe6e4fd928a7c43f6ad408b995ee96feed192bd4f571",
+      "all_observations_inside_image": true,
+      "image_size_pixels": [
+        640,
+        480
+      ],
+      "observation_minimum": [
+        101.53124237060547,
+        59.87555694580078,
+        3.5945773124694824
+      ],
+      "observation_maximum": [
+        534.6705322265625,
+        430.74578857421875,
+        4.3111138343811035
+      ],
+      "loose": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.022695942254219146,
+            "velocity_rms_m_s": 0.03831974167035281,
+            "attitude_rms_rad": 0.004065193930830237,
+            "mean_nees_15": 12.052177551650225,
+            "maximum_position_error_m": 0.07909393060009855
+          },
+          "gps_outage": {
+            "position_rms_m": 0.028715100218182913,
+            "velocity_rms_m_s": 0.04131124269031139,
+            "attitude_rms_rad": 0.0035104077680088272,
+            "mean_nees_15": 10.728374300208758,
+            "maximum_position_error_m": 0.07909393060009855
+          },
+          "gps_return": {
+            "position_rms_m": 0.02085826372546185,
+            "velocity_rms_m_s": 0.03856637635783905,
+            "attitude_rms_rad": 0.004708425341604427,
+            "mean_nees_15": 15.539134469076583,
+            "maximum_position_error_m": 0.04630724533880669
+          },
+          "camera_outage": {
+            "position_rms_m": 0.05422007582757507,
+            "velocity_rms_m_s": 0.053886779883961684,
+            "attitude_rms_rad": 0.002382110519253182,
+            "mean_nees_15": 9.84243025978288,
+            "maximum_position_error_m": 0.07909393060009855
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 150,
+        "camera_updates": 280,
+        "mean_gps_nis_6": 5.535336971282959,
+        "mean_camera_nis": 5.649618148803711,
+        "camera_nis_dimension": 6
+      },
+      "tight": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.022695939621874064,
+            "velocity_rms_m_s": 0.03831977886545425,
+            "attitude_rms_rad": 0.00406519860189563,
+            "mean_nees_15": 12.052173982976237,
+            "maximum_position_error_m": 0.0790939529387523
+          },
+          "gps_outage": {
+            "position_rms_m": 0.028715094639625703,
+            "velocity_rms_m_s": 0.04131133564516862,
+            "attitude_rms_rad": 0.003510411084353751,
+            "mean_nees_15": 10.72838073962243,
+            "maximum_position_error_m": 0.0790939529387523
+          },
+          "gps_return": {
+            "position_rms_m": 0.0208582606532235,
+            "velocity_rms_m_s": 0.03856640122693484,
+            "attitude_rms_rad": 0.00470842906669657,
+            "mean_nees_15": 15.539114033052957,
+            "maximum_position_error_m": 0.046307306076076055
+          },
+          "camera_outage": {
+            "position_rms_m": 0.05422006208100353,
+            "velocity_rms_m_s": 0.05388672660155524,
+            "attitude_rms_rad": 0.002382108772147996,
+            "mean_nees_15": 9.842435871803238,
+            "maximum_position_error_m": 0.0790939529387523
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 150,
+        "camera_updates": 280,
+        "mean_gps_nis_6": 5.535338401794434,
+        "mean_camera_nis": 11.906875610351562,
+        "camera_nis_dimension": 12
+      },
+      "maximum_loose_tight_nominal_difference": 1.9669532775878906e-06,
+      "maximum_loose_tight_covariance_difference": 5.617039278149605e-09,
+      "passed": true
+    },
+    {
+      "seed": 20271061,
+      "scenario": "denied",
+      "capture_sha256": "df93d40b16290f490762692f4871217142f2597af360b77c822026da0e9ed47a",
+      "replay_sha256": "3bf6807efeb35f1bbaefd5ac125b573fb44efdb0e49fc2b3c783f0f23a4d900d",
+      "all_observations_inside_image": true,
+      "image_size_pixels": [
+        640,
+        480
+      ],
+      "observation_minimum": [
+        101.53124237060547,
+        59.87555694580078,
+        3.5945773124694824
+      ],
+      "observation_maximum": [
+        534.6705322265625,
+        430.74578857421875,
+        4.3111138343811035
+      ],
+      "loose": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.03204222831921221,
+            "velocity_rms_m_s": 0.04684112685074776,
+            "attitude_rms_rad": 0.00446269961557837,
+            "mean_nees_15": 11.617091128074996,
+            "maximum_position_error_m": 0.18575380037829622
+          },
+          "gps_outage": {
+            "position_rms_m": 0.04713137381599917,
+            "velocity_rms_m_s": 0.057447750300846305,
+            "attitude_rms_rad": 0.004420081225493189,
+            "mean_nees_15": 9.978281484800265,
+            "maximum_position_error_m": 0.18575380037829622
+          },
+          "gps_return": {
+            "position_rms_m": 0.021465981179399733,
+            "velocity_rms_m_s": 0.04244766452444183,
+            "attitude_rms_rad": 0.0046234870880434535,
+            "mean_nees_15": 15.060340011576184,
+            "maximum_position_error_m": 0.044634206656096485
+          },
+          "camera_outage": {
+            "position_rms_m": 0.09589406363125053,
+            "velocity_rms_m_s": 0.09593255508238349,
+            "attitude_rms_rad": 0.003492295119359257,
+            "mean_nees_15": 6.773707150157033,
+            "maximum_position_error_m": 0.18575380037829622
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 0,
+        "camera_updates": 280,
+        "mean_gps_nis_6": null,
+        "mean_camera_nis": 5.675154209136963,
+        "camera_nis_dimension": 6
+      },
+      "tight": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.032042365599210795,
+            "velocity_rms_m_s": 0.04684126439928814,
+            "attitude_rms_rad": 0.00446269936393889,
+            "mean_nees_15": 11.617115945309687,
+            "maximum_position_error_m": 0.18575488384373862
+          },
+          "gps_outage": {
+            "position_rms_m": 0.04713166277216017,
+            "velocity_rms_m_s": 0.05744803258806423,
+            "attitude_rms_rad": 0.0044200898041995475,
+            "mean_nees_15": 9.978329383336558,
+            "maximum_position_error_m": 0.18575488384373862
+          },
+          "gps_return": {
+            "position_rms_m": 0.02146598679973968,
+            "velocity_rms_m_s": 0.042447685677034344,
+            "attitude_rms_rad": 0.004623482461671864,
+            "mean_nees_15": 15.060338717144585,
+            "maximum_position_error_m": 0.044634454249228656
+          },
+          "camera_outage": {
+            "position_rms_m": 0.09589475494770097,
+            "velocity_rms_m_s": 0.0959328932495335,
+            "attitude_rms_rad": 0.0034923003829332054,
+            "mean_nees_15": 6.773828003483062,
+            "maximum_position_error_m": 0.18575488384373862
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 0,
+        "camera_updates": 280,
+        "mean_gps_nis_6": null,
+        "mean_camera_nis": 11.932533264160156,
+        "camera_nis_dimension": 12
+      },
+      "maximum_loose_tight_nominal_difference": 4.76837158203125e-06,
+      "maximum_loose_tight_covariance_difference": 2.421438694000244e-08,
+      "passed": true
+    },
+    {
+      "seed": 20271061,
+      "scenario": "transition",
+      "capture_sha256": "df93d40b16290f490762692f4871217142f2597af360b77c822026da0e9ed47a",
+      "replay_sha256": "3d95735b3119536e53d353359f21ecb7fa3cbec47e489c337e078c379ac66649",
+      "all_observations_inside_image": true,
+      "image_size_pixels": [
+        640,
+        480
+      ],
+      "observation_minimum": [
+        101.53124237060547,
+        59.87555694580078,
+        3.5945773124694824
+      ],
+      "observation_maximum": [
+        534.6705322265625,
+        430.74578857421875,
+        4.3111138343811035
+      ],
+      "loose": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.031418774210455434,
+            "velocity_rms_m_s": 0.044729212762176514,
+            "attitude_rms_rad": 0.004335269318440402,
+            "mean_nees_15": 11.87418267296599,
+            "maximum_position_error_m": 0.18755447036980605
+          },
+          "gps_outage": {
+            "position_rms_m": 0.04737541684496456,
+            "velocity_rms_m_s": 0.057537853150541454,
+            "attitude_rms_rad": 0.004388981034250329,
+            "mean_nees_15": 10.215268908866713,
+            "maximum_position_error_m": 0.18755447036980605
+          },
+          "gps_return": {
+            "position_rms_m": 0.020767728037198903,
+            "velocity_rms_m_s": 0.03847448907807634,
+            "attitude_rms_rad": 0.004694197084011224,
+            "mean_nees_15": 15.518276082752253,
+            "maximum_position_error_m": 0.0463167187811993
+          },
+          "camera_outage": {
+            "position_rms_m": 0.09673848912786101,
+            "velocity_rms_m_s": 0.09686234188580149,
+            "attitude_rms_rad": 0.003560193508181533,
+            "mean_nees_15": 6.976467523351286,
+            "maximum_position_error_m": 0.18755447036980605
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 100,
+        "camera_updates": 280,
+        "mean_gps_nis_6": 5.384514808654785,
+        "mean_camera_nis": 5.6440839767456055,
+        "camera_nis_dimension": 6
+      },
+      "tight": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.03141878461887854,
+            "velocity_rms_m_s": 0.04472925215874232,
+            "attitude_rms_rad": 0.00433527560664197,
+            "mean_nees_15": 11.874198889832,
+            "maximum_position_error_m": 0.1875545061247124
+          },
+          "gps_outage": {
+            "position_rms_m": 0.047375447697421184,
+            "velocity_rms_m_s": 0.057537956495774534,
+            "attitude_rms_rad": 0.004388998560116916,
+            "mean_nees_15": 10.21528921491598,
+            "maximum_position_error_m": 0.1875545061247124
+          },
+          "gps_return": {
+            "position_rms_m": 0.020767702749522964,
+            "velocity_rms_m_s": 0.038474485559766576,
+            "attitude_rms_rad": 0.004694192209359169,
+            "mean_nees_15": 15.518301091268484,
+            "maximum_position_error_m": 0.04631660508034113
+          },
+          "camera_outage": {
+            "position_rms_m": 0.09673846518669801,
+            "velocity_rms_m_s": 0.09686250404855451,
+            "attitude_rms_rad": 0.003560200189679657,
+            "mean_nees_15": 6.976460222999076,
+            "maximum_position_error_m": 0.1875545061247124
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 100,
+        "camera_updates": 280,
+        "mean_gps_nis_6": 5.384515285491943,
+        "mean_camera_nis": 11.901527404785156,
+        "camera_nis_dimension": 12
+      },
+      "maximum_loose_tight_nominal_difference": 1.7955899238586426e-06,
+      "maximum_loose_tight_covariance_difference": 2.7939677238464355e-08,
+      "passed": true
+    },
+    {
+      "seed": 20271062,
+      "scenario": "gps",
+      "capture_sha256": "2846d5e8b1fed02c65b892a6486b66413f459e5a39fcd6ff597596a15cd36571",
+      "replay_sha256": "3fd5e02234d22d82308a2a846fb008bdcc00ed9096b32de599b01451946acdda",
+      "all_observations_inside_image": true,
+      "image_size_pixels": [
+        640,
+        480
+      ],
+      "observation_minimum": [
+        101.22730255126953,
+        60.56779479980469,
+        3.624924659729004
+      ],
+      "observation_maximum": [
+        534.4675903320312,
+        430.274169921875,
+        4.310996055603027
+      ],
+      "loose": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.020616296908335895,
+            "velocity_rms_m_s": 0.03754848101253887,
+            "attitude_rms_rad": 0.004092752848426793,
+            "mean_nees_15": 11.2799044326921,
+            "maximum_position_error_m": 0.10698250443160437
+          },
+          "gps_outage": {
+            "position_rms_m": 0.022594648575420772,
+            "velocity_rms_m_s": 0.03935722289720087,
+            "attitude_rms_rad": 0.004318624465053212,
+            "mean_nees_15": 10.675366153035178,
+            "maximum_position_error_m": 0.05208159710609135
+          },
+          "gps_return": {
+            "position_rms_m": 0.015255529462965291,
+            "velocity_rms_m_s": 0.035261470388952304,
+            "attitude_rms_rad": 0.0035848168509541763,
+            "mean_nees_15": 11.120841109049634,
+            "maximum_position_error_m": 0.031103773337414896
+          },
+          "camera_outage": {
+            "position_rms_m": 0.031416661480759764,
+            "velocity_rms_m_s": 0.04608660892361231,
+            "attitude_rms_rad": 0.005430035108500634,
+            "mean_nees_15": 9.418271898502862,
+            "maximum_position_error_m": 0.05208159710609135
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 150,
+        "camera_updates": 280,
+        "mean_gps_nis_6": 5.7900710105896,
+        "mean_camera_nis": 6.0981316566467285,
+        "camera_nis_dimension": 6
+      },
+      "tight": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.020616283473143385,
+            "velocity_rms_m_s": 0.037548448258073255,
+            "attitude_rms_rad": 0.00409275105725338,
+            "mean_nees_15": 11.279947104528944,
+            "maximum_position_error_m": 0.10698250443160437
+          },
+          "gps_outage": {
+            "position_rms_m": 0.02259462897897207,
+            "velocity_rms_m_s": 0.03935719773841418,
+            "attitude_rms_rad": 0.0043186169984989935,
+            "mean_nees_15": 10.675442782557036,
+            "maximum_position_error_m": 0.05208171018045197
+          },
+          "gps_return": {
+            "position_rms_m": 0.015255505524892103,
+            "velocity_rms_m_s": 0.03526134709795221,
+            "attitude_rms_rad": 0.0035848136721355305,
+            "mean_nees_15": 11.120867739557534,
+            "maximum_position_error_m": 0.031103682325462845
+          },
+          "camera_outage": {
+            "position_rms_m": 0.03141664137787907,
+            "velocity_rms_m_s": 0.046086498864296874,
+            "attitude_rms_rad": 0.005430048091410023,
+            "mean_nees_15": 9.418363945929345,
+            "maximum_position_error_m": 0.05208171018045197
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 150,
+        "camera_updates": 280,
+        "mean_gps_nis_6": 5.790071487426758,
+        "mean_camera_nis": 12.194220542907715,
+        "camera_nis_dimension": 12
+      },
+      "maximum_loose_tight_nominal_difference": 2.209097146987915e-06,
+      "maximum_loose_tight_covariance_difference": 3.841705620288849e-09,
+      "passed": true
+    },
+    {
+      "seed": 20271062,
+      "scenario": "denied",
+      "capture_sha256": "2846d5e8b1fed02c65b892a6486b66413f459e5a39fcd6ff597596a15cd36571",
+      "replay_sha256": "5e3e7cb949117990263cc9a6110345aae9a2c2c0527f965a749fb4e93875b8fd",
+      "all_observations_inside_image": true,
+      "image_size_pixels": [
+        640,
+        480
+      ],
+      "observation_minimum": [
+        101.22730255126953,
+        60.56779479980469,
+        3.624924659729004
+      ],
+      "observation_maximum": [
+        534.4675903320312,
+        430.274169921875,
+        4.310996055603027
+      ],
+      "loose": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.03543130447977318,
+            "velocity_rms_m_s": 0.04610723560055641,
+            "attitude_rms_rad": 0.004329967326067411,
+            "mean_nees_15": 10.98550144791978,
+            "maximum_position_error_m": 0.20607301237487827
+          },
+          "gps_outage": {
+            "position_rms_m": 0.05340980617820148,
+            "velocity_rms_m_s": 0.05704191311670768,
+            "attitude_rms_rad": 0.00446637533746734,
+            "mean_nees_15": 9.946587615270289,
+            "maximum_position_error_m": 0.20607301237487827
+          },
+          "gps_return": {
+            "position_rms_m": 0.016444001305208407,
+            "velocity_rms_m_s": 0.03792017756901804,
+            "attitude_rms_rad": 0.003675177641815144,
+            "mean_nees_15": 10.948666925041886,
+            "maximum_position_error_m": 0.033230517982529455
+          },
+          "camera_outage": {
+            "position_rms_m": 0.11240936699214595,
+            "velocity_rms_m_s": 0.10337548883342794,
+            "attitude_rms_rad": 0.005758758378629889,
+            "mean_nees_15": 9.676344799365246,
+            "maximum_position_error_m": 0.20607301237487827
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 0,
+        "camera_updates": 280,
+        "mean_gps_nis_6": null,
+        "mean_camera_nis": 6.021125793457031,
+        "camera_nis_dimension": 6
+      },
+      "tight": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.035431469466888195,
+            "velocity_rms_m_s": 0.046107297384329005,
+            "attitude_rms_rad": 0.004329965849473578,
+            "mean_nees_15": 10.985536657287875,
+            "maximum_position_error_m": 0.20607444063983943
+          },
+          "gps_outage": {
+            "position_rms_m": 0.05341013440558828,
+            "velocity_rms_m_s": 0.05704205588206143,
+            "attitude_rms_rad": 0.004466381148466807,
+            "mean_nees_15": 9.946662712154726,
+            "maximum_position_error_m": 0.20607444063983943
+          },
+          "gps_return": {
+            "position_rms_m": 0.01644398664534391,
+            "velocity_rms_m_s": 0.037920080706153915,
+            "attitude_rms_rad": 0.0036751683844745545,
+            "mean_nees_15": 10.9486607024215,
+            "maximum_position_error_m": 0.03323046934173063
+          },
+          "camera_outage": {
+            "position_rms_m": 0.11241011186576734,
+            "velocity_rms_m_s": 0.10337591724737905,
+            "attitude_rms_rad": 0.005758784329195792,
+            "mean_nees_15": 9.676417377979263,
+            "maximum_position_error_m": 0.20607444063983943
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 0,
+        "camera_updates": 280,
+        "mean_gps_nis_6": null,
+        "mean_camera_nis": 12.115755081176758,
+        "camera_nis_dimension": 12
+      },
+      "maximum_loose_tight_nominal_difference": 2.0191073417663574e-06,
+      "maximum_loose_tight_covariance_difference": 2.2351741790771484e-08,
+      "passed": true
+    },
+    {
+      "seed": 20271062,
+      "scenario": "transition",
+      "capture_sha256": "2846d5e8b1fed02c65b892a6486b66413f459e5a39fcd6ff597596a15cd36571",
+      "replay_sha256": "e46e941b2f4a07e15381ddf120da1627374007454510a8dcff6861aaf925f1fd",
+      "all_observations_inside_image": true,
+      "image_size_pixels": [
+        640,
+        480
+      ],
+      "observation_minimum": [
+        101.22730255126953,
+        60.56779479980469,
+        3.624924659729004
+      ],
+      "observation_maximum": [
+        534.4675903320312,
+        430.274169921875,
+        4.310996055603027
+      ],
+      "loose": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.035163294382617054,
+            "velocity_rms_m_s": 0.04493073132272604,
+            "attitude_rms_rad": 0.004167882809074136,
+            "mean_nees_15": 11.100217590449747,
+            "maximum_position_error_m": 0.20974918906489254
+          },
+          "gps_outage": {
+            "position_rms_m": 0.05430172266870112,
+            "velocity_rms_m_s": 0.05813348551313924,
+            "attitude_rms_rad": 0.004553317604748189,
+            "mean_nees_15": 10.21783928821717,
+            "maximum_position_error_m": 0.20974918906489254
+          },
+          "gps_return": {
+            "position_rms_m": 0.015127882795445713,
+            "velocity_rms_m_s": 0.035206683790340566,
+            "attitude_rms_rad": 0.003553985327922081,
+            "mean_nees_15": 11.039388899350273,
+            "maximum_position_error_m": 0.030027446951398137
+          },
+          "camera_outage": {
+            "position_rms_m": 0.11414154757011681,
+            "velocity_rms_m_s": 0.10522620068402787,
+            "attitude_rms_rad": 0.005809101399061176,
+            "mean_nees_15": 9.875958767097226,
+            "maximum_position_error_m": 0.20974918906489254
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 100,
+        "camera_updates": 280,
+        "mean_gps_nis_6": 5.8433966636657715,
+        "mean_camera_nis": 6.103448390960693,
+        "camera_nis_dimension": 6
+      },
+      "tight": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.03516345062805618,
+            "velocity_rms_m_s": 0.04493086112199709,
+            "attitude_rms_rad": 0.004167884455686475,
+            "mean_nees_15": 11.100225871847654,
+            "maximum_position_error_m": 0.20975043762310533
+          },
+          "gps_outage": {
+            "position_rms_m": 0.05430203056898861,
+            "velocity_rms_m_s": 0.05813373571999265,
+            "attitude_rms_rad": 0.004553312458681655,
+            "mean_nees_15": 10.217856875388149,
+            "maximum_position_error_m": 0.20975043762310533
+          },
+          "gps_return": {
+            "position_rms_m": 0.015127868624560448,
+            "velocity_rms_m_s": 0.0352067206278531,
+            "attitude_rms_rad": 0.0035539916133634315,
+            "mean_nees_15": 11.03937144497713,
+            "maximum_position_error_m": 0.03002751890464558
+          },
+          "camera_outage": {
+            "position_rms_m": 0.11414225454462527,
+            "velocity_rms_m_s": 0.1052267984273038,
+            "attitude_rms_rad": 0.005809064576919666,
+            "mean_nees_15": 9.875927847133104,
+            "maximum_position_error_m": 0.20975043762310533
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 100,
+        "camera_updates": 280,
+        "mean_gps_nis_6": 5.843398571014404,
+        "mean_camera_nis": 12.197799682617188,
+        "camera_nis_dimension": 12
+      },
+      "maximum_loose_tight_nominal_difference": 2.209097146987915e-06,
+      "maximum_loose_tight_covariance_difference": 2.7939677238464355e-08,
+      "passed": true
+    },
+    {
+      "seed": 20271063,
+      "scenario": "gps",
+      "capture_sha256": "ff6792732c71cb9a2935f37778b0a381a3aa5195dd2f85983df9308b46723cc9",
+      "replay_sha256": "915e33911356e3558ff79e590e7f1ab1a00eb58906c44378def36132afab79d7",
+      "all_observations_inside_image": true,
+      "image_size_pixels": [
+        640,
+        480
+      ],
+      "observation_minimum": [
+        100.52667236328125,
+        60.80821990966797,
+        3.615863084793091
+      ],
+      "observation_maximum": [
+        534.1083374023438,
+        429.6741027832031,
+        4.315064430236816
+      ],
+      "loose": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.021705919556523224,
+            "velocity_rms_m_s": 0.03891041202785463,
+            "attitude_rms_rad": 0.004108045934650747,
+            "mean_nees_15": 10.864039381490215,
+            "maximum_position_error_m": 0.15733207165337834
+          },
+          "gps_outage": {
+            "position_rms_m": 0.021418364369144804,
+            "velocity_rms_m_s": 0.03896842994870459,
+            "attitude_rms_rad": 0.003909269271599109,
+            "mean_nees_15": 10.326450225163216,
+            "maximum_position_error_m": 0.04608911299621475
+          },
+          "gps_return": {
+            "position_rms_m": 0.018029230630467016,
+            "velocity_rms_m_s": 0.039774360159915916,
+            "attitude_rms_rad": 0.003933765940588768,
+            "mean_nees_15": 10.110090715831753,
+            "maximum_position_error_m": 0.03659347474693951
+          },
+          "camera_outage": {
+            "position_rms_m": 0.031204775194614783,
+            "velocity_rms_m_s": 0.046784871790390405,
+            "attitude_rms_rad": 0.004467175915048602,
+            "mean_nees_15": 9.190126574461768,
+            "maximum_position_error_m": 0.04608911299621475
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 150,
+        "camera_updates": 280,
+        "mean_gps_nis_6": 5.976586818695068,
+        "mean_camera_nis": 6.080841064453125,
+        "camera_nis_dimension": 6
+      },
+      "tight": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.021705938799816523,
+            "velocity_rms_m_s": 0.038910420975241555,
+            "attitude_rms_rad": 0.004108049796071215,
+            "mean_nees_15": 10.864054329549559,
+            "maximum_position_error_m": 0.15733207165337834
+          },
+          "gps_outage": {
+            "position_rms_m": 0.021418365089921815,
+            "velocity_rms_m_s": 0.03896846130460283,
+            "attitude_rms_rad": 0.003909271921048224,
+            "mean_nees_15": 10.326482798573673,
+            "maximum_position_error_m": 0.0460892419385649
+          },
+          "gps_return": {
+            "position_rms_m": 0.018029257068017366,
+            "velocity_rms_m_s": 0.039774369677703085,
+            "attitude_rms_rad": 0.003933769441192179,
+            "mean_nees_15": 10.110104915317628,
+            "maximum_position_error_m": 0.03659369286268613
+          },
+          "camera_outage": {
+            "position_rms_m": 0.031204740401234398,
+            "velocity_rms_m_s": 0.04678494381814335,
+            "attitude_rms_rad": 0.004467178051640259,
+            "mean_nees_15": 9.190145995785674,
+            "maximum_position_error_m": 0.0460892419385649
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 150,
+        "camera_updates": 280,
+        "mean_gps_nis_6": 5.976585388183594,
+        "mean_camera_nis": 12.030595779418945,
+        "camera_nis_dimension": 12
+      },
+      "maximum_loose_tight_nominal_difference": 2.261251211166382e-06,
+      "maximum_loose_tight_covariance_difference": 8.614733815193176e-09,
+      "passed": true
+    },
+    {
+      "seed": 20271063,
+      "scenario": "denied",
+      "capture_sha256": "ff6792732c71cb9a2935f37778b0a381a3aa5195dd2f85983df9308b46723cc9",
+      "replay_sha256": "4c6bb383f07ba31f2c085d7bc81ce822674c198d4cdbd78cc7d7c47082ff0b32",
+      "all_observations_inside_image": true,
+      "image_size_pixels": [
+        640,
+        480
+      ],
+      "observation_minimum": [
+        100.52667236328125,
+        60.80821990966797,
+        3.615863084793091
+      ],
+      "observation_maximum": [
+        534.1083374023438,
+        429.6741027832031,
+        4.315064430236816
+      ],
+      "loose": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.021496508545446658,
+            "velocity_rms_m_s": 0.042070103962182394,
+            "attitude_rms_rad": 0.004183054328792648,
+            "mean_nees_15": 10.565601306583758,
+            "maximum_position_error_m": 0.15733207165337834
+          },
+          "gps_outage": {
+            "position_rms_m": 0.019253403948584817,
+            "velocity_rms_m_s": 0.041798010404754594,
+            "attitude_rms_rad": 0.004022593196270747,
+            "mean_nees_15": 9.972601826323183,
+            "maximum_position_error_m": 0.04329432344891445
+          },
+          "gps_return": {
+            "position_rms_m": 0.019791263569721322,
+            "velocity_rms_m_s": 0.04325538595402322,
+            "attitude_rms_rad": 0.0042439956356641285,
+            "mean_nees_15": 9.871183563621848,
+            "maximum_position_error_m": 0.03904748590150994
+          },
+          "camera_outage": {
+            "position_rms_m": 0.016408484295249753,
+            "velocity_rms_m_s": 0.036951559361864506,
+            "attitude_rms_rad": 0.004156709915913409,
+            "mean_nees_15": 7.639471033863642,
+            "maximum_position_error_m": 0.02932704265290736
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 0,
+        "camera_updates": 280,
+        "mean_gps_nis_6": null,
+        "mean_camera_nis": 6.151277542114258,
+        "camera_nis_dimension": 6
+      },
+      "tight": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.02149651723055836,
+            "velocity_rms_m_s": 0.04207014192304346,
+            "attitude_rms_rad": 0.004183056180660619,
+            "mean_nees_15": 10.56560058732639,
+            "maximum_position_error_m": 0.15733207165337834
+          },
+          "gps_outage": {
+            "position_rms_m": 0.019253419247056074,
+            "velocity_rms_m_s": 0.04179797022539301,
+            "attitude_rms_rad": 0.004022591338625032,
+            "mean_nees_15": 9.972576590607808,
+            "maximum_position_error_m": 0.0432943164281281
+          },
+          "gps_return": {
+            "position_rms_m": 0.019791276362105804,
+            "velocity_rms_m_s": 0.043255453020900086,
+            "attitude_rms_rad": 0.00424400076163755,
+            "mean_nees_15": 9.87118850869847,
+            "maximum_position_error_m": 0.03904738476855417
+          },
+          "camera_outage": {
+            "position_rms_m": 0.016408750451138494,
+            "velocity_rms_m_s": 0.03695172090019781,
+            "attitude_rms_rad": 0.004156706830001269,
+            "mean_nees_15": 7.639446332189807,
+            "maximum_position_error_m": 0.029327504191255124
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 0,
+        "camera_updates": 280,
+        "mean_gps_nis_6": null,
+        "mean_camera_nis": 12.101516723632812,
+        "camera_nis_dimension": 12
+      },
+      "maximum_loose_tight_nominal_difference": 2.5033950805664062e-06,
+      "maximum_loose_tight_covariance_difference": 1.1175870895385742e-08,
+      "passed": true
+    },
+    {
+      "seed": 20271063,
+      "scenario": "transition",
+      "capture_sha256": "ff6792732c71cb9a2935f37778b0a381a3aa5195dd2f85983df9308b46723cc9",
+      "replay_sha256": "d9bb6da406a2d4a9ce9dfad683e53b6f81b92316e616ae7cf7391d4d789cdf91",
+      "all_observations_inside_image": true,
+      "image_size_pixels": [
+        640,
+        480
+      ],
+      "observation_minimum": [
+        100.52667236328125,
+        60.80821990966797,
+        3.615863084793091
+      ],
+      "observation_maximum": [
+        534.1083374023438,
+        429.6741027832031,
+        4.315064430236816
+      ],
+      "loose": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.020904429132046123,
+            "velocity_rms_m_s": 0.03970283626832434,
+            "attitude_rms_rad": 0.004136193255525054,
+            "mean_nees_15": 10.731920650741179,
+            "maximum_position_error_m": 0.15733207165337834
+          },
+          "gps_outage": {
+            "position_rms_m": 0.018897690640438006,
+            "velocity_rms_m_s": 0.04145312284945644,
+            "attitude_rms_rad": 0.0039919717036129825,
+            "mean_nees_15": 9.999289909308361,
+            "maximum_position_error_m": 0.04354422268790275
+          },
+          "gps_return": {
+            "position_rms_m": 0.018006172535259244,
+            "velocity_rms_m_s": 0.0396115503401133,
+            "attitude_rms_rad": 0.0039391851572478835,
+            "mean_nees_15": 10.040963966189139,
+            "maximum_position_error_m": 0.03672217413402846
+          },
+          "camera_outage": {
+            "position_rms_m": 0.015803526545674483,
+            "velocity_rms_m_s": 0.036541046563546675,
+            "attitude_rms_rad": 0.004200876408380889,
+            "mean_nees_15": 7.660957139803292,
+            "maximum_position_error_m": 0.028062488495651416
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 100,
+        "camera_updates": 280,
+        "mean_gps_nis_6": 6.072840690612793,
+        "mean_camera_nis": 6.077481269836426,
+        "camera_nis_dimension": 6
+      },
+      "tight": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.02090448093942575,
+            "velocity_rms_m_s": 0.03970280639682776,
+            "attitude_rms_rad": 0.0041362062396327025,
+            "mean_nees_15": 10.731948762881727,
+            "maximum_position_error_m": 0.15733207165337834
+          },
+          "gps_outage": {
+            "position_rms_m": 0.01889771876089804,
+            "velocity_rms_m_s": 0.041453074896649456,
+            "attitude_rms_rad": 0.0039919846982662,
+            "mean_nees_15": 9.999349877605212,
+            "maximum_position_error_m": 0.04354436702160091
+          },
+          "gps_return": {
+            "position_rms_m": 0.01800628111606986,
+            "velocity_rms_m_s": 0.03961152477308217,
+            "attitude_rms_rad": 0.003939206914873546,
+            "mean_nees_15": 10.040990250946962,
+            "maximum_position_error_m": 0.03672285900323202
+          },
+          "camera_outage": {
+            "position_rms_m": 0.015803165908537007,
+            "velocity_rms_m_s": 0.03654084795603455,
+            "attitude_rms_rad": 0.004200885313249417,
+            "mean_nees_15": 7.661114581011994,
+            "maximum_position_error_m": 0.028060780060307176
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 100,
+        "camera_updates": 280,
+        "mean_gps_nis_6": 6.0728373527526855,
+        "mean_camera_nis": 12.02729606628418,
+        "camera_nis_dimension": 12
+      },
+      "maximum_loose_tight_nominal_difference": 2.261251211166382e-06,
+      "maximum_loose_tight_covariance_difference": 2.0489096641540527e-08,
+      "passed": true
+    },
+    {
+      "seed": 20271064,
+      "scenario": "gps",
+      "capture_sha256": "226b3934d89b162b50ba693d1bd13121101a34c25476415d694320a3470fb31b",
+      "replay_sha256": "eb71494a44954db006b03b098aee60baf71132abf0d134d85315f7a0e0dacc40",
+      "all_observations_inside_image": true,
+      "image_size_pixels": [
+        640,
+        480
+      ],
+      "observation_minimum": [
+        100.69664764404297,
+        59.70336151123047,
+        3.6094253063201904
+      ],
+      "observation_maximum": [
+        533.916748046875,
+        429.62860107421875,
+        4.308247089385986
+      ],
+      "loose": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.021006918117964953,
+            "velocity_rms_m_s": 0.037694099787843195,
+            "attitude_rms_rad": 0.00479388277055236,
+            "mean_nees_15": 18.323201291907747,
+            "maximum_position_error_m": 0.0491031803634314
+          },
+          "gps_outage": {
+            "position_rms_m": 0.022929648933851705,
+            "velocity_rms_m_s": 0.03732490867727851,
+            "attitude_rms_rad": 0.005272886029363494,
+            "mean_nees_15": 19.144290428364016,
+            "maximum_position_error_m": 0.04248670460351168
+          },
+          "gps_return": {
+            "position_rms_m": 0.02145296824115543,
+            "velocity_rms_m_s": 0.03677769542202017,
+            "attitude_rms_rad": 0.004959577548130145,
+            "mean_nees_15": 21.618829708571855,
+            "maximum_position_error_m": 0.04537969672632162
+          },
+          "camera_outage": {
+            "position_rms_m": 0.025448882216034124,
+            "velocity_rms_m_s": 0.03870203654737854,
+            "attitude_rms_rad": 0.006090779324837006,
+            "mean_nees_15": 14.221056356125764,
+            "maximum_position_error_m": 0.03954704878360978
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 150,
+        "camera_updates": 280,
+        "mean_gps_nis_6": 5.8127593994140625,
+        "mean_camera_nis": 6.337975978851318,
+        "camera_nis_dimension": 6
+      },
+      "tight": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.02100690725876474,
+            "velocity_rms_m_s": 0.03769409087844086,
+            "attitude_rms_rad": 0.004793882531071186,
+            "mean_nees_15": 18.32320924497626,
+            "maximum_position_error_m": 0.0491031803634314
+          },
+          "gps_outage": {
+            "position_rms_m": 0.02292964933657057,
+            "velocity_rms_m_s": 0.03732486499786502,
+            "attitude_rms_rad": 0.0052728887761021095,
+            "mean_nees_15": 19.144296184145126,
+            "maximum_position_error_m": 0.04248670314068438
+          },
+          "gps_return": {
+            "position_rms_m": 0.02145295381174283,
+            "velocity_rms_m_s": 0.03677765900987888,
+            "attitude_rms_rad": 0.004959571832707171,
+            "mean_nees_15": 21.618837476043847,
+            "maximum_position_error_m": 0.045379599864412916
+          },
+          "camera_outage": {
+            "position_rms_m": 0.025448690766314886,
+            "velocity_rms_m_s": 0.03870194948422702,
+            "attitude_rms_rad": 0.006090762660646829,
+            "mean_nees_15": 14.221025782547315,
+            "maximum_position_error_m": 0.039546703687873976
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 150,
+        "camera_updates": 280,
+        "mean_gps_nis_6": 5.8127593994140625,
+        "mean_camera_nis": 12.345894813537598,
+        "camera_nis_dimension": 12
+      },
+      "maximum_loose_tight_nominal_difference": 1.914799213409424e-06,
+      "maximum_loose_tight_covariance_difference": 3.3760443329811096e-09,
+      "passed": true
+    },
+    {
+      "seed": 20271064,
+      "scenario": "denied",
+      "capture_sha256": "226b3934d89b162b50ba693d1bd13121101a34c25476415d694320a3470fb31b",
+      "replay_sha256": "1cc6c2ef752fb53f8e2fbe61b44780506a695a63ce6e9af6eaaf1ae49a991b8a",
+      "all_observations_inside_image": true,
+      "image_size_pixels": [
+        640,
+        480
+      ],
+      "observation_minimum": [
+        100.69664764404297,
+        59.70336151123047,
+        3.6094253063201904
+      ],
+      "observation_maximum": [
+        533.916748046875,
+        429.62860107421875,
+        4.308247089385986
+      ],
+      "loose": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.035307875314148335,
+            "velocity_rms_m_s": 0.04936065339805146,
+            "attitude_rms_rad": 0.005275887687297968,
+            "mean_nees_15": 18.610732240879994,
+            "maximum_position_error_m": 0.20538062650253866
+          },
+          "gps_outage": {
+            "position_rms_m": 0.05200176258761791,
+            "velocity_rms_m_s": 0.06058358397968792,
+            "attitude_rms_rad": 0.005870335392267911,
+            "mean_nees_15": 19.584862257044172,
+            "maximum_position_error_m": 0.20538062650253866
+          },
+          "gps_return": {
+            "position_rms_m": 0.02248156433669788,
+            "velocity_rms_m_s": 0.03975036989372842,
+            "attitude_rms_rad": 0.005116508208756037,
+            "mean_nees_15": 21.465936032223816,
+            "maximum_position_error_m": 0.045937298397866234
+          },
+          "camera_outage": {
+            "position_rms_m": 0.10597765923741712,
+            "velocity_rms_m_s": 0.10350270806427776,
+            "attitude_rms_rad": 0.007636826078914661,
+            "mean_nees_15": 15.806506001729671,
+            "maximum_position_error_m": 0.20538062650253866
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 0,
+        "camera_updates": 280,
+        "mean_gps_nis_6": null,
+        "mean_camera_nis": 6.336012363433838,
+        "camera_nis_dimension": 6
+      },
+      "tight": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.03530782484302901,
+            "velocity_rms_m_s": 0.049360624280070084,
+            "attitude_rms_rad": 0.005275893716807775,
+            "mean_nees_15": 18.61072770614238,
+            "maximum_position_error_m": 0.20538005180286859
+          },
+          "gps_outage": {
+            "position_rms_m": 0.05200163140304087,
+            "velocity_rms_m_s": 0.060583385979241886,
+            "attitude_rms_rad": 0.00587034138885276,
+            "mean_nees_15": 19.584849347360905,
+            "maximum_position_error_m": 0.20538005180286859
+          },
+          "gps_return": {
+            "position_rms_m": 0.022481551463068,
+            "velocity_rms_m_s": 0.03975037740587914,
+            "attitude_rms_rad": 0.005116504907867317,
+            "mean_nees_15": 21.465928955741543,
+            "maximum_position_error_m": 0.04593726972617237
+          },
+          "camera_outage": {
+            "position_rms_m": 0.10597728477963018,
+            "velocity_rms_m_s": 0.10350239736784202,
+            "attitude_rms_rad": 0.007636805522981803,
+            "mean_nees_15": 15.80650195900672,
+            "maximum_position_error_m": 0.20538005180286859
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 0,
+        "camera_updates": 280,
+        "mean_gps_nis_6": null,
+        "mean_camera_nis": 12.343687057495117,
+        "camera_nis_dimension": 12
+      },
+      "maximum_loose_tight_nominal_difference": 2.51084566116333e-06,
+      "maximum_loose_tight_covariance_difference": 1.862645149230957e-08,
+      "passed": true
+    },
+    {
+      "seed": 20271064,
+      "scenario": "transition",
+      "capture_sha256": "226b3934d89b162b50ba693d1bd13121101a34c25476415d694320a3470fb31b",
+      "replay_sha256": "4136754a77040c2bb3421b0a503e61bb2d170985cc3a3b7078e60a7571f81099",
+      "all_observations_inside_image": true,
+      "image_size_pixels": [
+        640,
+        480
+      ],
+      "observation_minimum": [
+        100.69664764404297,
+        59.70336151123047,
+        3.6094253063201904
+      ],
+      "observation_maximum": [
+        533.916748046875,
+        429.62860107421875,
+        4.308247089385986
+      ],
+      "loose": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.034280858292517216,
+            "velocity_rms_m_s": 0.04668923475997927,
+            "attitude_rms_rad": 0.004991627752056746,
+            "mean_nees_15": 18.33216614553525,
+            "maximum_position_error_m": 0.2078591656753713
+          },
+          "gps_outage": {
+            "position_rms_m": 0.05225765925170775,
+            "velocity_rms_m_s": 0.06069043865310632,
+            "attitude_rms_rad": 0.005804550654291714,
+            "mean_nees_15": 19.226392257369866,
+            "maximum_position_error_m": 0.2078591656753713
+          },
+          "gps_return": {
+            "position_rms_m": 0.021372857466854012,
+            "velocity_rms_m_s": 0.036599861262325395,
+            "attitude_rms_rad": 0.004951072542226125,
+            "mean_nees_15": 21.56367759256453,
+            "maximum_position_error_m": 0.045379427731015505
+          },
+          "camera_outage": {
+            "position_rms_m": 0.1072493923170302,
+            "velocity_rms_m_s": 0.10467673348429327,
+            "attitude_rms_rad": 0.007720112989637615,
+            "mean_nees_15": 15.614906248718672,
+            "maximum_position_error_m": 0.2078591656753713
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 100,
+        "camera_updates": 280,
+        "mean_gps_nis_6": 6.037560939788818,
+        "mean_camera_nis": 6.344486713409424,
+        "camera_nis_dimension": 6
+      },
+      "tight": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.034281003382671274,
+            "velocity_rms_m_s": 0.04668932164634602,
+            "attitude_rms_rad": 0.00499163244469855,
+            "mean_nees_15": 18.332166683419278,
+            "maximum_position_error_m": 0.20786032561194967
+          },
+          "gps_outage": {
+            "position_rms_m": 0.05225793248485297,
+            "velocity_rms_m_s": 0.06069060362554335,
+            "attitude_rms_rad": 0.0058045513563743465,
+            "mean_nees_15": 19.226375761919066,
+            "maximum_position_error_m": 0.20786032561194967
+          },
+          "gps_return": {
+            "position_rms_m": 0.02137290545359384,
+            "velocity_rms_m_s": 0.03659986656838751,
+            "attitude_rms_rad": 0.004951083791047144,
+            "mean_nees_15": 21.56368536570931,
+            "maximum_position_error_m": 0.04537950817415818
+          },
+          "camera_outage": {
+            "position_rms_m": 0.10725003989510064,
+            "velocity_rms_m_s": 0.10467726903855797,
+            "attitude_rms_rad": 0.007720121682706148,
+            "mean_nees_15": 15.614927342490398,
+            "maximum_position_error_m": 0.20786032561194967
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 100,
+        "camera_updates": 280,
+        "mean_gps_nis_6": 6.037562370300293,
+        "mean_camera_nis": 12.351637840270996,
+        "camera_nis_dimension": 12
+      },
+      "maximum_loose_tight_nominal_difference": 2.255663275718689e-06,
+      "maximum_loose_tight_covariance_difference": 3.166496753692627e-08,
+      "passed": true
+    },
+    {
+      "seed": 20271065,
+      "scenario": "gps",
+      "capture_sha256": "fa352ed279c29dd82ac4759806d81073771de650bd0e746f91d8dc4fa850b512",
+      "replay_sha256": "113e8c03dc9540e737536a56bfe4ece658433a9f887cbdd89b4819c8f4a0bb98",
+      "all_observations_inside_image": true,
+      "image_size_pixels": [
+        640,
+        480
+      ],
+      "observation_minimum": [
+        101.25955200195312,
+        60.80247497558594,
+        3.621957778930664
+      ],
+      "observation_maximum": [
+        534.0555419921875,
+        430.11859130859375,
+        4.3132452964782715
+      ],
+      "loose": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.02621667760984155,
+            "velocity_rms_m_s": 0.04097752351863716,
+            "attitude_rms_rad": 0.005320029285244148,
+            "mean_nees_15": 22.439456790273482,
+            "maximum_position_error_m": 0.07623367794991354
+          },
+          "gps_outage": {
+            "position_rms_m": 0.031915280105814514,
+            "velocity_rms_m_s": 0.04455017030185417,
+            "attitude_rms_rad": 0.005952923212185886,
+            "mean_nees_15": 24.072621310960216,
+            "maximum_position_error_m": 0.07330881785539273
+          },
+          "gps_return": {
+            "position_rms_m": 0.023330280778626044,
+            "velocity_rms_m_s": 0.0386430806260842,
+            "attitude_rms_rad": 0.005222347195988787,
+            "mean_nees_15": 25.04249646401159,
+            "maximum_position_error_m": 0.04415302139902361
+          },
+          "camera_outage": {
+            "position_rms_m": 0.05179792578843896,
+            "velocity_rms_m_s": 0.05136994586421621,
+            "attitude_rms_rad": 0.007225184040295358,
+            "mean_nees_15": 23.03813932485593,
+            "maximum_position_error_m": 0.07330881785539273
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 150,
+        "camera_updates": 280,
+        "mean_gps_nis_6": 5.510533809661865,
+        "mean_camera_nis": 6.179868698120117,
+        "camera_nis_dimension": 6
+      },
+      "tight": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.02621675851039514,
+            "velocity_rms_m_s": 0.040977609712969064,
+            "attitude_rms_rad": 0.005320037375740588,
+            "mean_nees_15": 22.439474013838286,
+            "maximum_position_error_m": 0.07623367794991354
+          },
+          "gps_outage": {
+            "position_rms_m": 0.031915435641937724,
+            "velocity_rms_m_s": 0.044550383346286575,
+            "attitude_rms_rad": 0.005952931000321236,
+            "mean_nees_15": 24.072700120403173,
+            "maximum_position_error_m": 0.07330906566048268
+          },
+          "gps_return": {
+            "position_rms_m": 0.02333032724870958,
+            "velocity_rms_m_s": 0.038643165538267854,
+            "attitude_rms_rad": 0.005222356842259196,
+            "mean_nees_15": 25.042522725595354,
+            "maximum_position_error_m": 0.04415302139902361
+          },
+          "camera_outage": {
+            "position_rms_m": 0.05179828890580478,
+            "velocity_rms_m_s": 0.05137024620405804,
+            "attitude_rms_rad": 0.007225183424673527,
+            "mean_nees_15": 23.03827313435302,
+            "maximum_position_error_m": 0.07330906566048268
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 150,
+        "camera_updates": 280,
+        "mean_gps_nis_6": 5.510538101196289,
+        "mean_camera_nis": 12.214332580566406,
+        "camera_nis_dimension": 12
+      },
+      "maximum_loose_tight_nominal_difference": 1.5422701835632324e-06,
+      "maximum_loose_tight_covariance_difference": 4.540197551250458e-09,
+      "passed": true
+    },
+    {
+      "seed": 20271065,
+      "scenario": "denied",
+      "capture_sha256": "fa352ed279c29dd82ac4759806d81073771de650bd0e746f91d8dc4fa850b512",
+      "replay_sha256": "a58d170e27d47bf36d7ebc844d54b77947183618625fcdbf95f9ce5bbf14548b",
+      "all_observations_inside_image": true,
+      "image_size_pixels": [
+        640,
+        480
+      ],
+      "observation_minimum": [
+        101.25955200195312,
+        60.80247497558594,
+        3.621957778930664
+      ],
+      "observation_maximum": [
+        534.0555419921875,
+        430.11859130859375,
+        4.3132452964782715
+      ],
+      "loose": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.05101877505594317,
+            "velocity_rms_m_s": 0.057031035198213106,
+            "attitude_rms_rad": 0.005777781444110701,
+            "mean_nees_15": 22.716880415705358,
+            "maximum_position_error_m": 0.30288979428389207
+          },
+          "gps_outage": {
+            "position_rms_m": 0.08113157687222838,
+            "velocity_rms_m_s": 0.07667366452507378,
+            "attitude_rms_rad": 0.006783631434114407,
+            "mean_nees_15": 25.25384166714744,
+            "maximum_position_error_m": 0.30288979428389207
+          },
+          "gps_return": {
+            "position_rms_m": 0.023999670459123316,
+            "velocity_rms_m_s": 0.043024309586417994,
+            "attitude_rms_rad": 0.005259321882981769,
+            "mean_nees_15": 24.594588124155205,
+            "maximum_position_error_m": 0.04350988643693066
+          },
+          "camera_outage": {
+            "position_rms_m": 0.17271263282482485,
+            "velocity_rms_m_s": 0.13819449790694935,
+            "attitude_rms_rad": 0.009313784037589964,
+            "mean_nees_15": 27.190100364591984,
+            "maximum_position_error_m": 0.30288979428389207
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 0,
+        "camera_updates": 280,
+        "mean_gps_nis_6": null,
+        "mean_camera_nis": 6.249978542327881,
+        "camera_nis_dimension": 6
+      },
+      "tight": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.051018547319882,
+            "velocity_rms_m_s": 0.057030865583103045,
+            "attitude_rms_rad": 0.005777793093524699,
+            "mean_nees_15": 22.71684898503818,
+            "maximum_position_error_m": 0.3028878477934409
+          },
+          "gps_outage": {
+            "position_rms_m": 0.08113111748370325,
+            "velocity_rms_m_s": 0.07667333164504107,
+            "attitude_rms_rad": 0.0067836391204786056,
+            "mean_nees_15": 25.253727761120878,
+            "maximum_position_error_m": 0.3028878477934409
+          },
+          "gps_return": {
+            "position_rms_m": 0.023999760758570327,
+            "velocity_rms_m_s": 0.043024363739922404,
+            "attitude_rms_rad": 0.0052593436547118365,
+            "mean_nees_15": 24.59463858190471,
+            "maximum_position_error_m": 0.04351050188468541
+          },
+          "camera_outage": {
+            "position_rms_m": 0.1727115353544989,
+            "velocity_rms_m_s": 0.1381938496254947,
+            "attitude_rms_rad": 0.009313784278838699,
+            "mean_nees_15": 27.189894948119125,
+            "maximum_position_error_m": 0.3028878477934409
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 0,
+        "camera_updates": 280,
+        "mean_gps_nis_6": null,
+        "mean_camera_nis": 12.283853530883789,
+        "camera_nis_dimension": 12
+      },
+      "maximum_loose_tight_nominal_difference": 3.2871030271053314e-06,
+      "maximum_loose_tight_covariance_difference": 5.960464477539063e-08,
+      "passed": true
+    },
+    {
+      "seed": 20271065,
+      "scenario": "transition",
+      "capture_sha256": "fa352ed279c29dd82ac4759806d81073771de650bd0e746f91d8dc4fa850b512",
+      "replay_sha256": "7f7d77320d0782c04df82d463b71f03aa7fe70af07060cdc02b7cbd36b617030",
+      "all_observations_inside_image": true,
+      "image_size_pixels": [
+        640,
+        480
+      ],
+      "observation_minimum": [
+        101.25955200195312,
+        60.80247497558594,
+        3.621957778930664
+      ],
+      "observation_maximum": [
+        534.0555419921875,
+        430.11859130859375,
+        4.3132452964782715
+      ],
+      "loose": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.050514961261446875,
+            "velocity_rms_m_s": 0.05469355472427766,
+            "attitude_rms_rad": 0.005649178333506253,
+            "mean_nees_15": 22.839101147450638,
+            "maximum_position_error_m": 0.303574363064863
+          },
+          "gps_outage": {
+            "position_rms_m": 0.0812813195796673,
+            "velocity_rms_m_s": 0.07688410590217419,
+            "attitude_rms_rad": 0.006792914842567489,
+            "mean_nees_15": 25.206152128608643,
+            "maximum_position_error_m": 0.303574363064863
+          },
+          "gps_return": {
+            "position_rms_m": 0.023442915850403367,
+            "velocity_rms_m_s": 0.03877514504936728,
+            "attitude_rms_rad": 0.0052343004022025845,
+            "mean_nees_15": 25.107833380977667,
+            "maximum_position_error_m": 0.04407435216671339
+          },
+          "camera_outage": {
+            "position_rms_m": 0.17306934061417353,
+            "velocity_rms_m_s": 0.13849276691680792,
+            "attitude_rms_rad": 0.009372930046703433,
+            "mean_nees_15": 27.20604439525762,
+            "maximum_position_error_m": 0.303574363064863
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 100,
+        "camera_updates": 280,
+        "mean_gps_nis_6": 5.4032883644104,
+        "mean_camera_nis": 6.225467205047607,
+        "camera_nis_dimension": 6
+      },
+      "tight": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.050514881890538654,
+            "velocity_rms_m_s": 0.05469350360501752,
+            "attitude_rms_rad": 0.005649178010533399,
+            "mean_nees_15": 22.8390567610641,
+            "maximum_position_error_m": 0.3035741330501035
+          },
+          "gps_outage": {
+            "position_rms_m": 0.08128119386594912,
+            "velocity_rms_m_s": 0.07688400470642313,
+            "attitude_rms_rad": 0.006792927673550343,
+            "mean_nees_15": 25.206111199592808,
+            "maximum_position_error_m": 0.3035741330501035
+          },
+          "gps_return": {
+            "position_rms_m": 0.023442825351260663,
+            "velocity_rms_m_s": 0.03877518555804038,
+            "attitude_rms_rad": 0.005234276550834905,
+            "mean_nees_15": 25.107794616192592,
+            "maximum_position_error_m": 0.0440743400899775
+          },
+          "camera_outage": {
+            "position_rms_m": 0.17306902320210524,
+            "velocity_rms_m_s": 0.13849254502713926,
+            "attitude_rms_rad": 0.009372960070037416,
+            "mean_nees_15": 27.205923035922382,
+            "maximum_position_error_m": 0.3035741330501035
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 100,
+        "camera_updates": 280,
+        "mean_gps_nis_6": 5.40329122543335,
+        "mean_camera_nis": 12.25850772857666,
+        "camera_nis_dimension": 12
+      },
+      "maximum_loose_tight_nominal_difference": 1.9073486328125e-06,
+      "maximum_loose_tight_covariance_difference": 3.725290298461914e-08,
+      "passed": true
+    },
+    {
+      "seed": 20271066,
+      "scenario": "gps",
+      "capture_sha256": "d60415b5675bdd271b57fb3598c2d0bd8e15f4da717d0bdba3f457a08e819afa",
+      "replay_sha256": "5ad43de5b798b73a30e0b97814f8a573fa875908f181dacc06e01b6a9119bd09",
+      "all_observations_inside_image": true,
+      "image_size_pixels": [
+        640,
+        480
+      ],
+      "observation_minimum": [
+        101.44596862792969,
+        60.7032585144043,
+        3.6145999431610107
+      ],
+      "observation_maximum": [
+        534.9652709960938,
+        429.9937438964844,
+        4.309529781341553
+      ],
+      "loose": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.020078376961237623,
+            "velocity_rms_m_s": 0.04248361776783113,
+            "attitude_rms_rad": 0.004428522387363894,
+            "mean_nees_15": 13.82156817125951,
+            "maximum_position_error_m": 0.053965027199339
+          },
+          "gps_outage": {
+            "position_rms_m": 0.020027136400870983,
+            "velocity_rms_m_s": 0.037726237324994125,
+            "attitude_rms_rad": 0.004215379880078425,
+            "mean_nees_15": 11.973531568414566,
+            "maximum_position_error_m": 0.05327175715319807
+          },
+          "gps_return": {
+            "position_rms_m": 0.017161219083954352,
+            "velocity_rms_m_s": 0.04086341711808395,
+            "attitude_rms_rad": 0.004058886982128294,
+            "mean_nees_15": 14.178076824333045,
+            "maximum_position_error_m": 0.038762874212455334
+          },
+          "camera_outage": {
+            "position_rms_m": 0.030497961220804327,
+            "velocity_rms_m_s": 0.04613950490819232,
+            "attitude_rms_rad": 0.005461652114061606,
+            "mean_nees_15": 8.111780187869531,
+            "maximum_position_error_m": 0.05327175715319807
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 150,
+        "camera_updates": 280,
+        "mean_gps_nis_6": 5.985435962677002,
+        "mean_camera_nis": 6.0223588943481445,
+        "camera_nis_dimension": 6
+      },
+      "tight": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.0200783815958398,
+            "velocity_rms_m_s": 0.042483639041711874,
+            "attitude_rms_rad": 0.0044285214190250425,
+            "mean_nees_15": 13.821560440089321,
+            "maximum_position_error_m": 0.053964768992682606
+          },
+          "gps_outage": {
+            "position_rms_m": 0.020027120240538272,
+            "velocity_rms_m_s": 0.03772624683999894,
+            "attitude_rms_rad": 0.0042153791556594,
+            "mean_nees_15": 11.973497330060061,
+            "maximum_position_error_m": 0.05327156996237945
+          },
+          "gps_return": {
+            "position_rms_m": 0.017161225176547924,
+            "velocity_rms_m_s": 0.040863467146096163,
+            "attitude_rms_rad": 0.00405888407781487,
+            "mean_nees_15": 14.178090403730977,
+            "maximum_position_error_m": 0.038762826639268784
+          },
+          "camera_outage": {
+            "position_rms_m": 0.030497948978697457,
+            "velocity_rms_m_s": 0.04613941904972015,
+            "attitude_rms_rad": 0.005461666730509352,
+            "mean_nees_15": 8.111686712665222,
+            "maximum_position_error_m": 0.05327156996237945
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 150,
+        "camera_updates": 280,
+        "mean_gps_nis_6": 5.985435962677002,
+        "mean_camera_nis": 12.311554908752441,
+        "camera_nis_dimension": 12
+      },
+      "maximum_loose_tight_nominal_difference": 2.428889274597168e-06,
+      "maximum_loose_tight_covariance_difference": 6.51925802230835e-09,
+      "passed": true
+    },
+    {
+      "seed": 20271066,
+      "scenario": "denied",
+      "capture_sha256": "d60415b5675bdd271b57fb3598c2d0bd8e15f4da717d0bdba3f457a08e819afa",
+      "replay_sha256": "9339ec281999b4af476a89bdf23605c2beda94514a05580a65ec2b56b059f6e9",
+      "all_observations_inside_image": true,
+      "image_size_pixels": [
+        640,
+        480
+      ],
+      "observation_minimum": [
+        101.44596862792969,
+        60.7032585144043,
+        3.6145999431610107
+      ],
+      "observation_maximum": [
+        534.9652709960938,
+        429.9937438964844,
+        4.309529781341553
+      ],
+      "loose": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.03497069194137678,
+            "velocity_rms_m_s": 0.054531403960082055,
+            "attitude_rms_rad": 0.005062533558187973,
+            "mean_nees_15": 13.966555386086084,
+            "maximum_position_error_m": 0.21680198622881555
+          },
+          "gps_outage": {
+            "position_rms_m": 0.05101179813627245,
+            "velocity_rms_m_s": 0.06376295645735681,
+            "attitude_rms_rad": 0.00523460094364071,
+            "mean_nees_15": 12.196592950579591,
+            "maximum_position_error_m": 0.21680198622881555
+          },
+          "gps_return": {
+            "position_rms_m": 0.01829495954673669,
+            "velocity_rms_m_s": 0.04285758569817658,
+            "attitude_rms_rad": 0.004186352126870985,
+            "mean_nees_15": 14.09715154173026,
+            "maximum_position_error_m": 0.03989688656342896
+          },
+          "camera_outage": {
+            "position_rms_m": 0.10707061536236968,
+            "velocity_rms_m_s": 0.11466760738308676,
+            "attitude_rms_rad": 0.007596316813526258,
+            "mean_nees_15": 8.78005879362229,
+            "maximum_position_error_m": 0.21680198622881555
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 0,
+        "camera_updates": 280,
+        "mean_gps_nis_6": null,
+        "mean_camera_nis": 6.142333984375,
+        "camera_nis_dimension": 6
+      },
+      "tight": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.03497052740314339,
+            "velocity_rms_m_s": 0.05453142615612977,
+            "attitude_rms_rad": 0.005062528912728749,
+            "mean_nees_15": 13.966572431349196,
+            "maximum_position_error_m": 0.21680060557787326
+          },
+          "gps_outage": {
+            "position_rms_m": 0.051011443296608866,
+            "velocity_rms_m_s": 0.06376282857303446,
+            "attitude_rms_rad": 0.005234586683600958,
+            "mean_nees_15": 12.196601101514453,
+            "maximum_position_error_m": 0.21680060557787326
+          },
+          "gps_return": {
+            "position_rms_m": 0.018294957424328323,
+            "velocity_rms_m_s": 0.04285767075140186,
+            "attitude_rms_rad": 0.004186350404721089,
+            "mean_nees_15": 14.097139764619744,
+            "maximum_position_error_m": 0.03989692465119727
+          },
+          "camera_outage": {
+            "position_rms_m": 0.10706981734019144,
+            "velocity_rms_m_s": 0.11466704040309353,
+            "attitude_rms_rad": 0.007596306245296338,
+            "mean_nees_15": 8.780036101794492,
+            "maximum_position_error_m": 0.21680060557787326
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 0,
+        "camera_updates": 280,
+        "mean_gps_nis_6": null,
+        "mean_camera_nis": 12.433549880981445,
+        "camera_nis_dimension": 12
+      },
+      "maximum_loose_tight_nominal_difference": 2.384185791015625e-06,
+      "maximum_loose_tight_covariance_difference": 2.0489096641540527e-08,
+      "passed": true
+    },
+    {
+      "seed": 20271066,
+      "scenario": "transition",
+      "capture_sha256": "d60415b5675bdd271b57fb3598c2d0bd8e15f4da717d0bdba3f457a08e819afa",
+      "replay_sha256": "17bf3fa8e32e37f2f3ad3469ce140a152c92fc4f2295282eb031cd1d3cf29e43",
+      "all_observations_inside_image": true,
+      "image_size_pixels": [
+        640,
+        480
+      ],
+      "observation_minimum": [
+        101.44596862792969,
+        60.7032585144043,
+        3.6145999431610107
+      ],
+      "observation_maximum": [
+        534.9652709960938,
+        429.9937438964844,
+        4.309529781341553
+      ],
+      "loose": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.03371275427992203,
+            "velocity_rms_m_s": 0.05175379527603448,
+            "attitude_rms_rad": 0.004782796058001024,
+            "mean_nees_15": 13.890602334857642,
+            "maximum_position_error_m": 0.21653191239778757
+          },
+          "gps_outage": {
+            "position_rms_m": 0.050916157156154385,
+            "velocity_rms_m_s": 0.06351351690817808,
+            "attitude_rms_rad": 0.0052200378274501556,
+            "mean_nees_15": 12.110149459500992,
+            "maximum_position_error_m": 0.21653191239778757
+          },
+          "gps_return": {
+            "position_rms_m": 0.01741710264409154,
+            "velocity_rms_m_s": 0.04098662668488305,
+            "attitude_rms_rad": 0.004096934052812095,
+            "mean_nees_15": 14.248491009855487,
+            "maximum_position_error_m": 0.03873692918832647
+          },
+          "camera_outage": {
+            "position_rms_m": 0.10696919800475843,
+            "velocity_rms_m_s": 0.11448253474972754,
+            "attitude_rms_rad": 0.007599752073498373,
+            "mean_nees_15": 8.6953304508798,
+            "maximum_position_error_m": 0.21653191239778757
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 100,
+        "camera_updates": 280,
+        "mean_gps_nis_6": 6.088281631469727,
+        "mean_camera_nis": 6.069847106933594,
+        "camera_nis_dimension": 6
+      },
+      "tight": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.03371258164554202,
+            "velocity_rms_m_s": 0.0517537618549142,
+            "attitude_rms_rad": 0.004782796941951922,
+            "mean_nees_15": 13.890602212583476,
+            "maximum_position_error_m": 0.21653058358154956
+          },
+          "gps_outage": {
+            "position_rms_m": 0.050915791137327554,
+            "velocity_rms_m_s": 0.06351341240080939,
+            "attitude_rms_rad": 0.005220030168229301,
+            "mean_nees_15": 12.110149894812773,
+            "maximum_position_error_m": 0.21653058358154956
+          },
+          "gps_return": {
+            "position_rms_m": 0.01741714154150489,
+            "velocity_rms_m_s": 0.0409866545336501,
+            "attitude_rms_rad": 0.0040969464096445845,
+            "mean_nees_15": 14.248492754110348,
+            "maximum_position_error_m": 0.03873707097703003
+          },
+          "camera_outage": {
+            "position_rms_m": 0.10696835080617316,
+            "velocity_rms_m_s": 0.1144819283627366,
+            "attitude_rms_rad": 0.007599733516937834,
+            "mean_nees_15": 8.695297946558881,
+            "maximum_position_error_m": 0.21653058358154956
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 100,
+        "camera_updates": 280,
+        "mean_gps_nis_6": 6.08828067779541,
+        "mean_camera_nis": 12.360318183898926,
+        "camera_nis_dimension": 12
+      },
+      "maximum_loose_tight_nominal_difference": 2.5853514671325684e-06,
+      "maximum_loose_tight_covariance_difference": 8.568167686462402e-08,
+      "passed": true
+    },
+    {
+      "seed": 20271067,
+      "scenario": "gps",
+      "capture_sha256": "36219125bd770bcf690b0deb10d13fd12856de925fd0b3fb67d2004999596c70",
+      "replay_sha256": "940693609b18ff0c3e3a887dff7afed13ad7790ebe84e040bd9fa8a058db5b5c",
+      "all_observations_inside_image": true,
+      "image_size_pixels": [
+        640,
+        480
+      ],
+      "observation_minimum": [
+        101.55522918701172,
+        60.41285705566406,
+        3.596038818359375
+      ],
+      "observation_maximum": [
+        534.33642578125,
+        430.5003967285156,
+        4.302115440368652
+      ],
+      "loose": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.02252348116261505,
+            "velocity_rms_m_s": 0.037834915645002166,
+            "attitude_rms_rad": 0.004641309303701864,
+            "mean_nees_15": 14.791697948979019,
+            "maximum_position_error_m": 0.1210791193570955
+          },
+          "gps_outage": {
+            "position_rms_m": 0.023719449333216677,
+            "velocity_rms_m_s": 0.03793158256642301,
+            "attitude_rms_rad": 0.004407076394829728,
+            "mean_nees_15": 13.806089803445479,
+            "maximum_position_error_m": 0.06466641537993836
+          },
+          "gps_return": {
+            "position_rms_m": 0.01878159874302272,
+            "velocity_rms_m_s": 0.03674474678100407,
+            "attitude_rms_rad": 0.0043938702894006955,
+            "mean_nees_15": 15.94667333817053,
+            "maximum_position_error_m": 0.04034660515724644
+          },
+          "camera_outage": {
+            "position_rms_m": 0.03683883107904882,
+            "velocity_rms_m_s": 0.036833557754027364,
+            "attitude_rms_rad": 0.005645849299888222,
+            "mean_nees_15": 12.854003744924249,
+            "maximum_position_error_m": 0.06466641537993836
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 150,
+        "camera_updates": 280,
+        "mean_gps_nis_6": 5.996853828430176,
+        "mean_camera_nis": 5.8245978355407715,
+        "camera_nis_dimension": 6
+      },
+      "tight": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.0225235900066487,
+            "velocity_rms_m_s": 0.03783494778353722,
+            "attitude_rms_rad": 0.004641302695024646,
+            "mean_nees_15": 14.791698622854828,
+            "maximum_position_error_m": 0.1210791193570955
+          },
+          "gps_outage": {
+            "position_rms_m": 0.023719811978695392,
+            "velocity_rms_m_s": 0.03793159532471129,
+            "attitude_rms_rad": 0.004407071748085328,
+            "mean_nees_15": 13.806113370772168,
+            "maximum_position_error_m": 0.06466855805381319
+          },
+          "gps_return": {
+            "position_rms_m": 0.01878155504197635,
+            "velocity_rms_m_s": 0.03674486503238933,
+            "attitude_rms_rad": 0.004393858176464076,
+            "mean_nees_15": 15.946656673128258,
+            "maximum_position_error_m": 0.04034657252911345
+          },
+          "camera_outage": {
+            "position_rms_m": 0.036840048251980784,
+            "velocity_rms_m_s": 0.03683369336601215,
+            "attitude_rms_rad": 0.005645840384019573,
+            "mean_nees_15": 12.85416299196826,
+            "maximum_position_error_m": 0.06466855805381319
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 150,
+        "camera_updates": 280,
+        "mean_gps_nis_6": 5.996854782104492,
+        "mean_camera_nis": 11.675341606140137,
+        "camera_nis_dimension": 12
+      },
+      "maximum_loose_tight_nominal_difference": 2.384185791015625e-06,
+      "maximum_loose_tight_covariance_difference": 7.566995918750763e-09,
+      "passed": true
+    },
+    {
+      "seed": 20271067,
+      "scenario": "denied",
+      "capture_sha256": "36219125bd770bcf690b0deb10d13fd12856de925fd0b3fb67d2004999596c70",
+      "replay_sha256": "a00e2468fd30c38e44bf574214395963413952bb8eec8a8c063591ca49894d0d",
+      "all_observations_inside_image": true,
+      "image_size_pixels": [
+        640,
+        480
+      ],
+      "observation_minimum": [
+        101.55522918701172,
+        60.41285705566406,
+        3.596038818359375
+      ],
+      "observation_maximum": [
+        534.33642578125,
+        430.5003967285156,
+        4.302115440368652
+      ],
+      "loose": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.03969528854247106,
+            "velocity_rms_m_s": 0.051045931868641134,
+            "attitude_rms_rad": 0.005204802594938051,
+            "mean_nees_15": 14.710557929147898,
+            "maximum_position_error_m": 0.24302953755408602
+          },
+          "gps_outage": {
+            "position_rms_m": 0.06058983023708843,
+            "velocity_rms_m_s": 0.06770071619753508,
+            "attitude_rms_rad": 0.005667109440341381,
+            "mean_nees_15": 14.199017413772205,
+            "maximum_position_error_m": 0.24302953755408602
+          },
+          "gps_return": {
+            "position_rms_m": 0.018167825054636124,
+            "velocity_rms_m_s": 0.03717622539391006,
+            "attitude_rms_rad": 0.004347644716637785,
+            "mean_nees_15": 15.287002654742787,
+            "maximum_position_error_m": 0.036028525811028264
+          },
+          "camera_outage": {
+            "position_rms_m": 0.12746177021472962,
+            "velocity_rms_m_s": 0.12162314187990242,
+            "attitude_rms_rad": 0.008483276081081835,
+            "mean_nees_15": 13.81552734284849,
+            "maximum_position_error_m": 0.24302953755408602
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 0,
+        "camera_updates": 280,
+        "mean_gps_nis_6": null,
+        "mean_camera_nis": 5.77086877822876,
+        "camera_nis_dimension": 6
+      },
+      "tight": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.039695436247569806,
+            "velocity_rms_m_s": 0.0510460007648501,
+            "attitude_rms_rad": 0.005204797244154263,
+            "mean_nees_15": 14.710571131355355,
+            "maximum_position_error_m": 0.24303059369545973
+          },
+          "gps_outage": {
+            "position_rms_m": 0.060590143049759425,
+            "velocity_rms_m_s": 0.06770094289634519,
+            "attitude_rms_rad": 0.0056671059577674794,
+            "mean_nees_15": 14.199074596943428,
+            "maximum_position_error_m": 0.24303059369545973
+          },
+          "gps_return": {
+            "position_rms_m": 0.01816777558862211,
+            "velocity_rms_m_s": 0.03717616108337569,
+            "attitude_rms_rad": 0.004347634033185744,
+            "mean_nees_15": 15.286989931223998,
+            "maximum_position_error_m": 0.036028606917234626
+          },
+          "camera_outage": {
+            "position_rms_m": 0.1274625398117094,
+            "velocity_rms_m_s": 0.12162375091771477,
+            "attitude_rms_rad": 0.008483280557488988,
+            "mean_nees_15": 13.815674984404632,
+            "maximum_position_error_m": 0.24303059369545973
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 0,
+        "camera_updates": 280,
+        "mean_gps_nis_6": null,
+        "mean_camera_nis": 11.621217727661133,
+        "camera_nis_dimension": 12
+      },
+      "maximum_loose_tight_nominal_difference": 3.337860107421875e-06,
+      "maximum_loose_tight_covariance_difference": 4.842877388000488e-08,
+      "passed": true
+    },
+    {
+      "seed": 20271067,
+      "scenario": "transition",
+      "capture_sha256": "36219125bd770bcf690b0deb10d13fd12856de925fd0b3fb67d2004999596c70",
+      "replay_sha256": "efe173107927357a1d02aa7bdff89b8b57657fc47b206917689016a995bcf2c2",
+      "all_observations_inside_image": true,
+      "image_size_pixels": [
+        640,
+        480
+      ],
+      "observation_minimum": [
+        101.55522918701172,
+        60.41285705566406,
+        3.596038818359375
+      ],
+      "observation_maximum": [
+        534.33642578125,
+        430.5003967285156,
+        4.302115440368652
+      ],
+      "loose": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.039257849941006485,
+            "velocity_rms_m_s": 0.04980828740384299,
+            "attitude_rms_rad": 0.005088724653769424,
+            "mean_nees_15": 14.97670783366754,
+            "maximum_position_error_m": 0.24204195862065947
+          },
+          "gps_outage": {
+            "position_rms_m": 0.060521334881198145,
+            "velocity_rms_m_s": 0.06773864531708282,
+            "attitude_rms_rad": 0.005684263292710549,
+            "mean_nees_15": 14.322387922667101,
+            "maximum_position_error_m": 0.24204195862065947
+          },
+          "gps_return": {
+            "position_rms_m": 0.018818663435387423,
+            "velocity_rms_m_s": 0.03672346420085123,
+            "attitude_rms_rad": 0.004413331795302207,
+            "mean_nees_15": 15.985366180172463,
+            "maximum_position_error_m": 0.04037143315125804
+          },
+          "camera_outage": {
+            "position_rms_m": 0.12695469061362502,
+            "velocity_rms_m_s": 0.1211984924684678,
+            "attitude_rms_rad": 0.00838132032492025,
+            "mean_nees_15": 13.767646254283783,
+            "maximum_position_error_m": 0.24204195862065947
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 100,
+        "camera_updates": 280,
+        "mean_gps_nis_6": 6.0067620277404785,
+        "mean_camera_nis": 5.81634521484375,
+        "camera_nis_dimension": 6
+      },
+      "tight": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.03925779518319723,
+            "velocity_rms_m_s": 0.04980827073386276,
+            "attitude_rms_rad": 0.0050887183205292445,
+            "mean_nees_15": 14.976693254392313,
+            "maximum_position_error_m": 0.24204174191585962
+          },
+          "gps_outage": {
+            "position_rms_m": 0.06052125760361742,
+            "velocity_rms_m_s": 0.06773860647218317,
+            "attitude_rms_rad": 0.005684263652370843,
+            "mean_nees_15": 14.322364529598973,
+            "maximum_position_error_m": 0.24204174191585962
+          },
+          "gps_return": {
+            "position_rms_m": 0.018818591954698493,
+            "velocity_rms_m_s": 0.036723500270417445,
+            "attitude_rms_rad": 0.004413313581362192,
+            "mean_nees_15": 15.985350714872158,
+            "maximum_position_error_m": 0.04037108266873115
+          },
+          "camera_outage": {
+            "position_rms_m": 0.12695449240739973,
+            "velocity_rms_m_s": 0.12119847199518316,
+            "attitude_rms_rad": 0.008381319175391137,
+            "mean_nees_15": 13.767612975494158,
+            "maximum_position_error_m": 0.24204174191585962
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 100,
+        "camera_updates": 280,
+        "mean_gps_nis_6": 6.006763935089111,
+        "mean_camera_nis": 11.666085243225098,
+        "camera_nis_dimension": 12
+      },
+      "maximum_loose_tight_nominal_difference": 1.55717134475708e-06,
+      "maximum_loose_tight_covariance_difference": 5.960464477539063e-08,
+      "passed": true
+    },
+    {
+      "seed": 20271068,
+      "scenario": "gps",
+      "capture_sha256": "639d15a476cb5670434ef5e90fdc2803fe1c25936dc34f54511e5dfc7c2dc43f",
+      "replay_sha256": "83bcdeb3112a6da0d18130f4040b10f735b4d5095f72df9ecd55882f9f7a45a4",
+      "all_observations_inside_image": true,
+      "image_size_pixels": [
+        640,
+        480
+      ],
+      "observation_minimum": [
+        101.01476287841797,
+        60.40680694580078,
+        3.623631477355957
+      ],
+      "observation_maximum": [
+        534.9577026367188,
+        430.1428527832031,
+        4.3032426834106445
+      ],
+      "loose": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.02021524834458517,
+            "velocity_rms_m_s": 0.0396399775433211,
+            "attitude_rms_rad": 0.004619301426795534,
+            "mean_nees_15": 11.756017190451104,
+            "maximum_position_error_m": 0.05774720099013927
+          },
+          "gps_outage": {
+            "position_rms_m": 0.016286205190921475,
+            "velocity_rms_m_s": 0.03485844353556233,
+            "attitude_rms_rad": 0.003683287784653525,
+            "mean_nees_15": 9.561552198046757,
+            "maximum_position_error_m": 0.04540878131386426
+          },
+          "gps_return": {
+            "position_rms_m": 0.01622089343727218,
+            "velocity_rms_m_s": 0.03441996230543596,
+            "attitude_rms_rad": 0.0036977658347091148,
+            "mean_nees_15": 11.18921510239609,
+            "maximum_position_error_m": 0.035057091537898995
+          },
+          "camera_outage": {
+            "position_rms_m": 0.021345923815692096,
+            "velocity_rms_m_s": 0.041952290996336565,
+            "attitude_rms_rad": 0.005384105581285027,
+            "mean_nees_15": 7.678200180560946,
+            "maximum_position_error_m": 0.03151301594589722
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 150,
+        "camera_updates": 280,
+        "mean_gps_nis_6": 6.610408306121826,
+        "mean_camera_nis": 5.715085506439209,
+        "camera_nis_dimension": 6
+      },
+      "tight": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.02021523220879439,
+            "velocity_rms_m_s": 0.03963996621101181,
+            "attitude_rms_rad": 0.00461929831049403,
+            "mean_nees_15": 11.75600829845032,
+            "maximum_position_error_m": 0.05774727411189384
+          },
+          "gps_outage": {
+            "position_rms_m": 0.016286182299702183,
+            "velocity_rms_m_s": 0.03485839734928816,
+            "attitude_rms_rad": 0.003683282139520728,
+            "mean_nees_15": 9.56153679218709,
+            "maximum_position_error_m": 0.04540880029721145
+          },
+          "gps_return": {
+            "position_rms_m": 0.01622091295082756,
+            "velocity_rms_m_s": 0.034419987836939184,
+            "attitude_rms_rad": 0.0036977760454314466,
+            "mean_nees_15": 11.189220418438655,
+            "maximum_position_error_m": 0.03505703538475856
+          },
+          "camera_outage": {
+            "position_rms_m": 0.021345837248824,
+            "velocity_rms_m_s": 0.041952455249396246,
+            "attitude_rms_rad": 0.005384098394179708,
+            "mean_nees_15": 7.678266164658733,
+            "maximum_position_error_m": 0.03151300645907579
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 150,
+        "camera_updates": 280,
+        "mean_gps_nis_6": 6.610408306121826,
+        "mean_camera_nis": 11.964670181274414,
+        "camera_nis_dimension": 12
+      },
+      "maximum_loose_tight_nominal_difference": 2.1457672119140625e-06,
+      "maximum_loose_tight_covariance_difference": 3.899913281202316e-09,
+      "passed": true
+    },
+    {
+      "seed": 20271068,
+      "scenario": "denied",
+      "capture_sha256": "639d15a476cb5670434ef5e90fdc2803fe1c25936dc34f54511e5dfc7c2dc43f",
+      "replay_sha256": "ee05f716e09bdee322a2700783c907e6999a97dec8a13e236318fed7df2b7471",
+      "all_observations_inside_image": true,
+      "image_size_pixels": [
+        640,
+        480
+      ],
+      "observation_minimum": [
+        101.01476287841797,
+        60.40680694580078,
+        3.623631477355957
+      ],
+      "observation_maximum": [
+        534.9577026367188,
+        430.1428527832031,
+        4.3032426834106445
+      ],
+      "loose": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.026485778338229515,
+            "velocity_rms_m_s": 0.04608754257433817,
+            "attitude_rms_rad": 0.005215579345512501,
+            "mean_nees_15": 12.071887020322027,
+            "maximum_position_error_m": 0.08353214513456873
+          },
+          "gps_outage": {
+            "position_rms_m": 0.02611903816918422,
+            "velocity_rms_m_s": 0.03838389264435852,
+            "attitude_rms_rad": 0.003703689587761667,
+            "mean_nees_15": 9.561559248973342,
+            "maximum_position_error_m": 0.08353214513456873
+          },
+          "gps_return": {
+            "position_rms_m": 0.019627487666177956,
+            "velocity_rms_m_s": 0.03804808583031824,
+            "attitude_rms_rad": 0.00442163375591287,
+            "mean_nees_15": 11.395779724796629,
+            "maximum_position_error_m": 0.0492684748366724
+          },
+          "camera_outage": {
+            "position_rms_m": 0.04731583027378997,
+            "velocity_rms_m_s": 0.045384172930585415,
+            "attitude_rms_rad": 0.004272239205315824,
+            "mean_nees_15": 7.112757397371491,
+            "maximum_position_error_m": 0.08353214513456873
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 0,
+        "camera_updates": 280,
+        "mean_gps_nis_6": null,
+        "mean_camera_nis": 5.806977272033691,
+        "camera_nis_dimension": 6
+      },
+      "tight": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.02648586091850451,
+            "velocity_rms_m_s": 0.04608759814020133,
+            "attitude_rms_rad": 0.00521558986747906,
+            "mean_nees_15": 12.07188765133466,
+            "maximum_position_error_m": 0.08353203489088704
+          },
+          "gps_outage": {
+            "position_rms_m": 0.0261191062967477,
+            "velocity_rms_m_s": 0.038383840918611155,
+            "attitude_rms_rad": 0.0037036889847887563,
+            "mean_nees_15": 9.5615405388371,
+            "maximum_position_error_m": 0.08353203489088704
+          },
+          "gps_return": {
+            "position_rms_m": 0.019627536558632554,
+            "velocity_rms_m_s": 0.0380481458671357,
+            "attitude_rms_rad": 0.0044216425214801385,
+            "mean_nees_15": 11.395777881508062,
+            "maximum_position_error_m": 0.04926874925109062
+          },
+          "camera_outage": {
+            "position_rms_m": 0.047315967840101135,
+            "velocity_rms_m_s": 0.045383882437888996,
+            "attitude_rms_rad": 0.004272232144094004,
+            "mean_nees_15": 7.112733650863991,
+            "maximum_position_error_m": 0.08353203489088704
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 0,
+        "camera_updates": 280,
+        "mean_gps_nis_6": null,
+        "mean_camera_nis": 12.055510520935059,
+        "camera_nis_dimension": 12
+      },
+      "maximum_loose_tight_nominal_difference": 1.7210841178894043e-06,
+      "maximum_loose_tight_covariance_difference": 1.862645149230957e-08,
+      "passed": true
+    },
+    {
+      "seed": 20271068,
+      "scenario": "transition",
+      "capture_sha256": "639d15a476cb5670434ef5e90fdc2803fe1c25936dc34f54511e5dfc7c2dc43f",
+      "replay_sha256": "439e6bcb56975e9ee2071fae45e814731130674aa1f0d353d89f65e2152bbfe5",
+      "all_observations_inside_image": true,
+      "image_size_pixels": [
+        640,
+        480
+      ],
+      "observation_minimum": [
+        101.01476287841797,
+        60.40680694580078,
+        3.623631477355957
+      ],
+      "observation_maximum": [
+        534.9577026367188,
+        430.1428527832031,
+        4.3032426834106445
+      ],
+      "loose": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.02321982056402518,
+            "velocity_rms_m_s": 0.04057052639811717,
+            "attitude_rms_rad": 0.004603932945999043,
+            "mean_nees_15": 11.623542222728647,
+            "maximum_position_error_m": 0.0816122304929834
+          },
+          "gps_outage": {
+            "position_rms_m": 0.02563802141960455,
+            "velocity_rms_m_s": 0.03800119063251901,
+            "attitude_rms_rad": 0.003631077860040564,
+            "mean_nees_15": 9.28518872360825,
+            "maximum_position_error_m": 0.0816122304929834
+          },
+          "gps_return": {
+            "position_rms_m": 0.016203755150944677,
+            "velocity_rms_m_s": 0.034346453005624514,
+            "attitude_rms_rad": 0.003691904205383749,
+            "mean_nees_15": 11.068274614155461,
+            "maximum_position_error_m": 0.035385283751517234
+          },
+          "camera_outage": {
+            "position_rms_m": 0.04670895925915408,
+            "velocity_rms_m_s": 0.044182281589242915,
+            "attitude_rms_rad": 0.004266554472287108,
+            "mean_nees_15": 6.886233731452532,
+            "maximum_position_error_m": 0.0816122304929834
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 100,
+        "camera_updates": 280,
+        "mean_gps_nis_6": 6.627389430999756,
+        "mean_camera_nis": 5.697286605834961,
+        "camera_nis_dimension": 6
+      },
+      "tight": {
+        "windows": {
+          "flight": {
+            "position_rms_m": 0.02321986181342811,
+            "velocity_rms_m_s": 0.040570475099486844,
+            "attitude_rms_rad": 0.004603927544579497,
+            "mean_nees_15": 11.623527241074324,
+            "maximum_position_error_m": 0.08161264072873452
+          },
+          "gps_outage": {
+            "position_rms_m": 0.02563819263379936,
+            "velocity_rms_m_s": 0.038001081728905116,
+            "attitude_rms_rad": 0.003631079842794558,
+            "mean_nees_15": 9.285187061982851,
+            "maximum_position_error_m": 0.08161264072873452
+          },
+          "gps_return": {
+            "position_rms_m": 0.016203718554371395,
+            "velocity_rms_m_s": 0.03434640973018999,
+            "attitude_rms_rad": 0.0036918983564221386,
+            "mean_nees_15": 11.06824794898437,
+            "maximum_position_error_m": 0.03538516446561882
+          },
+          "camera_outage": {
+            "position_rms_m": 0.04670942642378721,
+            "velocity_rms_m_s": 0.04418231268626758,
+            "attitude_rms_rad": 0.004266541368417501,
+            "mean_nees_15": 6.886302882955554,
+            "maximum_position_error_m": 0.08161264072873452
+          }
+        },
+        "covariance_rows": 3000,
+        "raw_covariance_spd": true,
+        "gps_updates": 100,
+        "camera_updates": 280,
+        "mean_gps_nis_6": 6.627387046813965,
+        "mean_camera_nis": 11.946497917175293,
+        "camera_nis_dimension": 12
+      },
+      "maximum_loose_tight_nominal_difference": 3.337860107421875e-06,
+      "maximum_loose_tight_covariance_difference": 2.2351741790771484e-08,
+      "passed": true
+    }
+  ],
+  "library_sha256": "d48c8e2cb20d5f2b40711b1e3dde51c11210d57f750a9d3174eafacfa1b44d85",
+  "sensor_library_sha256": "c1526804bfc0ed43405147c21e2ba3f8e9047f5e047c0304d48123b31a59d221",
+  "scope": "Generated Modelica prediction, GPS and visual correction with a fixed known map, constant biases and zero transport delay; not live SLAM or native estimator comparison."
+}

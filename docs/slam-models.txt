@@ -91,6 +91,10 @@ copies packets and carries the generated state/covariance between calls; it
 contains no estimator mathematics. Python generates common physical captures,
 drives the generated entrypoint and independently computes physical errors,
 right-tangent NEES15 and measurement-dimension-specific NIS.
+Camera projection and visibility in those captures now come from the exported
+Modelica LandmarkCamera, not a Python camera implementation. Python generates
+the trajectory/noise inputs and performs offline evaluation; runtime innovation
+statistics and fusion decisions remain in Modelica.
 
   python tools/estimator_comparison/qualify_visual_navigation.py \
     --rumoca /path/to/rumoca-0.10.2 --cc /path/to/gcc \

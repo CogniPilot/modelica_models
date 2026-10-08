@@ -36,6 +36,7 @@ def qualify(args):
         repository / "tools/estimator_comparison" / name
         for name in (
             "visual_navigation.c",
+            "synthetic_camera.c",
             "check_visual_navigation.py",
             "qualify_visual_navigation.py",
             "check_visual_coupling.py",
@@ -65,6 +66,7 @@ def qualify(args):
             map="Four exact world-referenced ground landmarks",
             image_size_pixels=[640, 480],
             visibility="Every generated noisy observation must have positive depth and lie inside the image",
+            implementation="Modelica owns synthetic camera geometry/visibility and all estimator updates; Python owns scenario generation, orchestration and independent offline scoring",
             delay_s=0,
             bias_model="Constant random biases, zero random-walk spectral density",
             gates="Disabled; acceptance and absence of duplicate/unavailable fusion are checked",
@@ -137,10 +139,60 @@ def qualify(args):
     }
     execute(
         [
+            str(args.rumoca),
+            "compile",
+            "Tests/SyntheticLandmarkReplay.mo",
+            "--model",
+            "Tests.SyntheticLandmarkReplay",
+            "--source-root",
+            str(repository),
+            "--target",
+            "galec-production",
+            "--output",
+            str(work / "sensor-export"),
+            "--cache-dir",
+            str(work / "rumoca-cache"),
+        ],
+        work / "sensor-export.log",
+    )
+    sensor_production = (
+        work / "sensor-export/Tests_SyntheticLandmarkReplay/ProductionCode"
+    )
+    sensor_library = work / "synthetic-camera.so"
+    execute(
+        [
+            str(args.cc),
+            "-O2",
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-shared",
+            "-fPIC",
+            f"-I{sensor_production}",
+            str(repository / "tools/estimator_comparison/synthetic_camera.c"),
+            str(sensor_production / "Tests_SyntheticLandmarkReplay.c"),
+            str(sensor_production / "rumoca_galec_kernels.c"),
+            "-lm",
+            "-o",
+            str(sensor_library),
+        ],
+        work / "sensor-build.log",
+    )
+    receipt["generated_sha256"].update(
+        {
+            str(path.relative_to(work)): digest(path)
+            for path in sorted(sensor_production.glob("*"))
+            if path.is_file()
+        }
+    )
+    execute(
+        [
             sys.executable,
             str(repository / "tools/estimator_comparison/check_visual_navigation.py"),
             "--library",
             str(library),
+            "--sensor-library",
+            str(sensor_library),
             "--output",
             str(work / "result.json"),
             "--seeds",
@@ -156,6 +208,7 @@ def qualify(args):
         passed=result["passed"],
         result_sha256=digest(work / "result.json"),
         library_sha256=digest(library),
+        sensor_library_sha256=digest(sensor_library),
     )
     receipt_path.write_text(json.dumps(receipt, indent=2) + "\n")
     print(
@@ -172,6 +225,6 @@ if __name__ == "__main__":
     parser.add_argument("--cc", type=Path, required=True)
     parser.add_argument("--work", type=Path, required=True)
     parser.add_argument(
-        "--seeds", type=int, nargs="+", default=list(range(20271041, 20271049))
+        "--seeds", type=int, nargs="+", default=list(range(20271061, 20271069))
     )
     qualify(parser.parse_args())

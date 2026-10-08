@@ -31,12 +31,39 @@ def truth(times):
     return position, velocity, acceleration, quaternion, rate
 
 
-def capture(seed, directory, duration_s=30.0, interval_s=0.01):
+class SyntheticCamera:
+    def __init__(self, path):
+        self.library = ctypes.CDLL(str(path))
+        pointer = np.ctypeslib.ndpointer(dtype=np.float32, flags="C_CONTIGUOUS")
+        self.library.synthetic_camera_project.argtypes = [pointer] * 7
+        self.library.synthetic_camera_project.restype = None
+
+    def observe(
+        self, position, quaternion, landmarks, extrinsic, lever, intrinsics, error
+    ):
+        fields = [
+            np.r_[position, quaternion],
+            landmarks,
+            extrinsic,
+            lever,
+            intrinsics,
+            error,
+        ]
+        inputs = [np.asarray(field, dtype=np.float32) for field in fields]
+        output = np.empty(17, dtype=np.float32)
+        self.library.synthetic_camera_project(*inputs, output)
+        if output[-1] != 0 or not np.all(output[12:16] == 1):
+            raise AssertionError(
+                "Fixed replay landmarks must remain visible in the Modelica camera"
+            )
+        return output[:12].reshape(4, 3)
+
+
+def capture(seed, directory, sensor, duration_s=30.0, interval_s=0.01):
     rng = np.random.default_rng(seed)
     times = np.arange(1, round(duration_s / interval_s) + 1) * interval_s
     position, velocity, _, quaternion, _ = truth(times)
     _, _, acceleration_mid, quaternion_mid, rate_mid = truth(times - interval_s / 2)
-    rotations = np.array([rotation(q) for q in quaternion])
     rotations_mid = np.array([rotation(q) for q in quaternion_mid])
     gyro_bias = rng.normal(0, 0.001, 3)
     accel_bias = rng.normal(0, 0.01, 3)
@@ -59,26 +86,21 @@ def capture(seed, directory, duration_s=30.0, interval_s=0.01):
     )
     common = np.tile([0.03, 0.03, 0.001], 4)
     noise = root @ root.T + np.outer(common, common)
-    observed = np.empty((len(times), 4, 3))
-    for tick, attitude in enumerate(rotations):
-        body = (landmarks - position[tick]) @ attitude
-        camera = (body - lever) @ extrinsic
-        observed[tick, :, :2] = (
-            camera[:, :2] / camera[:, 2:] * intrinsics[:2] + intrinsics[2:]
-        )
-        observed[tick, :, 2] = camera[:, 2]
-    observed += rng.multivariate_normal(np.zeros(12), noise, len(times)).reshape(
-        -1, 4, 3
+    errors = rng.multivariate_normal(np.zeros(12), noise, len(times)).reshape(-1, 4, 3)
+    observed = np.array(
+        [
+            sensor.observe(
+                position[tick],
+                quaternion[tick],
+                landmarks,
+                extrinsic,
+                lever,
+                intrinsics,
+                errors[tick],
+            )
+            for tick in range(len(times))
+        ]
     )
-    visible = (
-        (observed[:, :, 0] >= 0)
-        & (observed[:, :, 0] < 640)
-        & (observed[:, :, 1] >= 0)
-        & (observed[:, :, 1] < 480)
-        & (observed[:, :, 2] > 0)
-    )
-    if not visible.all():
-        raise AssertionError("Fixed replay landmarks must remain visible in the image")
     gps_std = np.array([0.3, 0.05])
     gps_position = position + rng.normal(size=position.shape) * gps_std[0]
     gps_velocity = velocity + rng.normal(size=velocity.shape) * gps_std[1]
@@ -291,6 +313,7 @@ def check(args):
     captures.mkdir()
     results.mkdir()
     replay = Replay(args.library.resolve())
+    sensor = SyntheticCamera(args.sensor_library.resolve())
     report = dict(
         complete=False,
         passed=False,
@@ -299,11 +322,12 @@ def check(args):
         scenarios=["gps", "denied", "transition"],
         cases=[],
         library_sha256=digest(args.library),
+        sensor_library_sha256=digest(args.sensor_library),
         scope="Generated Modelica prediction, GPS and visual correction with a fixed known map, constant biases and zero transport delay; not live SLAM or native estimator comparison.",
     )
     args.output.write_text(json.dumps(report, indent=2) + "\n")
     for seed in args.seeds:
-        data, capture_path = capture(seed, captures)
+        data, capture_path = capture(seed, captures, sensor)
         for scenario in report["scenarios"]:
             output, availability = replay.run(data, scenario)
             result_path = results / f"{seed}-{scenario}.npz"
@@ -340,8 +364,9 @@ def check(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--library", type=Path, required=True)
+    parser.add_argument("--sensor-library", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument(
-        "--seeds", type=int, nargs="+", default=list(range(20271041, 20271049))
+        "--seeds", type=int, nargs="+", default=list(range(20271061, 20271069))
     )
     check(parser.parse_args())

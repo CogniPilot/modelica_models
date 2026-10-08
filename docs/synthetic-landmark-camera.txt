@@ -81,3 +81,10 @@ random pose/extrinsic geometry, additive noise, visibility, fixed grid ordering,
 stable IDs, camera outage, missed detection and invalid observations.
 See docs/slam-models.txt for the command and the synthetic-landmarks review
 directory for the exact source/artifact identities and retained failures.
+
+The sequential loose/tight navigation runner also builds this camera entrypoint
+and uses it to generate every image/depth observation. Python orchestrates the
+scenario, supplies explicit sampled errors and computes offline RMS/NEES/NIS
+reports. It does not implement camera projection or filter correction. Runtime
+NIS and gating remain part of the Modelica estimator. There is no navigation
+scoring block in the Modelica library.
