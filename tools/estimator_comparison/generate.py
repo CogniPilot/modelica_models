@@ -143,10 +143,13 @@ def generate(
     climb_height_m=2.0,
     warmup_s=13.0,
     common_native_floors=False,
+    gps_fix_after_s=0.0,
 ):
     if not np.isfinite(climb_height_m) or not 0 < climb_height_m <= 8:
         raise ValueError("Climb height must be finite and between 0 and 8 m")
     mission = Mission(warmup_s)
+    if not np.isfinite(gps_fix_after_s) or not 0 <= gps_fix_after_s <= mission.end_s:
+        raise ValueError("GPS first-fix time must be finite and within the capture")
     directory.mkdir(parents=True, exist_ok=True)
     rng = np.random.default_rng(seed)
     t = np.arange(0, mission.end_s + 0.000625, 1 / 800)
@@ -182,6 +185,8 @@ def generate(
             alt + pg[:, 2],
         )
     )
+    gps_status = np.full((len(g), 5), [3, 14, 1, 1, 1])
+    gps_status[t[g] < gps_fix_after_s] = 0
     write(
         directory,
         "gps",
@@ -195,7 +200,7 @@ def generate(
                 vg[:, 0],
                 -vg[:, 2],
                 np.full((len(g), 3), [0.2, 0.35, 0.05]),
-                np.full((len(g), 5), [3, 14, 1, 1, 1]),
+                gps_status,
                 pg,
             )
         ),
@@ -264,7 +269,7 @@ def generate(
             t[j],
             mean_g,
             mean_a,
-            (j % 80 == 0),
+            (j % 80 == 0) & (t[j] >= gps_fix_after_s),
             t[g[gi]],
             pg[gi],
             vg[gi],
@@ -294,6 +299,7 @@ def generate(
                 flow_latency_ms=0,
                 seed=seed,
                 speed=speed,
+                **({"gps_fix_after_s": gps_fix_after_s} if gps_fix_after_s else {}),
                 sensor_rates_hz=dict(
                     imu=800,
                     gps=10,
@@ -327,6 +333,7 @@ if __name__ == "__main__":
     parser.add_argument("--climb-height-m", type=float, default=2.0)
     parser.add_argument("--warmup-s", type=float, default=13.0)
     parser.add_argument("--common-native-floors", action="store_true")
+    parser.add_argument("--gps-fix-after-s", type=float, default=0.0)
     args = parser.parse_args()
     generate(
         args.output,
@@ -336,4 +343,5 @@ if __name__ == "__main__":
         args.climb_height_m,
         args.warmup_s,
         args.common_native_floors,
+        args.gps_fix_after_s,
     )

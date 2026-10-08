@@ -16,6 +16,53 @@ from sensor_noise import COMMON_NOISE_PROFILE, COMMON_SENSOR_NOISE
 
 
 class SensorNoiseTests(unittest.TestCase):
+    def test_first_fix_changes_only_availability(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            immediate, explicit, delayed = (
+                root / name for name in ("immediate", "explicit", "delayed")
+            )
+            generate(immediate, seed=911)
+            generate(explicit, seed=911, gps_fix_after_s=0)
+            generate(delayed, seed=911, gps_fix_after_s=21)
+            for path in immediate.iterdir():
+                self.assertEqual(path.read_bytes(), (explicit / path.name).read_bytes())
+                if path.name not in ("gps.csv", "modelica_input.csv", "origin.json"):
+                    self.assertEqual(
+                        path.read_bytes(), (delayed / path.name).read_bytes()
+                    )
+            for name, availability in (
+                (
+                    "gps",
+                    (
+                        "fix_type",
+                        "sats_used",
+                        "pos_valid",
+                        "vel_valid",
+                        "vel_down_valid",
+                    ),
+                ),
+                ("modelica_input", ("gps_fresh",)),
+            ):
+                original, changed = (
+                    read(immediate / (name + ".csv")),
+                    read(delayed / (name + ".csv")),
+                )
+                for field in original.dtype.names:
+                    if field in availability:
+                        self.assertTrue(
+                            np.all(changed[field][changed["t_s"] < 21] == 0)
+                        )
+                        np.testing.assert_array_equal(
+                            changed[field][changed["t_s"] >= 21],
+                            original[field][original["t_s"] >= 21],
+                        )
+                    else:
+                        np.testing.assert_array_equal(changed[field], original[field])
+            for invalid in (-1, float("nan"), float("inf"), 61):
+                with self.assertRaises(ValueError):
+                    generate(root / "invalid", gps_fix_after_s=invalid)
+
     def test_native_vertical_velocity_uses_px4_scale(self):
         noise = configured_noise(SimpleNamespace(noise_profile=COMMON_NOISE_PROFILE))
         self.assertAlmostEqual(

@@ -17,7 +17,7 @@ from native_release import SOURCE_PINS
 from sensor_noise import COMMON_NOISE_PROFILE
 
 
-def verify_observer(source, evidence):
+def verify_observer(source, evidence, header="native_covariance_stage_dump.h"):
     revision = subprocess.check_output(
         ["git", "-C", str(source), "rev-parse", "HEAD"], text=True
     ).strip()
@@ -43,7 +43,7 @@ def verify_observer(source, evidence):
             raise ValueError("Observer source differs from its recorded transformation")
     headers = {
         "native_covariance_dump.h": evidence["logging"]["observer_sha256"],
-        "native_covariance_stage_dump.h": evidence["observer_sha256"],
+        header: evidence["observer_sha256"],
     }
     for name, expected in headers.items():
         if digest(source / "libraries/AP_NavEKF3" / name) != expected:
@@ -53,12 +53,22 @@ def verify_observer(source, evidence):
 def run(args):
     if args.work.exists() or args.output.exists():
         raise ValueError("Choose new owned replay and evidence paths")
-    if not 0 <= args.start_us <= args.end_us:
+    integrity = getattr(args, "imu_integrity", False)
+    if integrity and (args.start_us is not None or args.end_us is not None):
+        raise ValueError("Integrity traces cover every check; omit stage time bounds")
+    if not integrity and (
+        args.start_us is None
+        or args.end_us is None
+        or not 0 <= args.start_us <= args.end_us
+    ):
         raise ValueError("Require ordered nonnegative publication bounds")
     pilot = json.loads(args.pilot.read_text())
     baseline = json.loads(args.baseline.read_text())
     observer = json.loads(args.observer.read_text())
-    verify_observer(args.source, observer)
+    header = (
+        "native_imu_integrity_dump.h" if integrity else "native_covariance_stage_dump.h"
+    )
+    verify_observer(args.source, observer, header)
     if (
         not pilot["complete"]
         or not baseline["complete"]
@@ -94,6 +104,11 @@ def run(args):
         "NATIVE_COVARIANCE_STAGE_START_US": str(args.start_us),
         "NATIVE_COVARIANCE_STAGE_END_US": str(args.end_us),
     }
+    if integrity:
+        variables = {
+            "NATIVE_COVARIANCE_PATH": str(covariance.resolve()),
+            "NATIVE_IMU_INTEGRITY_PATH": str(trace.resolve()),
+        }
     previous = {key: os.environ.get(key) for key in variables}
     os.environ.update(variables)
     try:
@@ -109,7 +124,7 @@ def run(args):
                 os.environ.pop(key, None)
             else:
                 os.environ[key] = value
-    verify_observer(args.source, observer)
+    verify_observer(args.source, observer, header)
     if (
         digest(output) != score["output_sha256"]
         or digest(covariance) != score["consistency"]["covariance_sha256"]
@@ -117,6 +132,10 @@ def run(args):
         raise ValueError(
             "Observer changed native published states or covariance snapshots"
         )
+    if integrity:
+        from diagnose_ekf3_imu_integrity import diagnose as analyze
+    else:
+        analyze = diagnose
     evidence = {
         "scenario": args.scenario,
         "state_parity": True,
@@ -132,7 +151,7 @@ def run(args):
             for name in (*pilot["input_sha256"], "arrivals.csv")
         },
         "native_details": details,
-        "analysis": diagnose(trace),
+        "analysis": analyze(trace),
     }
     args.output.write_text(json.dumps(evidence, indent=2, allow_nan=False) + "\n")
     print("Published states and all native covariance snapshots are byte-identical.")
@@ -143,8 +162,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "--scenario", choices=("gps", "denied", "transition"), required=True
     )
-    parser.add_argument("--start-us", type=int, required=True)
-    parser.add_argument("--end-us", type=int, required=True)
+    parser.add_argument("--start-us", type=int)
+    parser.add_argument("--end-us", type=int)
+    parser.add_argument("--imu-integrity", action="store_true")
     for name in (
         "source",
         "observer",

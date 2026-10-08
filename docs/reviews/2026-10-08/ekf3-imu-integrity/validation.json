@@ -1,0 +1,78 @@
+{
+  "recorded_utc": "2026-10-08T08:50:04.434206+00:00",
+  "late_fix_state_replays": 18,
+  "late_fix_native_covariance_replays": 6,
+  "native_covariance_valid": true,
+  "native_state_covariance_parity": true,
+  "gps_denied_byte_identical_controls": 6,
+  "integrity_replays": {
+    "gps-immediate-integrity.json": {
+      "checked_pairs": 1559,
+      "trigger_conditions": 174,
+      "bad_imu_after_checks": 1546
+    },
+    "gps-late-integrity.json": {
+      "checked_pairs": 1357,
+      "trigger_conditions": 0,
+      "bad_imu_after_checks": 0
+    },
+    "transition-late-integrity.json": {
+      "checked_pairs": 1207,
+      "trigger_conditions": 0,
+      "bad_imu_after_checks": 0
+    }
+  },
+  "durable_full_trace_reconstruction": true,
+  "durable_first_trigger_reconstruction": true,
+  "default_input_api_byte_parity": true,
+  "physical_samples_preserved": true,
+  "hosted_python_tests": {
+    "passed": 61,
+    "skipped": 0
+  },
+  "ruff": true,
+  "modelica_structure": true,
+  "frozen_campaign_tool_hashes_match_current_sources": true,
+  "held_out_campaign": {
+    "declared_captures": 8,
+    "prepared_captures": 8,
+    "planned_state_replays": 144,
+    "planned_native_covariance_replays": 48,
+    "status": "running; results not scored in this review"
+  },
+  "published_parent_ci": {
+    "head": "b9fb3a3c19eae8f23f62a587d66d502c2102ec26",
+    "url": "https://github.com/CogniPilot/modelica_models/actions/runs/37749672465",
+    "jobs": {
+      "Modelica Regression Tests": "success",
+      "CUBS2 Mission Qualification": "success",
+      "RDD2 Mission Qualification": "failure"
+    },
+    "rdd2_note": "Qualification canceled; run failed. Annotation does not establish the cancellation cause."
+  },
+  "new_eskf_algorithm_or_default_change": false,
+  "native_algorithm_repair": false,
+  "fully_matched_effective_Q_R": false,
+  "universal_superiority_established": false,
+  "review_sha256": {
+    "README.txt": "842c281119bce387fa1c952535ebe7bbfc59f9ea1086d97fcae52154561ad59c",
+    "ci-status.json": "3a9c38bd2025d707bb3b1210ed8f2219e6a4a21922340767f273414e40da70d5",
+    "declaration.json": "dbaa3241a7cb23514314357cda12f6227d5cbdd29e5239269f9c8436b249914b",
+    "default-parity.json": "dfbe053d2f7a9201b0deef7ec85213db00c1857a5a7095ec7f06b89b99ba1948",
+    "denied-controls.json": "ce78de0e4326d2fb97025ee8ee90640801208254c83a6f5ca14b836c020ee47c",
+    "first-trigger.csv": "280acba17b526dfba78a8f22233efddb7b4a166472e8849fde79e5678755ef71",
+    "flight-statistics.csv": "1028a12f50091fdefd30e83384e2ad18f1b3177bf11a94bea6542c607571c66a",
+    "gps-immediate-integrity.csv": "74584940845dbf2c2f6ffecd1b84b2ff0150cfe6b531b7b9df41c0efb0128965",
+    "gps-immediate-integrity.json": "f8cdf1abae7c5aa11710fc823092a19290c8b60aa6c7238992f82662bb8cf87b",
+    "gps-late-integrity.json": "6e9e9c2a40e820649836e97a5b9a1e849886c41f2e8b46c7fba3f79a2cb35b09",
+    "held-out-captures.json": "02cf7635dd1a61e5838062c030bf683a67f934a8f14ba51359e0c970561b99c7",
+    "held-out-source-snapshot.json": "48d0777b1f5a4d065c0190dc3357c47f59a7340a53227e022079c5a560b7855c",
+    "late-fix-native-covariance.json": "3d21862fe25bb8d8d890c49ab24d9c2626fc891939622b8c1a2ad8a696e0647b",
+    "late-fix-pilot.json": "024e16afbf21e221503104c13f7c604835959bc6ca4b1041ff471155fa50cf8e",
+    "physical-controls.json": "3464af22cb796644bd50e4c832196e52a5ff79213cc9b0a75ff1de3b5a987ac9",
+    "python-tests.txt": "ce23f522223187a7320f6eb39e64018eff4e14f4542587394d01d64f8c0e7cb9",
+    "ruff.txt": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "structure.txt": "62930aad096b809241f55fcf46e5425775975e88de3eea439b2d4709fdb00915",
+    "transition-late-integrity.json": "a15aa93645af95967c2783d1c9e3528722f89cc5ef592877b4c5245efd78f5d8"
+  }
+}

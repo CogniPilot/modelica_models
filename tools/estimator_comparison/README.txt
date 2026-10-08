@@ -67,6 +67,16 @@ diagnose_ekf3_covariance_stages.py reconstructs scalar updates and labels offlin
 Joseph counterfactuals separately. The durable raw witness can be checked
 without external native sources. The native bad-IMU trigger still needs tracing.
 
+The subsequent ekf3-imu-integrity review records pre-override residuals and
+isolates the early one-sigma trigger in stationary preflight. The read-only
+instrument_ekf3_imu_integrity.py hooks share the verified replay driver through
+--imu-integrity, without stage time bounds. diagnose_ekf3_imu_integrity.py checks
+every timestamp, threshold, flag transition and native velocity override.
+generate.py --gps-fix-after-s 21 changes only initial GPS availability for all
+filters; all physical draws and default capture bytes are preserved. The
+controlled pilot passes readiness and all six native covariance checks; a
+declared eight-capture campaign now tests independent seeds, motions and heights.
+
 Read docs/reviews/2026-10-07/native-configuration-audit.txt before interpreting
 the native rankings. A later 24-replay audit reproduced the previous native
 outputs but found a persistent ArduPilot takeoff flag, different active magnetic

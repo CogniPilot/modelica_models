@@ -111,6 +111,13 @@ every published state and full covariance snapshot. ESKF's existing Joseph
 update passes the recorded gain witness; the earlier bad-IMU trigger and the
 broader comparison remain open.
 
+The [bad-IMU trigger audit](docs/reviews/2026-10-08/ekf3-imu-integrity/README.txt)
+finds an early one-sigma noise event in stationary preflight. A matched
+21-second GPS first-fix control avoids the latched detector state and restores
+valid native covariances without changing firmware or noise draws. EKF3 GPS
+position accuracy then approaches ESKF in this pilot; a declared independent
+campaign is testing the remaining performance differences.
+
 Sensor `timestamp_s` is capture time. `valid` may remain true while a usable
 sample is held; `fresh` pulses for one estimator tick when a new sample arrives,
 preventing a slow sensor value from being fused repeatedly. Latency compensation

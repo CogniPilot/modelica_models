@@ -1,0 +1,25 @@
+{
+  "raw": {
+    "gps.csv": "ab308343dd3aa28b034c39a0ef37bdb2280e051a6fdc8d97d48664e4b5661891",
+    "baro_raw.csv": "418374ff5d9e42bda5e01bf608ffe4ff8aadded2031f31c9bd0734d59bb18842",
+    "modelica_input.csv": "ee6c16e1143c78b9c1bb2774f0c06863b13a69ea2f7f04d45d45f766b13a41c2",
+    "imu.csv": "2001b8817b2e98fdc35c5adfbafba4f786b560e461e9dfc86a86eea7a9c30d54",
+    "truth.csv": "af985a250cf99a937c07a95087f28dd66419a2f1b23e905cbb2dd21f5fb4cd3e",
+    "origin.json": "bb14cf42312095fab55900c4e649f460d9b5d44bfd8c954d198b722f48edc48e",
+    "flow.csv": "4ec94ca46af0d36f0c831cebd2ca64e60ad8bd71a603da8cf8260b1b77c5a653",
+    "baro.csv": "e0c4859bce46d1618ee3e12122482f118360ce57cea9536851f7f008c818d799",
+    "mag.csv": "93a63db69c569aee0d80a3703f2653d0c95c6a7078c0898eb49712fd677098e8"
+  },
+  "capture": {
+    "gps.csv": "ab308343dd3aa28b034c39a0ef37bdb2280e051a6fdc8d97d48664e4b5661891",
+    "baro_raw.csv": "418374ff5d9e42bda5e01bf608ffe4ff8aadded2031f31c9bd0734d59bb18842",
+    "modelica_input.csv": "50fe7376c63fa926cf21225216422ec005e13e5ea04b8e84b045f680d9e8b79f",
+    "imu.csv": "2001b8817b2e98fdc35c5adfbafba4f786b560e461e9dfc86a86eea7a9c30d54",
+    "truth.csv": "af985a250cf99a937c07a95087f28dd66419a2f1b23e905cbb2dd21f5fb4cd3e",
+    "origin.json": "1129e80f3b006b7f6ff55d4bef62a7b6f2d415cf05d9fda118bdedf37bef695f",
+    "flow.csv": "0c12afc16c9dfffcf38b499ccef3268f05ce85abfe9e6713a8891783a7d4b40c",
+    "baro.csv": "0af9705f3de55d1f93a468bcb0895ec7ecd52b971ec1366f7254aae22aaa52f6",
+    "mag.csv": "ca29871437c67905e142bb84dda752fb18d48bdc9d885d3f6ec622ea95b5ac1d"
+  },
+  "cli_metadata_note": "CLI float warmup 120.0 versus original API integer 120 changes only JSON number serialization and its parent hash. Identical API arguments reproduce all historical bytes."
+}

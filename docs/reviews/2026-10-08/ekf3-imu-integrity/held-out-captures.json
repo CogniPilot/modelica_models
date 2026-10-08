@@ -1,0 +1,261 @@
+{
+  "complete": true,
+  "cases": [
+    {
+      "name": "20271009-0.45-2m",
+      "seed": 20271009,
+      "speed": 0.45,
+      "height_m": 2,
+      "audit": {
+        "independent_world_velocity_camera_std_rad_s": [
+          0.05139157613243669,
+          0.049557864749838414
+        ],
+        "independent_world_velocity_camera_mean_rad_s": [
+          0.0014550722533362701,
+          -0.0012940666062652587
+        ],
+        "gps_velocity_error_std_m_s": [
+          0.049462291460965126,
+          0.05021406599310413,
+          0.07292485432163946
+        ],
+        "input_sha256": {
+          "gps.csv": "c71948e0a85bf4a96fa98efb35707e7bc8970358188c72d0e09d5c1baf05459c",
+          "baro_raw.csv": "ada211d227fac4165561864e82ce4d8ae08c02d6badf6be4e373a215b124b1c1",
+          "modelica_input.csv": "fd95319e7e935c5cc60ef5f7680c656e397c61a2e66295c2dbb86f68a0c8c0ed",
+          "imu.csv": "4bc397e6de59f6b6ba4dad2e3e7287d6cbcb84e0a7c3c3f0f2b63e165827854c",
+          "truth.csv": "8775ac41758a6db2ea5c1bb0190fc439dd4bf7115926371be85a2426809f1260",
+          "origin.json": "25d71518fbfecf8e823651ff8982000ebdc9623c2da88f62f186b3ee20d99266",
+          "flow.csv": "0949ef976bbf0e6514219d59cbc589b37d0a0167f78892ba4d18eb43f2e544d4",
+          "baro.csv": "4c847b7bbd7562e4014b34027296e58ce49bcbf5f004c6678c5cac782d9e3d87",
+          "mag.csv": "7fc297b48f42b785fd82df5f63b04724d7ebd68cbf438ed5c6c59037b4c7363d"
+        }
+      }
+    },
+    {
+      "name": "20271009-0.45-4m",
+      "seed": 20271009,
+      "speed": 0.45,
+      "height_m": 4,
+      "audit": {
+        "independent_world_velocity_camera_std_rad_s": [
+          0.05139157613244131,
+          0.049557864749839156
+        ],
+        "independent_world_velocity_camera_mean_rad_s": [
+          0.0014550722533356896,
+          -0.0012940666062634877
+        ],
+        "gps_velocity_error_std_m_s": [
+          0.049462291460965126,
+          0.05021406599310413,
+          0.0729248543216437
+        ],
+        "input_sha256": {
+          "gps.csv": "0e49fb3da91620ff88c2b6badb943d0b221bfdb179391c3c2c53fc8564c75aab",
+          "baro_raw.csv": "fc83d2bc7ae765acaa9d1389478cd4f3aa7647c58530d28a4b5548bd80d86718",
+          "modelica_input.csv": "87f0aa570456b292e08b1317000f24af3fccf98132fda93f0b257588dd0e4554",
+          "imu.csv": "e5f15102b2f8c1e61adcc830bec03e8638105034daba2987aac2128e3b52ab36",
+          "truth.csv": "fd402886dcf13d3979d2be3c5c0623d415b51c0ec7cd8244eb1263d4f81b2ded",
+          "origin.json": "c1d06f856fcc0625a0c9b1dfdf121809789e32a2ae11ac28aaa00de91a52e0ba",
+          "flow.csv": "54bd2cccace3f67c252ad524b9a30a8efc7dc8c6a2e25378a061c39fc233177e",
+          "baro.csv": "2180fa141b79f5f727dced5dcbb908a0ead0892f3a63d1c4c974539832a12140",
+          "mag.csv": "7fc297b48f42b785fd82df5f63b04724d7ebd68cbf438ed5c6c59037b4c7363d"
+        }
+      }
+    },
+    {
+      "name": "20271009-0.85-2m",
+      "seed": 20271009,
+      "speed": 0.85,
+      "height_m": 2,
+      "audit": {
+        "independent_world_velocity_camera_std_rad_s": [
+          0.05139157613243908,
+          0.04955786474983601
+        ],
+        "independent_world_velocity_camera_mean_rad_s": [
+          0.001455072253335676,
+          -0.0012940666062409784
+        ],
+        "gps_velocity_error_std_m_s": [
+          0.04946229146091914,
+          0.05021406599315401,
+          0.07292485432163946
+        ],
+        "input_sha256": {
+          "gps.csv": "979362cc089e14371f296aad7092c4efc4bfa1aeb0506702ed9ef53fdf841443",
+          "baro_raw.csv": "ada211d227fac4165561864e82ce4d8ae08c02d6badf6be4e373a215b124b1c1",
+          "modelica_input.csv": "8e67eac94f8324f6fa8ac5b18339feb1f444836bd774a096c7e36383aceadd72",
+          "imu.csv": "40505daa70fecd18cd9cb15ea064368835a9005dbdebdf3284fa046aa4ad8017",
+          "truth.csv": "0e23ef595b29952aa28295d00495b1157e62e095096474dbdc0aa97ea7aa216e",
+          "origin.json": "6d19ea477e96d8918df320fabeed2709151b2c2101462531a85122bf6b4eff24",
+          "flow.csv": "ed9e0191b0b0b964534c428afc30c8d4613c7ce30593c012761e0baffbdab9ff",
+          "baro.csv": "4c847b7bbd7562e4014b34027296e58ce49bcbf5f004c6678c5cac782d9e3d87",
+          "mag.csv": "7fc297b48f42b785fd82df5f63b04724d7ebd68cbf438ed5c6c59037b4c7363d"
+        }
+      }
+    },
+    {
+      "name": "20271009-0.85-4m",
+      "seed": 20271009,
+      "speed": 0.85,
+      "height_m": 4,
+      "audit": {
+        "independent_world_velocity_camera_std_rad_s": [
+          0.0513915761324395,
+          0.04955786474983719
+        ],
+        "independent_world_velocity_camera_mean_rad_s": [
+          0.0014550722533306977,
+          -0.0012940666062631317
+        ],
+        "gps_velocity_error_std_m_s": [
+          0.04946229146091914,
+          0.05021406599315401,
+          0.0729248543216437
+        ],
+        "input_sha256": {
+          "gps.csv": "a8b6ac5eedd4da1703c6c41369414380d9096809d8c0ef5d45d897280f4d0849",
+          "baro_raw.csv": "fc83d2bc7ae765acaa9d1389478cd4f3aa7647c58530d28a4b5548bd80d86718",
+          "modelica_input.csv": "1ad6fd574010af9560dec87818bfabab448618cd2f5f51d1b8304df445e05da3",
+          "imu.csv": "61594ca8a5782ec4d2fdb6e3bf182bd9b76b5449e0de6095b1f28d33c3d5b334",
+          "truth.csv": "0162a30aee1b5ccca19b83c9fbc3189e479482f698ed19ab7a2f98e00f2a51ee",
+          "origin.json": "445ddf2bc9c33879403419311650659bdb55d726b73ef8dfdeffc85853a9c562",
+          "flow.csv": "1d835c25b643bd563c37b00ef4292e6a05c953cab1026d8ee971ee0e8bded5e2",
+          "baro.csv": "2180fa141b79f5f727dced5dcbb908a0ead0892f3a63d1c4c974539832a12140",
+          "mag.csv": "7fc297b48f42b785fd82df5f63b04724d7ebd68cbf438ed5c6c59037b4c7363d"
+        }
+      }
+    },
+    {
+      "name": "20271010-0.45-2m",
+      "seed": 20271010,
+      "speed": 0.45,
+      "height_m": 2,
+      "audit": {
+        "independent_world_velocity_camera_std_rad_s": [
+          0.049424547897843174,
+          0.04941202140251443
+        ],
+        "independent_world_velocity_camera_mean_rad_s": [
+          -0.0005973237370330888,
+          0.0006739112742108306
+        ],
+        "gps_velocity_error_std_m_s": [
+          0.050596652122052,
+          0.04999276675105314,
+          0.07562624638702549
+        ],
+        "input_sha256": {
+          "gps.csv": "622d426ade37683c7f104471c2bb05d4c366ed46791f078190cb5ea5cffab50c",
+          "baro_raw.csv": "3adb39cd15e25335e10e3892a98a7e6719835d203e2f6f1a4c8b610b3137a91e",
+          "modelica_input.csv": "3fa8e9aef331feca6eb6ff97ffeb90b6e32ef5654e7e861c7d42fba671cda300",
+          "imu.csv": "0ea3acac2aa09090fe3f9f354f5c9d058de74d97d12c8e08c4fc0336603a796b",
+          "truth.csv": "8775ac41758a6db2ea5c1bb0190fc439dd4bf7115926371be85a2426809f1260",
+          "origin.json": "ee34c075d6366c9272ff5096569c92a9f0a900c099198f025b57b2dbf5cdd4fd",
+          "flow.csv": "3551f9ba6f2214f8aef7c15d166b968e9e6db79f44939aa1e25a612139b31d7b",
+          "baro.csv": "e4aa4df1680e101c5c15f47ec1d7157407bb1a34fa68d25f390fc5186c470588",
+          "mag.csv": "9d8f8077c399c4b3d3208110304c5d9bb74b472334dc4daad435d5fbf66037a6"
+        }
+      }
+    },
+    {
+      "name": "20271010-0.45-4m",
+      "seed": 20271010,
+      "speed": 0.45,
+      "height_m": 4,
+      "audit": {
+        "independent_world_velocity_camera_std_rad_s": [
+          0.0494245478978347,
+          0.049412021402512184
+        ],
+        "independent_world_velocity_camera_mean_rad_s": [
+          -0.0005973237370306736,
+          0.0006739112742102597
+        ],
+        "gps_velocity_error_std_m_s": [
+          0.050596652122052,
+          0.04999276675105314,
+          0.07562624638699592
+        ],
+        "input_sha256": {
+          "gps.csv": "78cac8af2e235d0ad8938a7598eec7475e6e6fae40a402db89e74a70b319772e",
+          "baro_raw.csv": "0ea101a3fec1fa85c1ff3accfb0b1023e20dcf9133f02794e6d5014e114e8e67",
+          "modelica_input.csv": "0f701ba9e340065070d18a80d867ad1df00fa3d1d008233d064f5d2be53b01cc",
+          "imu.csv": "6c980ecaaa32b9edd9fa672846118954ec9e9332aafce000449215abf519b7ab",
+          "truth.csv": "fd402886dcf13d3979d2be3c5c0623d415b51c0ec7cd8244eb1263d4f81b2ded",
+          "origin.json": "839bfd4ea1e03f1190821f717c1a63c098c01563098d1e78a352a7b7f6ead589",
+          "flow.csv": "b2a1a03e7ee5b63310b9e6deb83ce73c1de552cc6ef2283d84aad869f3cb1677",
+          "baro.csv": "da943bb89b757e90667d246b63e65fdf4a26df3fd60532722daba94ba0d51b9d",
+          "mag.csv": "9d8f8077c399c4b3d3208110304c5d9bb74b472334dc4daad435d5fbf66037a6"
+        }
+      }
+    },
+    {
+      "name": "20271010-0.85-2m",
+      "seed": 20271010,
+      "speed": 0.85,
+      "height_m": 2,
+      "audit": {
+        "independent_world_velocity_camera_std_rad_s": [
+          0.04942454789783682,
+          0.04941202140248241
+        ],
+        "independent_world_velocity_camera_mean_rad_s": [
+          -0.0005973237370249209,
+          0.0006739112741927818
+        ],
+        "gps_velocity_error_std_m_s": [
+          0.05059665212190804,
+          0.049992766751152384,
+          0.07562624638702549
+        ],
+        "input_sha256": {
+          "gps.csv": "041cd174d529383bb05aa3cc8d4042338c4dcfa43afa173d212e7f058f29335b",
+          "baro_raw.csv": "3adb39cd15e25335e10e3892a98a7e6719835d203e2f6f1a4c8b610b3137a91e",
+          "modelica_input.csv": "cd3eb2f4a610f01591f4b05bad2eb970f062ffbfcb798044cac174e3ab5afe9e",
+          "imu.csv": "d673f94a23934ce3cdb89b052047721d087d84f8cd21519c54d3279efafc5305",
+          "truth.csv": "0e23ef595b29952aa28295d00495b1157e62e095096474dbdc0aa97ea7aa216e",
+          "origin.json": "db297de974bfdda5ec2d42b435d33795865d18637f7a16a94c918c39a52df51c",
+          "flow.csv": "89000c421676b8f75ff28213f409fc8e4c131cb795c344bdd1202fc9e40f56d8",
+          "baro.csv": "e4aa4df1680e101c5c15f47ec1d7157407bb1a34fa68d25f390fc5186c470588",
+          "mag.csv": "9d8f8077c399c4b3d3208110304c5d9bb74b472334dc4daad435d5fbf66037a6"
+        }
+      }
+    },
+    {
+      "name": "20271010-0.85-4m",
+      "seed": 20271010,
+      "speed": 0.85,
+      "height_m": 4,
+      "audit": {
+        "independent_world_velocity_camera_std_rad_s": [
+          0.049424547897827256,
+          0.04941202140251373
+        ],
+        "independent_world_velocity_camera_mean_rad_s": [
+          -0.0005973237370304294,
+          0.0006739112742123174
+        ],
+        "gps_velocity_error_std_m_s": [
+          0.05059665212190804,
+          0.049992766751152384,
+          0.07562624638699592
+        ],
+        "input_sha256": {
+          "gps.csv": "7e835c0f82098c85902518171eda9d630fbe0e929a81c58dbbde7894602620bd",
+          "baro_raw.csv": "0ea101a3fec1fa85c1ff3accfb0b1023e20dcf9133f02794e6d5014e114e8e67",
+          "modelica_input.csv": "441ee5f061339c01248e707df08b119999e0e6b85ac00498b30f2b0d4fda15e5",
+          "imu.csv": "26ea9bc2f129ff02614d20246b46768eaa324b087796a4854e9c9988b9314c29",
+          "truth.csv": "0162a30aee1b5ccca19b83c9fbc3189e479482f698ed19ab7a2f98e00f2a51ee",
+          "origin.json": "35fa2ddd60232540e09da0880f366edd445c62993e1be8004c8780c4ad996227",
+          "flow.csv": "d900c54d06180bd6122c067bd2a4669b35bd0d6db14f2d3fa0e1d80505094650",
+          "baro.csv": "da943bb89b757e90667d246b63e65fdf4a26df3fd60532722daba94ba0d51b9d",
+          "mag.csv": "9d8f8077c399c4b3d3208110304c5d9bb74b472334dc4daad435d5fbf66037a6"
+        }
+      }
+    }
+  ]
+}
