@@ -70,7 +70,7 @@ jobs:
             report: qualification-report.html
           - vehicle: rdd2
             label: RDD2
-            simulation_workers: 4
+            simulation_workers: 1
             figure: rdd2-waypoint-summary.png
             report: waypoint-report.html
 

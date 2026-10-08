@@ -1,0 +1,2696 @@
+true
+true
+
+"/mnt/scratch/jgoppert/modelica_models/ci-qualification-main-results/omc-manual"
+record SimulationResult
+    resultFile = "",
+    simulationOptions = "startTime = 0.0, stopTime = 28.0, numberOfIntervals = 5600, tolerance = 1e-8, method = 'dassl', fileNamePrefix = 'manual', options = '', outputFormat = 'mat', variableFilter = 'referenceOffset_m|referenceSpeed_m_s|groundSpeed_m_s|holdDrift_m|tiltAngle_rad|flightMode', cflags = '', simflags = ''",
+    messages = "Failed to build model: Vehicles.Rdd2.Test.ManualFlightMission",
+    timeFrontend = 0.0,
+    timeBackend = 0.0,
+    timeSimCode = 0.0,
+    timeTemplates = 0.0,
+    timeCompile = 0.0,
+    timeSimulation = 0.0,
+    timeTotal = 0.0
+end SimulationResult;
+
+Error processing file: $HOME/scratch/modelica_models/ci-qualification-main-results/omc-manual/run.mos
+Notification: Automatically loaded package Geodesy (default) due to usage.
+Notification: Automatically loaded package Estimation (default) due to usage.
+Notification: Automatically loaded package Avionics (default) due to usage.
+Notification: Automatically loaded package RigidBody (default) due to usage.
+Notification: Automatically loaded package Planning (default) due to usage.
+Notification: Automatically loaded package Control (default) due to usage.
+Notification: Automatically loaded package LieGroups (default) due to usage.
+Notification: Automatically loaded package LinearAlgebra (default) due to usage.
+Notification: Automatically loaded package MathUtilities (default) due to usage.
+Error: An independent subset of the model has imbalanced number of equations (1984) and variables (1967).
+variables:
+bodyUpWorld[3]
+bodyUpWorld[2]
+bodyUpWorld[1]
+tiltAngle_rad
+holdDrift_m
+groundSpeed_m_s
+referenceSpeed_m_s
+referenceOffset_m
+estimatorAccelerometerBiasMirror_m_s2[3]
+estimatorAccelerometerBiasMirror_m_s2[2]
+estimatorAccelerometerBiasMirror_m_s2[1]
+estimatorGyroscopeBiasMirror_rad_s[3]
+estimatorGyroscopeBiasMirror_rad_s[2]
+estimatorGyroscopeBiasMirror_rad_s[1]
+imuPacketTimestamp_s
+imuPacketIntegrationTime_s
+imuPacketPositionAccelerometerBiasJacobian_s2[3,3]
+imuPacketPositionAccelerometerBiasJacobian_s2[3,2]
+imuPacketPositionAccelerometerBiasJacobian_s2[3,1]
+imuPacketPositionAccelerometerBiasJacobian_s2[2,3]
+imuPacketPositionAccelerometerBiasJacobian_s2[2,2]
+imuPacketPositionAccelerometerBiasJacobian_s2[2,1]
+imuPacketPositionAccelerometerBiasJacobian_s2[1,3]
+imuPacketPositionAccelerometerBiasJacobian_s2[1,2]
+imuPacketPositionAccelerometerBiasJacobian_s2[1,1]
+imuPacketPositionGyroscopeBiasJacobian_m_s[3,3]
+imuPacketPositionGyroscopeBiasJacobian_m_s[3,2]
+imuPacketPositionGyroscopeBiasJacobian_m_s[3,1]
+imuPacketPositionGyroscopeBiasJacobian_m_s[2,3]
+imuPacketPositionGyroscopeBiasJacobian_m_s[2,2]
+imuPacketPositionGyroscopeBiasJacobian_m_s[2,1]
+imuPacketPositionGyroscopeBiasJacobian_m_s[1,3]
+imuPacketPositionGyroscopeBiasJacobian_m_s[1,2]
+imuPacketPositionGyroscopeBiasJacobian_m_s[1,1]
+imuPacketVelocityAccelerometerBiasJacobian_s[3,3]
+imuPacketVelocityAccelerometerBiasJacobian_s[3,2]
+imuPacketVelocityAccelerometerBiasJacobian_s[3,1]
+imuPacketVelocityAccelerometerBiasJacobian_s[2,3]
+imuPacketVelocityAccelerometerBiasJacobian_s[2,2]
+imuPacketVelocityAccelerometerBiasJacobian_s[2,1]
+imuPacketVelocityAccelerometerBiasJacobian_s[1,3]
+imuPacketVelocityAccelerometerBiasJacobian_s[1,2]
+imuPacketVelocityAccelerometerBiasJacobian_s[1,1]
+imuPacketVelocityGyroscopeBiasJacobian_m[3,3]
+imuPacketVelocityGyroscopeBiasJacobian_m[3,2]
+imuPacketVelocityGyroscopeBiasJacobian_m[3,1]
+imuPacketVelocityGyroscopeBiasJacobian_m[2,3]
+imuPacketVelocityGyroscopeBiasJacobian_m[2,2]
+imuPacketVelocityGyroscopeBiasJacobian_m[2,1]
+imuPacketVelocityGyroscopeBiasJacobian_m[1,3]
+imuPacketVelocityGyroscopeBiasJacobian_m[1,2]
+imuPacketVelocityGyroscopeBiasJacobian_m[1,1]
+imuPacketRotationGyroscopeBiasJacobian_s[3,3]
+imuPacketRotationGyroscopeBiasJacobian_s[3,2]
+imuPacketRotationGyroscopeBiasJacobian_s[3,1]
+imuPacketRotationGyroscopeBiasJacobian_s[2,3]
+imuPacketRotationGyroscopeBiasJacobian_s[2,2]
+imuPacketRotationGyroscopeBiasJacobian_s[2,1]
+imuPacketRotationGyroscopeBiasJacobian_s[1,3]
+imuPacketRotationGyroscopeBiasJacobian_s[1,2]
+imuPacketRotationGyroscopeBiasJacobian_s[1,1]
+imuPacketAccelerometerBiasLinearization_m_s2[3]
+imuPacketAccelerometerBiasLinearization_m_s2[2]
+imuPacketAccelerometerBiasLinearization_m_s2[1]
+imuPacketGyroscopeBiasLinearization_rad_s[3]
+imuPacketGyroscopeBiasLinearization_rad_s[2]
+imuPacketGyroscopeBiasLinearization_rad_s[1]
+imuPacketDeltaQuaternion[4]
+imuPacketDeltaQuaternion[3]
+imuPacketDeltaQuaternion[2]
+imuPacketDeltaQuaternion[1]
+imuPacketDeltaPosition_m[3]
+imuPacketDeltaPosition_m[2]
+imuPacketDeltaPosition_m[1]
+imuPacketDeltaVelocity_m_s[3]
+imuPacketDeltaVelocity_m_s[2]
+imuPacketDeltaVelocity_m_s[1]
+imuPacketDeltaAngle_rad[3]
+imuPacketDeltaAngle_rad[2]
+imuPacketDeltaAngle_rad[1]
+imuUpdatedPositionAccelerometerBiasJacobian_s2[3,3]
+imuUpdatedPositionAccelerometerBiasJacobian_s2[3,2]
+imuUpdatedPositionAccelerometerBiasJacobian_s2[3,1]
+imuUpdatedPositionAccelerometerBiasJacobian_s2[2,3]
+imuUpdatedPositionAccelerometerBiasJacobian_s2[2,2]
+imuUpdatedPositionAccelerometerBiasJacobian_s2[2,1]
+imuUpdatedPositionAccelerometerBiasJacobian_s2[1,3]
+imuUpdatedPositionAccelerometerBiasJacobian_s2[1,2]
+imuUpdatedPositionAccelerometerBiasJacobian_s2[1,1]
+imuUpdatedPositionGyroscopeBiasJacobian_m_s[3,3]
+imuUpdatedPositionGyroscopeBiasJacobian_m_s[3,2]
+imuUpdatedPositionGyroscopeBiasJacobian_m_s[3,1]
+imuUpdatedPositionGyroscopeBiasJacobian_m_s[2,3]
+imuUpdatedPositionGyroscopeBiasJacobian_m_s[2,2]
+imuUpdatedPositionGyroscopeBiasJacobian_m_s[2,1]
+imuUpdatedPositionGyroscopeBiasJacobian_m_s[1,3]
+imuUpdatedPositionGyroscopeBiasJacobian_m_s[1,2]
+imuUpdatedPositionGyroscopeBiasJacobian_m_s[1,1]
+imuUpdatedVelocityAccelerometerBiasJacobian_s[3,3]
+imuUpdatedVelocityAccelerometerBiasJacobian_s[3,2]
+imuUpdatedVelocityAccelerometerBiasJacobian_s[3,1]
+imuUpdatedVelocityAccelerometerBiasJacobian_s[2,3]
+imuUpdatedVelocityAccelerometerBiasJacobian_s[2,2]
+imuUpdatedVelocityAccelerometerBiasJacobian_s[2,1]
+imuUpdatedVelocityAccelerometerBiasJacobian_s[1,3]
+imuUpdatedVelocityAccelerometerBiasJacobian_s[1,2]
+imuUpdatedVelocityAccelerometerBiasJacobian_s[1,1]
+imuUpdatedVelocityGyroscopeBiasJacobian_m[3,3]
+imuUpdatedVelocityGyroscopeBiasJacobian_m[3,2]
+imuUpdatedVelocityGyroscopeBiasJacobian_m[3,1]
+imuUpdatedVelocityGyroscopeBiasJacobian_m[2,3]
+imuUpdatedVelocityGyroscopeBiasJacobian_m[2,2]
+imuUpdatedVelocityGyroscopeBiasJacobian_m[2,1]
+imuUpdatedVelocityGyroscopeBiasJacobian_m[1,3]
+imuUpdatedVelocityGyroscopeBiasJacobian_m[1,2]
+imuUpdatedVelocityGyroscopeBiasJacobian_m[1,1]
+imuUpdatedRotationGyroscopeBiasJacobian_s[3,3]
+imuUpdatedRotationGyroscopeBiasJacobian_s[3,2]
+imuUpdatedRotationGyroscopeBiasJacobian_s[3,1]
+imuUpdatedRotationGyroscopeBiasJacobian_s[2,3]
+imuUpdatedRotationGyroscopeBiasJacobian_s[2,2]
+imuUpdatedRotationGyroscopeBiasJacobian_s[2,1]
+imuUpdatedRotationGyroscopeBiasJacobian_s[1,3]
+imuUpdatedRotationGyroscopeBiasJacobian_s[1,2]
+imuUpdatedRotationGyroscopeBiasJacobian_s[1,1]
+imuAccumulatedPositionAccelerometerBiasJacobian_s2[3,3]
+imuAccumulatedPositionAccelerometerBiasJacobian_s2[3,2]
+imuAccumulatedPositionAccelerometerBiasJacobian_s2[3,1]
+imuAccumulatedPositionAccelerometerBiasJacobian_s2[2,3]
+imuAccumulatedPositionAccelerometerBiasJacobian_s2[2,2]
+imuAccumulatedPositionAccelerometerBiasJacobian_s2[2,1]
+imuAccumulatedPositionAccelerometerBiasJacobian_s2[1,3]
+imuAccumulatedPositionAccelerometerBiasJacobian_s2[1,2]
+imuAccumulatedPositionAccelerometerBiasJacobian_s2[1,1]
+imuAccumulatedPositionGyroscopeBiasJacobian_m_s[3,3]
+imuAccumulatedPositionGyroscopeBiasJacobian_m_s[3,2]
+imuAccumulatedPositionGyroscopeBiasJacobian_m_s[3,1]
+imuAccumulatedPositionGyroscopeBiasJacobian_m_s[2,3]
+imuAccumulatedPositionGyroscopeBiasJacobian_m_s[2,2]
+imuAccumulatedPositionGyroscopeBiasJacobian_m_s[2,1]
+imuAccumulatedPositionGyroscopeBiasJacobian_m_s[1,3]
+imuAccumulatedPositionGyroscopeBiasJacobian_m_s[1,2]
+imuAccumulatedPositionGyroscopeBiasJacobian_m_s[1,1]
+imuAccumulatedVelocityAccelerometerBiasJacobian_s[3,3]
+imuAccumulatedVelocityAccelerometerBiasJacobian_s[3,2]
+imuAccumulatedVelocityAccelerometerBiasJacobian_s[3,1]
+imuAccumulatedVelocityAccelerometerBiasJacobian_s[2,3]
+imuAccumulatedVelocityAccelerometerBiasJacobian_s[2,2]
+imuAccumulatedVelocityAccelerometerBiasJacobian_s[2,1]
+imuAccumulatedVelocityAccelerometerBiasJacobian_s[1,3]
+imuAccumulatedVelocityAccelerometerBiasJacobian_s[1,2]
+imuAccumulatedVelocityAccelerometerBiasJacobian_s[1,1]
+imuAccumulatedVelocityGyroscopeBiasJacobian_m[3,3]
+imuAccumulatedVelocityGyroscopeBiasJacobian_m[3,2]
+imuAccumulatedVelocityGyroscopeBiasJacobian_m[3,1]
+imuAccumulatedVelocityGyroscopeBiasJacobian_m[2,3]
+imuAccumulatedVelocityGyroscopeBiasJacobian_m[2,2]
+imuAccumulatedVelocityGyroscopeBiasJacobian_m[2,1]
+imuAccumulatedVelocityGyroscopeBiasJacobian_m[1,3]
+imuAccumulatedVelocityGyroscopeBiasJacobian_m[1,2]
+imuAccumulatedVelocityGyroscopeBiasJacobian_m[1,1]
+imuAccumulatedRotationGyroscopeBiasJacobian_s[3,3]
+imuAccumulatedRotationGyroscopeBiasJacobian_s[3,2]
+imuAccumulatedRotationGyroscopeBiasJacobian_s[3,1]
+imuAccumulatedRotationGyroscopeBiasJacobian_s[2,3]
+imuAccumulatedRotationGyroscopeBiasJacobian_s[2,2]
+imuAccumulatedRotationGyroscopeBiasJacobian_s[2,1]
+imuAccumulatedRotationGyroscopeBiasJacobian_s[1,3]
+imuAccumulatedRotationGyroscopeBiasJacobian_s[1,2]
+imuAccumulatedRotationGyroscopeBiasJacobian_s[1,1]
+imuAccumulatedAccelerometerBiasLinearization_m_s2[3]
+imuAccumulatedAccelerometerBiasLinearization_m_s2[2]
+imuAccumulatedAccelerometerBiasLinearization_m_s2[1]
+imuAccumulatedGyroscopeBiasLinearization_rad_s[3]
+imuAccumulatedGyroscopeBiasLinearization_rad_s[2]
+imuAccumulatedGyroscopeBiasLinearization_rad_s[1]
+imuUpdatedDeltaPosition_m[3]
+imuUpdatedDeltaPosition_m[2]
+imuUpdatedDeltaPosition_m[1]
+imuUpdatedDeltaVelocity_m_s[3]
+imuUpdatedDeltaVelocity_m_s[2]
+imuUpdatedDeltaVelocity_m_s[1]
+imuUpdatedQuaternion[4]
+imuUpdatedQuaternion[3]
+imuUpdatedQuaternion[2]
+imuUpdatedQuaternion[1]
+imuPreviousMeasuredSpecificForce_m_s2[3]
+imuPreviousMeasuredSpecificForce_m_s2[2]
+imuPreviousMeasuredSpecificForce_m_s2[1]
+imuPreviousMeasuredAngularVelocity_rad_s[3]
+imuPreviousMeasuredAngularVelocity_rad_s[2]
+imuPreviousMeasuredAngularVelocity_rad_s[1]
+imuMeasuredSpecificForce_m_s2[3]
+imuMeasuredSpecificForce_m_s2[2]
+imuMeasuredSpecificForce_m_s2[1]
+imuMeasuredAngularVelocity_rad_s[3]
+imuMeasuredAngularVelocity_rad_s[2]
+imuMeasuredAngularVelocity_rad_s[1]
+imuAccumulatedTime_s
+imuAccumulatedDeltaPosition_m[3]
+imuAccumulatedDeltaPosition_m[2]
+imuAccumulatedDeltaPosition_m[1]
+imuAccumulatedDeltaVelocity_m_s[3]
+imuAccumulatedDeltaVelocity_m_s[2]
+imuAccumulatedDeltaVelocity_m_s[1]
+imuAccumulatedQuaternion[4]
+imuAccumulatedQuaternion[3]
+imuAccumulatedQuaternion[2]
+imuAccumulatedQuaternion[1]
+barometerPacketAltitudeWorldEnu_m
+barometerPacketTimestamp_s
+magnetometerPacketFieldBodyFlu_T[3]
+magnetometerPacketFieldBodyFlu_T[2]
+magnetometerPacketFieldBodyFlu_T[1]
+magnetometerPacketTimestamp_s
+opticalFlowPacketSurfaceVisibility
+opticalFlowPacketGroundDistance_m
+opticalFlowPacketIntegratedGyroscope_rad[3]
+opticalFlowPacketIntegratedGyroscope_rad[2]
+opticalFlowPacketIntegratedGyroscope_rad[1]
+opticalFlowPacketIntegratedLineOfSight_rad[2]
+opticalFlowPacketIntegratedLineOfSight_rad[1]
+opticalFlowPacketTimestamp_s
+gpsPacketVelocityWorldEnu_m_s[3]
+gpsPacketVelocityWorldEnu_m_s[2]
+gpsPacketVelocityWorldEnu_m_s[1]
+gpsPacketPositionWorldEnu_m[3]
+gpsPacketPositionWorldEnu_m[2]
+gpsPacketPositionWorldEnu_m[1]
+gpsPacketTimestamp_s
+magnetometerCaptureRotationWorldBody[3,3]
+magnetometerCaptureRotationWorldBody[3,2]
+magnetometerCaptureRotationWorldBody[3,1]
+magnetometerCaptureRotationWorldBody[2,3]
+magnetometerCaptureRotationWorldBody[2,2]
+magnetometerCaptureRotationWorldBody[2,1]
+magnetometerCaptureRotationWorldBody[1,3]
+magnetometerCaptureRotationWorldBody[1,2]
+magnetometerCaptureRotationWorldBody[1,1]
+opticalFlowCaptureAngularVelocityBodyFlu_rad_s[3]
+opticalFlowCaptureAngularVelocityBodyFlu_rad_s[2]
+opticalFlowCaptureAngularVelocityBodyFlu_rad_s[1]
+opticalFlowCaptureRotationWorldBody[3,3]
+opticalFlowCaptureRotationWorldBody[3,2]
+opticalFlowCaptureRotationWorldBody[3,1]
+opticalFlowCaptureRotationWorldBody[2,3]
+opticalFlowCaptureRotationWorldBody[2,2]
+opticalFlowCaptureRotationWorldBody[2,1]
+opticalFlowCaptureRotationWorldBody[1,3]
+opticalFlowCaptureRotationWorldBody[1,2]
+opticalFlowCaptureRotationWorldBody[1,1]
+opticalFlowCaptureVelocityWorldEnu_m_s[3]
+opticalFlowCaptureVelocityWorldEnu_m_s[2]
+opticalFlowCaptureVelocityWorldEnu_m_s[1]
+opticalFlowCapturePositionWorldEnu_m[3]
+opticalFlowCapturePositionWorldEnu_m[2]
+opticalFlowCapturePositionWorldEnu_m[1]
+gpsCaptureVelocityWorldEnu_m_s[3]
+gpsCaptureVelocityWorldEnu_m_s[2]
+gpsCaptureVelocityWorldEnu_m_s[1]
+gpsCapturePositionWorldEnu_m[3]
+gpsCapturePositionWorldEnu_m[2]
+gpsCapturePositionWorldEnu_m[1]
+mocapPacketQuaternionWorldBody[4]
+mocapPacketQuaternionWorldBody[3]
+mocapPacketQuaternionWorldBody[2]
+mocapPacketQuaternionWorldBody[1]
+mocapPacketPositionWorldEnu_m[3]
+mocapPacketPositionWorldEnu_m[2]
+mocapPacketPositionWorldEnu_m[1]
+mocapPacketTimestamp_s
+mocapAttitudeNoise_rad[3]
+mocapAttitudeNoise_rad[2]
+mocapAttitudeNoise_rad[1]
+mocapPositionNoise_m[3]
+mocapPositionNoise_m[2]
+mocapPositionNoise_m[1]
+mocapCaptureQuaternionWorldBody[4]
+mocapCaptureQuaternionWorldBody[3]
+mocapCaptureQuaternionWorldBody[2]
+mocapCaptureQuaternionWorldBody[1]
+mocapCapturePositionWorldEnu_m[3]
+mocapCapturePositionWorldEnu_m[2]
+mocapCapturePositionWorldEnu_m[1]
+mocapDelayedQuaternionWorldBody[4]
+mocapDelayedQuaternionWorldBody[3]
+mocapDelayedQuaternionWorldBody[2]
+mocapDelayedQuaternionWorldBody[1]
+mocapDelayedPositionWorldEnu_m[3]
+mocapDelayedPositionWorldEnu_m[2]
+mocapDelayedPositionWorldEnu_m[1]
+imuAccelerometerBiasDrivingNoise[3]
+imuAccelerometerBiasDrivingNoise[2]
+imuAccelerometerBiasDrivingNoise[1]
+imuGyroscopeBiasDrivingNoise[3]
+imuGyroscopeBiasDrivingNoise[2]
+imuGyroscopeBiasDrivingNoise[1]
+opticalFlowSurfaceVisibility
+imuAccelerometerBias_m_s2[3]
+imuAccelerometerBias_m_s2[2]
+imuAccelerometerBias_m_s2[1]
+imuGyroscopeBias_rad_s[3]
+imuGyroscopeBias_rad_s[2]
+imuGyroscopeBias_rad_s[1]
+imuPreintegrationTime_s
+imuPreintegratedDeltaPosition_m[3]
+imuPreintegratedDeltaPosition_m[2]
+imuPreintegratedDeltaPosition_m[1]
+imuPreintegratedDeltaVelocity_m_s[3]
+imuPreintegratedDeltaVelocity_m_s[2]
+imuPreintegratedDeltaVelocity_m_s[1]
+imuPreintegratedDeltaAngle_rad[3]
+imuPreintegratedDeltaAngle_rad[2]
+imuPreintegratedDeltaAngle_rad[1]
+imuSpecificForceNoise_m_s2[3]
+imuSpecificForceNoise_m_s2[2]
+imuSpecificForceNoise_m_s2[1]
+imuAngularVelocityNoise_rad_s[3]
+imuAngularVelocityNoise_rad_s[2]
+imuAngularVelocityNoise_rad_s[1]
+opticalFlowSurfaceVisible
+barometerIdealAltitudeWorldEnu_m
+barometerNoise_m
+magnetometerIdealFieldBodyFlu_T[3]
+magnetometerIdealFieldBodyFlu_T[2]
+magnetometerIdealFieldBodyFlu_T[1]
+magnetometerNoiseBodyFlu_T[3]
+magnetometerNoiseBodyFlu_T[2]
+magnetometerNoiseBodyFlu_T[1]
+opticalFlowIdealGroundDistance_m
+opticalFlowIdealIntegratedLineOfSight_rad[2]
+opticalFlowIdealIntegratedLineOfSight_rad[1]
+opticalFlowGroundDistanceNoise_m
+opticalFlowGyroscopeIntegratedNoise_rad[3]
+opticalFlowGyroscopeIntegratedNoise_rad[2]
+opticalFlowGyroscopeIntegratedNoise_rad[1]
+opticalFlowGyroscopeNoise_rad_s[3]
+opticalFlowGyroscopeNoise_rad_s[2]
+opticalFlowGyroscopeNoise_rad_s[1]
+opticalFlowIntegratedNoise_rad[2]
+opticalFlowIntegratedNoise_rad[1]
+gpsVelocityNoise_m_s[3]
+gpsVelocityNoise_m_s[2]
+gpsVelocityNoise_m_s[1]
+gpsPositionNoise_m[3]
+gpsPositionNoise_m[2]
+gpsPositionNoise_m[1]
+controllerEstimatorFeedbackError_m
+navigationError_m
+referenceTrackingError_m
+referenceYaw_rad
+referenceVelocityWorldEnu_m_s[3]
+referenceVelocityWorldEnu_m_s[2]
+referenceVelocityWorldEnu_m_s[1]
+referencePositionWorldEnu_m[3]
+referencePositionWorldEnu_m[2]
+referencePositionWorldEnu_m[1]
+flightMode
+missionPhase
+geodetic[3]
+geodetic[2]
+geodetic[1]
+thrust_N
+motorCommand[4]
+motorCommand[3]
+motorCommand[2]
+motorCommand[1]
+euler_rad[3]
+euler_rad[2]
+euler_rad[1]
+velocity_m_s[3]
+velocity_m_s[2]
+velocity_m_s[1]
+position_m[3]
+position_m[2]
+position_m[1]
+armed
+estimator.zeroVelocityCorrectionAccepted
+estimator.pseudoPositionCorrectionAccepted
+estimator.quietAngularRate_rad_s[3]
+estimator.quietAngularRate_rad_s[2]
+estimator.quietAngularRate_rad_s[1]
+estimator.alignmentSpecificForce_m_s2[3]
+estimator.alignmentSpecificForce_m_s2[2]
+estimator.alignmentSpecificForce_m_s2[1]
+estimator.alignmentSource
+estimator.pseudoPositionHold_m[3]
+estimator.pseudoPositionHold_m[2]
+estimator.pseudoPositionHold_m[1]
+estimator.alignmentWait_s
+estimator.quietElapsed_s
+estimator.barometerBiasTimestampConsumed_s
+estimator.opticalFlowTimestampConsumed_s
+estimator.barometerTimestampConsumed_s
+estimator.magnetometerTimestampConsumed_s
+estimator.gpsTimestampConsumed_s
+estimator.mocapTimestampConsumed_s
+estimator.imuPayloadHeld
+estimator.imuTimestampHeld_s
+estimator.imuSpecificForceHeld_m_s2[3]
+estimator.imuSpecificForceHeld_m_s2[2]
+estimator.imuSpecificForceHeld_m_s2[1]
+estimator.imuAngularVelocityHeld_rad_s[3]
+estimator.imuAngularVelocityHeld_rad_s[2]
+estimator.imuAngularVelocityHeld_rad_s[1]
+estimator.opticalFlowStale_s
+estimator.gpsStale_s
+estimator.mocapStale_s
+estimator.anchorSource
+estimator.reseedCount
+estimator.reseeded
+estimator.estimateValid
+estimator.normalizedInnovationSquared
+estimator.acceptedCorrectionCount
+estimator.correctionSource
+estimator.correctionOutcome
+estimator.recoveryStage
+estimator.opticalFlowRejections
+estimator.gpsRejections
+estimator.mocapRejections
+estimator.rejectionElapsed_s
+estimator.consecutiveRejectedCorrections
+estimator.auxiliaryPredictedVariance_m2
+estimator.terrainCorrectionAccepted
+estimator.stateTerrainVariance_m2
+estimator.stateTerrainAltitude_m
+estimator.terrainInitialized
+estimator.stateBarometerBiasVariance_m2
+estimator.stateBarometerBias_m
+estimator.barometerBiasUpdateAccepted
+estimator.barometerBiasInitialized
+estimator.opticalFlowCorrectionAccepted
+estimator.barometerCorrectionAccepted
+estimator.magnetometerCorrectionAccepted
+estimator.gpsVelocityCorrectionAccepted
+estimator.gpsPositionCorrectionAccepted
+estimator.mocapCorrectionAccepted
+estimator.predictionAccepted
+estimator.initialized
+estimator.stateCovariance[15,15]
+estimator.stateCovariance[15,14]
+estimator.stateCovariance[15,13]
+estimator.stateCovariance[15,12]
+estimator.stateCovariance[15,11]
+estimator.stateCovariance[15,10]
+estimator.stateCovariance[15,9]
+estimator.stateCovariance[15,8]
+estimator.stateCovariance[15,7]
+estimator.stateCovariance[15,6]
+estimator.stateCovariance[15,5]
+estimator.stateCovariance[15,4]
+estimator.stateCovariance[15,3]
+estimator.stateCovariance[15,2]
+estimator.stateCovariance[15,1]
+estimator.stateCovariance[14,15]
+estimator.stateCovariance[14,14]
+estimator.stateCovariance[14,13]
+estimator.stateCovariance[14,12]
+estimator.stateCovariance[14,11]
+estimator.stateCovariance[14,10]
+estimator.stateCovariance[14,9]
+estimator.stateCovariance[14,8]
+estimator.stateCovariance[14,7]
+estimator.stateCovariance[14,6]
+estimator.stateCovariance[14,5]
+estimator.stateCovariance[14,4]
+estimator.stateCovariance[14,3]
+estimator.stateCovariance[14,2]
+estimator.stateCovariance[14,1]
+estimator.stateCovariance[13,15]
+estimator.stateCovariance[13,14]
+estimator.stateCovariance[13,13]
+estimator.stateCovariance[13,12]
+estimator.stateCovariance[13,11]
+estimator.stateCovariance[13,10]
+estimator.stateCovariance[13,9]
+estimator.stateCovariance[13,8]
+estimator.stateCovariance[13,7]
+estimator.stateCovariance[13,6]
+estimator.stateCovariance[13,5]
+estimator.stateCovariance[13,4]
+estimator.stateCovariance[13,3]
+estimator.stateCovariance[13,2]
+estimator.stateCovariance[13,1]
+estimator.stateCovariance[12,15]
+estimator.stateCovariance[12,14]
+estimator.stateCovariance[12,13]
+estimator.stateCovariance[12,12]
+estimator.stateCovariance[12,11]
+estimator.stateCovariance[12,10]
+estimator.stateCovariance[12,9]
+estimator.stateCovariance[12,8]
+estimator.stateCovariance[12,7]
+estimator.stateCovariance[12,6]
+estimator.stateCovariance[12,5]
+estimator.stateCovariance[12,4]
+estimator.stateCovariance[12,3]
+estimator.stateCovariance[12,2]
+estimator.stateCovariance[12,1]
+estimator.stateCovariance[11,15]
+estimator.stateCovariance[11,14]
+estimator.stateCovariance[11,13]
+estimator.stateCovariance[11,12]
+estimator.stateCovariance[11,11]
+estimator.stateCovariance[11,10]
+estimator.stateCovariance[11,9]
+estimator.stateCovariance[11,8]
+estimator.stateCovariance[11,7]
+estimator.stateCovariance[11,6]
+estimator.stateCovariance[11,5]
+estimator.stateCovariance[11,4]
+estimator.stateCovariance[11,3]
+estimator.stateCovariance[11,2]
+estimator.stateCovariance[11,1]
+estimator.stateCovariance[10,15]
+estimator.stateCovariance[10,14]
+estimator.stateCovariance[10,13]
+estimator.stateCovariance[10,12]
+estimator.stateCovariance[10,11]
+estimator.stateCovariance[10,10]
+estimator.stateCovariance[10,9]
+estimator.stateCovariance[10,8]
+estimator.stateCovariance[10,7]
+estimator.stateCovariance[10,6]
+estimator.stateCovariance[10,5]
+estimator.stateCovariance[10,4]
+estimator.stateCovariance[10,3]
+estimator.stateCovariance[10,2]
+estimator.stateCovariance[10,1]
+estimator.stateCovariance[9,15]
+estimator.stateCovariance[9,14]
+estimator.stateCovariance[9,13]
+estimator.stateCovariance[9,12]
+estimator.stateCovariance[9,11]
+estimator.stateCovariance[9,10]
+estimator.stateCovariance[9,9]
+estimator.stateCovariance[9,8]
+estimator.stateCovariance[9,7]
+estimator.stateCovariance[9,6]
+estimator.stateCovariance[9,5]
+estimator.stateCovariance[9,4]
+estimator.stateCovariance[9,3]
+estimator.stateCovariance[9,2]
+estimator.stateCovariance[9,1]
+estimator.stateCovariance[8,15]
+estimator.stateCovariance[8,14]
+estimator.stateCovariance[8,13]
+estimator.stateCovariance[8,12]
+estimator.stateCovariance[8,11]
+estimator.stateCovariance[8,10]
+estimator.stateCovariance[8,9]
+estimator.stateCovariance[8,8]
+estimator.stateCovariance[8,7]
+estimator.stateCovariance[8,6]
+estimator.stateCovariance[8,5]
+estimator.stateCovariance[8,4]
+estimator.stateCovariance[8,3]
+estimator.stateCovariance[8,2]
+estimator.stateCovariance[8,1]
+estimator.stateCovariance[7,15]
+estimator.stateCovariance[7,14]
+estimator.stateCovariance[7,13]
+estimator.stateCovariance[7,12]
+estimator.stateCovariance[7,11]
+estimator.stateCovariance[7,10]
+estimator.stateCovariance[7,9]
+estimator.stateCovariance[7,8]
+estimator.stateCovariance[7,7]
+estimator.stateCovariance[7,6]
+estimator.stateCovariance[7,5]
+estimator.stateCovariance[7,4]
+estimator.stateCovariance[7,3]
+estimator.stateCovariance[7,2]
+estimator.stateCovariance[7,1]
+estimator.stateCovariance[6,15]
+estimator.stateCovariance[6,14]
+estimator.stateCovariance[6,13]
+estimator.stateCovariance[6,12]
+estimator.stateCovariance[6,11]
+estimator.stateCovariance[6,10]
+estimator.stateCovariance[6,9]
+estimator.stateCovariance[6,8]
+estimator.stateCovariance[6,7]
+estimator.stateCovariance[6,6]
+estimator.stateCovariance[6,5]
+estimator.stateCovariance[6,4]
+estimator.stateCovariance[6,3]
+estimator.stateCovariance[6,2]
+estimator.stateCovariance[6,1]
+estimator.stateCovariance[5,15]
+estimator.stateCovariance[5,14]
+estimator.stateCovariance[5,13]
+estimator.stateCovariance[5,12]
+estimator.stateCovariance[5,11]
+estimator.stateCovariance[5,10]
+estimator.stateCovariance[5,9]
+estimator.stateCovariance[5,8]
+estimator.stateCovariance[5,7]
+estimator.stateCovariance[5,6]
+estimator.stateCovariance[5,5]
+estimator.stateCovariance[5,4]
+estimator.stateCovariance[5,3]
+estimator.stateCovariance[5,2]
+estimator.stateCovariance[5,1]
+estimator.stateCovariance[4,15]
+estimator.stateCovariance[4,14]
+estimator.stateCovariance[4,13]
+estimator.stateCovariance[4,12]
+estimator.stateCovariance[4,11]
+estimator.stateCovariance[4,10]
+estimator.stateCovariance[4,9]
+estimator.stateCovariance[4,8]
+estimator.stateCovariance[4,7]
+estimator.stateCovariance[4,6]
+estimator.stateCovariance[4,5]
+estimator.stateCovariance[4,4]
+estimator.stateCovariance[4,3]
+estimator.stateCovariance[4,2]
+estimator.stateCovariance[4,1]
+estimator.stateCovariance[3,15]
+estimator.stateCovariance[3,14]
+estimator.stateCovariance[3,13]
+estimator.stateCovariance[3,12]
+estimator.stateCovariance[3,11]
+estimator.stateCovariance[3,10]
+estimator.stateCovariance[3,9]
+estimator.stateCovariance[3,8]
+estimator.stateCovariance[3,7]
+estimator.stateCovariance[3,6]
+estimator.stateCovariance[3,5]
+estimator.stateCovariance[3,4]
+estimator.stateCovariance[3,3]
+estimator.stateCovariance[3,2]
+estimator.stateCovariance[3,1]
+estimator.stateCovariance[2,15]
+estimator.stateCovariance[2,14]
+estimator.stateCovariance[2,13]
+estimator.stateCovariance[2,12]
+estimator.stateCovariance[2,11]
+estimator.stateCovariance[2,10]
+estimator.stateCovariance[2,9]
+estimator.stateCovariance[2,8]
+estimator.stateCovariance[2,7]
+estimator.stateCovariance[2,6]
+estimator.stateCovariance[2,5]
+estimator.stateCovariance[2,4]
+estimator.stateCovariance[2,3]
+estimator.stateCovariance[2,2]
+estimator.stateCovariance[2,1]
+estimator.stateCovariance[1,15]
+estimator.stateCovariance[1,14]
+estimator.stateCovariance[1,13]
+estimator.stateCovariance[1,12]
+estimator.stateCovariance[1,11]
+estimator.stateCovariance[1,10]
+estimator.stateCovariance[1,9]
+estimator.stateCovariance[1,8]
+estimator.stateCovariance[1,7]
+estimator.stateCovariance[1,6]
+estimator.stateCovariance[1,5]
+estimator.stateCovariance[1,4]
+estimator.stateCovariance[1,3]
+estimator.stateCovariance[1,2]
+estimator.stateCovariance[1,1]
+estimator.stateCovarianceRoot[15,15]
+estimator.stateCovarianceRoot[15,14]
+estimator.stateCovarianceRoot[15,13]
+estimator.stateCovarianceRoot[15,12]
+estimator.stateCovarianceRoot[15,11]
+estimator.stateCovarianceRoot[15,10]
+estimator.stateCovarianceRoot[15,9]
+estimator.stateCovarianceRoot[15,8]
+estimator.stateCovarianceRoot[15,7]
+estimator.stateCovarianceRoot[15,6]
+estimator.stateCovarianceRoot[15,5]
+estimator.stateCovarianceRoot[15,4]
+estimator.stateCovarianceRoot[15,3]
+estimator.stateCovarianceRoot[15,2]
+estimator.stateCovarianceRoot[15,1]
+estimator.stateCovarianceRoot[14,15]
+estimator.stateCovarianceRoot[14,14]
+estimator.stateCovarianceRoot[14,13]
+estimator.stateCovarianceRoot[14,12]
+estimator.stateCovarianceRoot[14,11]
+estimator.stateCovarianceRoot[14,10]
+estimator.stateCovarianceRoot[14,9]
+estimator.stateCovarianceRoot[14,8]
+estimator.stateCovarianceRoot[14,7]
+estimator.stateCovarianceRoot[14,6]
+estimator.stateCovarianceRoot[14,5]
+estimator.stateCovarianceRoot[14,4]
+estimator.stateCovarianceRoot[14,3]
+estimator.stateCovarianceRoot[14,2]
+estimator.stateCovarianceRoot[14,1]
+estimator.stateCovarianceRoot[13,15]
+estimator.stateCovarianceRoot[13,14]
+estimator.stateCovarianceRoot[13,13]
+estimator.stateCovarianceRoot[13,12]
+estimator.stateCovarianceRoot[13,11]
+estimator.stateCovarianceRoot[13,10]
+estimator.stateCovarianceRoot[13,9]
+estimator.stateCovarianceRoot[13,8]
+estimator.stateCovarianceRoot[13,7]
+estimator.stateCovarianceRoot[13,6]
+estimator.stateCovarianceRoot[13,5]
+estimator.stateCovarianceRoot[13,4]
+estimator.stateCovarianceRoot[13,3]
+estimator.stateCovarianceRoot[13,2]
+estimator.stateCovarianceRoot[13,1]
+estimator.stateCovarianceRoot[12,15]
+estimator.stateCovarianceRoot[12,14]
+estimator.stateCovarianceRoot[12,13]
+estimator.stateCovarianceRoot[12,12]
+estimator.stateCovarianceRoot[12,11]
+estimator.stateCovarianceRoot[12,10]
+estimator.stateCovarianceRoot[12,9]
+estimator.stateCovarianceRoot[12,8]
+estimator.stateCovarianceRoot[12,7]
+estimator.stateCovarianceRoot[12,6]
+estimator.stateCovarianceRoot[12,5]
+estimator.stateCovarianceRoot[12,4]
+estimator.stateCovarianceRoot[12,3]
+estimator.stateCovarianceRoot[12,2]
+estimator.stateCovarianceRoot[12,1]
+estimator.stateCovarianceRoot[11,15]
+estimator.stateCovarianceRoot[11,14]
+estimator.stateCovarianceRoot[11,13]
+estimator.stateCovarianceRoot[11,12]
+estimator.stateCovarianceRoot[11,11]
+estimator.stateCovarianceRoot[11,10]
+estimator.stateCovarianceRoot[11,9]
+estimator.stateCovarianceRoot[11,8]
+estimator.stateCovarianceRoot[11,7]
+estimator.stateCovarianceRoot[11,6]
+estimator.stateCovarianceRoot[11,5]
+estimator.stateCovarianceRoot[11,4]
+estimator.stateCovarianceRoot[11,3]
+estimator.stateCovarianceRoot[11,2]
+estimator.stateCovarianceRoot[11,1]
+estimator.stateCovarianceRoot[10,15]
+estimator.stateCovarianceRoot[10,14]
+estimator.stateCovarianceRoot[10,13]
+estimator.stateCovarianceRoot[10,12]
+estimator.stateCovarianceRoot[10,11]
+estimator.stateCovarianceRoot[10,10]
+estimator.stateCovarianceRoot[10,9]
+estimator.stateCovarianceRoot[10,8]
+estimator.stateCovarianceRoot[10,7]
+estimator.stateCovarianceRoot[10,6]
+estimator.stateCovarianceRoot[10,5]
+estimator.stateCovarianceRoot[10,4]
+estimator.stateCovarianceRoot[10,3]
+estimator.stateCovarianceRoot[10,2]
+estimator.stateCovarianceRoot[10,1]
+estimator.stateCovarianceRoot[9,15]
+estimator.stateCovarianceRoot[9,14]
+estimator.stateCovarianceRoot[9,13]
+estimator.stateCovarianceRoot[9,12]
+estimator.stateCovarianceRoot[9,11]
+estimator.stateCovarianceRoot[9,10]
+estimator.stateCovarianceRoot[9,9]
+estimator.stateCovarianceRoot[9,8]
+estimator.stateCovarianceRoot[9,7]
+estimator.stateCovarianceRoot[9,6]
+estimator.stateCovarianceRoot[9,5]
+estimator.stateCovarianceRoot[9,4]
+estimator.stateCovarianceRoot[9,3]
+estimator.stateCovarianceRoot[9,2]
+estimator.stateCovarianceRoot[9,1]
+estimator.stateCovarianceRoot[8,15]
+estimator.stateCovarianceRoot[8,14]
+estimator.stateCovarianceRoot[8,13]
+estimator.stateCovarianceRoot[8,12]
+estimator.stateCovarianceRoot[8,11]
+estimator.stateCovarianceRoot[8,10]
+estimator.stateCovarianceRoot[8,9]
+estimator.stateCovarianceRoot[8,8]
+estimator.stateCovarianceRoot[8,7]
+estimator.stateCovarianceRoot[8,6]
+estimator.stateCovarianceRoot[8,5]
+estimator.stateCovarianceRoot[8,4]
+estimator.stateCovarianceRoot[8,3]
+estimator.stateCovarianceRoot[8,2]
+estimator.stateCovarianceRoot[8,1]
+estimator.stateCovarianceRoot[7,15]
+estimator.stateCovarianceRoot[7,14]
+estimator.stateCovarianceRoot[7,13]
+estimator.stateCovarianceRoot[7,12]
+estimator.stateCovarianceRoot[7,11]
+estimator.stateCovarianceRoot[7,10]
+estimator.stateCovarianceRoot[7,9]
+estimator.stateCovarianceRoot[7,8]
+estimator.stateCovarianceRoot[7,7]
+estimator.stateCovarianceRoot[7,6]
+estimator.stateCovarianceRoot[7,5]
+estimator.stateCovarianceRoot[7,4]
+estimator.stateCovarianceRoot[7,3]
+estimator.stateCovarianceRoot[7,2]
+estimator.stateCovarianceRoot[7,1]
+estimator.stateCovarianceRoot[6,15]
+estimator.stateCovarianceRoot[6,14]
+estimator.stateCovarianceRoot[6,13]
+estimator.stateCovarianceRoot[6,12]
+estimator.stateCovarianceRoot[6,11]
+estimator.stateCovarianceRoot[6,10]
+estimator.stateCovarianceRoot[6,9]
+estimator.stateCovarianceRoot[6,8]
+estimator.stateCovarianceRoot[6,7]
+estimator.stateCovarianceRoot[6,6]
+estimator.stateCovarianceRoot[6,5]
+estimator.stateCovarianceRoot[6,4]
+estimator.stateCovarianceRoot[6,3]
+estimator.stateCovarianceRoot[6,2]
+estimator.stateCovarianceRoot[6,1]
+estimator.stateCovarianceRoot[5,15]
+estimator.stateCovarianceRoot[5,14]
+estimator.stateCovarianceRoot[5,13]
+estimator.stateCovarianceRoot[5,12]
+estimator.stateCovarianceRoot[5,11]
+estimator.stateCovarianceRoot[5,10]
+estimator.stateCovarianceRoot[5,9]
+estimator.stateCovarianceRoot[5,8]
+estimator.stateCovarianceRoot[5,7]
+estimator.stateCovarianceRoot[5,6]
+estimator.stateCovarianceRoot[5,5]
+estimator.stateCovarianceRoot[5,4]
+estimator.stateCovarianceRoot[5,3]
+estimator.stateCovarianceRoot[5,2]
+estimator.stateCovarianceRoot[5,1]
+estimator.stateCovarianceRoot[4,15]
+estimator.stateCovarianceRoot[4,14]
+estimator.stateCovarianceRoot[4,13]
+estimator.stateCovarianceRoot[4,12]
+estimator.stateCovarianceRoot[4,11]
+estimator.stateCovarianceRoot[4,10]
+estimator.stateCovarianceRoot[4,9]
+estimator.stateCovarianceRoot[4,8]
+estimator.stateCovarianceRoot[4,7]
+estimator.stateCovarianceRoot[4,6]
+estimator.stateCovarianceRoot[4,5]
+estimator.stateCovarianceRoot[4,4]
+estimator.stateCovarianceRoot[4,3]
+estimator.stateCovarianceRoot[4,2]
+estimator.stateCovarianceRoot[4,1]
+estimator.stateCovarianceRoot[3,15]
+estimator.stateCovarianceRoot[3,14]
+estimator.stateCovarianceRoot[3,13]
+estimator.stateCovarianceRoot[3,12]
+estimator.stateCovarianceRoot[3,11]
+estimator.stateCovarianceRoot[3,10]
+estimator.stateCovarianceRoot[3,9]
+estimator.stateCovarianceRoot[3,8]
+estimator.stateCovarianceRoot[3,7]
+estimator.stateCovarianceRoot[3,6]
+estimator.stateCovarianceRoot[3,5]
+estimator.stateCovarianceRoot[3,4]
+estimator.stateCovarianceRoot[3,3]
+estimator.stateCovarianceRoot[3,2]
+estimator.stateCovarianceRoot[3,1]
+estimator.stateCovarianceRoot[2,15]
+estimator.stateCovarianceRoot[2,14]
+estimator.stateCovarianceRoot[2,13]
+estimator.stateCovarianceRoot[2,12]
+estimator.stateCovarianceRoot[2,11]
+estimator.stateCovarianceRoot[2,10]
+estimator.stateCovarianceRoot[2,9]
+estimator.stateCovarianceRoot[2,8]
+estimator.stateCovarianceRoot[2,7]
+estimator.stateCovarianceRoot[2,6]
+estimator.stateCovarianceRoot[2,5]
+estimator.stateCovarianceRoot[2,4]
+estimator.stateCovarianceRoot[2,3]
+estimator.stateCovarianceRoot[2,2]
+estimator.stateCovarianceRoot[2,1]
+estimator.stateCovarianceRoot[1,15]
+estimator.stateCovarianceRoot[1,14]
+estimator.stateCovarianceRoot[1,13]
+estimator.stateCovarianceRoot[1,12]
+estimator.stateCovarianceRoot[1,11]
+estimator.stateCovarianceRoot[1,10]
+estimator.stateCovarianceRoot[1,9]
+estimator.stateCovarianceRoot[1,8]
+estimator.stateCovarianceRoot[1,7]
+estimator.stateCovarianceRoot[1,6]
+estimator.stateCovarianceRoot[1,5]
+estimator.stateCovarianceRoot[1,4]
+estimator.stateCovarianceRoot[1,3]
+estimator.stateCovarianceRoot[1,2]
+estimator.stateCovarianceRoot[1,1]
+estimator.stateAccelerometerBias[3]
+estimator.stateAccelerometerBias[2]
+estimator.stateAccelerometerBias[1]
+estimator.stateGyroscopeBias[3]
+estimator.stateGyroscopeBias[2]
+estimator.stateGyroscopeBias[1]
+estimator.stateQuaternion[4]
+estimator.stateQuaternion[3]
+estimator.stateQuaternion[2]
+estimator.stateQuaternion[1]
+estimator.stateVelocity[3]
+estimator.stateVelocity[2]
+estimator.stateVelocity[1]
+estimator.statePosition[3]
+estimator.statePosition[2]
+estimator.statePosition[1]
+estimator.estimatedAccelerometerBias_m_s2[3]
+estimator.estimatedAccelerometerBias_m_s2[2]
+estimator.estimatedAccelerometerBias_m_s2[1]
+estimator.estimatedGyroscopeBias_rad_s[3]
+estimator.estimatedGyroscopeBias_rad_s[2]
+estimator.estimatedGyroscopeBias_rad_s[1]
+estimator.errorCovariance[15,15]
+estimator.errorCovariance[15,14]
+estimator.errorCovariance[15,13]
+estimator.errorCovariance[15,12]
+estimator.errorCovariance[15,11]
+estimator.errorCovariance[15,10]
+estimator.errorCovariance[15,9]
+estimator.errorCovariance[15,8]
+estimator.errorCovariance[15,7]
+estimator.errorCovariance[15,6]
+estimator.errorCovariance[15,5]
+estimator.errorCovariance[15,4]
+estimator.errorCovariance[15,3]
+estimator.errorCovariance[15,2]
+estimator.errorCovariance[15,1]
+estimator.errorCovariance[14,15]
+estimator.errorCovariance[14,14]
+estimator.errorCovariance[14,13]
+estimator.errorCovariance[14,12]
+estimator.errorCovariance[14,11]
+estimator.errorCovariance[14,10]
+estimator.errorCovariance[14,9]
+estimator.errorCovariance[14,8]
+estimator.errorCovariance[14,7]
+estimator.errorCovariance[14,6]
+estimator.errorCovariance[14,5]
+estimator.errorCovariance[14,4]
+estimator.errorCovariance[14,3]
+estimator.errorCovariance[14,2]
+estimator.errorCovariance[14,1]
+estimator.errorCovariance[13,15]
+estimator.errorCovariance[13,14]
+estimator.errorCovariance[13,13]
+estimator.errorCovariance[13,12]
+estimator.errorCovariance[13,11]
+estimator.errorCovariance[13,10]
+estimator.errorCovariance[13,9]
+estimator.errorCovariance[13,8]
+estimator.errorCovariance[13,7]
+estimator.errorCovariance[13,6]
+estimator.errorCovariance[13,5]
+estimator.errorCovariance[13,4]
+estimator.errorCovariance[13,3]
+estimator.errorCovariance[13,2]
+estimator.errorCovariance[13,1]
+estimator.errorCovariance[12,15]
+estimator.errorCovariance[12,14]
+estimator.errorCovariance[12,13]
+estimator.errorCovariance[12,12]
+estimator.errorCovariance[12,11]
+estimator.errorCovariance[12,10]
+estimator.errorCovariance[12,9]
+estimator.errorCovariance[12,8]
+estimator.errorCovariance[12,7]
+estimator.errorCovariance[12,6]
+estimator.errorCovariance[12,5]
+estimator.errorCovariance[12,4]
+estimator.errorCovariance[12,3]
+estimator.errorCovariance[12,2]
+estimator.errorCovariance[12,1]
+estimator.errorCovariance[11,15]
+estimator.errorCovariance[11,14]
+estimator.errorCovariance[11,13]
+estimator.errorCovariance[11,12]
+estimator.errorCovariance[11,11]
+estimator.errorCovariance[11,10]
+estimator.errorCovariance[11,9]
+estimator.errorCovariance[11,8]
+estimator.errorCovariance[11,7]
+estimator.errorCovariance[11,6]
+estimator.errorCovariance[11,5]
+estimator.errorCovariance[11,4]
+estimator.errorCovariance[11,3]
+estimator.errorCovariance[11,2]
+estimator.errorCovariance[11,1]
+estimator.errorCovariance[10,15]
+estimator.errorCovariance[10,14]
+estimator.errorCovariance[10,13]
+estimator.errorCovariance[10,12]
+estimator.errorCovariance[10,11]
+estimator.errorCovariance[10,10]
+estimator.errorCovariance[10,9]
+estimator.errorCovariance[10,8]
+estimator.errorCovariance[10,7]
+estimator.errorCovariance[10,6]
+estimator.errorCovariance[10,5]
+estimator.errorCovariance[10,4]
+estimator.errorCovariance[10,3]
+estimator.errorCovariance[10,2]
+estimator.errorCovariance[10,1]
+estimator.errorCovariance[9,15]
+estimator.errorCovariance[9,14]
+estimator.errorCovariance[9,13]
+estimator.errorCovariance[9,12]
+estimator.errorCovariance[9,11]
+estimator.errorCovariance[9,10]
+estimator.errorCovariance[9,9]
+estimator.errorCovariance[9,8]
+estimator.errorCovariance[9,7]
+estimator.errorCovariance[9,6]
+estimator.errorCovariance[9,5]
+estimator.errorCovariance[9,4]
+estimator.errorCovariance[9,3]
+estimator.errorCovariance[9,2]
+estimator.errorCovariance[9,1]
+estimator.errorCovariance[8,15]
+estimator.errorCovariance[8,14]
+estimator.errorCovariance[8,13]
+estimator.errorCovariance[8,12]
+estimator.errorCovariance[8,11]
+estimator.errorCovariance[8,10]
+estimator.errorCovariance[8,9]
+estimator.errorCovariance[8,8]
+estimator.errorCovariance[8,7]
+estimator.errorCovariance[8,6]
+estimator.errorCovariance[8,5]
+estimator.errorCovariance[8,4]
+estimator.errorCovariance[8,3]
+estimator.errorCovariance[8,2]
+estimator.errorCovariance[8,1]
+estimator.errorCovariance[7,15]
+estimator.errorCovariance[7,14]
+estimator.errorCovariance[7,13]
+estimator.errorCovariance[7,12]
+estimator.errorCovariance[7,11]
+estimator.errorCovariance[7,10]
+estimator.errorCovariance[7,9]
+estimator.errorCovariance[7,8]
+estimator.errorCovariance[7,7]
+estimator.errorCovariance[7,6]
+estimator.errorCovariance[7,5]
+estimator.errorCovariance[7,4]
+estimator.errorCovariance[7,3]
+estimator.errorCovariance[7,2]
+estimator.errorCovariance[7,1]
+estimator.errorCovariance[6,15]
+estimator.errorCovariance[6,14]
+estimator.errorCovariance[6,13]
+estimator.errorCovariance[6,12]
+estimator.errorCovariance[6,11]
+estimator.errorCovariance[6,10]
+estimator.errorCovariance[6,9]
+estimator.errorCovariance[6,8]
+estimator.errorCovariance[6,7]
+estimator.errorCovariance[6,6]
+estimator.errorCovariance[6,5]
+estimator.errorCovariance[6,4]
+estimator.errorCovariance[6,3]
+estimator.errorCovariance[6,2]
+estimator.errorCovariance[6,1]
+estimator.errorCovariance[5,15]
+estimator.errorCovariance[5,14]
+estimator.errorCovariance[5,13]
+estimator.errorCovariance[5,12]
+estimator.errorCovariance[5,11]
+estimator.errorCovariance[5,10]
+estimator.errorCovariance[5,9]
+estimator.errorCovariance[5,8]
+estimator.errorCovariance[5,7]
+estimator.errorCovariance[5,6]
+estimator.errorCovariance[5,5]
+estimator.errorCovariance[5,4]
+estimator.errorCovariance[5,3]
+estimator.errorCovariance[5,2]
+estimator.errorCovariance[5,1]
+estimator.errorCovariance[4,15]
+estimator.errorCovariance[4,14]
+estimator.errorCovariance[4,13]
+estimator.errorCovariance[4,12]
+estimator.errorCovariance[4,11]
+estimator.errorCovariance[4,10]
+estimator.errorCovariance[4,9]
+estimator.errorCovariance[4,8]
+estimator.errorCovariance[4,7]
+estimator.errorCovariance[4,6]
+estimator.errorCovariance[4,5]
+estimator.errorCovariance[4,4]
+estimator.errorCovariance[4,3]
+estimator.errorCovariance[4,2]
+estimator.errorCovariance[4,1]
+estimator.errorCovariance[3,15]
+estimator.errorCovariance[3,14]
+estimator.errorCovariance[3,13]
+estimator.errorCovariance[3,12]
+estimator.errorCovariance[3,11]
+estimator.errorCovariance[3,10]
+estimator.errorCovariance[3,9]
+estimator.errorCovariance[3,8]
+estimator.errorCovariance[3,7]
+estimator.errorCovariance[3,6]
+estimator.errorCovariance[3,5]
+estimator.errorCovariance[3,4]
+estimator.errorCovariance[3,3]
+estimator.errorCovariance[3,2]
+estimator.errorCovariance[3,1]
+estimator.errorCovariance[2,15]
+estimator.errorCovariance[2,14]
+estimator.errorCovariance[2,13]
+estimator.errorCovariance[2,12]
+estimator.errorCovariance[2,11]
+estimator.errorCovariance[2,10]
+estimator.errorCovariance[2,9]
+estimator.errorCovariance[2,8]
+estimator.errorCovariance[2,7]
+estimator.errorCovariance[2,6]
+estimator.errorCovariance[2,5]
+estimator.errorCovariance[2,4]
+estimator.errorCovariance[2,3]
+estimator.errorCovariance[2,2]
+estimator.errorCovariance[2,1]
+estimator.errorCovariance[1,15]
+estimator.errorCovariance[1,14]
+estimator.errorCovariance[1,13]
+estimator.errorCovariance[1,12]
+estimator.errorCovariance[1,11]
+estimator.errorCovariance[1,10]
+estimator.errorCovariance[1,9]
+estimator.errorCovariance[1,8]
+estimator.errorCovariance[1,7]
+estimator.errorCovariance[1,6]
+estimator.errorCovariance[1,5]
+estimator.errorCovariance[1,4]
+estimator.errorCovariance[1,3]
+estimator.errorCovariance[1,2]
+estimator.errorCovariance[1,1]
+estimator.stationaryImuCorrectionAccepted
+estimator.errorCovarianceRoot[15,15]
+estimator.errorCovarianceRoot[15,14]
+estimator.errorCovarianceRoot[15,13]
+estimator.errorCovarianceRoot[15,12]
+estimator.errorCovarianceRoot[15,11]
+estimator.errorCovarianceRoot[15,10]
+estimator.errorCovarianceRoot[15,9]
+estimator.errorCovarianceRoot[15,8]
+estimator.errorCovarianceRoot[15,7]
+estimator.errorCovarianceRoot[15,6]
+estimator.errorCovarianceRoot[15,5]
+estimator.errorCovarianceRoot[15,4]
+estimator.errorCovarianceRoot[15,3]
+estimator.errorCovarianceRoot[15,2]
+estimator.errorCovarianceRoot[15,1]
+estimator.errorCovarianceRoot[14,15]
+estimator.errorCovarianceRoot[14,14]
+estimator.errorCovarianceRoot[14,13]
+estimator.errorCovarianceRoot[14,12]
+estimator.errorCovarianceRoot[14,11]
+estimator.errorCovarianceRoot[14,10]
+estimator.errorCovarianceRoot[14,9]
+estimator.errorCovarianceRoot[14,8]
+estimator.errorCovarianceRoot[14,7]
+estimator.errorCovarianceRoot[14,6]
+estimator.errorCovarianceRoot[14,5]
+estimator.errorCovarianceRoot[14,4]
+estimator.errorCovarianceRoot[14,3]
+estimator.errorCovarianceRoot[14,2]
+estimator.errorCovarianceRoot[14,1]
+estimator.errorCovarianceRoot[13,15]
+estimator.errorCovarianceRoot[13,14]
+estimator.errorCovarianceRoot[13,13]
+estimator.errorCovarianceRoot[13,12]
+estimator.errorCovarianceRoot[13,11]
+estimator.errorCovarianceRoot[13,10]
+estimator.errorCovarianceRoot[13,9]
+estimator.errorCovarianceRoot[13,8]
+estimator.errorCovarianceRoot[13,7]
+estimator.errorCovarianceRoot[13,6]
+estimator.errorCovarianceRoot[13,5]
+estimator.errorCovarianceRoot[13,4]
+estimator.errorCovarianceRoot[13,3]
+estimator.errorCovarianceRoot[13,2]
+estimator.errorCovarianceRoot[13,1]
+estimator.errorCovarianceRoot[12,15]
+estimator.errorCovarianceRoot[12,14]
+estimator.errorCovarianceRoot[12,13]
+estimator.errorCovarianceRoot[12,12]
+estimator.errorCovarianceRoot[12,11]
+estimator.errorCovarianceRoot[12,10]
+estimator.errorCovarianceRoot[12,9]
+estimator.errorCovarianceRoot[12,8]
+estimator.errorCovarianceRoot[12,7]
+estimator.errorCovarianceRoot[12,6]
+estimator.errorCovarianceRoot[12,5]
+estimator.errorCovarianceRoot[12,4]
+estimator.errorCovarianceRoot[12,3]
+estimator.errorCovarianceRoot[12,2]
+estimator.errorCovarianceRoot[12,1]
+estimator.errorCovarianceRoot[11,15]
+estimator.errorCovarianceRoot[11,14]
+estimator.errorCovarianceRoot[11,13]
+estimator.errorCovarianceRoot[11,12]
+estimator.errorCovarianceRoot[11,11]
+estimator.errorCovarianceRoot[11,10]
+estimator.errorCovarianceRoot[11,9]
+estimator.errorCovarianceRoot[11,8]
+estimator.errorCovarianceRoot[11,7]
+estimator.errorCovarianceRoot[11,6]
+estimator.errorCovarianceRoot[11,5]
+estimator.errorCovarianceRoot[11,4]
+estimator.errorCovarianceRoot[11,3]
+estimator.errorCovarianceRoot[11,2]
+estimator.errorCovarianceRoot[11,1]
+estimator.errorCovarianceRoot[10,15]
+estimator.errorCovarianceRoot[10,14]
+estimator.errorCovarianceRoot[10,13]
+estimator.errorCovarianceRoot[10,12]
+estimator.errorCovarianceRoot[10,11]
+estimator.errorCovarianceRoot[10,10]
+estimator.errorCovarianceRoot[10,9]
+estimator.errorCovarianceRoot[10,8]
+estimator.errorCovarianceRoot[10,7]
+estimator.errorCovarianceRoot[10,6]
+estimator.errorCovarianceRoot[10,5]
+estimator.errorCovarianceRoot[10,4]
+estimator.errorCovarianceRoot[10,3]
+estimator.errorCovarianceRoot[10,2]
+estimator.errorCovarianceRoot[10,1]
+estimator.errorCovarianceRoot[9,15]
+estimator.errorCovarianceRoot[9,14]
+estimator.errorCovarianceRoot[9,13]
+estimator.errorCovarianceRoot[9,12]
+estimator.errorCovarianceRoot[9,11]
+estimator.errorCovarianceRoot[9,10]
+estimator.errorCovarianceRoot[9,9]
+estimator.errorCovarianceRoot[9,8]
+estimator.errorCovarianceRoot[9,7]
+estimator.errorCovarianceRoot[9,6]
+estimator.errorCovarianceRoot[9,5]
+estimator.errorCovarianceRoot[9,4]
+estimator.errorCovarianceRoot[9,3]
+estimator.errorCovarianceRoot[9,2]
+estimator.errorCovarianceRoot[9,1]
+estimator.errorCovarianceRoot[8,15]
+estimator.errorCovarianceRoot[8,14]
+estimator.errorCovarianceRoot[8,13]
+estimator.errorCovarianceRoot[8,12]
+estimator.errorCovarianceRoot[8,11]
+estimator.errorCovarianceRoot[8,10]
+estimator.errorCovarianceRoot[8,9]
+estimator.errorCovarianceRoot[8,8]
+estimator.errorCovarianceRoot[8,7]
+estimator.errorCovarianceRoot[8,6]
+estimator.errorCovarianceRoot[8,5]
+estimator.errorCovarianceRoot[8,4]
+estimator.errorCovarianceRoot[8,3]
+estimator.errorCovarianceRoot[8,2]
+estimator.errorCovarianceRoot[8,1]
+estimator.errorCovarianceRoot[7,15]
+estimator.errorCovarianceRoot[7,14]
+estimator.errorCovarianceRoot[7,13]
+estimator.errorCovarianceRoot[7,12]
+estimator.errorCovarianceRoot[7,11]
+estimator.errorCovarianceRoot[7,10]
+estimator.errorCovarianceRoot[7,9]
+estimator.errorCovarianceRoot[7,8]
+estimator.errorCovarianceRoot[7,7]
+estimator.errorCovarianceRoot[7,6]
+estimator.errorCovarianceRoot[7,5]
+estimator.errorCovarianceRoot[7,4]
+estimator.errorCovarianceRoot[7,3]
+estimator.errorCovarianceRoot[7,2]
+estimator.errorCovarianceRoot[7,1]
+estimator.errorCovarianceRoot[6,15]
+estimator.errorCovarianceRoot[6,14]
+estimator.errorCovarianceRoot[6,13]
+estimator.errorCovarianceRoot[6,12]
+estimator.errorCovarianceRoot[6,11]
+estimator.errorCovarianceRoot[6,10]
+estimator.errorCovarianceRoot[6,9]
+estimator.errorCovarianceRoot[6,8]
+estimator.errorCovarianceRoot[6,7]
+estimator.errorCovarianceRoot[6,6]
+estimator.errorCovarianceRoot[6,5]
+estimator.errorCovarianceRoot[6,4]
+estimator.errorCovarianceRoot[6,3]
+estimator.errorCovarianceRoot[6,2]
+estimator.errorCovarianceRoot[6,1]
+estimator.errorCovarianceRoot[5,15]
+estimator.errorCovarianceRoot[5,14]
+estimator.errorCovarianceRoot[5,13]
+estimator.errorCovarianceRoot[5,12]
+estimator.errorCovarianceRoot[5,11]
+estimator.errorCovarianceRoot[5,10]
+estimator.errorCovarianceRoot[5,9]
+estimator.errorCovarianceRoot[5,8]
+estimator.errorCovarianceRoot[5,7]
+estimator.errorCovarianceRoot[5,6]
+estimator.errorCovarianceRoot[5,5]
+estimator.errorCovarianceRoot[5,4]
+estimator.errorCovarianceRoot[5,3]
+estimator.errorCovarianceRoot[5,2]
+estimator.errorCovarianceRoot[5,1]
+estimator.errorCovarianceRoot[4,15]
+estimator.errorCovarianceRoot[4,14]
+estimator.errorCovarianceRoot[4,13]
+estimator.errorCovarianceRoot[4,12]
+estimator.errorCovarianceRoot[4,11]
+estimator.errorCovarianceRoot[4,10]
+estimator.errorCovarianceRoot[4,9]
+estimator.errorCovarianceRoot[4,8]
+estimator.errorCovarianceRoot[4,7]
+estimator.errorCovarianceRoot[4,6]
+estimator.errorCovarianceRoot[4,5]
+estimator.errorCovarianceRoot[4,4]
+estimator.errorCovarianceRoot[4,3]
+estimator.errorCovarianceRoot[4,2]
+estimator.errorCovarianceRoot[4,1]
+estimator.errorCovarianceRoot[3,15]
+estimator.errorCovarianceRoot[3,14]
+estimator.errorCovarianceRoot[3,13]
+estimator.errorCovarianceRoot[3,12]
+estimator.errorCovarianceRoot[3,11]
+estimator.errorCovarianceRoot[3,10]
+estimator.errorCovarianceRoot[3,9]
+estimator.errorCovarianceRoot[3,8]
+estimator.errorCovarianceRoot[3,7]
+estimator.errorCovarianceRoot[3,6]
+estimator.errorCovarianceRoot[3,5]
+estimator.errorCovarianceRoot[3,4]
+estimator.errorCovarianceRoot[3,3]
+estimator.errorCovarianceRoot[3,2]
+estimator.errorCovarianceRoot[3,1]
+estimator.errorCovarianceRoot[2,15]
+estimator.errorCovarianceRoot[2,14]
+estimator.errorCovarianceRoot[2,13]
+estimator.errorCovarianceRoot[2,12]
+estimator.errorCovarianceRoot[2,11]
+estimator.errorCovarianceRoot[2,10]
+estimator.errorCovarianceRoot[2,9]
+estimator.errorCovarianceRoot[2,8]
+estimator.errorCovarianceRoot[2,7]
+estimator.errorCovarianceRoot[2,6]
+estimator.errorCovarianceRoot[2,5]
+estimator.errorCovarianceRoot[2,4]
+estimator.errorCovarianceRoot[2,3]
+estimator.errorCovarianceRoot[2,2]
+estimator.errorCovarianceRoot[2,1]
+estimator.errorCovarianceRoot[1,15]
+estimator.errorCovarianceRoot[1,14]
+estimator.errorCovarianceRoot[1,13]
+estimator.errorCovarianceRoot[1,12]
+estimator.errorCovarianceRoot[1,11]
+estimator.errorCovarianceRoot[1,10]
+estimator.errorCovarianceRoot[1,9]
+estimator.errorCovarianceRoot[1,8]
+estimator.errorCovarianceRoot[1,7]
+estimator.errorCovarianceRoot[1,6]
+estimator.errorCovarianceRoot[1,5]
+estimator.errorCovarianceRoot[1,4]
+estimator.errorCovarianceRoot[1,3]
+estimator.errorCovarianceRoot[1,2]
+estimator.errorCovarianceRoot[1,1]
+estimator.heightAboveTerrain_m
+estimator.status.zeroVelocityCorrectionAccepted
+estimator.status.pseudoPositionCorrectionAccepted
+estimator.status.quietElapsed_s
+estimator.status.alignmentSpecificForceBodyFlu_m_s2[3]
+estimator.status.alignmentSpecificForceBodyFlu_m_s2[2]
+estimator.status.alignmentSpecificForceBodyFlu_m_s2[1]
+estimator.status.alignmentSource
+estimator.status.reseedCount
+estimator.status.reseeded
+estimator.status.anchorSource
+estimator.status.imuPayloadHeld
+estimator.status.recoveryStage
+estimator.status.normalizedInnovationSquared
+estimator.status.correctionSource
+estimator.status.acceptedCorrectionCount
+estimator.status.correctionOutcome
+estimator.status.opticalFlowConsecutiveRejections
+estimator.status.gpsConsecutiveRejections
+estimator.status.mocapConsecutiveRejections
+estimator.status.rejectionElapsed_s
+estimator.status.consecutiveRejectedCorrections
+estimator.status.opticalFlowCorrectionAccepted
+estimator.status.terrainCorrectionAccepted
+estimator.status.barometerCorrectionAccepted
+estimator.status.magnetometerCorrectionAccepted
+estimator.status.gpsVelocityCorrectionAccepted
+estimator.status.gpsPositionCorrectionAccepted
+estimator.status.mocapCorrectionAccepted
+estimator.status.predictionAccepted
+estimator.status.initialized
+estimator.estimate.angularVelocityWorldEnu_rad_s[3]
+estimator.estimate.angularVelocityWorldEnu_rad_s[2]
+estimator.estimate.angularVelocityWorldEnu_rad_s[1]
+estimator.estimate.angularVelocityBodyFlu_rad_s[3]
+estimator.estimate.angularVelocityBodyFlu_rad_s[2]
+estimator.estimate.angularVelocityBodyFlu_rad_s[1]
+estimator.estimate.eulerRpy_rad[3]
+estimator.estimate.eulerRpy_rad[2]
+estimator.estimate.eulerRpy_rad[1]
+estimator.estimate.rotationWorldBody[3,3]
+estimator.estimate.rotationWorldBody[3,2]
+estimator.estimate.rotationWorldBody[3,1]
+estimator.estimate.rotationWorldBody[2,3]
+estimator.estimate.rotationWorldBody[2,2]
+estimator.estimate.rotationWorldBody[2,1]
+estimator.estimate.rotationWorldBody[1,3]
+estimator.estimate.rotationWorldBody[1,2]
+estimator.estimate.rotationWorldBody[1,1]
+estimator.estimate.quaternionWorldBody[4]
+estimator.estimate.quaternionWorldBody[3]
+estimator.estimate.quaternionWorldBody[2]
+estimator.estimate.quaternionWorldBody[1]
+estimator.estimate.accelerationWorldEnu_m_s2[3]
+estimator.estimate.accelerationWorldEnu_m_s2[2]
+estimator.estimate.accelerationWorldEnu_m_s2[1]
+estimator.estimate.velocityWorldEnu_m_s[3]
+estimator.estimate.velocityWorldEnu_m_s[2]
+estimator.estimate.velocityWorldEnu_m_s[1]
+estimator.estimate.positionWorldEnu_m[3]
+estimator.estimate.positionWorldEnu_m[2]
+estimator.estimate.positionWorldEnu_m[1]
+estimator.estimate.timestamp_s
+estimator.estimate.valid
+estimator.barometer.fresh
+estimator.magnetometer.fresh
+estimator.gps.fresh
+estimator.imu.specificForceBodyFlu_m_s2[3]
+estimator.imu.specificForceBodyFlu_m_s2[2]
+estimator.imu.specificForceBodyFlu_m_s2[1]
+estimator.imu.angularVelocityBodyFlu_rad_s[3]
+estimator.imu.angularVelocityBodyFlu_rad_s[2]
+estimator.imu.angularVelocityBodyFlu_rad_s[1]
+estimator.imu.fresh
+avionics.manualEngaged
+avionics.manualTask.leashedPose[10]
+avionics.manualTask.leashedPose[9]
+avionics.manualTask.leashedPose[8]
+avionics.manualTask.leashedPose[7]
+avionics.manualTask.leashedPose[6]
+avionics.manualTask.leashedPose[5]
+avionics.manualTask.leashedPose[4]
+avionics.manualTask.leashedPose[3]
+avionics.manualTask.leashedPose[2]
+avionics.manualTask.leashedPose[1]
+avionics.manualTask.leashedPoseRaw[10]
+avionics.manualTask.leashedPoseRaw[9]
+avionics.manualTask.leashedPoseRaw[8]
+avionics.manualTask.leashedPoseRaw[7]
+avionics.manualTask.leashedPoseRaw[6]
+avionics.manualTask.leashedPoseRaw[5]
+avionics.manualTask.leashedPoseRaw[4]
+avionics.manualTask.leashedPoseRaw[3]
+avionics.manualTask.leashedPoseRaw[2]
+avionics.manualTask.leashedPoseRaw[1]
+avionics.manualTask.leashedError[9]
+avionics.manualTask.leashedError[8]
+avionics.manualTask.leashedError[7]
+avionics.manualTask.leashedError[6]
+avionics.manualTask.leashedError[5]
+avionics.manualTask.leashedError[4]
+avionics.manualTask.leashedError[3]
+avionics.manualTask.leashedError[2]
+avionics.manualTask.leashedError[1]
+avionics.manualTask.poseError[9]
+avionics.manualTask.poseError[8]
+avionics.manualTask.poseError[7]
+avionics.manualTask.poseError[6]
+avionics.manualTask.poseError[5]
+avionics.manualTask.poseError[4]
+avionics.manualTask.poseError[3]
+avionics.manualTask.poseError[2]
+avionics.manualTask.poseError[1]
+avionics.manualTask.unleashedPose[10]
+avionics.manualTask.unleashedPose[9]
+avionics.manualTask.unleashedPose[8]
+avionics.manualTask.unleashedPose[7]
+avionics.manualTask.unleashedPose[6]
+avionics.manualTask.unleashedPose[5]
+avionics.manualTask.unleashedPose[4]
+avionics.manualTask.unleashedPose[3]
+avionics.manualTask.unleashedPose[2]
+avionics.manualTask.unleashedPose[1]
+avionics.manualTask.stepBodyIncrement[9]
+avionics.manualTask.stepBodyIncrement[8]
+avionics.manualTask.stepBodyIncrement[7]
+avionics.manualTask.stepBodyIncrement[6]
+avionics.manualTask.stepBodyIncrement[5]
+avionics.manualTask.stepBodyIncrement[4]
+avionics.manualTask.stepBodyIncrement[3]
+avionics.manualTask.stepBodyIncrement[2]
+avionics.manualTask.stepBodyIncrement[1]
+avionics.manualTask.commandHeadingRate
+avionics.manualTask.commandAcceleration[3]
+avionics.manualTask.commandAcceleration[2]
+avionics.manualTask.commandAcceleration[1]
+avionics.manualTask.verticalRateStep
+avionics.manualTask.horizontalRateStep[2]
+avionics.manualTask.horizontalRateStep[1]
+avionics.manualTask.verticalRateTarget
+avionics.manualTask.horizontalRateTarget[2]
+avionics.manualTask.horizontalRateTarget[1]
+avionics.manualTask.velocityError[3]
+avionics.manualTask.velocityError[2]
+avionics.manualTask.velocityError[1]
+avionics.manualTask.targetBodyVelocity[3]
+avionics.manualTask.targetBodyVelocity[2]
+avionics.manualTask.targetBodyVelocity[1]
+avionics.manualTask.stickDisc[2]
+avionics.manualTask.stickDisc[1]
+avionics.manualTask.verticalSpeedScale
+avionics.manualTask.shapedThrottle
+avionics.manualTask.shapedYaw
+avionics.manualTask.shapedPitch
+avionics.manualTask.shapedRoll
+avionics.manualTask.baseBodyVelocity[3]
+avionics.manualTask.baseBodyVelocity[2]
+avionics.manualTask.baseBodyVelocity[1]
+avionics.manualTask.baseHeadingRate
+avionics.manualTask.baseAcceleration[3]
+avionics.manualTask.baseAcceleration[2]
+avionics.manualTask.baseAcceleration[1]
+avionics.manualTask.basePose[10]
+avionics.manualTask.basePose[9]
+avionics.manualTask.basePose[8]
+avionics.manualTask.basePose[7]
+avionics.manualTask.basePose[6]
+avionics.manualTask.basePose[5]
+avionics.manualTask.basePose[4]
+avionics.manualTask.basePose[3]
+avionics.manualTask.basePose[2]
+avionics.manualTask.basePose[1]
+avionics.manualTask.vehiclePose[10]
+avionics.manualTask.vehiclePose[9]
+avionics.manualTask.vehiclePose[8]
+avionics.manualTask.vehiclePose[7]
+avionics.manualTask.vehiclePose[6]
+avionics.manualTask.vehiclePose[5]
+avionics.manualTask.vehiclePose[4]
+avionics.manualTask.vehiclePose[3]
+avionics.manualTask.vehiclePose[2]
+avionics.manualTask.vehiclePose[1]
+avionics.manualTask.vehicleHeadingQuaternion[4]
+avionics.manualTask.vehicleHeadingQuaternion[3]
+avionics.manualTask.vehicleHeadingQuaternion[2]
+avionics.manualTask.vehicleHeadingQuaternion[1]
+avionics.manualTask.referenceEulerB321_rad[3]
+avionics.manualTask.referenceEulerB321_rad[2]
+avionics.manualTask.referenceEulerB321_rad[1]
+avionics.manualTask.vehicleEulerB321_rad[3]
+avionics.manualTask.vehicleEulerB321_rad[2]
+avionics.manualTask.vehicleEulerB321_rad[1]
+avionics.manualTask.continuing
+avionics.manualTask.wasEngaged
+avionics.manualTask.bodyAcceleration_m_s2[3]
+avionics.manualTask.bodyAcceleration_m_s2[2]
+avionics.manualTask.bodyAcceleration_m_s2[1]
+avionics.manualTask.headingRateCommand_rad_s
+avionics.manualTask.yaw_rad
+avionics.manualTask.headingQuaternionWorldBody[4]
+avionics.manualTask.headingQuaternionWorldBody[3]
+avionics.manualTask.headingQuaternionWorldBody[2]
+avionics.manualTask.headingQuaternionWorldBody[1]
+avionics.manualTask.accelerationWorldEnu_m_s2[3]
+avionics.manualTask.accelerationWorldEnu_m_s2[2]
+avionics.manualTask.accelerationWorldEnu_m_s2[1]
+avionics.manualTask.velocityWorldEnu_m_s[3]
+avionics.manualTask.velocityWorldEnu_m_s[2]
+avionics.manualTask.velocityWorldEnu_m_s[1]
+avionics.manualTask.positionWorldEnu_m[3]
+avionics.manualTask.positionWorldEnu_m[2]
+avionics.manualTask.positionWorldEnu_m[1]
+avionics.manualTask.extendedPose[10]
+avionics.manualTask.extendedPose[9]
+avionics.manualTask.extendedPose[8]
+avionics.manualTask.extendedPose[7]
+avionics.manualTask.extendedPose[6]
+avionics.manualTask.extendedPose[5]
+avionics.manualTask.extendedPose[4]
+avionics.manualTask.extendedPose[3]
+avionics.manualTask.extendedPose[2]
+avionics.manualTask.extendedPose[1]
+avionics.rateTask.allocatedMotorCommand[4]
+avionics.rateTask.allocatedMotorCommand[3]
+avionics.rateTask.allocatedMotorCommand[2]
+avionics.rateTask.allocatedMotorCommand[1]
+avionics.rateTask.momentBodyFlu_Nm[3]
+avionics.rateTask.momentBodyFlu_Nm[2]
+avionics.rateTask.momentBodyFlu_Nm[1]
+avionics.rateTask.unboundedMomentBodyFlu_Nm[3]
+avionics.rateTask.unboundedMomentBodyFlu_Nm[2]
+avionics.rateTask.unboundedMomentBodyFlu_Nm[1]
+avionics.rateTask.inputSignal.angularVelocityCommandFlu_rad_s[3]
+avionics.rateTask.inputSignal.angularVelocityCommandFlu_rad_s[2]
+avionics.rateTask.inputSignal.angularVelocityCommandFlu_rad_s[1]
+avionics.guidanceTask.rateCorrectionFlu_rad_s[3]
+avionics.guidanceTask.rateCorrectionFlu_rad_s[2]
+avionics.guidanceTask.rateCorrectionFlu_rad_s[1]
+avionics.guidanceTask.attitudeRateSetpointFlu_rad_s[3]
+avionics.guidanceTask.attitudeRateSetpointFlu_rad_s[2]
+avionics.guidanceTask.attitudeRateSetpointFlu_rad_s[1]
+avionics.guidanceTask.attitudeReferenceQuaternion[4]
+avionics.guidanceTask.attitudeReferenceQuaternion[3]
+avionics.guidanceTask.attitudeReferenceQuaternion[2]
+avionics.guidanceTask.attitudeReferenceQuaternion[1]
+avionics.guidanceTask.navigationEulerB321_rad[3]
+avionics.guidanceTask.navigationEulerB321_rad[2]
+avionics.guidanceTask.navigationEulerB321_rad[1]
+avionics.guidanceTask.positionGuidance.positionIntegralWorld[3]
+avionics.guidanceTask.positionGuidance.positionIntegralWorld[2]
+avionics.guidanceTask.positionGuidance.positionIntegralWorld[1]
+avionics.guidanceTask.positionGuidance.angularVelocityCorrection[3]
+avionics.guidanceTask.positionGuidance.angularVelocityCorrection[2]
+avionics.guidanceTask.positionGuidance.angularVelocityCorrection[1]
+avionics.guidanceTask.positionGuidance.angularVelocitySetpoint[3]
+avionics.guidanceTask.positionGuidance.angularVelocitySetpoint[2]
+avionics.guidanceTask.positionGuidance.angularVelocitySetpoint[1]
+avionics.guidanceTask.positionGuidance.attitudeSetpoint[4]
+avionics.guidanceTask.positionGuidance.attitudeSetpoint[3]
+avionics.guidanceTask.positionGuidance.attitudeSetpoint[2]
+avionics.guidanceTask.positionGuidance.attitudeSetpoint[1]
+avionics.guidanceTask.positionGuidance.thrust
+avionics.guidanceTask.positionGuidance.stateError[9]
+avionics.guidanceTask.positionGuidance.stateError[8]
+avionics.guidanceTask.positionGuidance.stateError[7]
+avionics.guidanceTask.positionGuidance.stateError[6]
+avionics.guidanceTask.positionGuidance.stateError[5]
+avionics.guidanceTask.positionGuidance.stateError[4]
+avionics.guidanceTask.positionGuidance.stateError[3]
+avionics.guidanceTask.positionGuidance.stateError[2]
+avionics.guidanceTask.positionGuidance.stateError[1]
+avionics.guidanceTask.positionGuidance.resetIntegral
+avionics.guidanceTask.positionGuidance.headingQuaternionReference[4]
+avionics.guidanceTask.positionGuidance.headingQuaternionReference[3]
+avionics.guidanceTask.positionGuidance.headingQuaternionReference[2]
+avionics.guidanceTask.positionGuidance.headingQuaternionReference[1]
+avionics.guidanceTask.pilotMapping.normalizedStick[3]
+avionics.guidanceTask.pilotMapping.normalizedStick[2]
+avionics.guidanceTask.pilotMapping.normalizedStick[1]
+avionics.guidanceTask.pilotMapping.commands.attitudeTiltDesired_rad[2]
+avionics.guidanceTask.pilotMapping.commands.attitudeTiltDesired_rad[1]
+avionics.guidanceTask.pilotMapping.commands.acroRateDesired_rad_s[3]
+avionics.guidanceTask.pilotMapping.commands.acroRateDesired_rad_s[2]
+avionics.guidanceTask.pilotMapping.commands.acroRateDesired_rad_s[1]
+avionics.guidanceTask.pilotMapping.commands.throttleInput
+avionics.guidanceTask.angularVelocitySetpointFlu_rad_s[3]
+avionics.guidanceTask.angularVelocitySetpointFlu_rad_s[2]
+avionics.guidanceTask.angularVelocitySetpointFlu_rad_s[1]
+avionics.planningTask.referenceYawAcceleration
+avionics.planningTask.referenceYawRate
+avionics.planningTask.referenceYaw
+avionics.planningTask.referenceSnap[3]
+avionics.planningTask.referenceSnap[2]
+avionics.planningTask.referenceSnap[1]
+avionics.planningTask.referenceJerk[3]
+avionics.planningTask.referenceJerk[2]
+avionics.planningTask.referenceJerk[1]
+avionics.planningTask.referenceAcceleration[3]
+avionics.planningTask.referenceAcceleration[2]
+avionics.planningTask.referenceAcceleration[1]
+avionics.planningTask.referenceVelocity[3]
+avionics.planningTask.referenceVelocity[2]
+avionics.planningTask.referenceVelocity[1]
+avionics.planningTask.referencePosition[3]
+avionics.planningTask.referencePosition[2]
+avionics.planningTask.referencePosition[1]
+avionics.planningTask.activeSegment
+avionics.planningTask.trajectoryTime
+avionics.planningTask.totalDuration
+avionics.planningTask.segmentDuration[3]
+avionics.planningTask.segmentDuration[2]
+avionics.planningTask.segmentDuration[1]
+avionics.planningTask.yaw[4]
+avionics.planningTask.yaw[3]
+avionics.planningTask.yaw[2]
+avionics.planningTask.yaw[1]
+avionics.planningTask.velocityEnu[4,3]
+avionics.planningTask.velocityEnu[4,2]
+avionics.planningTask.velocityEnu[4,1]
+avionics.planningTask.velocityEnu[3,3]
+avionics.planningTask.velocityEnu[3,2]
+avionics.planningTask.velocityEnu[3,1]
+avionics.planningTask.velocityEnu[2,3]
+avionics.planningTask.velocityEnu[2,2]
+avionics.planningTask.velocityEnu[2,1]
+avionics.planningTask.velocityEnu[1,3]
+avionics.planningTask.velocityEnu[1,2]
+avionics.planningTask.velocityEnu[1,1]
+avionics.planningTask.localWaypoint[4,3]
+avionics.planningTask.localWaypoint[4,2]
+avionics.planningTask.localWaypoint[4,1]
+avionics.planningTask.localWaypoint[3,3]
+avionics.planningTask.localWaypoint[3,2]
+avionics.planningTask.localWaypoint[3,1]
+avionics.planningTask.localWaypoint[2,3]
+avionics.planningTask.localWaypoint[2,2]
+avionics.planningTask.localWaypoint[2,1]
+avionics.planningTask.localWaypoint[1,3]
+avionics.planningTask.localWaypoint[1,2]
+avionics.planningTask.localWaypoint[1,1]
+avionics.planningTask.sequence
+avionics.planningTask.waypointCount
+avionics.planningTask.reference.yawAcceleration
+avionics.planningTask.reference.yawRate
+avionics.planningTask.reference.yaw
+avionics.planningTask.reference.snap[3]
+avionics.planningTask.reference.snap[2]
+avionics.planningTask.reference.snap[1]
+avionics.planningTask.reference.jerk[3]
+avionics.planningTask.reference.jerk[2]
+avionics.planningTask.reference.jerk[1]
+avionics.planningTask.reference.acceleration[3]
+avionics.planningTask.reference.acceleration[2]
+avionics.planningTask.reference.acceleration[1]
+avionics.planningTask.reference.velocity[3]
+avionics.planningTask.reference.velocity[2]
+avionics.planningTask.reference.velocity[1]
+avionics.planningTask.reference.position[3]
+avionics.planningTask.reference.position[2]
+avionics.planningTask.reference.position[1]
+avionics.planningTask.reference.totalDuration
+avionics.planningTask.reference.trajectoryTime
+avionics.planningTask.reference.activeSegment
+avionics.planningTask.reference.sequence
+avionics.planningTask.reference.complete
+avionics.planningTask.reference.valid
+avionics.reference.yawAcceleration
+avionics.reference.yawRate
+avionics.reference.snap[3]
+avionics.reference.snap[2]
+avionics.reference.snap[1]
+avionics.reference.jerk[3]
+avionics.reference.jerk[2]
+avionics.reference.jerk[1]
+avionics.reference.acceleration[3]
+avionics.reference.acceleration[2]
+avionics.reference.acceleration[1]
+avionics.reference.complete
+avionics.reference.valid
+avionics.pilot.throttle
+avionics.pilot.stick[3]
+avionics.pilot.stick[2]
+avionics.pilot.stick[1]
+avionics.navigation.angularVelocityWorldEnu_rad_s[3]
+avionics.navigation.angularVelocityWorldEnu_rad_s[2]
+avionics.navigation.angularVelocityWorldEnu_rad_s[1]
+avionics.navigation.angularVelocityBodyFlu_rad_s[3]
+avionics.navigation.angularVelocityBodyFlu_rad_s[2]
+avionics.navigation.angularVelocityBodyFlu_rad_s[1]
+avionics.navigation.eulerRpy_rad[3]
+avionics.navigation.eulerRpy_rad[2]
+avionics.navigation.eulerRpy_rad[1]
+avionics.navigation.rotationWorldBody[3,3]
+avionics.navigation.rotationWorldBody[3,2]
+avionics.navigation.rotationWorldBody[3,1]
+avionics.navigation.rotationWorldBody[2,3]
+avionics.navigation.rotationWorldBody[2,2]
+avionics.navigation.rotationWorldBody[2,1]
+avionics.navigation.rotationWorldBody[1,3]
+avionics.navigation.rotationWorldBody[1,2]
+avionics.navigation.rotationWorldBody[1,1]
+avionics.navigation.quaternionWorldBody[4]
+avionics.navigation.quaternionWorldBody[3]
+avionics.navigation.quaternionWorldBody[2]
+avionics.navigation.quaternionWorldBody[1]
+avionics.navigation.accelerationWorldEnu_m_s2[3]
+avionics.navigation.accelerationWorldEnu_m_s2[2]
+avionics.navigation.accelerationWorldEnu_m_s2[1]
+avionics.navigation.velocityWorldEnu_m_s[3]
+avionics.navigation.velocityWorldEnu_m_s[2]
+avionics.navigation.velocityWorldEnu_m_s[1]
+avionics.navigation.positionWorldEnu_m[3]
+avionics.navigation.positionWorldEnu_m[2]
+avionics.navigation.positionWorldEnu_m[1]
+avionics.navigation.timestamp_s
+avionics.navigation.valid
+avionics.plan.valid
+modeSelector.channelValid
+modeSelector.candidate
+modeSelector.agreement
+modeSelector.pending
+modeSelector.position
+modeSelector.mode
+transmitter.channelPwm_us_out[5]
+transmitter.channelPwm_us_out[4]
+transmitter.channelPwm_us_out[3]
+transmitter.channelPwm_us_out[2]
+transmitter.channelPwm_us_out[1]
+plant.vibration.axialSpecificForce[4]
+plant.vibration.axialSpecificForce[3]
+plant.vibration.axialSpecificForce[2]
+plant.vibration.axialSpecificForce[1]
+plant.vibration.lateralSpecificForce[4]
+plant.vibration.lateralSpecificForce[3]
+plant.vibration.lateralSpecificForce[2]
+plant.vibration.lateralSpecificForce[1]
+plant.vibration.yawAngular[4]
+plant.vibration.yawAngular[3]
+plant.vibration.yawAngular[2]
+plant.vibration.yawAngular[1]
+plant.vibration.lateralAngular[4]
+plant.vibration.lateralAngular[3]
+plant.vibration.lateralAngular[2]
+plant.vibration.lateralAngular[1]
+plant.vibration.speedRatioSquared[4]
+plant.vibration.speedRatioSquared[3]
+plant.vibration.speedRatioSquared[2]
+plant.vibration.speedRatioSquared[1]
+plant.dynamics.M_ground_b[3]
+plant.dynamics.M_ground_b[2]
+plant.dynamics.M_ground_b[1]
+plant.dynamics.F_ground_b[3]
+plant.dynamics.F_ground_b[2]
+plant.dynamics.F_ground_b[1]
+plant.dynamics.leg_m_b[3,4]
+plant.dynamics.leg_m_b[3,3]
+plant.dynamics.leg_m_b[3,2]
+plant.dynamics.leg_m_b[3,1]
+plant.dynamics.leg_m_b[2,4]
+plant.dynamics.leg_m_b[2,3]
+plant.dynamics.leg_m_b[2,2]
+plant.dynamics.leg_m_b[2,1]
+plant.dynamics.leg_m_b[1,4]
+plant.dynamics.leg_m_b[1,3]
+plant.dynamics.leg_m_b[1,2]
+plant.dynamics.leg_m_b[1,1]
+plant.dynamics.leg_f_b[3,4]
+plant.dynamics.leg_f_b[3,3]
+plant.dynamics.leg_f_b[3,2]
+plant.dynamics.leg_f_b[3,1]
+plant.dynamics.leg_f_b[2,4]
+plant.dynamics.leg_f_b[2,3]
+plant.dynamics.leg_f_b[2,2]
+plant.dynamics.leg_f_b[2,1]
+plant.dynamics.leg_f_b[1,4]
+plant.dynamics.leg_f_b[1,3]
+plant.dynamics.leg_f_b[1,2]
+plant.dynamics.leg_f_b[1,1]
+plant.dynamics.leg_f_w[3,4]
+plant.dynamics.leg_f_w[3,3]
+plant.dynamics.leg_f_w[3,2]
+plant.dynamics.leg_f_w[3,1]
+plant.dynamics.leg_f_w[2,4]
+plant.dynamics.leg_f_w[2,3]
+plant.dynamics.leg_f_w[2,2]
+plant.dynamics.leg_f_w[2,1]
+plant.dynamics.leg_f_w[1,4]
+plant.dynamics.leg_f_w[1,3]
+plant.dynamics.leg_f_w[1,2]
+plant.dynamics.leg_f_w[1,1]
+plant.dynamics.leg_v_b[3,4]
+plant.dynamics.leg_v_b[3,3]
+plant.dynamics.leg_v_b[3,2]
+plant.dynamics.leg_v_b[3,1]
+plant.dynamics.leg_v_b[2,4]
+plant.dynamics.leg_v_b[2,3]
+plant.dynamics.leg_v_b[2,2]
+plant.dynamics.leg_v_b[2,1]
+plant.dynamics.leg_v_b[1,4]
+plant.dynamics.leg_v_b[1,3]
+plant.dynamics.leg_v_b[1,2]
+plant.dynamics.leg_v_b[1,1]
+plant.dynamics.leg_h_w[4]
+plant.dynamics.leg_h_w[3]
+plant.dynamics.leg_h_w[2]
+plant.dynamics.leg_h_w[1]
+plant.dynamics.drag_b[3]
+plant.dynamics.drag_b[2]
+plant.dynamics.drag_b[1]
+plant.dynamics.V
+plant.dynamics.M_rate[3]
+plant.dynamics.M_rate[2]
+plant.dynamics.M_rate[1]
+plant.dynamics.M_rotor[3]
+plant.dynamics.M_rotor[2]
+plant.dynamics.M_rotor[1]
+plant.dynamics.T
+plant.dynamics.F_m[4]
+plant.dynamics.F_m[3]
+plant.dynamics.F_m[2]
+plant.dynamics.F_m[1]
+plant.dynamics.motor[4].tau_inv
+plant.dynamics.motor[4].lag_blend
+plant.dynamics.motor[4].omega_error
+plant.dynamics.motor[4].omega
+plant.dynamics.motor[3].tau_inv
+plant.dynamics.motor[3].lag_blend
+plant.dynamics.motor[3].omega_error
+plant.dynamics.motor[3].omega
+plant.dynamics.motor[2].tau_inv
+plant.dynamics.motor[2].lag_blend
+plant.dynamics.motor[2].omega_error
+plant.dynamics.motor[2].omega
+plant.dynamics.motor[1].tau_inv
+plant.dynamics.motor[1].lag_blend
+plant.dynamics.motor[1].omega_error
+plant.dynamics.motor[1].omega
+plant.dynamics.mag[3]
+plant.dynamics.mag[2]
+plant.dynamics.mag[1]
+plant.dynamics.omega_cmd[4]
+plant.dynamics.omega_cmd[3]
+plant.dynamics.omega_cmd[2]
+plant.dynamics.omega_cmd[1]
+plant.dynamics.bodyAngularVelocityRate[3]
+plant.dynamics.bodyAngularVelocityRate[2]
+plant.dynamics.bodyAngularVelocityRate[1]
+plant.dynamics.attitudeRate[4]
+plant.dynamics.attitudeRate[3]
+plant.dynamics.attitudeRate[2]
+plant.dynamics.attitudeRate[1]
+plant.dynamics.bodyVelocityRate[3]
+plant.dynamics.bodyVelocityRate[2]
+plant.dynamics.bodyVelocityRate[1]
+plant.dynamics.omega[3]
+plant.dynamics.omega[2]
+plant.dynamics.omega[1]
+plant.dynamics.q[4]
+plant.dynamics.q[3]
+plant.dynamics.q[2]
+plant.dynamics.q[1]
+plant.dynamics.v_b[3]
+plant.dynamics.v_b[2]
+plant.dynamics.v_b[1]
+plant.dynamics.p[3]
+plant.dynamics.p[2]
+plant.dynamics.p[1]
+plant.dynamics.M_b[3]
+plant.dynamics.M_b[2]
+plant.dynamics.M_b[1]
+plant.dynamics.F_b[3]
+plant.dynamics.F_b[2]
+plant.dynamics.F_b[1]
+plant.truth.angularVelocityWorldEnu_rad_s[3]
+plant.truth.angularVelocityWorldEnu_rad_s[2]
+plant.truth.angularVelocityWorldEnu_rad_s[1]
+plant.truth.rotationWorldBody[3,3]
+plant.truth.rotationWorldBody[3,2]
+plant.truth.rotationWorldBody[3,1]
+plant.truth.rotationWorldBody[2,3]
+plant.truth.rotationWorldBody[2,2]
+plant.truth.rotationWorldBody[2,1]
+plant.truth.rotationWorldBody[1,3]
+plant.truth.rotationWorldBody[1,2]
+plant.truth.rotationWorldBody[1,1]
+plant.truth.accelerationWorldEnu_m_s2[3]
+plant.truth.accelerationWorldEnu_m_s2[2]
+plant.truth.accelerationWorldEnu_m_s2[1]
+plant.imu.specificForceBodyFlu_m_s2[3]
+plant.imu.specificForceBodyFlu_m_s2[2]
+plant.imu.specificForceBodyFlu_m_s2[1]
+$whenCondition14
+$whenCondition13
+$whenCondition12
+$whenCondition11
+$whenCondition10
+$whenCondition9
+$whenCondition8
+$whenCondition7
+$whenCondition6
+$whenCondition5
+$whenCondition4
+$whenCondition3
+$whenCondition2
+$whenCondition1
+equations:
+1 : algorithm
+  $whenCondition1 := sample(1, 0.0, modeSelector.samplePeriod);
+  when $whenCondition1 then
+    modeSelector.channelValid := transmitter.channelPwm_us_out[5] > modeSelector.minimumChannel_us and transmitter.channelPwm_us_out[5] < modeSelector.maximumChannel_us;
+    modeSelector.candidate := Vehicles.Interfaces.switchBandPosition(transmitter.channelPwm_us_out[5], modeSelector.bandEdge_us, modeSelector.hysteresis_us, max(1, pre(modeSelector.position)));
+    if not modeSelector.channelValid then
+      modeSelector.position := pre(modeSelector.position);
+      modeSelector.pending := pre(modeSelector.position);
+      modeSelector.agreement := 0;
+    elseif pre(modeSelector.position) == 0 then
+      modeSelector.position := Vehicles.Interfaces.switchBandPosition(transmitter.channelPwm_us_out[5], modeSelector.bandEdge_us, 0.0, 1);
+      modeSelector.pending := modeSelector.position;
+      modeSelector.agreement := 0;
+    elseif modeSelector.candidate == pre(modeSelector.position) then
+      modeSelector.position := pre(modeSelector.position);
+      modeSelector.pending := pre(modeSelector.position);
+      modeSelector.agreement := 0;
+    elseif modeSelector.candidate == pre(modeSelector.pending) then
+      modeSelector.agreement := pre(modeSelector.agreement) + 1;
+      modeSelector.position := if modeSelector.agreement >= modeSelector.debounceSamples then modeSelector.candidate else pre(modeSelector.position);
+      modeSelector.pending := modeSelector.candidate;
+    else
+      modeSelector.position := pre(modeSelector.position);
+      modeSelector.pending := modeSelector.candidate;
+      modeSelector.agreement := 1;
+    end if;
+    modeSelector.mode := modeSelector.modeForPosition[modeSelector.position];
+  end when;
+
+2 : algorithm
+  $whenCondition2 := sample(2, 0.0, avionics.planningTask.samplePeriod);
+  when $whenCondition2 then
+    if avionics.plan.valid and 0 <> pre(avionics.planningTask.sequence) and waypointCount >= 2 and waypointCount <= 4 and nominalSpeed > 0.0 and minSegmentDuration > 0.0 then
+      avionics.planningTask.waypointCount := waypointCount;
+      avionics.planningTask.sequence := 0;
+      avionics.planningTask.trajectoryTime := 0.0;
+      (avionics.planningTask.localWaypoint, avionics.planningTask.velocityEnu, avionics.planningTask.yaw, avionics.planningTask.segmentDuration, avionics.planningTask.totalDuration) := Planning.Bezier.prepareWaypointPlan({{localRoute[1,1], localRoute[1,2], localRoute[1,3]}, {localRoute[2,1], localRoute[2,2], localRoute[2,3]}, {localRoute[3,1], localRoute[3,2], localRoute[3,3]}, {localRoute[4,1], localRoute[4,2], localRoute[4,3]}}, {{waypointVelocityEnu[1,1], waypointVelocityEnu[1,2], waypointVelocityEnu[1,3]}, {waypointVelocityEnu[2,1], waypointVelocityEnu[2,2], waypointVelocityEnu[2,3]}, {waypointVelocityEnu[3,1], waypointVelocityEnu[3,2], waypointVelocityEnu[3,3]}, {waypointVelocityEnu[4,1], waypointVelocityEnu[4,2], waypointVelocityEnu[4,3]}}, {waypointYaw[1], waypointYaw[2], waypointYaw[3], waypointYaw[4]}, waypointCount, false, {origin.latitude_deg, origin.longitude_deg, origin.altitude_m}, nominalSpeed, minSegmentDuration);
+    elseif pre(avionics.planningTask.waypointCount) >= 2 then
+      avionics.planningTask.trajectoryTime := min(pre(avionics.planningTask.trajectoryTime) + (if avionics.manualEngaged then 0.0 else avionics.planningTask.samplePeriod), pre(avionics.planningTask.totalDuration));
+    end if;
+    avionics.planningTask.reference.valid := avionics.planningTask.waypointCount >= 2;
+    avionics.planningTask.reference.sequence := avionics.planningTask.sequence;
+    avionics.planningTask.reference.trajectoryTime := avionics.planningTask.trajectoryTime;
+    avionics.planningTask.reference.totalDuration := avionics.planningTask.totalDuration;
+    avionics.planningTask.reference.complete := avionics.planningTask.reference.valid and avionics.planningTask.trajectoryTime >= avionics.planningTask.totalDuration;
+    if avionics.planningTask.waypointCount >= 2 then
+      avionics.planningTask.activeSegment := Planning.Bezier.activeWaypointSegment(avionics.planningTask.segmentDuration, avionics.planningTask.waypointCount, avionics.planningTask.trajectoryTime);
+      (avionics.planningTask.referencePosition, avionics.planningTask.referenceVelocity, avionics.planningTask.referenceAcceleration, avionics.planningTask.referenceJerk, avionics.planningTask.referenceSnap, avionics.planningTask.referenceYaw, avionics.planningTask.referenceYawRate, avionics.planningTask.referenceYawAcceleration) := Planning.Bezier.trackWaypointTrajectory(avionics.planningTask.localWaypoint, avionics.planningTask.velocityEnu, avionics.planningTask.yaw, avionics.planningTask.segmentDuration, avionics.planningTask.waypointCount, avionics.planningTask.trajectoryTime);
+    else
+      avionics.planningTask.activeSegment := pre(avionics.planningTask.activeSegment);
+      avionics.planningTask.referencePosition := pre(avionics.planningTask.referencePosition);
+      avionics.planningTask.referenceVelocity := pre(avionics.planningTask.referenceVelocity);
+      avionics.planningTask.referenceAcceleration := pre(avionics.planningTask.referenceAcceleration);
+      avionics.planningTask.referenceJerk := pre(avionics.planningTask.referenceJerk);
+      avionics.planningTask.referenceSnap := pre(avionics.planningTask.referenceSnap);
+      avionics.planningTask.referenceYaw := pre(avionics.planningTask.referenceYaw);
+      avionics.planningTask.referenceYawRate := pre(avionics.planningTask.referenceYawRate);
+      avionics.planningTask.referenceYawAcceleration := pre(avionics.planningTask.referenceYawAcceleration);
+    end if;
+    avionics.planningTask.reference.activeSegment := avionics.planningTask.activeSegment;
+    avionics.planningTask.reference.position := avionics.planningTask.referencePosition;
+    avionics.planningTask.reference.velocity := avionics.planningTask.referenceVelocity;
+    avionics.planningTask.reference.acceleration := avionics.planningTask.referenceAcceleration;
+    avionics.planningTask.reference.jerk := avionics.planningTask.referenceJerk;
+    avionics.planningTask.reference.snap := avionics.planningTask.referenceSnap;
+    avionics.planningTask.reference.yaw := avionics.planningTask.referenceYaw;
+    avionics.planningTask.reference.yawRate := avionics.planningTask.referenceYawRate;
+    avionics.planningTask.reference.yawAcceleration := avionics.planningTask.referenceYawAcceleration;
+  end when;
+
+3 : algorithm
+  $whenCondition3 := sample(3, 0.0, avionics.guidanceTask.pilotMapping.samplePeriod);
+  when $whenCondition3 then
+    avionics.guidanceTask.pilotMapping.normalizedStick := MathUtilities.clipVector({avionics.pilot.stick[1], avionics.pilot.stick[2], avionics.pilot.stick[3]}, -1.0, 1.0);
+    avionics.guidanceTask.pilotMapping.commands.throttleInput := min(max(avionics.pilot.throttle, 0.0), 1.0);
+    avionics.guidanceTask.pilotMapping.commands.acroRateDesired_rad_s := {avionics.guidanceTask.pilotMapping.maxRollPitchRateRadS * avionics.guidanceTask.pilotMapping.normalizedStick[1], avionics.guidanceTask.pilotMapping.maxRollPitchRateRadS * avionics.guidanceTask.pilotMapping.normalizedStick[2], avionics.guidanceTask.pilotMapping.maxYawRateRadS * avionics.guidanceTask.pilotMapping.normalizedStick[3]};
+    avionics.guidanceTask.pilotMapping.commands.attitudeTiltDesired_rad := {avionics.guidanceTask.pilotMapping.maxAutoLevelTiltRad * avionics.guidanceTask.pilotMapping.normalizedStick[1], avionics.guidanceTask.pilotMapping.maxAutoLevelTiltRad * avionics.guidanceTask.pilotMapping.normalizedStick[2]};
+  end when;
+
+4 : algorithm
+  $whenCondition4 := sample(4, 0.0, avionics.guidanceTask.positionGuidance.samplePeriod);
+  when $whenCondition4 then
+    if avionics.guidanceTask.positionGuidance.resetIntegral then
+      avionics.guidanceTask.positionGuidance.positionIntegralWorld := {0.0, 0.0, 0.0};
+    else
+      avionics.guidanceTask.positionGuidance.positionIntegralWorld := Control.Multirotor.LogLinear.integratePositionError({referencePositionWorldEnu_m[1] - avionics.navigation.positionWorldEnu_m[1], referencePositionWorldEnu_m[2] - avionics.navigation.positionWorldEnu_m[2], referencePositionWorldEnu_m[3] - avionics.navigation.positionWorldEnu_m[3]}, pre(avionics.guidanceTask.positionGuidance.positionIntegralWorld), avionics.guidanceTask.positionGuidance.samplePeriod, avionics.guidanceTask.positionGuidance.gravity, avionics.guidanceTask.positionGuidance.integralGain, avionics.guidanceTask.positionGuidance.integralFractionLimit);
+    end if;
+  end when;
+
+5 : algorithm
+  $whenCondition5 := sample(5, 0.0, avionics.rateTask.samplePeriod);
+  when $whenCondition5 then
+    avionics.rateTask.unboundedMomentBodyFlu_Nm := Control.Multirotor.RateLoop.bodyMoment(avionics.rateTask.inputSignal.angularVelocityCommandFlu_rad_s, {avionics.navigation.angularVelocityBodyFlu_rad_s[1], avionics.navigation.angularVelocityBodyFlu_rad_s[2], avionics.navigation.angularVelocityBodyFlu_rad_s[3]}, avionics.rateTask.inertia, avionics.rateTask.rateGain, true);
+    avionics.rateTask.momentBodyFlu_Nm := {min(max(avionics.rateTask.unboundedMomentBodyFlu_Nm[1], -avionics.rateTask.maximumBodyMoment_Nm[1]), avionics.rateTask.maximumBodyMoment_Nm[1]), min(max(avionics.rateTask.unboundedMomentBodyFlu_Nm[2], -avionics.rateTask.maximumBodyMoment_Nm[2]), avionics.rateTask.maximumBodyMoment_Nm[2]), min(max(avionics.rateTask.unboundedMomentBodyFlu_Nm[3], -avionics.rateTask.maximumBodyMoment_Nm[3]), avionics.rateTask.maximumBodyMoment_Nm[3])};
+    avionics.rateTask.allocatedMotorCommand := Control.Multirotor.Allocation.rotorCommands(4, thrust_N, avionics.rateTask.momentBodyFlu_Nm, avionics.rateTask.wrenchToRotorThrust, {avionics.rateTask.thrustCoefficient, avionics.rateTask.thrustCoefficient, avionics.rateTask.thrustCoefficient, avionics.rateTask.thrustCoefficient}, {avionics.rateTask.maxMotorSpeed, avionics.rateTask.maxMotorSpeed, avionics.rateTask.maxMotorSpeed, avionics.rateTask.maxMotorSpeed});
+  end when;
+
+6 : algorithm
+  $whenCondition6 := sample(6, 0.0, avionics.manualTask.samplePeriod);
+  when $whenCondition6 then
+    avionics.manualTask.vehicleEulerB321_rad := LieGroups.SO3.EulerB321.from_Quat({avionics.navigation.quaternionWorldBody[1], avionics.navigation.quaternionWorldBody[2], avionics.navigation.quaternionWorldBody[3], avionics.navigation.quaternionWorldBody[4]});
+    avionics.manualTask.vehicleHeadingQuaternion := LieGroups.SO3.EulerB321.to_Quat({avionics.manualTask.vehicleEulerB321_rad[1], 0.0, 0.0});
+    avionics.manualTask.vehiclePose := {avionics.navigation.positionWorldEnu_m[1], avionics.navigation.positionWorldEnu_m[2], avionics.navigation.positionWorldEnu_m[3], avionics.navigation.velocityWorldEnu_m_s[1], avionics.navigation.velocityWorldEnu_m_s[2], avionics.navigation.velocityWorldEnu_m_s[3], avionics.manualTask.vehicleHeadingQuaternion[1], avionics.manualTask.vehicleHeadingQuaternion[2], avionics.manualTask.vehicleHeadingQuaternion[3], avionics.manualTask.vehicleHeadingQuaternion[4]};
+    avionics.manualTask.continuing := avionics.manualEngaged and pre(avionics.manualTask.wasEngaged);
+    avionics.manualTask.basePose := if avionics.manualTask.continuing then pre(avionics.manualTask.extendedPose) else avionics.manualTask.vehiclePose;
+    avionics.manualTask.baseAcceleration := if avionics.manualTask.continuing then pre(avionics.manualTask.bodyAcceleration_m_s2) else {0.0, 0.0, 0.0};
+    avionics.manualTask.baseHeadingRate := if avionics.manualTask.continuing then pre(avionics.manualTask.headingRateCommand_rad_s) else 0.0;
+    avionics.manualTask.baseBodyVelocity := LieGroups.SO3.Quat.rotate(LieGroups.SO3.Quat.inverse(avionics.manualTask.basePose[7:10]), avionics.manualTask.basePose[4:6]);
+    avionics.manualTask.shapedRoll := (1.0 - min(max(avionics.manualTask.stickExpo, 0.0), 1.0)) * min(max(if noEvent(abs(min(max(avionics.pilot.stick[1], -1.0), 1.0)) <= min(max(avionics.manualTask.stickDeadband, 0.0), 0.99)) then 0.0 else (min(max(avionics.pilot.stick[1], -1.0), 1.0) - /*Real*/(sign(min(max(avionics.pilot.stick[1], -1.0), 1.0))) * min(max(avionics.manualTask.stickDeadband, 0.0), 0.99)) / (1.0 - min(max(avionics.manualTask.stickDeadband, 0.0), 0.99)), -1.0), 1.0) + min(max(avionics.manualTask.stickExpo, 0.0), 1.0) * min(max(if noEvent(abs(min(max(avionics.pilot.stick[1], -1.0), 1.0)) <= min(max(avionics.manualTask.stickDeadband, 0.0), 0.99)) then 0.0 else (min(max(avionics.pilot.stick[1], -1.0), 1.0) - /*Real*/(sign(min(max(avionics.pilot.stick[1], -1.0), 1.0))) * min(max(avionics.manualTask.stickDeadband, 0.0), 0.99)) / (1.0 - min(max(avionics.manualTask.stickDeadband, 0.0), 0.99)), -1.0), 1.0) ^ 3.0;
+    avionics.manualTask.shapedPitch := (1.0 - min(max(avionics.manualTask.stickExpo, 0.0), 1.0)) * min(max(if noEvent(abs(min(max(avionics.pilot.stick[2], -1.0), 1.0)) <= min(max(avionics.manualTask.stickDeadband, 0.0), 0.99)) then 0.0 else (min(max(avionics.pilot.stick[2], -1.0), 1.0) - /*Real*/(sign(min(max(avionics.pilot.stick[2], -1.0), 1.0))) * min(max(avionics.manualTask.stickDeadband, 0.0), 0.99)) / (1.0 - min(max(avionics.manualTask.stickDeadband, 0.0), 0.99)), -1.0), 1.0) + min(max(avionics.manualTask.stickExpo, 0.0), 1.0) * min(max(if noEvent(abs(min(max(avionics.pilot.stick[2], -1.0), 1.0)) <= min(max(avionics.manualTask.stickDeadband, 0.0), 0.99)) then 0.0 else (min(max(avionics.pilot.stick[2], -1.0), 1.0) - /*Real*/(sign(min(max(avionics.pilot.stick[2], -1.0), 1.0))) * min(max(avionics.manualTask.stickDeadband, 0.0), 0.99)) / (1.0 - min(max(avionics.manualTask.stickDeadband, 0.0), 0.99)), -1.0), 1.0) ^ 3.0;
+    avionics.manualTask.shapedYaw := (1.0 - min(max(avionics.manualTask.stickExpo, 0.0), 1.0)) * min(max(if noEvent(abs(min(max(avionics.pilot.stick[3], -1.0), 1.0)) <= min(max(avionics.manualTask.stickDeadband, 0.0), 0.99)) then 0.0 else (min(max(avionics.pilot.stick[3], -1.0), 1.0) - /*Real*/(sign(min(max(avionics.pilot.stick[3], -1.0), 1.0))) * min(max(avionics.manualTask.stickDeadband, 0.0), 0.99)) / (1.0 - min(max(avionics.manualTask.stickDeadband, 0.0), 0.99)), -1.0), 1.0) + min(max(avionics.manualTask.stickExpo, 0.0), 1.0) * min(max(if noEvent(abs(min(max(avionics.pilot.stick[3], -1.0), 1.0)) <= min(max(avionics.manualTask.stickDeadband, 0.0), 0.99)) then 0.0 else (min(max(avionics.pilot.stick[3], -1.0), 1.0) - /*Real*/(sign(min(max(avionics.pilot.stick[3], -1.0), 1.0))) * min(max(avionics.manualTask.stickDeadband, 0.0), 0.99)) / (1.0 - min(max(avionics.manualTask.stickDeadband, 0.0), 0.99)), -1.0), 1.0) ^ 3.0;
+    avionics.manualTask.shapedThrottle := (1.0 - min(max(avionics.manualTask.stickExpo, 0.0), 1.0)) * min(max(if noEvent(abs(min(max(-1.0 + 2.0 * min(max(avionics.pilot.throttle, 0.0), 1.0), -1.0), 1.0)) <= min(max(avionics.manualTask.stickDeadband, 0.0), 0.99)) then 0.0 else (min(max(-1.0 + 2.0 * min(max(avionics.pilot.throttle, 0.0), 1.0), -1.0), 1.0) - /*Real*/(sign(min(max(-1.0 + 2.0 * min(max(avionics.pilot.throttle, 0.0), 1.0), -1.0), 1.0))) * min(max(avionics.manualTask.stickDeadband, 0.0), 0.99)) / (1.0 - min(max(avionics.manualTask.stickDeadband, 0.0), 0.99)), -1.0), 1.0) + min(max(avionics.manualTask.stickExpo, 0.0), 1.0) * min(max(if noEvent(abs(min(max(-1.0 + 2.0 * min(max(avionics.pilot.throttle, 0.0), 1.0), -1.0), 1.0)) <= min(max(avionics.manualTask.stickDeadband, 0.0), 0.99)) then 0.0 else (min(max(-1.0 + 2.0 * min(max(avionics.pilot.throttle, 0.0), 1.0), -1.0), 1.0) - /*Real*/(sign(min(max(-1.0 + 2.0 * min(max(avionics.pilot.throttle, 0.0), 1.0), -1.0), 1.0))) * min(max(avionics.manualTask.stickDeadband, 0.0), 0.99)) / (1.0 - min(max(avionics.manualTask.stickDeadband, 0.0), 0.99)), -1.0), 1.0) ^ 3.0;
+    avionics.manualTask.stickDisc := if noEvent(sqrt(avionics.manualTask.shapedPitch ^ 2.0 + avionics.manualTask.shapedRoll ^ 2.0) > 1.0) then {avionics.manualTask.shapedPitch / sqrt(avionics.manualTask.shapedPitch ^ 2.0 + avionics.manualTask.shapedRoll ^ 2.0), (-avionics.manualTask.shapedRoll) / sqrt(avionics.manualTask.shapedPitch ^ 2.0 + avionics.manualTask.shapedRoll ^ 2.0)} else {avionics.manualTask.shapedPitch, -avionics.manualTask.shapedRoll};
+    avionics.manualTask.verticalSpeedScale := if avionics.manualTask.shapedThrottle >= 0.0 then avionics.manualTask.climbSpeed_m_s else avionics.manualTask.descentSpeed_m_s;
+    avionics.manualTask.targetBodyVelocity := {avionics.manualTask.horizontalSpeed_m_s * avionics.manualTask.stickDisc[1], avionics.manualTask.horizontalSpeed_m_s * avionics.manualTask.stickDisc[2], avionics.manualTask.shapedThrottle * avionics.manualTask.verticalSpeedScale};
+    avionics.manualTask.velocityError := {avionics.manualTask.targetBodyVelocity[1] - avionics.manualTask.baseBodyVelocity[1], avionics.manualTask.targetBodyVelocity[2] - avionics.manualTask.baseBodyVelocity[2], avionics.manualTask.targetBodyVelocity[3] - avionics.manualTask.baseBodyVelocity[3]};
+    avionics.manualTask.horizontalRateTarget := if noEvent(sqrt((avionics.manualTask.velocityError[1] ^ 2.0 + avionics.manualTask.velocityError[2] ^ 2.0) / avionics.manualTask.samplePeriod ^ 2.0) > min(avionics.manualTask.horizontalAcceleration_m_s2, MathUtilities.squareRootRamp(sqrt(avionics.manualTask.velocityError[1] ^ 2.0 + avionics.manualTask.velocityError[2] ^ 2.0), 1.0 / avionics.manualTask.samplePeriod, avionics.manualTask.jerk_m_s3))) then {min(avionics.manualTask.horizontalAcceleration_m_s2, MathUtilities.squareRootRamp(sqrt(avionics.manualTask.velocityError[1] ^ 2.0 + avionics.manualTask.velocityError[2] ^ 2.0), 1.0 / avionics.manualTask.samplePeriod, avionics.manualTask.jerk_m_s3)) / sqrt((avionics.manualTask.velocityError[1] ^ 2.0 + avionics.manualTask.velocityError[2] ^ 2.0) / avionics.manualTask.samplePeriod ^ 2.0) * avionics.manualTask.velocityError[1] / avionics.manualTask.samplePeriod, min(avionics.manualTask.horizontalAcceleration_m_s2, MathUtilities.squareRootRamp(sqrt(avionics.manualTask.velocityError[1] ^ 2.0 + avionics.manualTask.velocityError[2] ^ 2.0), 1.0 / avionics.manualTask.samplePeriod, avionics.manualTask.jerk_m_s3)) / sqrt((avionics.manualTask.velocityError[1] ^ 2.0 + avionics.manualTask.velocityError[2] ^ 2.0) / avionics.manualTask.samplePeriod ^ 2.0) * avionics.manualTask.velocityError[2] / avionics.manualTask.samplePeriod} else {avionics.manualTask.velocityError[1] / avionics.manualTask.samplePeriod, avionics.manualTask.velocityError[2] / avionics.manualTask.samplePeriod};
+    avionics.manualTask.verticalRateTarget := min(max(MathUtilities.squareRootRamp(avionics.manualTask.velocityError[3], 1.0 / avionics.manualTask.samplePeriod, avionics.manualTask.jerk_m_s3), -avionics.manualTask.verticalAcceleration_m_s2), avionics.manualTask.verticalAcceleration_m_s2);
+    avionics.manualTask.horizontalRateStep := if noEvent(sqrt((avionics.manualTask.horizontalRateTarget[1] - avionics.manualTask.baseAcceleration[1]) ^ 2.0 + (avionics.manualTask.horizontalRateTarget[2] - avionics.manualTask.baseAcceleration[2]) ^ 2.0) > avionics.manualTask.jerk_m_s3 * avionics.manualTask.samplePeriod) then {(avionics.manualTask.horizontalRateTarget[1] - avionics.manualTask.baseAcceleration[1]) * avionics.manualTask.jerk_m_s3 * avionics.manualTask.samplePeriod / sqrt((avionics.manualTask.horizontalRateTarget[1] - avionics.manualTask.baseAcceleration[1]) ^ 2.0 + (avionics.manualTask.horizontalRateTarget[2] - avionics.manualTask.baseAcceleration[2]) ^ 2.0), (avionics.manualTask.horizontalRateTarget[2] - avionics.manualTask.baseAcceleration[2]) * avionics.manualTask.jerk_m_s3 * avionics.manualTask.samplePeriod / sqrt((avionics.manualTask.horizontalRateTarget[1] - avionics.manualTask.baseAcceleration[1]) ^ 2.0 + (avionics.manualTask.horizontalRateTarget[2] - avionics.manualTask.baseAcceleration[2]) ^ 2.0)} else {avionics.manualTask.horizontalRateTarget[1] - avionics.manualTask.baseAcceleration[1], avionics.manualTask.horizontalRateTarget[2] - avionics.manualTask.baseAcceleration[2]};
+    avionics.manualTask.verticalRateStep := min(max(avionics.manualTask.verticalRateTarget - avionics.manualTask.baseAcceleration[3], (-avionics.manualTask.jerk_m_s3) * avionics.manualTask.samplePeriod), avionics.manualTask.jerk_m_s3 * avionics.manualTask.samplePeriod);
+    avionics.manualTask.commandAcceleration := {avionics.manualTask.baseAcceleration[1] + avionics.manualTask.horizontalRateStep[1], avionics.manualTask.baseAcceleration[2] + avionics.manualTask.horizontalRateStep[2], avionics.manualTask.baseAcceleration[3] + avionics.manualTask.verticalRateStep};
+    avionics.manualTask.commandHeadingRate := avionics.manualTask.baseHeadingRate + avionics.manualTask.samplePeriod / (avionics.manualTask.headingRateTimeConstant_s + avionics.manualTask.samplePeriod) * (avionics.manualTask.headingRate_rad_s * avionics.manualTask.shapedYaw - avionics.manualTask.baseHeadingRate);
+    avionics.manualTask.stepBodyIncrement := {0.0, 0.0, 0.0, avionics.manualTask.commandAcceleration[1] * avionics.manualTask.samplePeriod, avionics.manualTask.commandAcceleration[2] * avionics.manualTask.samplePeriod, avionics.manualTask.commandAcceleration[3] * avionics.manualTask.samplePeriod, 0.0, 0.0, avionics.manualTask.commandHeadingRate * avionics.manualTask.samplePeriod};
+    avionics.manualTask.unleashedPose := LieGroups.SE23.Quat.exp_mixed(avionics.manualTask.basePose, avionics.manualTask.stepBodyIncrement, {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}, {{0.0, avionics.manualTask.samplePeriod}, {0.0, 0.0}});
+    avionics.manualTask.poseError := LieGroups.SE23.Quat.log_map(LieGroups.SE23.Quat.product(LieGroups.SE23.Quat.inverse(avionics.manualTask.vehiclePose), avionics.manualTask.unleashedPose));
+    avionics.manualTask.leashedError := {if noEvent(sqrt(avionics.manualTask.poseError[1] ^ 2.0 + avionics.manualTask.poseError[2] ^ 2.0) > avionics.manualTask.horizontalLeash_m) then avionics.manualTask.poseError[1] * avionics.manualTask.horizontalLeash_m / sqrt(avionics.manualTask.poseError[1] ^ 2.0 + avionics.manualTask.poseError[2] ^ 2.0) else avionics.manualTask.poseError[1], if noEvent(sqrt(avionics.manualTask.poseError[1] ^ 2.0 + avionics.manualTask.poseError[2] ^ 2.0) > avionics.manualTask.horizontalLeash_m) then avionics.manualTask.poseError[2] * avionics.manualTask.horizontalLeash_m / sqrt(avionics.manualTask.poseError[1] ^ 2.0 + avionics.manualTask.poseError[2] ^ 2.0) else avionics.manualTask.poseError[2], min(max(avionics.manualTask.poseError[3], -avionics.manualTask.verticalLeash_m), avionics.manualTask.verticalLeash_m), if noEvent(sqrt(avionics.manualTask.poseError[4] ^ 2.0 + avionics.manualTask.poseError[5] ^ 2.0) > avionics.manualTask.horizontalSpeedLeash_m_s) then avionics.manualTask.poseError[4] * avionics.manualTask.horizontalSpeedLeash_m_s / sqrt(avionics.manualTask.poseError[4] ^ 2.0 + avionics.manualTask.poseError[5] ^ 2.0) else avionics.manualTask.poseError[4], if noEvent(sqrt(avionics.manualTask.poseError[4] ^ 2.0 + avionics.manualTask.poseError[5] ^ 2.0) > avionics.manualTask.horizontalSpeedLeash_m_s) then avionics.manualTask.poseError[5] * avionics.manualTask.horizontalSpeedLeash_m_s / sqrt(avionics.manualTask.poseError[4] ^ 2.0 + avionics.manualTask.poseError[5] ^ 2.0) else avionics.manualTask.poseError[5], min(max(avionics.manualTask.poseError[6], -avionics.manualTask.verticalSpeedLeash_m_s), avionics.manualTask.verticalSpeedLeash_m_s), 0.0, 0.0, min(max(avionics.manualTask.poseError[9], -avionics.manualTask.headingLeash_rad), avionics.manualTask.headingLeash_rad)};
+    avionics.manualTask.leashedPoseRaw := LieGroups.SE23.Quat.product(avionics.manualTask.vehiclePose, LieGroups.SE23.Quat.exp_map(avionics.manualTask.leashedError));
+    avionics.manualTask.leashedPose := {avionics.manualTask.leashedPoseRaw[1], avionics.manualTask.leashedPoseRaw[2], avionics.manualTask.leashedPoseRaw[3], avionics.manualTask.leashedPoseRaw[4], avionics.manualTask.leashedPoseRaw[5], avionics.manualTask.leashedPoseRaw[6], LieGroups.SO3.Quat.normalize(avionics.manualTask.leashedPoseRaw[7:10])[1], LieGroups.SO3.Quat.normalize(avionics.manualTask.leashedPoseRaw[7:10])[2], LieGroups.SO3.Quat.normalize(avionics.manualTask.leashedPoseRaw[7:10])[3], LieGroups.SO3.Quat.normalize(avionics.manualTask.leashedPoseRaw[7:10])[4]};
+    avionics.manualTask.extendedPose := if avionics.manualEngaged then avionics.manualTask.leashedPose else avionics.manualTask.vehiclePose;
+    avionics.manualTask.bodyAcceleration_m_s2 := if avionics.manualEngaged then avionics.manualTask.commandAcceleration else {0.0, 0.0, 0.0};
+    avionics.manualTask.headingRateCommand_rad_s := if avionics.manualEngaged then avionics.manualTask.commandHeadingRate else 0.0;
+    avionics.manualTask.positionWorldEnu_m := avionics.manualTask.extendedPose[1:3];
+    avionics.manualTask.velocityWorldEnu_m_s := avionics.manualTask.extendedPose[4:6];
+    avionics.manualTask.headingQuaternionWorldBody := avionics.manualTask.extendedPose[7:10];
+    avionics.manualTask.accelerationWorldEnu_m_s2 := LieGroups.SO3.Quat.rotate(avionics.manualTask.headingQuaternionWorldBody, avionics.manualTask.bodyAcceleration_m_s2);
+    avionics.manualTask.referenceEulerB321_rad := LieGroups.SO3.EulerB321.from_Quat(avionics.manualTask.headingQuaternionWorldBody);
+    avionics.manualTask.yaw_rad := avionics.manualTask.referenceEulerB321_rad[1];
+    avionics.manualTask.wasEngaged := avionics.manualEngaged;
+  end when;
+
+7 : algorithm
+  $whenCondition7 := sample(7, 0.0, estimator.samplePeriod);
+  when $whenCondition7 then
+    estimator.terrainCorrectionAccepted := false;
+    estimator.terrainInitialized := pre(estimator.terrainInitialized);
+    estimator.stateTerrainVariance_m2 := estimator.auxiliaryPredictedVariance_m2;
+    estimator.stateTerrainAltitude_m := if pre(estimator.terrainInitialized) then pre(estimator.stateTerrainAltitude_m) else estimator.initialTerrainAltitudeWorldEnu_m;
+    (estimator.statePosition, estimator.stateVelocity, estimator.stateQuaternion, estimator.stateGyroscopeBias, estimator.stateAccelerometerBias, estimator.stateCovariance, estimator.initialized, estimator.predictionAccepted, estimator.mocapCorrectionAccepted, estimator.gpsPositionCorrectionAccepted, estimator.gpsVelocityCorrectionAccepted, estimator.magnetometerCorrectionAccepted, estimator.barometerCorrectionAccepted, estimator.opticalFlowCorrectionAccepted, estimator.consecutiveRejectedCorrections, estimator.rejectionElapsed_s, estimator.recoveryStage, estimator.correctionOutcome, estimator.correctionSource, estimator.normalizedInnovationSquared, estimator.estimateValid, estimator.reseeded, estimator.mocapRejections, estimator.gpsRejections, estimator.opticalFlowRejections, estimator.anchorSource, estimator.mocapStale_s, estimator.gpsStale_s, estimator.opticalFlowStale_s, estimator.imuAngularVelocityHeld_rad_s, estimator.imuSpecificForceHeld_m_s2, estimator.imuTimestampHeld_s, estimator.imuPayloadHeld, estimator.mocapTimestampConsumed_s, estimator.gpsTimestampConsumed_s, estimator.magnetometerTimestampConsumed_s, estimator.barometerTimestampConsumed_s, estimator.opticalFlowTimestampConsumed_s, estimator.alignmentWait_s, estimator.quietElapsed_s, estimator.pseudoPositionHold_m, estimator.alignmentSource, estimator.alignmentSpecificForce_m_s2, estimator.quietAngularRate_rad_s, estimator.pseudoPositionCorrectionAccepted, estimator.zeroVelocityCorrectionAccepted, estimator.stationaryImuCorrectionAccepted, estimator.stateCovarianceRoot) := Estimation.StrapdownINS.ESKF.step(pre(estimator.initialized), Estimation.StrapdownINS.ESKF.State(pre(estimator.statePosition), pre(estimator.stateVelocity), pre(estimator.stateQuaternion), pre(estimator.stateGyroscopeBias), pre(estimator.stateAccelerometerBias), pre(estimator.stateCovariance), estimator.useSquareRootCovariance, pre(estimator.stateCovarianceRoot)), false, Avionics.ImuSampleInput(estimator.imu.fresh, estimator.imu.fresh, imuPacketTimestamp_s, {estimator.imu.angularVelocityBodyFlu_rad_s[1], estimator.imu.angularVelocityBodyFlu_rad_s[2], estimator.imu.angularVelocityBodyFlu_rad_s[3]}, {estimator.imu.specificForceBodyFlu_m_s2[1], estimator.imu.specificForceBodyFlu_m_s2[2], estimator.imu.specificForceBodyFlu_m_s2[3]}, {imuPreintegratedDeltaAngle_rad[1], imuPreintegratedDeltaAngle_rad[2], imuPreintegratedDeltaAngle_rad[3]}, {imuPreintegratedDeltaVelocity_m_s[1], imuPreintegratedDeltaVelocity_m_s[2], imuPreintegratedDeltaVelocity_m_s[3]}, {imuPreintegratedDeltaPosition_m[1], imuPreintegratedDeltaPosition_m[2], imuPreintegratedDeltaPosition_m[3]}, {imuPacketDeltaQuaternion[1], imuPacketDeltaQuaternion[2], imuPacketDeltaQuaternion[3], imuPacketDeltaQuaternion[4]}, imuPreintegrationTime_s, {imuPacketGyroscopeBiasLinearization_rad_s[1], imuPacketGyroscopeBiasLinearization_rad_s[2], imuPacketGyroscopeBiasLinearization_rad_s[3]}, {imuPacketAccelerometerBiasLinearization_m_s2[1], imuPacketAccelerometerBiasLinearization_m_s2[2], imuPacketAccelerometerBiasLinearization_m_s2[3]}, {{imuPacketRotationGyroscopeBiasJacobian_s[1,1], imuPacketRotationGyroscopeBiasJacobian_s[1,2], imuPacketRotationGyroscopeBiasJacobian_s[1,3]}, {imuPacketRotationGyroscopeBiasJacobian_s[2,1], imuPacketRotationGyroscopeBiasJacobian_s[2,2], imuPacketRotationGyroscopeBiasJacobian_s[2,3]}, {imuPacketRotationGyroscopeBiasJacobian_s[3,1], imuPacketRotationGyroscopeBiasJacobian_s[3,2], imuPacketRotationGyroscopeBiasJacobian_s[3,3]}}, {{imuPacketVelocityGyroscopeBiasJacobian_m[1,1], imuPacketVelocityGyroscopeBiasJacobian_m[1,2], imuPacketVelocityGyroscopeBiasJacobian_m[1,3]}, {imuPacketVelocityGyroscopeBiasJacobian_m[2,1], imuPacketVelocityGyroscopeBiasJacobian_m[2,2], imuPacketVelocityGyroscopeBiasJacobian_m[2,3]}, {imuPacketVelocityGyroscopeBiasJacobian_m[3,1], imuPacketVelocityGyroscopeBiasJacobian_m[3,2], imuPacketVelocityGyroscopeBiasJacobian_m[3,3]}}, {{imuPacketVelocityAccelerometerBiasJacobian_s[1,1], imuPacketVelocityAccelerometerBiasJacobian_s[1,2], imuPacketVelocityAccelerometerBiasJacobian_s[1,3]}, {imuPacketVelocityAccelerometerBiasJacobian_s[2,1], imuPacketVelocityAccelerometerBiasJacobian_s[2,2], imuPacketVelocityAccelerometerBiasJacobian_s[2,3]}, {imuPacketVelocityAccelerometerBiasJacobian_s[3,1], imuPacketVelocityAccelerometerBiasJacobian_s[3,2], imuPacketVelocityAccelerometerBiasJacobian_s[3,3]}}, {{imuPacketPositionGyroscopeBiasJacobian_m_s[1,1], imuPacketPositionGyroscopeBiasJacobian_m_s[1,2], imuPacketPositionGyroscopeBiasJacobian_m_s[1,3]}, {imuPacketPositionGyroscopeBiasJacobian_m_s[2,1], imuPacketPositionGyroscopeBiasJacobian_m_s[2,2], imuPacketPositionGyroscopeBiasJacobian_m_s[2,3]}, {imuPacketPositionGyroscopeBiasJacobian_m_s[3,1], imuPacketPositionGyroscopeBiasJacobian_m_s[3,2], imuPacketPositionGyroscopeBiasJacobian_m_s[3,3]}}, {{imuPacketPositionAccelerometerBiasJacobian_s2[1,1], imuPacketPositionAccelerometerBiasJacobian_s2[1,2], imuPacketPositionAccelerometerBiasJacobian_s2[1,3]}, {imuPacketPositionAccelerometerBiasJacobian_s2[2,1], imuPacketPositionAccelerometerBiasJacobian_s2[2,2], imuPacketPositionAccelerometerBiasJacobian_s2[2,3]}, {imuPacketPositionAccelerometerBiasJacobian_s2[3,1], imuPacketPositionAccelerometerBiasJacobian_s2[3,2], imuPacketPositionAccelerometerBiasJacobian_s2[3,3]}}), Avionics.MocapSampleInput(false, false, mocapPacketTimestamp_s, {mocapPacketPositionWorldEnu_m[1], mocapPacketPositionWorldEnu_m[2], mocapPacketPositionWorldEnu_m[3]}, {mocapPacketQuaternionWorldBody[1], mocapPacketQuaternionWorldBody[2], mocapPacketQuaternionWorldBody[3], mocapPacketQuaternionWorldBody[4]}, {{mocapPositionCovarianceWorld_m2[1,1], mocapPositionCovarianceWorld_m2[1,2], mocapPositionCovarianceWorld_m2[1,3]}, {mocapPositionCovarianceWorld_m2[2,1], mocapPositionCovarianceWorld_m2[2,2], mocapPositionCovarianceWorld_m2[2,3]}, {mocapPositionCovarianceWorld_m2[3,1], mocapPositionCovarianceWorld_m2[3,2], mocapPositionCovarianceWorld_m2[3,3]}}, {{mocapAttitudeCovarianceBody_rad2[1,1], mocapAttitudeCovarianceBody_rad2[1,2], mocapAttitudeCovarianceBody_rad2[1,3]}, {mocapAttitudeCovarianceBody_rad2[2,1], mocapAttitudeCovarianceBody_rad2[2,2], mocapAttitudeCovarianceBody_rad2[2,3]}, {mocapAttitudeCovarianceBody_rad2[3,1], mocapAttitudeCovarianceBody_rad2[3,2], mocapAttitudeCovarianceBody_rad2[3,3]}}), Avionics.GpsSampleInput(true, estimator.gps.fresh, true, true, gpsPacketTimestamp_s, {geodetic[1], geodetic[2], geodetic[3]}, {gpsPacketPositionWorldEnu_m[1], gpsPacketPositionWorldEnu_m[2], gpsPacketPositionWorldEnu_m[3]}, {gpsPacketVelocityWorldEnu_m_s[1], gpsPacketVelocityWorldEnu_m_s[2], gpsPacketVelocityWorldEnu_m_s[3]}, {{gpsPositionCovarianceWorld_m2[1,1], gpsPositionCovarianceWorld_m2[1,2], gpsPositionCovarianceWorld_m2[1,3]}, {gpsPositionCovarianceWorld_m2[2,1], gpsPositionCovarianceWorld_m2[2,2], gpsPositionCovarianceWorld_m2[2,3]}, {gpsPositionCovarianceWorld_m2[3,1], gpsPositionCovarianceWorld_m2[3,2], gpsPositionCovarianceWorld_m2[3,3]}}, {{gpsVelocityCovarianceWorld_m2_s2[1,1], gpsVelocityCovarianceWorld_m2_s2[1,2], gpsVelocityCovarianceWorld_m2_s2[1,3]}, {gpsVelocityCovarianceWorld_m2_s2[2,1], gpsVelocityCovarianceWorld_m2_s2[2,2], gpsVelocityCovarianceWorld_m2_s2[2,3]}, {gpsVelocityCovarianceWorld_m2_s2[3,1], gpsVelocityCovarianceWorld_m2_s2[3,2], gpsVelocityCovarianceWorld_m2_s2[3,3]}}), Avionics.MagnetometerSampleInput(true, estimator.magnetometer.fresh, magnetometerPacketTimestamp_s, {magnetometerPacketFieldBodyFlu_T[1], magnetometerPacketFieldBodyFlu_T[2], magnetometerPacketFieldBodyFlu_T[3]}, {{magnetometerCovarianceBody_T2[1,1], magnetometerCovarianceBody_T2[1,2], magnetometerCovarianceBody_T2[1,3]}, {magnetometerCovarianceBody_T2[2,1], magnetometerCovarianceBody_T2[2,2], magnetometerCovarianceBody_T2[2,3]}, {magnetometerCovarianceBody_T2[3,1], magnetometerCovarianceBody_T2[3,2], magnetometerCovarianceBody_T2[3,3]}}), Avionics.BarometerSample(pre(estimator.barometerBiasInitialized) and not estimator.barometerBiasUpdateAccepted and barometerPacketTimestamp_s > pre(estimator.barometerBiasTimestampConsumed_s) + 1e-9, estimator.barometer.fresh, barometerPacketTimestamp_s, barometerPacketAltitudeWorldEnu_m, barometerVariance_m2), Avionics.OpticalFlowSampleInput(false, false, opticalFlowPacketTimestamp_s, {opticalFlowPacketIntegratedLineOfSight_rad[1], opticalFlowPacketIntegratedLineOfSight_rad[2]}, {{estimator.opticalFlow.integratedLineOfSightCovariance_rad2[1,1], estimator.opticalFlow.integratedLineOfSightCovariance_rad2[1,2]}, {estimator.opticalFlow.integratedLineOfSightCovariance_rad2[2,1], estimator.opticalFlow.integratedLineOfSightCovariance_rad2[2,2]}}, {opticalFlowPacketIntegratedGyroscope_rad[1], opticalFlowPacketIntegratedGyroscope_rad[2], opticalFlowPacketIntegratedGyroscope_rad[3]}, {{estimator.opticalFlow.integratedGyroscopeCovariance_rad2[1,1], estimator.opticalFlow.integratedGyroscopeCovariance_rad2[1,2], estimator.opticalFlow.integratedGyroscopeCovariance_rad2[1,3]}, {estimator.opticalFlow.integratedGyroscopeCovariance_rad2[2,1], estimator.opticalFlow.integratedGyroscopeCovariance_rad2[2,2], estimator.opticalFlow.integratedGyroscopeCovariance_rad2[2,3]}, {estimator.opticalFlow.integratedGyroscopeCovariance_rad2[3,1], estimator.opticalFlow.integratedGyroscopeCovariance_rad2[3,2], estimator.opticalFlow.integratedGyroscopeCovariance_rad2[3,3]}}, opticalFlowSamplePeriod, opticalFlowPacketGroundDistance_m, opticalFlowGroundDistanceVariance_m2, 1.0), estimator.gravityWorldEnu_m_s2, estimator.samplePeriod, Estimation.StrapdownINS.ESKF.Tuning(Estimation.StrapdownINS.ESKF.NominalState(estimator.initialPositionWorldEnu_m, estimator.initialVelocityWorldEnu_m_s, estimator.initialQuaternionWorldBody, estimator.initialGyroscopeBiasBodyFlu_rad_s, estimator.initialAccelerometerBiasBodyFlu_m_s2), estimator.initialVariances, estimator.processNoise, estimator.varianceLimits, estimator.innovationGate, estimator.localMagneticFieldWorldEnu_T, false, false, estimator.stateBarometerBias_m, estimator.stateBarometerBiasVariance_m2, estimator.maximumAidingDelay_s, estimator.minimumOpticalFlowQuality, estimator.minimumOpticalFlowGroundDistance_m, estimator.covarianceInflateWindow_s, estimator.covarianceInflateTimeConstant_s, estimator.aidingDivergentWindow_s, estimator.aidingStaleTimeout_s, estimator.aidingReseedWindow_s, estimator.initialAlignmentWindow_s, estimator.initialAlignmentTimeout_s, estimator.quietSpecificForceTolerance_m_s2, estimator.quietAngularRateLimit_rad_s, estimator.quietFilterTimeConstant_s, estimator.pseudoPositionVariance_m2, estimator.zeroVelocityVariance_m2_s2, 0.01, false, false, false), pre(estimator.consecutiveRejectedCorrections), pre(estimator.rejectionElapsed_s), pre(estimator.mocapRejections), pre(estimator.gpsRejections), pre(estimator.opticalFlowRejections), pre(estimator.anchorSource), pre(estimator.mocapStale_s), pre(estimator.gpsStale_s), pre(estimator.opticalFlowStale_s), pre(estimator.imuAngularVelocityHeld_rad_s), pre(estimator.imuSpecificForceHeld_m_s2), pre(estimator.imuTimestampHeld_s), pre(estimator.mocapTimestampConsumed_s), pre(estimator.gpsTimestampConsumed_s), pre(estimator.magnetometerTimestampConsumed_s), pre(estimator.barometerTimestampConsumed_s), pre(estimator.opticalFlowTimestampConsumed_s), pre(estimator.quietElapsed_s), pre(estimator.alignmentWait_s), pre(estimator.pseudoPositionHold_m), pre(estimator.alignmentSource), pre(estimator.alignmentSpecificForce_m_s2), pre(estimator.quietAngularRate_rad_s), false);
+    (estimator.estimate.valid, estimator.estimate.timestamp_s, estimator.estimate.positionWorldEnu_m, estimator.estimate.velocityWorldEnu_m_s, estimator.estimate.accelerationWorldEnu_m_s2, estimator.estimate.quaternionWorldBody, estimator.estimate.rotationWorldBody, estimator.estimate.eulerRpy_rad, estimator.estimate.angularVelocityBodyFlu_rad_s, estimator.estimate.angularVelocityWorldEnu_rad_s) := Estimation.StrapdownINS.ESKF.navigationEstimate(Estimation.StrapdownINS.ESKF.State(estimator.statePosition, estimator.stateVelocity, estimator.stateQuaternion, estimator.stateGyroscopeBias, estimator.stateAccelerometerBias, estimator.stateCovariance, false, estimator.stateCovarianceRoot), Avionics.ImuSample(estimator.imu.fresh, estimator.imu.fresh, estimator.imuTimestampHeld_s, estimator.imuAngularVelocityHeld_rad_s, estimator.imuSpecificForceHeld_m_s2, {imuPreintegratedDeltaAngle_rad[1], imuPreintegratedDeltaAngle_rad[2], imuPreintegratedDeltaAngle_rad[3]}, {imuPreintegratedDeltaVelocity_m_s[1], imuPreintegratedDeltaVelocity_m_s[2], imuPreintegratedDeltaVelocity_m_s[3]}, {imuPreintegratedDeltaPosition_m[1], imuPreintegratedDeltaPosition_m[2], imuPreintegratedDeltaPosition_m[3]}, {imuPacketDeltaQuaternion[1], imuPacketDeltaQuaternion[2], imuPacketDeltaQuaternion[3], imuPacketDeltaQuaternion[4]}, imuPreintegrationTime_s, {imuPacketGyroscopeBiasLinearization_rad_s[1], imuPacketGyroscopeBiasLinearization_rad_s[2], imuPacketGyroscopeBiasLinearization_rad_s[3]}, {imuPacketAccelerometerBiasLinearization_m_s2[1], imuPacketAccelerometerBiasLinearization_m_s2[2], imuPacketAccelerometerBiasLinearization_m_s2[3]}, {{imuPacketRotationGyroscopeBiasJacobian_s[1,1], imuPacketRotationGyroscopeBiasJacobian_s[1,2], imuPacketRotationGyroscopeBiasJacobian_s[1,3]}, {imuPacketRotationGyroscopeBiasJacobian_s[2,1], imuPacketRotationGyroscopeBiasJacobian_s[2,2], imuPacketRotationGyroscopeBiasJacobian_s[2,3]}, {imuPacketRotationGyroscopeBiasJacobian_s[3,1], imuPacketRotationGyroscopeBiasJacobian_s[3,2], imuPacketRotationGyroscopeBiasJacobian_s[3,3]}}, {{imuPacketVelocityGyroscopeBiasJacobian_m[1,1], imuPacketVelocityGyroscopeBiasJacobian_m[1,2], imuPacketVelocityGyroscopeBiasJacobian_m[1,3]}, {imuPacketVelocityGyroscopeBiasJacobian_m[2,1], imuPacketVelocityGyroscopeBiasJacobian_m[2,2], imuPacketVelocityGyroscopeBiasJacobian_m[2,3]}, {imuPacketVelocityGyroscopeBiasJacobian_m[3,1], imuPacketVelocityGyroscopeBiasJacobian_m[3,2], imuPacketVelocityGyroscopeBiasJacobian_m[3,3]}}, {{imuPacketVelocityAccelerometerBiasJacobian_s[1,1], imuPacketVelocityAccelerometerBiasJacobian_s[1,2], imuPacketVelocityAccelerometerBiasJacobian_s[1,3]}, {imuPacketVelocityAccelerometerBiasJacobian_s[2,1], imuPacketVelocityAccelerometerBiasJacobian_s[2,2], imuPacketVelocityAccelerometerBiasJacobian_s[2,3]}, {imuPacketVelocityAccelerometerBiasJacobian_s[3,1], imuPacketVelocityAccelerometerBiasJacobian_s[3,2], imuPacketVelocityAccelerometerBiasJacobian_s[3,3]}}, {{imuPacketPositionGyroscopeBiasJacobian_m_s[1,1], imuPacketPositionGyroscopeBiasJacobian_m_s[1,2], imuPacketPositionGyroscopeBiasJacobian_m_s[1,3]}, {imuPacketPositionGyroscopeBiasJacobian_m_s[2,1], imuPacketPositionGyroscopeBiasJacobian_m_s[2,2], imuPacketPositionGyroscopeBiasJacobian_m_s[2,3]}, {imuPacketPositionGyroscopeBiasJacobian_m_s[3,1], imuPacketPositionGyroscopeBiasJacobian_m_s[3,2], imuPacketPositionGyroscopeBiasJacobian_m_s[3,3]}}, {{imuPacketPositionAccelerometerBiasJacobian_s2[1,1], imuPacketPositionAccelerometerBiasJacobian_s2[1,2], imuPacketPositionAccelerometerBiasJacobian_s2[1,3]}, {imuPacketPositionAccelerometerBiasJacobian_s2[2,1], imuPacketPositionAccelerometerBiasJacobian_s2[2,2], imuPacketPositionAccelerometerBiasJacobian_s2[2,3]}, {imuPacketPositionAccelerometerBiasJacobian_s2[3,1], imuPacketPositionAccelerometerBiasJacobian_s2[3,2], imuPacketPositionAccelerometerBiasJacobian_s2[3,3]}}), estimator.gravityWorldEnu_m_s2, estimator.estimateValid);
+    estimator.acceptedCorrectionCount := if estimator.mocapCorrectionAccepted or estimator.gpsPositionCorrectionAccepted or estimator.gpsVelocityCorrectionAccepted or estimator.opticalFlowCorrectionAccepted or estimator.barometerCorrectionAccepted or estimator.magnetometerCorrectionAccepted or estimator.stationaryImuCorrectionAccepted then pre(estimator.acceptedCorrectionCount) + 1 else pre(estimator.acceptedCorrectionCount);
+    estimator.reseedCount := if estimator.reseeded then pre(estimator.reseedCount) + 1 else pre(estimator.reseedCount);
+    estimator.status.initialized := estimator.initialized;
+    estimator.status.predictionAccepted := estimator.predictionAccepted;
+    estimator.status.mocapCorrectionAccepted := estimator.mocapCorrectionAccepted;
+    estimator.status.gpsPositionCorrectionAccepted := estimator.gpsPositionCorrectionAccepted;
+    estimator.status.gpsVelocityCorrectionAccepted := estimator.gpsVelocityCorrectionAccepted;
+    estimator.status.magnetometerCorrectionAccepted := estimator.magnetometerCorrectionAccepted;
+    estimator.status.barometerCorrectionAccepted := estimator.barometerCorrectionAccepted;
+    estimator.status.terrainCorrectionAccepted := estimator.terrainCorrectionAccepted;
+    estimator.status.opticalFlowCorrectionAccepted := estimator.opticalFlowCorrectionAccepted;
+    estimator.status.consecutiveRejectedCorrections := estimator.consecutiveRejectedCorrections;
+    estimator.status.rejectionElapsed_s := estimator.rejectionElapsed_s;
+    estimator.status.mocapConsecutiveRejections := estimator.mocapRejections;
+    estimator.status.gpsConsecutiveRejections := estimator.gpsRejections;
+    estimator.status.opticalFlowConsecutiveRejections := estimator.opticalFlowRejections;
+    estimator.status.correctionOutcome := estimator.correctionOutcome;
+    estimator.status.acceptedCorrectionCount := estimator.acceptedCorrectionCount;
+    estimator.status.correctionSource := estimator.correctionSource;
+    estimator.status.normalizedInnovationSquared := estimator.normalizedInnovationSquared;
+    estimator.status.recoveryStage := estimator.recoveryStage;
+    estimator.status.anchorSource := estimator.anchorSource;
+    estimator.status.imuPayloadHeld := estimator.imuPayloadHeld;
+    estimator.status.reseeded := estimator.reseeded;
+    estimator.status.reseedCount := estimator.reseedCount;
+    estimator.status.alignmentSource := estimator.alignmentSource;
+    estimator.status.alignmentSpecificForceBodyFlu_m_s2 := estimator.alignmentSpecificForce_m_s2;
+    estimator.status.quietElapsed_s := estimator.quietElapsed_s;
+    estimator.status.pseudoPositionCorrectionAccepted := estimator.pseudoPositionCorrectionAccepted;
+    estimator.status.zeroVelocityCorrectionAccepted := estimator.zeroVelocityCorrectionAccepted;
+    estimator.errorCovariance := estimator.stateCovariance;
+    estimator.errorCovarianceRoot := estimator.stateCovarianceRoot;
+    estimator.estimatedGyroscopeBias_rad_s := estimator.stateGyroscopeBias;
+    estimator.estimatedAccelerometerBias_m_s2 := estimator.stateAccelerometerBias;
+  end when;
+
+8 : algorithm
+  $whenCondition8 := sample(8, 0.0, mocapSamplePeriod);
+  when $whenCondition8 then
+    mocapPacketTimestamp_s := time - mocapTransportDelay_s;
+    mocapPacketPositionWorldEnu_m := {mocapCapturePositionWorldEnu_m[1] + mocapPositionNoise_m[1], mocapCapturePositionWorldEnu_m[2] + mocapPositionNoise_m[2], mocapCapturePositionWorldEnu_m[3] + mocapPositionNoise_m[3]};
+    mocapPacketQuaternionWorldBody := LieGroups.SO3.Quat.normalize(LieGroups.SO3.Quat.product(mocapCaptureQuaternionWorldBody, LieGroups.SO3.Quat.exp_map(mocapAttitudeNoise_rad)));
+  end when;
+  $whenCondition9 := sample(9, 0.0, gpsSamplePeriod);
+  when $whenCondition9 then
+    gpsPacketTimestamp_s := time - gpsLatency_s;
+    gpsPacketPositionWorldEnu_m := {gpsCapturePositionWorldEnu_m[1] + gpsPositionNoise_m[1], gpsCapturePositionWorldEnu_m[2] + gpsPositionNoise_m[2], gpsCapturePositionWorldEnu_m[3] + gpsPositionNoise_m[3]};
+    gpsPacketVelocityWorldEnu_m_s := {gpsCaptureVelocityWorldEnu_m_s[1] + gpsVelocityNoise_m_s[1], gpsCaptureVelocityWorldEnu_m_s[2] + gpsVelocityNoise_m_s[2], gpsCaptureVelocityWorldEnu_m_s[3] + gpsVelocityNoise_m_s[3]};
+  end when;
+  $whenCondition10 := sample(10, 0.0, opticalFlowSamplePeriod);
+  when $whenCondition10 then
+    opticalFlowPacketTimestamp_s := time - opticalFlowLatency_s;
+    opticalFlowPacketIntegratedLineOfSight_rad := {opticalFlowIdealIntegratedLineOfSight_rad[1] + opticalFlowIntegratedNoise_rad[1], opticalFlowIdealIntegratedLineOfSight_rad[2] + opticalFlowIntegratedNoise_rad[2]};
+    opticalFlowPacketIntegratedGyroscope_rad := {(opticalFlowCaptureAngularVelocityBodyFlu_rad_s[1] + opticalFlowGyroscopeNoise_rad_s[1]) * opticalFlowSamplePeriod, (opticalFlowCaptureAngularVelocityBodyFlu_rad_s[2] + opticalFlowGyroscopeNoise_rad_s[2]) * opticalFlowSamplePeriod, (opticalFlowCaptureAngularVelocityBodyFlu_rad_s[3] + opticalFlowGyroscopeNoise_rad_s[3]) * opticalFlowSamplePeriod};
+    opticalFlowPacketGroundDistance_m := opticalFlowIdealGroundDistance_m + opticalFlowGroundDistanceNoise_m;
+    opticalFlowPacketSurfaceVisibility := opticalFlowSurfaceVisibility;
+  end when;
+  $whenCondition11 := sample(11, 0.012, magnetometerSamplePeriod);
+  when $whenCondition11 then
+    magnetometerPacketTimestamp_s := time;
+    magnetometerPacketFieldBodyFlu_T := {magnetometerIdealFieldBodyFlu_T[1] + magnetometerBiasBodyFlu_T[1] + magnetometerNoiseBodyFlu_T[1], magnetometerIdealFieldBodyFlu_T[2] + magnetometerBiasBodyFlu_T[2] + magnetometerNoiseBodyFlu_T[2], magnetometerIdealFieldBodyFlu_T[3] + magnetometerBiasBodyFlu_T[3] + magnetometerNoiseBodyFlu_T[3]};
+  end when;
+  $whenCondition12 := sample(12, 0.005, barometerSamplePeriod);
+  when $whenCondition12 then
+    barometerPacketTimestamp_s := time;
+    barometerPacketAltitudeWorldEnu_m := barometerIdealAltitudeWorldEnu_m + barometerBias_m + barometerNoise_m;
+  end when;
+  $whenCondition13 := sample(13, 0.0, imuSamplePeriod);
+  when $whenCondition13 then
+    imuMeasuredAngularVelocity_rad_s := {plant.dynamics.omega[1] + pre(imuGyroscopeBias_rad_s[1]) + imuAngularVelocityNoise_rad_s[1], plant.dynamics.omega[2] + pre(imuGyroscopeBias_rad_s[2]) + imuAngularVelocityNoise_rad_s[2], plant.dynamics.omega[3] + pre(imuGyroscopeBias_rad_s[3]) + imuAngularVelocityNoise_rad_s[3]};
+    imuMeasuredSpecificForce_m_s2 := {plant.imu.specificForceBodyFlu_m_s2[1] + pre(imuAccelerometerBias_m_s2[1]) + imuSpecificForceNoise_m_s2[1], plant.imu.specificForceBodyFlu_m_s2[2] + pre(imuAccelerometerBias_m_s2[2]) + imuSpecificForceNoise_m_s2[2], plant.imu.specificForceBodyFlu_m_s2[3] + pre(imuAccelerometerBias_m_s2[3]) + imuSpecificForceNoise_m_s2[3]};
+    if time < 0.5 * imuSamplePeriod then
+      imuUpdatedQuaternion := {1.0, 0.0, 0.0, 0.0};
+      imuUpdatedDeltaVelocity_m_s := {0.0, 0.0, 0.0};
+      imuUpdatedDeltaPosition_m := {0.0, 0.0, 0.0};
+      imuAccumulatedQuaternion := {1.0, 0.0, 0.0, 0.0};
+      imuAccumulatedDeltaVelocity_m_s := {0.0, 0.0, 0.0};
+      imuAccumulatedDeltaPosition_m := {0.0, 0.0, 0.0};
+      imuAccumulatedTime_s := 0.0;
+      imuAccumulatedGyroscopeBiasLinearization_rad_s := estimator.initialGyroscopeBiasBodyFlu_rad_s;
+      imuAccumulatedAccelerometerBiasLinearization_m_s2 := estimator.initialAccelerometerBiasBodyFlu_m_s2;
+      imuAccumulatedRotationGyroscopeBiasJacobian_s := {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
+      imuAccumulatedVelocityGyroscopeBiasJacobian_m := {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
+      imuAccumulatedVelocityAccelerometerBiasJacobian_s := {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
+      imuAccumulatedPositionGyroscopeBiasJacobian_m_s := {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
+      imuAccumulatedPositionAccelerometerBiasJacobian_s2 := {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
+      imuUpdatedRotationGyroscopeBiasJacobian_s := {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
+      imuUpdatedVelocityGyroscopeBiasJacobian_m := {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
+      imuUpdatedVelocityAccelerometerBiasJacobian_s := {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
+      imuUpdatedPositionGyroscopeBiasJacobian_m_s := {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
+      imuUpdatedPositionAccelerometerBiasJacobian_s2 := {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
+      imuPacketDeltaAngle_rad := {0.0, 0.0, 0.0};
+      imuPacketDeltaVelocity_m_s := {0.0, 0.0, 0.0};
+      imuPacketDeltaPosition_m := {0.0, 0.0, 0.0};
+      imuPacketDeltaQuaternion := {1.0, 0.0, 0.0, 0.0};
+      imuPacketGyroscopeBiasLinearization_rad_s := estimator.initialGyroscopeBiasBodyFlu_rad_s;
+      imuPacketAccelerometerBiasLinearization_m_s2 := estimator.initialAccelerometerBiasBodyFlu_m_s2;
+      imuPacketRotationGyroscopeBiasJacobian_s := {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
+      imuPacketVelocityGyroscopeBiasJacobian_m := {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
+      imuPacketVelocityAccelerometerBiasJacobian_s := {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
+      imuPacketPositionGyroscopeBiasJacobian_m_s := {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
+      imuPacketPositionAccelerometerBiasJacobian_s2 := {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
+      imuPacketIntegrationTime_s := 0.0;
+      imuPacketTimestamp_s := time;
+    else
+      (imuUpdatedDeltaPosition_m, imuUpdatedDeltaVelocity_m_s, imuUpdatedQuaternion, imuUpdatedRotationGyroscopeBiasJacobian_s, imuUpdatedVelocityGyroscopeBiasJacobian_m, imuUpdatedVelocityAccelerometerBiasJacobian_s, imuUpdatedPositionGyroscopeBiasJacobian_m_s, imuUpdatedPositionAccelerometerBiasJacobian_s2) := Estimation.StrapdownINS.preintegrateImuStep(pre(imuAccumulatedDeltaPosition_m), pre(imuAccumulatedDeltaVelocity_m_s), pre(imuAccumulatedQuaternion), pre(imuAccumulatedRotationGyroscopeBiasJacobian_s), pre(imuAccumulatedVelocityGyroscopeBiasJacobian_m), pre(imuAccumulatedVelocityAccelerometerBiasJacobian_s), pre(imuAccumulatedPositionGyroscopeBiasJacobian_m_s), pre(imuAccumulatedPositionAccelerometerBiasJacobian_s2), imuMeasuredAngularVelocity_rad_s, imuMeasuredSpecificForce_m_s2, pre(imuAccumulatedGyroscopeBiasLinearization_rad_s), pre(imuAccumulatedAccelerometerBiasLinearization_m_s2), imuSamplePeriod, useFirstOrderHoldImu, pre(imuPreviousMeasuredAngularVelocity_rad_s), pre(imuPreviousMeasuredSpecificForce_m_s2));
+      if abs(time / imuPreintegrationPeriod - floor(time / imuPreintegrationPeriod + 0.5)) < 1e-7 then
+        imuPacketDeltaAngle_rad := LieGroups.SO3.Quat.log_map(imuUpdatedQuaternion);
+        imuPacketDeltaVelocity_m_s := imuUpdatedDeltaVelocity_m_s;
+        imuPacketDeltaPosition_m := imuUpdatedDeltaPosition_m;
+        imuPacketDeltaQuaternion := imuUpdatedQuaternion;
+        imuPacketGyroscopeBiasLinearization_rad_s := pre(imuAccumulatedGyroscopeBiasLinearization_rad_s);
+        imuPacketAccelerometerBiasLinearization_m_s2 := pre(imuAccumulatedAccelerometerBiasLinearization_m_s2);
+        imuPacketRotationGyroscopeBiasJacobian_s := imuUpdatedRotationGyroscopeBiasJacobian_s;
+        imuPacketVelocityGyroscopeBiasJacobian_m := imuUpdatedVelocityGyroscopeBiasJacobian_m;
+        imuPacketVelocityAccelerometerBiasJacobian_s := imuUpdatedVelocityAccelerometerBiasJacobian_s;
+        imuPacketPositionGyroscopeBiasJacobian_m_s := imuUpdatedPositionGyroscopeBiasJacobian_m_s;
+        imuPacketPositionAccelerometerBiasJacobian_s2 := imuUpdatedPositionAccelerometerBiasJacobian_s2;
+        imuPacketIntegrationTime_s := pre(imuAccumulatedTime_s) + imuSamplePeriod;
+        imuPacketTimestamp_s := time;
+        imuAccumulatedQuaternion := {1.0, 0.0, 0.0, 0.0};
+        imuAccumulatedDeltaVelocity_m_s := {0.0, 0.0, 0.0};
+        imuAccumulatedDeltaPosition_m := {0.0, 0.0, 0.0};
+        imuAccumulatedTime_s := 0.0;
+        imuAccumulatedGyroscopeBiasLinearization_rad_s := pre(estimatorGyroscopeBiasMirror_rad_s);
+        imuAccumulatedAccelerometerBiasLinearization_m_s2 := pre(estimatorAccelerometerBiasMirror_m_s2);
+        imuAccumulatedRotationGyroscopeBiasJacobian_s := {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
+        imuAccumulatedVelocityGyroscopeBiasJacobian_m := {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
+        imuAccumulatedVelocityAccelerometerBiasJacobian_s := {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
+        imuAccumulatedPositionGyroscopeBiasJacobian_m_s := {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
+        imuAccumulatedPositionAccelerometerBiasJacobian_s2 := {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
+      else
+        imuPacketDeltaAngle_rad := pre(imuPacketDeltaAngle_rad);
+        imuPacketDeltaVelocity_m_s := pre(imuPacketDeltaVelocity_m_s);
+        imuPacketDeltaPosition_m := pre(imuPacketDeltaPosition_m);
+        imuPacketDeltaQuaternion := pre(imuPacketDeltaQuaternion);
+        imuPacketGyroscopeBiasLinearization_rad_s := pre(imuPacketGyroscopeBiasLinearization_rad_s);
+        imuPacketAccelerometerBiasLinearization_m_s2 := pre(imuPacketAccelerometerBiasLinearization_m_s2);
+        imuPacketRotationGyroscopeBiasJacobian_s := pre(imuPacketRotationGyroscopeBiasJacobian_s);
+        imuPacketVelocityGyroscopeBiasJacobian_m := pre(imuPacketVelocityGyroscopeBiasJacobian_m);
+        imuPacketVelocityAccelerometerBiasJacobian_s := pre(imuPacketVelocityAccelerometerBiasJacobian_s);
+        imuPacketPositionGyroscopeBiasJacobian_m_s := pre(imuPacketPositionGyroscopeBiasJacobian_m_s);
+        imuPacketPositionAccelerometerBiasJacobian_s2 := pre(imuPacketPositionAccelerometerBiasJacobian_s2);
+        imuPacketIntegrationTime_s := pre(imuPacketIntegrationTime_s);
+        imuPacketTimestamp_s := pre(imuPacketTimestamp_s);
+        imuAccumulatedQuaternion := imuUpdatedQuaternion;
+        imuAccumulatedDeltaVelocity_m_s := imuUpdatedDeltaVelocity_m_s;
+        imuAccumulatedDeltaPosition_m := imuUpdatedDeltaPosition_m;
+        imuAccumulatedTime_s := pre(imuAccumulatedTime_s) + imuSamplePeriod;
+        imuAccumulatedGyroscopeBiasLinearization_rad_s := pre(imuAccumulatedGyroscopeBiasLinearization_rad_s);
+        imuAccumulatedAccelerometerBiasLinearization_m_s2 := pre(imuAccumulatedAccelerometerBiasLinearization_m_s2);
+        imuAccumulatedRotationGyroscopeBiasJacobian_s := imuUpdatedRotationGyroscopeBiasJacobian_s;
+        imuAccumulatedVelocityGyroscopeBiasJacobian_m := imuUpdatedVelocityGyroscopeBiasJacobian_m;
+        imuAccumulatedVelocityAccelerometerBiasJacobian_s := imuUpdatedVelocityAccelerometerBiasJacobian_s;
+        imuAccumulatedPositionGyroscopeBiasJacobian_m_s := imuUpdatedPositionGyroscopeBiasJacobian_m_s;
+        imuAccumulatedPositionAccelerometerBiasJacobian_s2 := imuUpdatedPositionAccelerometerBiasJacobian_s2;
+      end if;
+    end if;
+    imuPreviousMeasuredAngularVelocity_rad_s := imuMeasuredAngularVelocity_rad_s;
+    imuPreviousMeasuredSpecificForce_m_s2 := imuMeasuredSpecificForce_m_s2;
+    for i in 1:3 loop
+      imuGyroscopeBias_rad_s[i] := if enableSensorNoise then pre(imuGyroscopeBias_rad_s[i]) + sqrt(estimator.processNoise.gyroscopeBias_rad2_s3[i,i] * imuSamplePeriod) * imuGyroscopeBiasDrivingNoise[i] else 0.0;
+      imuAccelerometerBias_m_s2[i] := if enableSensorNoise then pre(imuAccelerometerBias_m_s2[i]) + sqrt(estimator.processNoise.accelerometerBias_m2_s5[i,i] * imuSamplePeriod) * imuAccelerometerBiasDrivingNoise[i] else 0.0;
+    end for;
+  end when;
+
+9 : algorithm
+  $whenCondition14 := sample(14, 0.0, estimatorSamplePeriod);
+  when $whenCondition14 then
+    estimatorGyroscopeBiasMirror_rad_s := {estimator.stateGyroscopeBias[1], estimator.stateGyroscopeBias[2], estimator.stateGyroscopeBias[3]};
+    estimatorAccelerometerBiasMirror_m_s2 := {estimator.stateAccelerometerBias[1], estimator.stateAccelerometerBias[2], estimator.stateAccelerometerBias[3]};
+  end when;
+
+10 : plant.dynamics.motor[1].omega_error = plant.dynamics.omega_cmd[1] - plant.dynamics.motor[1].omega
+11 : plant.dynamics.motor[1].lag_blend = plant.dynamics.motor[1].omega_error / sqrt(plant.dynamics.motor[1].omega_error ^ 2.0 + plant.dynamics.motor[1].tau_eps ^ 2.0)
+12 : plant.dynamics.motor[1].tau_inv = plant.dynamics.motor[1].tau_inv_mid + plant.dynamics.motor[1].tau_inv_delta * plant.dynamics.motor[1].lag_blend
+13 : der(plant.dynamics.motor[1].omega) = plant.dynamics.motor[1].tau_inv * plant.dynamics.motor[1].omega_error
+14 : plant.dynamics.F_m[1] = plant.dynamics.motor[1].Ct * plant.dynamics.motor[1].omega ^ 2.0
+15 : plant.dynamics.motor[2].omega_error = plant.dynamics.omega_cmd[2] - plant.dynamics.motor[2].omega
+16 : plant.dynamics.motor[2].lag_blend = plant.dynamics.motor[2].omega_error / sqrt(plant.dynamics.motor[2].omega_error ^ 2.0 + plant.dynamics.motor[2].tau_eps ^ 2.0)
+17 : plant.dynamics.motor[2].tau_inv = plant.dynamics.motor[2].tau_inv_mid + plant.dynamics.motor[2].tau_inv_delta * plant.dynamics.motor[2].lag_blend
+18 : der(plant.dynamics.motor[2].omega) = plant.dynamics.motor[2].tau_inv * plant.dynamics.motor[2].omega_error
+19 : plant.dynamics.F_m[2] = plant.dynamics.motor[2].Ct * plant.dynamics.motor[2].omega ^ 2.0
+20 : plant.dynamics.motor[3].omega_error = plant.dynamics.omega_cmd[3] - plant.dynamics.motor[3].omega
+21 : plant.dynamics.motor[3].lag_blend = plant.dynamics.motor[3].omega_error / sqrt(plant.dynamics.motor[3].omega_error ^ 2.0 + plant.dynamics.motor[3].tau_eps ^ 2.0)
+22 : plant.dynamics.motor[3].tau_inv = plant.dynamics.motor[3].tau_inv_mid + plant.dynamics.motor[3].tau_inv_delta * plant.dynamics.motor[3].lag_blend
+23 : der(plant.dynamics.motor[3].omega) = plant.dynamics.motor[3].tau_inv * plant.dynamics.motor[3].omega_error
+24 : plant.dynamics.F_m[3] = plant.dynamics.motor[3].Ct * plant.dynamics.motor[3].omega ^ 2.0
+25 : plant.dynamics.motor[4].omega_error = plant.dynamics.omega_cmd[4] - plant.dynamics.motor[4].omega
+26 : plant.dynamics.motor[4].lag_blend = plant.dynamics.motor[4].omega_error / sqrt(plant.dynamics.motor[4].omega_error ^ 2.0 + plant.dynamics.motor[4].tau_eps ^ 2.0)
+27 : plant.dynamics.motor[4].tau_inv = plant.dynamics.motor[4].tau_inv_mid + plant.dynamics.motor[4].tau_inv_delta * plant.dynamics.motor[4].lag_blend
+28 : der(plant.dynamics.motor[4].omega) = plant.dynamics.motor[4].tau_inv * plant.dynamics.motor[4].omega_error
+29 : plant.dynamics.F_m[4] = plant.dynamics.motor[4].Ct * plant.dynamics.motor[4].omega ^ 2.0
+30 : plant.dynamics.T = plant.dynamics.F_m[1] + plant.dynamics.F_m[2] + plant.dynamics.F_m[3] + plant.dynamics.F_m[4]
+31 : plant.dynamics.V = sqrt(plant.dynamics.v_b[1] ^ 2.0 + plant.dynamics.v_b[2] ^ 2.0 + plant.dynamics.v_b[3] ^ 2.0 + 1e-12)
+32 : plant.dynamics.drag_b[1] = (-0.5) * plant.dynamics.rho * plant.dynamics.V * plant.dynamics.CdA[1] * plant.dynamics.v_b[1] - plant.dynamics.linear_drag[1] * plant.dynamics.v_b[1]
+33 : plant.dynamics.drag_b[2] = (-0.5) * plant.dynamics.rho * plant.dynamics.V * plant.dynamics.CdA[2] * plant.dynamics.v_b[2] - plant.dynamics.linear_drag[2] * plant.dynamics.v_b[2]
+34 : plant.dynamics.drag_b[3] = (-0.5) * plant.dynamics.rho * plant.dynamics.V * plant.dynamics.CdA[3] * plant.dynamics.v_b[3] - plant.dynamics.linear_drag[3] * plant.dynamics.v_b[3]
+35 : plant.dynamics.M_rotor[1] = plant.dynamics.motor_moment_map[1,1] * plant.dynamics.F_m[1] + plant.dynamics.motor_moment_map[1,2] * plant.dynamics.F_m[2] + plant.dynamics.motor_moment_map[1,3] * plant.dynamics.F_m[3] + plant.dynamics.motor_moment_map[1,4] * plant.dynamics.F_m[4]
+36 : plant.dynamics.M_rotor[2] = plant.dynamics.motor_moment_map[2,1] * plant.dynamics.F_m[1] + plant.dynamics.motor_moment_map[2,2] * plant.dynamics.F_m[2] + plant.dynamics.motor_moment_map[2,3] * plant.dynamics.F_m[3] + plant.dynamics.motor_moment_map[2,4] * plant.dynamics.F_m[4]
+37 : plant.dynamics.M_rotor[3] = plant.dynamics.motor_moment_map[3,1] * plant.dynamics.F_m[1] + plant.dynamics.motor_moment_map[3,2] * plant.dynamics.F_m[2] + plant.dynamics.motor_moment_map[3,3] * plant.dynamics.F_m[3] + plant.dynamics.motor_moment_map[3,4] * plant.dynamics.F_m[4]
+38 : plant.dynamics.M_rate[1] = plant.dynamics.rate_damping[1] * plant.dynamics.omega[1]
+39 : plant.dynamics.M_rate[2] = plant.dynamics.rate_damping[2] * plant.dynamics.omega[2]
+40 : plant.dynamics.M_rate[3] = plant.dynamics.rate_damping[3] * plant.dynamics.omega[3]
+41 : plant.dynamics.leg_v_b[1,1] = plant.dynamics.v_b[1] + plant.dynamics.omega[2] * plant.dynamics.leg_r_b[3,1] - plant.dynamics.omega[3] * plant.dynamics.leg_r_b[2,1]
+42 : plant.dynamics.leg_v_b[2,1] = plant.dynamics.v_b[2] + plant.dynamics.omega[3] * plant.dynamics.leg_r_b[1,1] - plant.dynamics.omega[1] * plant.dynamics.leg_r_b[3,1]
+43 : plant.dynamics.leg_v_b[3,1] = plant.dynamics.v_b[3] + plant.dynamics.omega[1] * plant.dynamics.leg_r_b[2,1] - plant.dynamics.omega[2] * plant.dynamics.leg_r_b[1,1]
+44 : plant.dynamics.leg_h_w[1] = plant.dynamics.p[3] + plant.truth.rotationWorldBody[3,1] * plant.dynamics.leg_r_b[1,1] + plant.truth.rotationWorldBody[3,2] * plant.dynamics.leg_r_b[2,1] + plant.truth.rotationWorldBody[3,3] * plant.dynamics.leg_r_b[3,1]
+45 : plant.dynamics.leg_f_w[1,1] = if noEvent(plant.dynamics.leg_h_w[1] < plant.dynamics.ground_z) then (-plant.dynamics.ground_tangent_c) * (plant.truth.rotationWorldBody[1,1] * plant.dynamics.leg_v_b[1,1] + plant.truth.rotationWorldBody[1,2] * plant.dynamics.leg_v_b[2,1] + plant.truth.rotationWorldBody[1,3] * plant.dynamics.leg_v_b[3,1]) else 0.0
+46 : plant.dynamics.leg_f_w[2,1] = if noEvent(plant.dynamics.leg_h_w[1] < plant.dynamics.ground_z) then (-plant.dynamics.ground_tangent_c) * (plant.truth.rotationWorldBody[2,1] * plant.dynamics.leg_v_b[1,1] + plant.truth.rotationWorldBody[2,2] * plant.dynamics.leg_v_b[2,1] + plant.truth.rotationWorldBody[2,3] * plant.dynamics.leg_v_b[3,1]) else 0.0
+47 : plant.dynamics.leg_f_w[3,1] = if noEvent(plant.dynamics.leg_h_w[1] < plant.dynamics.ground_z) then max(0.0, plant.dynamics.ground_k * (plant.dynamics.ground_z - plant.dynamics.leg_h_w[1]) - plant.dynamics.ground_c * (plant.truth.rotationWorldBody[3,1] * plant.dynamics.leg_v_b[1,1] + plant.truth.rotationWorldBody[3,2] * plant.dynamics.leg_v_b[2,1] + plant.truth.rotationWorldBody[3,3] * plant.dynamics.leg_v_b[3,1])) else 0.0
+48 : plant.dynamics.leg_m_b[1,1] = plant.dynamics.leg_r_b[2,1] * plant.dynamics.leg_f_b[3,1] - plant.dynamics.leg_r_b[3,1] * plant.dynamics.leg_f_b[2,1]
+49 : plant.dynamics.leg_m_b[2,1] = plant.dynamics.leg_r_b[3,1] * plant.dynamics.leg_f_b[1,1] - plant.dynamics.leg_r_b[1,1] * plant.dynamics.leg_f_b[3,1]
+50 : plant.dynamics.leg_m_b[3,1] = plant.dynamics.leg_r_b[1,1] * plant.dynamics.leg_f_b[2,1] - plant.dynamics.leg_r_b[2,1] * plant.dynamics.leg_f_b[1,1]
+51 : plant.dynamics.leg_v_b[1,2] = plant.dynamics.v_b[1] + plant.dynamics.omega[2] * plant.dynamics.leg_r_b[3,2] - plant.dynamics.omega[3] * plant.dynamics.leg_r_b[2,2]
+52 : plant.dynamics.leg_v_b[2,2] = plant.dynamics.v_b[2] + plant.dynamics.omega[3] * plant.dynamics.leg_r_b[1,2] - plant.dynamics.omega[1] * plant.dynamics.leg_r_b[3,2]
+53 : plant.dynamics.leg_v_b[3,2] = plant.dynamics.v_b[3] + plant.dynamics.omega[1] * plant.dynamics.leg_r_b[2,2] - plant.dynamics.omega[2] * plant.dynamics.leg_r_b[1,2]
+54 : plant.dynamics.leg_h_w[2] = plant.dynamics.p[3] + plant.truth.rotationWorldBody[3,1] * plant.dynamics.leg_r_b[1,2] + plant.truth.rotationWorldBody[3,2] * plant.dynamics.leg_r_b[2,2] + plant.truth.rotationWorldBody[3,3] * plant.dynamics.leg_r_b[3,2]
+55 : plant.dynamics.leg_f_w[1,2] = if noEvent(plant.dynamics.leg_h_w[2] < plant.dynamics.ground_z) then (-plant.dynamics.ground_tangent_c) * (plant.truth.rotationWorldBody[1,1] * plant.dynamics.leg_v_b[1,2] + plant.truth.rotationWorldBody[1,2] * plant.dynamics.leg_v_b[2,2] + plant.truth.rotationWorldBody[1,3] * plant.dynamics.leg_v_b[3,2]) else 0.0
+56 : plant.dynamics.leg_f_w[2,2] = if noEvent(plant.dynamics.leg_h_w[2] < plant.dynamics.ground_z) then (-plant.dynamics.ground_tangent_c) * (plant.truth.rotationWorldBody[2,1] * plant.dynamics.leg_v_b[1,2] + plant.truth.rotationWorldBody[2,2] * plant.dynamics.leg_v_b[2,2] + plant.truth.rotationWorldBody[2,3] * plant.dynamics.leg_v_b[3,2]) else 0.0
+57 : plant.dynamics.leg_f_w[3,2] = if noEvent(plant.dynamics.leg_h_w[2] < plant.dynamics.ground_z) then max(0.0, plant.dynamics.ground_k * (plant.dynamics.ground_z - plant.dynamics.leg_h_w[2]) - plant.dynamics.ground_c * (plant.truth.rotationWorldBody[3,1] * plant.dynamics.leg_v_b[1,2] + plant.truth.rotationWorldBody[3,2] * plant.dynamics.leg_v_b[2,2] + plant.truth.rotationWorldBody[3,3] * plant.dynamics.leg_v_b[3,2])) else 0.0
+58 : plant.dynamics.leg_m_b[1,2] = plant.dynamics.leg_r_b[2,2] * plant.dynamics.leg_f_b[3,2] - plant.dynamics.leg_r_b[3,2] * plant.dynamics.leg_f_b[2,2]
+59 : plant.dynamics.leg_m_b[2,2] = plant.dynamics.leg_r_b[3,2] * plant.dynamics.leg_f_b[1,2] - plant.dynamics.leg_r_b[1,2] * plant.dynamics.leg_f_b[3,2]
+60 : plant.dynamics.leg_m_b[3,2] = plant.dynamics.leg_r_b[1,2] * plant.dynamics.leg_f_b[2,2] - plant.dynamics.leg_r_b[2,2] * plant.dynamics.leg_f_b[1,2]
+61 : plant.dynamics.leg_v_b[1,3] = plant.dynamics.v_b[1] + plant.dynamics.omega[2] * plant.dynamics.leg_r_b[3,3] - plant.dynamics.omega[3] * plant.dynamics.leg_r_b[2,3]
+62 : plant.dynamics.leg_v_b[2,3] = plant.dynamics.v_b[2] + plant.dynamics.omega[3] * plant.dynamics.leg_r_b[1,3] - plant.dynamics.omega[1] * plant.dynamics.leg_r_b[3,3]
+63 : plant.dynamics.leg_v_b[3,3] = plant.dynamics.v_b[3] + plant.dynamics.omega[1] * plant.dynamics.leg_r_b[2,3] - plant.dynamics.omega[2] * plant.dynamics.leg_r_b[1,3]
+64 : plant.dynamics.leg_h_w[3] = plant.dynamics.p[3] + plant.truth.rotationWorldBody[3,1] * plant.dynamics.leg_r_b[1,3] + plant.truth.rotationWorldBody[3,2] * plant.dynamics.leg_r_b[2,3] + plant.truth.rotationWorldBody[3,3] * plant.dynamics.leg_r_b[3,3]
+65 : plant.dynamics.leg_f_w[1,3] = if noEvent(plant.dynamics.leg_h_w[3] < plant.dynamics.ground_z) then (-plant.dynamics.ground_tangent_c) * (plant.truth.rotationWorldBody[1,1] * plant.dynamics.leg_v_b[1,3] + plant.truth.rotationWorldBody[1,2] * plant.dynamics.leg_v_b[2,3] + plant.truth.rotationWorldBody[1,3] * plant.dynamics.leg_v_b[3,3]) else 0.0
+66 : plant.dynamics.leg_f_w[2,3] = if noEvent(plant.dynamics.leg_h_w[3] < plant.dynamics.ground_z) then (-plant.dynamics.ground_tangent_c) * (plant.truth.rotationWorldBody[2,1] * plant.dynamics.leg_v_b[1,3] + plant.truth.rotationWorldBody[2,2] * plant.dynamics.leg_v_b[2,3] + plant.truth.rotationWorldBody[2,3] * plant.dynamics.leg_v_b[3,3]) else 0.0
+67 : plant.dynamics.leg_f_w[3,3] = if noEvent(plant.dynamics.leg_h_w[3] < plant.dynamics.ground_z) then max(0.0, plant.dynamics.ground_k * (plant.dynamics.ground_z - plant.dynamics.leg_h_w[3]) - plant.dynamics.ground_c * (plant.truth.rotationWorldBody[3,1] * plant.dynamics.leg_v_b[1,3] + plant.truth.rotationWorldBody[3,2] * plant.dynamics.leg_v_b[2,3] + plant.truth.rotationWorldBody[3,3] * plant.dynamics.leg_v_b[3,3])) else 0.0
+68 : plant.dynamics.leg_m_b[1,3] = plant.dynamics.leg_r_b[2,3] * plant.dynamics.leg_f_b[3,3] - plant.dynamics.leg_r_b[3,3] * plant.dynamics.leg_f_b[2,3]
+69 : plant.dynamics.leg_m_b[2,3] = plant.dynamics.leg_r_b[3,3] * plant.dynamics.leg_f_b[1,3] - plant.dynamics.leg_r_b[1,3] * plant.dynamics.leg_f_b[3,3]
+70 : plant.dynamics.leg_m_b[3,3] = plant.dynamics.leg_r_b[1,3] * plant.dynamics.leg_f_b[2,3] - plant.dynamics.leg_r_b[2,3] * plant.dynamics.leg_f_b[1,3]
+71 : plant.dynamics.leg_v_b[1,4] = plant.dynamics.v_b[1] + plant.dynamics.omega[2] * plant.dynamics.leg_r_b[3,4] - plant.dynamics.omega[3] * plant.dynamics.leg_r_b[2,4]
+72 : plant.dynamics.leg_v_b[2,4] = plant.dynamics.v_b[2] + plant.dynamics.omega[3] * plant.dynamics.leg_r_b[1,4] - plant.dynamics.omega[1] * plant.dynamics.leg_r_b[3,4]
+73 : plant.dynamics.leg_v_b[3,4] = plant.dynamics.v_b[3] + plant.dynamics.omega[1] * plant.dynamics.leg_r_b[2,4] - plant.dynamics.omega[2] * plant.dynamics.leg_r_b[1,4]
+74 : plant.dynamics.leg_h_w[4] = plant.dynamics.p[3] + plant.truth.rotationWorldBody[3,1] * plant.dynamics.leg_r_b[1,4] + plant.truth.rotationWorldBody[3,2] * plant.dynamics.leg_r_b[2,4] + plant.truth.rotationWorldBody[3,3] * plant.dynamics.leg_r_b[3,4]
+75 : plant.dynamics.leg_f_w[1,4] = if noEvent(plant.dynamics.leg_h_w[4] < plant.dynamics.ground_z) then (-plant.dynamics.ground_tangent_c) * (plant.truth.rotationWorldBody[1,1] * plant.dynamics.leg_v_b[1,4] + plant.truth.rotationWorldBody[1,2] * plant.dynamics.leg_v_b[2,4] + plant.truth.rotationWorldBody[1,3] * plant.dynamics.leg_v_b[3,4]) else 0.0
+76 : plant.dynamics.leg_f_w[2,4] = if noEvent(plant.dynamics.leg_h_w[4] < plant.dynamics.ground_z) then (-plant.dynamics.ground_tangent_c) * (plant.truth.rotationWorldBody[2,1] * plant.dynamics.leg_v_b[1,4] + plant.truth.rotationWorldBody[2,2] * plant.dynamics.leg_v_b[2,4] + plant.truth.rotationWorldBody[2,3] * plant.dynamics.leg_v_b[3,4]) else 0.0
+77 : plant.dynamics.leg_f_w[3,4] = if noEvent(plant.dynamics.leg_h_w[4] < plant.dynamics.ground_z) then max(0.0, plant.dynamics.ground_k * (plant.dynamics.ground_z - plant.dynamics.leg_h_w[4]) - plant.dynamics.ground_c * (plant.truth.rotationWorldBody[3,1] * plant.dynamics.leg_v_b[1,4] + plant.truth.rotationWorldBody[3,2] * plant.dynamics.leg_v_b[2,4] + plant.truth.rotationWorldBody[3,3] * plant.dynamics.leg_v_b[3,4])) else 0.0
+78 : plant.dynamics.leg_m_b[1,4] = plant.dynamics.leg_r_b[2,4] * plant.dynamics.leg_f_b[3,4] - plant.dynamics.leg_r_b[3,4] * plant.dynamics.leg_f_b[2,4]
+79 : plant.dynamics.leg_m_b[2,4] = plant.dynamics.leg_r_b[3,4] * plant.dynamics.leg_f_b[1,4] - plant.dynamics.leg_r_b[1,4] * plant.dynamics.leg_f_b[3,4]
+80 : plant.dynamics.leg_m_b[3,4] = plant.dynamics.leg_r_b[1,4] * plant.dynamics.leg_f_b[2,4] - plant.dynamics.leg_r_b[2,4] * plant.dynamics.leg_f_b[1,4]
+81 : plant.dynamics.leg_f_b[1,1] = plant.truth.rotationWorldBody[1,1] * plant.dynamics.leg_f_w[1,1] + plant.truth.rotationWorldBody[2,1] * plant.dynamics.leg_f_w[2,1] + plant.truth.rotationWorldBody[3,1] * plant.dynamics.leg_f_w[3,1]
+82 : plant.dynamics.leg_f_b[1,2] = plant.truth.rotationWorldBody[1,1] * plant.dynamics.leg_f_w[1,2] + plant.truth.rotationWorldBody[2,1] * plant.dynamics.leg_f_w[2,2] + plant.truth.rotationWorldBody[3,1] * plant.dynamics.leg_f_w[3,2]
+83 : plant.dynamics.leg_f_b[1,3] = plant.truth.rotationWorldBody[1,1] * plant.dynamics.leg_f_w[1,3] + plant.truth.rotationWorldBody[2,1] * plant.dynamics.leg_f_w[2,3] + plant.truth.rotationWorldBody[3,1] * plant.dynamics.leg_f_w[3,3]
+84 : plant.dynamics.leg_f_b[1,4] = plant.truth.rotationWorldBody[1,1] * plant.dynamics.leg_f_w[1,4] + plant.truth.rotationWorldBody[2,1] * plant.dynamics.leg_f_w[2,4] + plant.truth.rotationWorldBody[3,1] * plant.dynamics.leg_f_w[3,4]
+85 : plant.dynamics.leg_f_b[2,1] = plant.truth.rotationWorldBody[1,2] * plant.dynamics.leg_f_w[1,1] + plant.truth.rotationWorldBody[2,2] * plant.dynamics.leg_f_w[2,1] + plant.truth.rotationWorldBody[3,2] * plant.dynamics.leg_f_w[3,1]
+86 : plant.dynamics.leg_f_b[2,2] = plant.truth.rotationWorldBody[1,2] * plant.dynamics.leg_f_w[1,2] + plant.truth.rotationWorldBody[2,2] * plant.dynamics.leg_f_w[2,2] + plant.truth.rotationWorldBody[3,2] * plant.dynamics.leg_f_w[3,2]
+87 : plant.dynamics.leg_f_b[2,3] = plant.truth.rotationWorldBody[1,2] * plant.dynamics.leg_f_w[1,3] + plant.truth.rotationWorldBody[2,2] * plant.dynamics.leg_f_w[2,3] + plant.truth.rotationWorldBody[3,2] * plant.dynamics.leg_f_w[3,3]
+88 : plant.dynamics.leg_f_b[2,4] = plant.truth.rotationWorldBody[1,2] * plant.dynamics.leg_f_w[1,4] + plant.truth.rotationWorldBody[2,2] * plant.dynamics.leg_f_w[2,4] + plant.truth.rotationWorldBody[3,2] * plant.dynamics.leg_f_w[3,4]
+89 : plant.dynamics.leg_f_b[3,1] = plant.truth.rotationWorldBody[1,3] * plant.dynamics.leg_f_w[1,1] + plant.truth.rotationWorldBody[2,3] * plant.dynamics.leg_f_w[2,1] + plant.truth.rotationWorldBody[3,3] * plant.dynamics.leg_f_w[3,1]
+90 : plant.dynamics.leg_f_b[3,2] = plant.truth.rotationWorldBody[1,3] * plant.dynamics.leg_f_w[1,2] + plant.truth.rotationWorldBody[2,3] * plant.dynamics.leg_f_w[2,2] + plant.truth.rotationWorldBody[3,3] * plant.dynamics.leg_f_w[3,2]
+91 : plant.dynamics.leg_f_b[3,3] = plant.truth.rotationWorldBody[1,3] * plant.dynamics.leg_f_w[1,3] + plant.truth.rotationWorldBody[2,3] * plant.dynamics.leg_f_w[2,3] + plant.truth.rotationWorldBody[3,3] * plant.dynamics.leg_f_w[3,3]
+92 : plant.dynamics.leg_f_b[3,4] = plant.truth.rotationWorldBody[1,3] * plant.dynamics.leg_f_w[1,4] + plant.truth.rotationWorldBody[2,3] * plant.dynamics.leg_f_w[2,4] + plant.truth.rotationWorldBody[3,3] * plant.dynamics.leg_f_w[3,4]
+93 : plant.dynamics.F_ground_b[1] = plant.dynamics.leg_f_b[1,1] + plant.dynamics.leg_f_b[1,2] + plant.dynamics.leg_f_b[1,3] + plant.dynamics.leg_f_b[1,4]
+94 : plant.dynamics.F_ground_b[2] = plant.dynamics.leg_f_b[2,1] + plant.dynamics.leg_f_b[2,2] + plant.dynamics.leg_f_b[2,3] + plant.dynamics.leg_f_b[2,4]
+95 : plant.dynamics.F_ground_b[3] = plant.dynamics.leg_f_b[3,1] + plant.dynamics.leg_f_b[3,2] + plant.dynamics.leg_f_b[3,3] + plant.dynamics.leg_f_b[3,4]
+96 : plant.dynamics.M_ground_b[1] = plant.dynamics.leg_m_b[1,1] + plant.dynamics.leg_m_b[1,2] + plant.dynamics.leg_m_b[1,3] + plant.dynamics.leg_m_b[1,4]
+97 : plant.dynamics.M_ground_b[2] = plant.dynamics.leg_m_b[2,1] + plant.dynamics.leg_m_b[2,2] + plant.dynamics.leg_m_b[2,3] + plant.dynamics.leg_m_b[2,4]
+98 : plant.dynamics.M_ground_b[3] = plant.dynamics.leg_m_b[3,1] + plant.dynamics.leg_m_b[3,2] + plant.dynamics.leg_m_b[3,3] + plant.dynamics.leg_m_b[3,4]
+99 : plant.dynamics.M_b[1] = plant.dynamics.M_rotor[1] + plant.dynamics.M_rate[1] + plant.dynamics.M_ground_b[1]
+100 : plant.dynamics.M_b[2] = plant.dynamics.M_rotor[2] + plant.dynamics.M_rate[2] + plant.dynamics.M_ground_b[2]
+101 : plant.dynamics.M_b[3] = plant.dynamics.M_rotor[3] + plant.dynamics.M_rate[3] + plant.dynamics.M_ground_b[3]
+102 : plant.dynamics.F_b[1] = plant.dynamics.F_ground_b[1] + plant.dynamics.drag_b[1]
+103 : plant.dynamics.F_b[2] = plant.dynamics.F_ground_b[2] + plant.dynamics.drag_b[2]
+104 : plant.dynamics.F_b[3] = plant.dynamics.F_ground_b[3] + plant.dynamics.drag_b[3] + plant.dynamics.T
+105 : plant.dynamics.mag[1] = plant.truth.rotationWorldBody[1,1] * plant.dynamics.mag_world_enu[1] + plant.truth.rotationWorldBody[2,1] * plant.dynamics.mag_world_enu[2] + plant.truth.rotationWorldBody[3,1] * plant.dynamics.mag_world_enu[3]
+106 : plant.dynamics.mag[2] = plant.truth.rotationWorldBody[1,2] * plant.dynamics.mag_world_enu[1] + plant.truth.rotationWorldBody[2,2] * plant.dynamics.mag_world_enu[2] + plant.truth.rotationWorldBody[3,2] * plant.dynamics.mag_world_enu[3]
+107 : plant.dynamics.mag[3] = plant.truth.rotationWorldBody[1,3] * plant.dynamics.mag_world_enu[1] + plant.truth.rotationWorldBody[2,3] * plant.dynamics.mag_world_enu[2] + plant.truth.rotationWorldBody[3,3] * plant.dynamics.mag_world_enu[3]
+108 : {velocity_m_s[1], velocity_m_s[2], velocity_m_s[3]} = RigidBody.worldPositionRate(RigidBody.State({plant.dynamics.p[1], plant.dynamics.p[2], plant.dynamics.p[3]}, {plant.dynamics.v_b[1], plant.dynamics.v_b[2], plant.dynamics.v_b[3]}, {plant.dynamics.q[1], plant.dynamics.q[2], plant.dynamics.q[3], plant.dynamics.q[4]}, {plant.dynamics.omega[1], plant.dynamics.omega[2], plant.dynamics.omega[3]}))
+109 : plant.dynamics.bodyVelocityRate = RigidBody.bodyVelocityRate(RigidBody.State({plant.dynamics.p[1], plant.dynamics.p[2], plant.dynamics.p[3]}, {plant.dynamics.v_b[1], plant.dynamics.v_b[2], plant.dynamics.v_b[3]}, {plant.dynamics.q[1], plant.dynamics.q[2], plant.dynamics.q[3], plant.dynamics.q[4]}, {plant.dynamics.omega[1], plant.dynamics.omega[2], plant.dynamics.omega[3]}), RigidBody.Wrench({plant.dynamics.F_b[1], plant.dynamics.F_b[2], plant.dynamics.F_b[3]}, {plant.dynamics.M_b[1], plant.dynamics.M_b[2], plant.dynamics.M_b[3]}), RigidBody.Parameters(plant.dynamics.mass, plant.dynamics.g, {{plant.dynamics.J[1,1], plant.dynamics.J[1,2], plant.dynamics.J[1,3]}, {plant.dynamics.J[2,1], plant.dynamics.J[2,2], plant.dynamics.J[2,3]}, {plant.dynamics.J[3,1], plant.dynamics.J[3,2], plant.dynamics.J[3,3]}}, plant.dynamics.qnorm_gain))
+110 : plant.dynamics.attitudeRate = RigidBody.attitudeRate(RigidBody.State({plant.dynamics.p[1], plant.dynamics.p[2], plant.dynamics.p[3]}, {plant.dynamics.v_b[1], plant.dynamics.v_b[2], plant.dynamics.v_b[3]}, {plant.dynamics.q[1], plant.dynamics.q[2], plant.dynamics.q[3], plant.dynamics.q[4]}, {plant.dynamics.omega[1], plant.dynamics.omega[2], plant.dynamics.omega[3]}), RigidBody.Parameters(plant.dynamics.mass, plant.dynamics.g, {{plant.dynamics.J[1,1], plant.dynamics.J[1,2], plant.dynamics.J[1,3]}, {plant.dynamics.J[2,1], plant.dynamics.J[2,2], plant.dynamics.J[2,3]}, {plant.dynamics.J[3,1], plant.dynamics.J[3,2], plant.dynamics.J[3,3]}}, plant.dynamics.qnorm_gain))
+111 : plant.dynamics.bodyAngularVelocityRate = RigidBody.bodyAngularVelocityRate(RigidBody.State({plant.dynamics.p[1], plant.dynamics.p[2], plant.dynamics.p[3]}, {plant.dynamics.v_b[1], plant.dynamics.v_b[2], plant.dynamics.v_b[3]}, {plant.dynamics.q[1], plant.dynamics.q[2], plant.dynamics.q[3], plant.dynamics.q[4]}, {plant.dynamics.omega[1], plant.dynamics.omega[2], plant.dynamics.omega[3]}), RigidBody.Wrench({plant.dynamics.F_b[1], plant.dynamics.F_b[2], plant.dynamics.F_b[3]}, {plant.dynamics.M_b[1], plant.dynamics.M_b[2], plant.dynamics.M_b[3]}), RigidBody.Parameters(plant.dynamics.mass, plant.dynamics.g, {{plant.dynamics.J[1,1], plant.dynamics.J[1,2], plant.dynamics.J[1,3]}, {plant.dynamics.J[2,1], plant.dynamics.J[2,2], plant.dynamics.J[2,3]}, {plant.dynamics.J[3,1], plant.dynamics.J[3,2], plant.dynamics.J[3,3]}}, plant.dynamics.qnorm_gain))
+112 : {{plant.truth.rotationWorldBody[1,1], plant.truth.rotationWorldBody[1,2], plant.truth.rotationWorldBody[1,3]}, {plant.truth.rotationWorldBody[2,1], plant.truth.rotationWorldBody[2,2], plant.truth.rotationWorldBody[2,3]}, {plant.truth.rotationWorldBody[3,1], plant.truth.rotationWorldBody[3,2], plant.truth.rotationWorldBody[3,3]}} = LieGroups.SO3.Quat.to_DCM({plant.dynamics.q[1], plant.dynamics.q[2], plant.dynamics.q[3], plant.dynamics.q[4]})
+113 : plant.imu.specificForceBodyFlu_m_s2[1] = plant.dynamics.F_b[1] / plant.dynamics.mass
+114 : plant.imu.specificForceBodyFlu_m_s2[2] = plant.dynamics.F_b[2] / plant.dynamics.mass
+115 : plant.imu.specificForceBodyFlu_m_s2[3] = plant.dynamics.F_b[3] / plant.dynamics.mass
+116 : der(plant.dynamics.p[1]) = velocity_m_s[1]
+117 : der(plant.dynamics.p[2]) = velocity_m_s[2]
+118 : der(plant.dynamics.p[3]) = velocity_m_s[3]
+119 : der(plant.dynamics.v_b[1]) = plant.dynamics.bodyVelocityRate[1]
+120 : der(plant.dynamics.v_b[2]) = plant.dynamics.bodyVelocityRate[2]
+121 : der(plant.dynamics.v_b[3]) = plant.dynamics.bodyVelocityRate[3]
+122 : der(plant.dynamics.q[1]) = plant.dynamics.attitudeRate[1]
+123 : der(plant.dynamics.q[2]) = plant.dynamics.attitudeRate[2]
+124 : der(plant.dynamics.q[3]) = plant.dynamics.attitudeRate[3]
+125 : der(plant.dynamics.q[4]) = plant.dynamics.attitudeRate[4]
+126 : der(plant.dynamics.omega[1]) = plant.dynamics.bodyAngularVelocityRate[1]
+127 : der(plant.dynamics.omega[2]) = plant.dynamics.bodyAngularVelocityRate[2]
+128 : der(plant.dynamics.omega[3]) = plant.dynamics.bodyAngularVelocityRate[3]
+129 : plant.vibration.speedRatioSquared[1] = plant.vibration.unbalanceScale[1] * (plant.dynamics.motor[1].omega / plant.vibration.hoverRotorSpeed_rad_s) ^ 2.0
+130 : plant.vibration.lateralAngular[1] = plant.vibration.speedRatioSquared[1] * (cos(plant.vibration.unbalancePhase_rad[1]) + plant.vibration.bladePassAngularRatio * cos(plant.vibration.bladePassPhase_rad[1]))
+131 : plant.vibration.yawAngular[1] = plant.vibration.spinDirection[1] * plant.vibration.yawTorqueRippleRatio * plant.vibration.speedRatioSquared[1] * (sin(plant.vibration.unbalancePhase_rad[1]) + plant.vibration.bladePassAngularRatio * sin(plant.vibration.bladePassPhase_rad[1]))
+132 : plant.vibration.lateralSpecificForce[1] = plant.vibration.speedRatioSquared[1] * (cos(plant.vibration.unbalancePhase_rad[1] + plant.vibration.specificForceQuadraturePhase_rad) + plant.vibration.bladePassSpecificForceRatio * cos(plant.vibration.bladePassPhase_rad[1] + plant.vibration.specificForceQuadraturePhase_rad))
+133 : plant.vibration.axialSpecificForce[1] = plant.vibration.axialSpecificForceRatio * plant.vibration.speedRatioSquared[1] * (cos(plant.vibration.unbalancePhase_rad[1]) + plant.vibration.bladePassSpecificForceRatio)
+134 : plant.vibration.speedRatioSquared[2] = plant.vibration.unbalanceScale[2] * (plant.dynamics.motor[2].omega / plant.vibration.hoverRotorSpeed_rad_s) ^ 2.0
+135 : plant.vibration.lateralAngular[2] = plant.vibration.speedRatioSquared[2] * (cos(plant.vibration.unbalancePhase_rad[2]) + plant.vibration.bladePassAngularRatio * cos(plant.vibration.bladePassPhase_rad[2]))
+136 : plant.vibration.yawAngular[2] = plant.vibration.spinDirection[2] * plant.vibration.yawTorqueRippleRatio * plant.vibration.speedRatioSquared[2] * (sin(plant.vibration.unbalancePhase_rad[2]) + plant.vibration.bladePassAngularRatio * sin(plant.vibration.bladePassPhase_rad[2]))
+137 : plant.vibration.lateralSpecificForce[2] = plant.vibration.speedRatioSquared[2] * (cos(plant.vibration.unbalancePhase_rad[2] + plant.vibration.specificForceQuadraturePhase_rad) + plant.vibration.bladePassSpecificForceRatio * cos(plant.vibration.bladePassPhase_rad[2] + plant.vibration.specificForceQuadraturePhase_rad))
+138 : plant.vibration.axialSpecificForce[2] = plant.vibration.axialSpecificForceRatio * plant.vibration.speedRatioSquared[2] * (cos(plant.vibration.unbalancePhase_rad[2]) + plant.vibration.bladePassSpecificForceRatio)
+139 : plant.vibration.speedRatioSquared[3] = plant.vibration.unbalanceScale[3] * (plant.dynamics.motor[3].omega / plant.vibration.hoverRotorSpeed_rad_s) ^ 2.0
+140 : plant.vibration.lateralAngular[3] = plant.vibration.speedRatioSquared[3] * (cos(plant.vibration.unbalancePhase_rad[3]) + plant.vibration.bladePassAngularRatio * cos(plant.vibration.bladePassPhase_rad[3]))
+141 : plant.vibration.yawAngular[3] = plant.vibration.spinDirection[3] * plant.vibration.yawTorqueRippleRatio * plant.vibration.speedRatioSquared[3] * (sin(plant.vibration.unbalancePhase_rad[3]) + plant.vibration.bladePassAngularRatio * sin(plant.vibration.bladePassPhase_rad[3]))
+142 : plant.vibration.lateralSpecificForce[3] = plant.vibration.speedRatioSquared[3] * (cos(plant.vibration.unbalancePhase_rad[3] + plant.vibration.specificForceQuadraturePhase_rad) + plant.vibration.bladePassSpecificForceRatio * cos(plant.vibration.bladePassPhase_rad[3] + plant.vibration.specificForceQuadraturePhase_rad))
+143 : plant.vibration.axialSpecificForce[3] = plant.vibration.axialSpecificForceRatio * plant.vibration.speedRatioSquared[3] * (cos(plant.vibration.unbalancePhase_rad[3]) + plant.vibration.bladePassSpecificForceRatio)
+144 : plant.vibration.speedRatioSquared[4] = plant.vibration.unbalanceScale[4] * (plant.dynamics.motor[4].omega / plant.vibration.hoverRotorSpeed_rad_s) ^ 2.0
+145 : plant.vibration.lateralAngular[4] = plant.vibration.speedRatioSquared[4] * (cos(plant.vibration.unbalancePhase_rad[4]) + plant.vibration.bladePassAngularRatio * cos(plant.vibration.bladePassPhase_rad[4]))
+146 : plant.vibration.yawAngular[4] = plant.vibration.spinDirection[4] * plant.vibration.yawTorqueRippleRatio * plant.vibration.speedRatioSquared[4] * (sin(plant.vibration.unbalancePhase_rad[4]) + plant.vibration.bladePassAngularRatio * sin(plant.vibration.bladePassPhase_rad[4]))
+147 : plant.vibration.lateralSpecificForce[4] = plant.vibration.speedRatioSquared[4] * (cos(plant.vibration.unbalancePhase_rad[4] + plant.vibration.specificForceQuadraturePhase_rad) + plant.vibration.bladePassSpecificForceRatio * cos(plant.vibration.bladePassPhase_rad[4] + plant.vibration.specificForceQuadraturePhase_rad))
+148 : plant.vibration.axialSpecificForce[4] = plant.vibration.axialSpecificForceRatio * plant.vibration.speedRatioSquared[4] * (cos(plant.vibration.unbalancePhase_rad[4]) + plant.vibration.bladePassSpecificForceRatio)
+149 : plant.dynamics.omega_cmd[1] = min(max(motorCommand[1], 0.0), 1.0) * plant.omegaMax
+150 : plant.dynamics.omega_cmd[2] = min(max(motorCommand[2], 0.0), 1.0) * plant.omegaMax
+151 : plant.dynamics.omega_cmd[3] = min(max(motorCommand[3], 0.0), 1.0) * plant.omegaMax
+152 : plant.dynamics.omega_cmd[4] = min(max(motorCommand[4], 0.0), 1.0) * plant.omegaMax
+153 : {euler_rad[3], euler_rad[2], euler_rad[1]} = LieGroups.SO3.EulerB321.from_Quat({plant.dynamics.q[1], plant.dynamics.q[2], plant.dynamics.q[3], plant.dynamics.q[4]})
+154 : plant.truth.accelerationWorldEnu_m_s2[1] = plant.truth.rotationWorldBody[1,1] * plant.imu.specificForceBodyFlu_m_s2[1] + plant.truth.rotationWorldBody[1,2] * plant.imu.specificForceBodyFlu_m_s2[2] + plant.truth.rotationWorldBody[1,3] * plant.imu.specificForceBodyFlu_m_s2[3]
+155 : plant.truth.accelerationWorldEnu_m_s2[2] = plant.truth.rotationWorldBody[2,1] * plant.imu.specificForceBodyFlu_m_s2[1] + plant.truth.rotationWorldBody[2,2] * plant.imu.specificForceBodyFlu_m_s2[2] + plant.truth.rotationWorldBody[2,3] * plant.imu.specificForceBodyFlu_m_s2[3]
+156 : plant.truth.accelerationWorldEnu_m_s2[3] = plant.truth.rotationWorldBody[3,1] * plant.imu.specificForceBodyFlu_m_s2[1] + plant.truth.rotationWorldBody[3,2] * plant.imu.specificForceBodyFlu_m_s2[2] + plant.truth.rotationWorldBody[3,3] * plant.imu.specificForceBodyFlu_m_s2[3] - plant.dynamics.gravity
+157 : plant.truth.angularVelocityWorldEnu_rad_s[1] = plant.truth.rotationWorldBody[1,1] * plant.dynamics.omega[1] + plant.truth.rotationWorldBody[1,2] * plant.dynamics.omega[2] + plant.truth.rotationWorldBody[1,3] * plant.dynamics.omega[3]
+158 : plant.truth.angularVelocityWorldEnu_rad_s[2] = plant.truth.rotationWorldBody[2,1] * plant.dynamics.omega[1] + plant.truth.rotationWorldBody[2,2] * plant.dynamics.omega[2] + plant.truth.rotationWorldBody[2,3] * plant.dynamics.omega[3]
+159 : plant.truth.angularVelocityWorldEnu_rad_s[3] = plant.truth.rotationWorldBody[3,1] * plant.dynamics.omega[1] + plant.truth.rotationWorldBody[3,2] * plant.dynamics.omega[2] + plant.truth.rotationWorldBody[3,3] * plant.dynamics.omega[3]
+160 : transmitter.channelPwm_us_out = Vehicles.Interfaces.scheduledChannels(time, transmitter.eventTime_s, transmitter.channelPwm_us)
+161 : avionics.guidanceTask.positionGuidance.stateError = Control.Multirotor.LogLinear.stateError({avionics.navigation.positionWorldEnu_m[1], avionics.navigation.positionWorldEnu_m[2], avionics.navigation.positionWorldEnu_m[3]}, {avionics.navigation.velocityWorldEnu_m_s[1], avionics.navigation.velocityWorldEnu_m_s[2], avionics.navigation.velocityWorldEnu_m_s[3]}, {avionics.navigation.quaternionWorldBody[1], avionics.navigation.quaternionWorldBody[2], avionics.navigation.quaternionWorldBody[3], avionics.navigation.quaternionWorldBody[4]}, {referencePositionWorldEnu_m[1], referencePositionWorldEnu_m[2], referencePositionWorldEnu_m[3]}, {referenceVelocityWorldEnu_m_s[1], referenceVelocityWorldEnu_m_s[2], referenceVelocityWorldEnu_m_s[3]}, avionics.guidanceTask.positionGuidance.headingQuaternionReference)
+162 : Control.Multirotor.LogLinear.OuterLoopResult(avionics.guidanceTask.positionGuidance.thrust, {avionics.guidanceTask.positionGuidance.attitudeSetpoint[1], avionics.guidanceTask.positionGuidance.attitudeSetpoint[2], avionics.guidanceTask.positionGuidance.attitudeSetpoint[3], avionics.guidanceTask.positionGuidance.attitudeSetpoint[4]}, {avionics.guidanceTask.positionGuidance.angularVelocityCorrection[1], avionics.guidanceTask.positionGuidance.angularVelocityCorrection[2], avionics.guidanceTask.positionGuidance.angularVelocityCorrection[3]}) = Control.Multirotor.LogLinear.outerLoop(avionics.guidanceTask.positionGuidance.stateError, {avionics.reference.acceleration[1], avionics.reference.acceleration[2], avionics.reference.acceleration[3]}, {avionics.navigation.quaternionWorldBody[1], avionics.navigation.quaternionWorldBody[2], avionics.navigation.quaternionWorldBody[3], avionics.navigation.quaternionWorldBody[4]}, avionics.guidanceTask.positionGuidance.headingQuaternionReference, avionics.guidanceTask.positionGuidance.positionIntegralWorld, avionics.guidanceTask.positionGuidance.thrustTrim, avionics.guidanceTask.positionGuidance.mass, avionics.guidanceTask.positionGuidance.gravity, avionics.guidanceTask.positionGuidance.positionGain_s2, avionics.guidanceTask.positionGuidance.velocityGain_s, avionics.guidanceTask.positionGuidance.integralGain, avionics.guidanceTask.positionGuidance.translationalCorrectionFraction)
+163 : avionics.guidanceTask.positionGuidance.angularVelocitySetpoint = Control.Multirotor.LogLinear.attitudeControl(avionics.guidanceTask.positionGuidance.attitudeGain, {avionics.navigation.quaternionWorldBody[1], avionics.navigation.quaternionWorldBody[2], avionics.navigation.quaternionWorldBody[3], avionics.navigation.quaternionWorldBody[4]}, avionics.guidanceTask.positionGuidance.attitudeSetpoint)
+164 : avionics.guidanceTask.navigationEulerB321_rad = LieGroups.SO3.EulerB321.from_Quat({avionics.navigation.quaternionWorldBody[1], avionics.navigation.quaternionWorldBody[2], avionics.navigation.quaternionWorldBody[3], avionics.navigation.quaternionWorldBody[4]})
+165 : avionics.guidanceTask.attitudeReferenceQuaternion = LieGroups.SO3.EulerB321.to_Quat({avionics.guidanceTask.navigationEulerB321_rad[1], avionics.guidanceTask.pilotMapping.commands.attitudeTiltDesired_rad[2], avionics.guidanceTask.pilotMapping.commands.attitudeTiltDesired_rad[1]})
+166 : avionics.guidanceTask.attitudeRateSetpointFlu_rad_s = Control.Multirotor.LogLinear.attitudeControl(avionics.guidanceTask.positionGuidance.attitudeGain, {avionics.navigation.quaternionWorldBody[1], avionics.navigation.quaternionWorldBody[2], avionics.navigation.quaternionWorldBody[3], avionics.navigation.quaternionWorldBody[4]}, avionics.guidanceTask.attitudeReferenceQuaternion)
+167 : avionics.guidanceTask.positionGuidance.headingQuaternionReference = LieGroups.SO3.EulerB321.to_Quat({referenceYaw_rad, 0.0, 0.0})
+168 : avionics.guidanceTask.positionGuidance.resetIntegral = not armed or flightMode < 2
+169 : thrust_N = if flightMode >= 2 then avionics.guidanceTask.positionGuidance.thrust else avionics.guidanceTask.maximumCollectiveThrust_N * avionics.guidanceTask.pilotMapping.commands.throttleInput ^ 2.0
+170 : avionics.guidanceTask.angularVelocitySetpointFlu_rad_s[1] = if flightMode >= 2 then avionics.guidanceTask.positionGuidance.angularVelocitySetpoint[1] else if flightMode == 1 then avionics.guidanceTask.attitudeRateSetpointFlu_rad_s[1] else avionics.guidanceTask.pilotMapping.commands.acroRateDesired_rad_s[1]
+171 : avionics.guidanceTask.angularVelocitySetpointFlu_rad_s[2] = if flightMode >= 2 then avionics.guidanceTask.positionGuidance.angularVelocitySetpoint[2] else if flightMode == 1 then avionics.guidanceTask.attitudeRateSetpointFlu_rad_s[2] else avionics.guidanceTask.pilotMapping.commands.acroRateDesired_rad_s[2]
+172 : avionics.guidanceTask.angularVelocitySetpointFlu_rad_s[3] = if flightMode >= 2 then avionics.guidanceTask.positionGuidance.angularVelocitySetpoint[3] else avionics.guidanceTask.pilotMapping.commands.acroRateDesired_rad_s[3]
+173 : avionics.guidanceTask.rateCorrectionFlu_rad_s[1] = if flightMode >= 2 then avionics.guidanceTask.positionGuidance.angularVelocityCorrection[1] else 0.0
+174 : avionics.guidanceTask.rateCorrectionFlu_rad_s[2] = if flightMode >= 2 then avionics.guidanceTask.positionGuidance.angularVelocityCorrection[2] else 0.0
+175 : avionics.guidanceTask.rateCorrectionFlu_rad_s[3] = if flightMode >= 2 then avionics.guidanceTask.positionGuidance.angularVelocityCorrection[3] else 0.0
+176 : avionics.rateTask.inputSignal.angularVelocityCommandFlu_rad_s[1] = avionics.guidanceTask.angularVelocitySetpointFlu_rad_s[1] + avionics.guidanceTask.rateCorrectionFlu_rad_s[1]
+177 : avionics.rateTask.inputSignal.angularVelocityCommandFlu_rad_s[2] = avionics.guidanceTask.angularVelocitySetpointFlu_rad_s[2] + avionics.guidanceTask.rateCorrectionFlu_rad_s[2]
+178 : avionics.rateTask.inputSignal.angularVelocityCommandFlu_rad_s[3] = avionics.guidanceTask.angularVelocitySetpointFlu_rad_s[3] + avionics.guidanceTask.rateCorrectionFlu_rad_s[3]
+179 : motorCommand[1] = if armed then avionics.rateTask.allocatedMotorCommand[1] else 0.0
+180 : motorCommand[2] = if armed then avionics.rateTask.allocatedMotorCommand[2] else 0.0
+181 : motorCommand[3] = if armed then avionics.rateTask.allocatedMotorCommand[3] else 0.0
+182 : motorCommand[4] = if armed then avionics.rateTask.allocatedMotorCommand[4] else 0.0
+183 : avionics.manualEngaged = flightMode == 3
+184 : avionics.reference.valid = if avionics.manualEngaged then true else avionics.planningTask.reference.valid
+185 : avionics.reference.complete = if avionics.manualEngaged then false else avionics.planningTask.reference.complete
+186 : referencePositionWorldEnu_m[1] = if avionics.manualEngaged then avionics.manualTask.positionWorldEnu_m[1] else avionics.planningTask.reference.position[1]
+187 : referencePositionWorldEnu_m[2] = if avionics.manualEngaged then avionics.manualTask.positionWorldEnu_m[2] else avionics.planningTask.reference.position[2]
+188 : referencePositionWorldEnu_m[3] = if avionics.manualEngaged then avionics.manualTask.positionWorldEnu_m[3] else avionics.planningTask.reference.position[3]
+189 : referenceVelocityWorldEnu_m_s[1] = if avionics.manualEngaged then avionics.manualTask.velocityWorldEnu_m_s[1] else avionics.planningTask.reference.velocity[1]
+190 : referenceVelocityWorldEnu_m_s[2] = if avionics.manualEngaged then avionics.manualTask.velocityWorldEnu_m_s[2] else avionics.planningTask.reference.velocity[2]
+191 : referenceVelocityWorldEnu_m_s[3] = if avionics.manualEngaged then avionics.manualTask.velocityWorldEnu_m_s[3] else avionics.planningTask.reference.velocity[3]
+192 : avionics.reference.acceleration[1] = if avionics.manualEngaged then avionics.manualTask.accelerationWorldEnu_m_s2[1] else avionics.planningTask.reference.acceleration[1]
+193 : avionics.reference.acceleration[2] = if avionics.manualEngaged then avionics.manualTask.accelerationWorldEnu_m_s2[2] else avionics.planningTask.reference.acceleration[2]
+194 : avionics.reference.acceleration[3] = if avionics.manualEngaged then avionics.manualTask.accelerationWorldEnu_m_s2[3] else avionics.planningTask.reference.acceleration[3]
+195 : avionics.reference.jerk[1] = if avionics.manualEngaged then 0.0 else avionics.planningTask.reference.jerk[1]
+196 : avionics.reference.jerk[2] = if avionics.manualEngaged then 0.0 else avionics.planningTask.reference.jerk[2]
+197 : avionics.reference.jerk[3] = if avionics.manualEngaged then 0.0 else avionics.planningTask.reference.jerk[3]
+198 : avionics.reference.snap[1] = if avionics.manualEngaged then 0.0 else avionics.planningTask.reference.snap[1]
+199 : avionics.reference.snap[2] = if avionics.manualEngaged then 0.0 else avionics.planningTask.reference.snap[2]
+200 : avionics.reference.snap[3] = if avionics.manualEngaged then 0.0 else avionics.planningTask.reference.snap[3]
+201 : referenceYaw_rad = if avionics.manualEngaged then avionics.manualTask.yaw_rad else avionics.planningTask.reference.yaw
+202 : avionics.reference.yawRate = if avionics.manualEngaged then avionics.manualTask.headingRateCommand_rad_s else avionics.planningTask.reference.yawRate
+203 : avionics.reference.yawAcceleration = if avionics.manualEngaged then 0.0 else avionics.planningTask.reference.yawAcceleration
+204 : estimator.heightAboveTerrain_m = estimator.statePosition[3] - estimator.stateTerrainAltitude_m
+205 : referenceOffset_m = sqrt((referencePositionWorldEnu_m[1] - avionics.navigation.positionWorldEnu_m[1]) ^ 2.0 + (referencePositionWorldEnu_m[2] - avionics.navigation.positionWorldEnu_m[2]) ^ 2.0 + (referencePositionWorldEnu_m[3] - avionics.navigation.positionWorldEnu_m[3]) ^ 2.0)
+206 : referenceSpeed_m_s = sqrt(referenceVelocityWorldEnu_m_s[1] ^ 2.0 + referenceVelocityWorldEnu_m_s[2] ^ 2.0 + referenceVelocityWorldEnu_m_s[3] ^ 2.0)
+207 : groundSpeed_m_s = sqrt(velocity_m_s[1] ^ 2.0 + velocity_m_s[2] ^ 2.0 + velocity_m_s[3] ^ 2.0)
+208 : holdDrift_m = sqrt((plant.dynamics.p[1] - referencePositionWorldEnu_m[1]) ^ 2.0 + (plant.dynamics.p[2] - referencePositionWorldEnu_m[2]) ^ 2.0 + (plant.dynamics.p[3] - referencePositionWorldEnu_m[3]) ^ 2.0)
+209 : bodyUpWorld = LieGroups.SO3.Quat.rotate({plant.dynamics.q[1], plant.dynamics.q[2], plant.dynamics.q[3], plant.dynamics.q[4]}, {0.0, 0.0, 1.0})
+210 : tiltAngle_rad = acos(min(max(bodyUpWorld[3], -1.0), 1.0))
+211 : opticalFlowGyroscopeIntegratedNoise_rad[1] = opticalFlowGyroscopeNoise_rad_s[1] * opticalFlowSamplePeriod
+212 : opticalFlowGyroscopeIntegratedNoise_rad[2] = opticalFlowGyroscopeNoise_rad_s[2] * opticalFlowSamplePeriod
+213 : opticalFlowGyroscopeIntegratedNoise_rad[3] = opticalFlowGyroscopeNoise_rad_s[3] * opticalFlowSamplePeriod
+214 : mocapDelayedPositionWorldEnu_m[1] = delay(0, plant.dynamics.p[1], mocapTransportDelay_s, mocapTransportDelay_s)
+215 : mocapDelayedPositionWorldEnu_m[2] = delay(1, plant.dynamics.p[2], mocapTransportDelay_s, mocapTransportDelay_s)
+216 : mocapDelayedPositionWorldEnu_m[3] = delay(2, plant.dynamics.p[3], mocapTransportDelay_s, mocapTransportDelay_s)
+217 : mocapDelayedQuaternionWorldBody[1] = delay(3, plant.dynamics.q[1], mocapTransportDelay_s, mocapTransportDelay_s)
+218 : mocapDelayedQuaternionWorldBody[2] = delay(4, plant.dynamics.q[2], mocapTransportDelay_s, mocapTransportDelay_s)
+219 : mocapDelayedQuaternionWorldBody[3] = delay(5, plant.dynamics.q[3], mocapTransportDelay_s, mocapTransportDelay_s)
+220 : mocapDelayedQuaternionWorldBody[4] = delay(6, plant.dynamics.q[4], mocapTransportDelay_s, mocapTransportDelay_s)
+221 : (mocapCapturePositionWorldEnu_m, mocapCaptureQuaternionWorldBody) = Vehicles.Rdd2.mocapRigToWorld(mocapDelayedPositionWorldEnu_m, mocapDelayedQuaternionWorldBody, mocapRigOriginWorldEnu_m, mocapRigSurveyOffsetWorldEnu_m, mocapRigSurveyHeadingError_rad)
+222 : gpsCapturePositionWorldEnu_m[1] = delay(7, plant.dynamics.p[1], gpsLatency_s, gpsLatency_s)
+223 : gpsCapturePositionWorldEnu_m[2] = delay(8, plant.dynamics.p[2], gpsLatency_s, gpsLatency_s)
+224 : gpsCapturePositionWorldEnu_m[3] = delay(9, plant.dynamics.p[3], gpsLatency_s, gpsLatency_s)
+225 : gpsCaptureVelocityWorldEnu_m_s[1] = delay(10, velocity_m_s[1], gpsLatency_s, gpsLatency_s)
+226 : gpsCaptureVelocityWorldEnu_m_s[2] = delay(11, velocity_m_s[2], gpsLatency_s, gpsLatency_s)
+227 : gpsCaptureVelocityWorldEnu_m_s[3] = delay(12, velocity_m_s[3], gpsLatency_s, gpsLatency_s)
+228 : opticalFlowCapturePositionWorldEnu_m[1] = delay(13, plant.dynamics.p[1], opticalFlowLatency_s, opticalFlowLatency_s)
+229 : opticalFlowCapturePositionWorldEnu_m[2] = delay(14, plant.dynamics.p[2], opticalFlowLatency_s, opticalFlowLatency_s)
+230 : opticalFlowCapturePositionWorldEnu_m[3] = delay(15, plant.dynamics.p[3], opticalFlowLatency_s, opticalFlowLatency_s)
+231 : opticalFlowCaptureVelocityWorldEnu_m_s[1] = delay(16, velocity_m_s[1], opticalFlowLatency_s, opticalFlowLatency_s)
+232 : opticalFlowCaptureVelocityWorldEnu_m_s[2] = delay(17, velocity_m_s[2], opticalFlowLatency_s, opticalFlowLatency_s)
+233 : opticalFlowCaptureVelocityWorldEnu_m_s[3] = delay(18, velocity_m_s[3], opticalFlowLatency_s, opticalFlowLatency_s)
+234 : opticalFlowCaptureAngularVelocityBodyFlu_rad_s[1] = delay(19, plant.dynamics.omega[1], opticalFlowLatency_s, opticalFlowLatency_s)
+235 : opticalFlowCaptureAngularVelocityBodyFlu_rad_s[2] = delay(20, plant.dynamics.omega[2], opticalFlowLatency_s, opticalFlowLatency_s)
+236 : opticalFlowCaptureAngularVelocityBodyFlu_rad_s[3] = delay(21, plant.dynamics.omega[3], opticalFlowLatency_s, opticalFlowLatency_s)
+237 : opticalFlowCaptureRotationWorldBody[1,1] = delay(22, plant.truth.rotationWorldBody[1,1], opticalFlowLatency_s, opticalFlowLatency_s)
+238 : opticalFlowCaptureRotationWorldBody[1,2] = delay(23, plant.truth.rotationWorldBody[1,2], opticalFlowLatency_s, opticalFlowLatency_s)
+239 : opticalFlowCaptureRotationWorldBody[1,3] = delay(24, plant.truth.rotationWorldBody[1,3], opticalFlowLatency_s, opticalFlowLatency_s)
+240 : opticalFlowCaptureRotationWorldBody[2,1] = delay(25, plant.truth.rotationWorldBody[2,1], opticalFlowLatency_s, opticalFlowLatency_s)
+241 : opticalFlowCaptureRotationWorldBody[2,2] = delay(26, plant.truth.rotationWorldBody[2,2], opticalFlowLatency_s, opticalFlowLatency_s)
+242 : opticalFlowCaptureRotationWorldBody[2,3] = delay(27, plant.truth.rotationWorldBody[2,3], opticalFlowLatency_s, opticalFlowLatency_s)
+243 : opticalFlowCaptureRotationWorldBody[3,1] = delay(28, plant.truth.rotationWorldBody[3,1], opticalFlowLatency_s, opticalFlowLatency_s)
+244 : opticalFlowCaptureRotationWorldBody[3,2] = delay(29, plant.truth.rotationWorldBody[3,2], opticalFlowLatency_s, opticalFlowLatency_s)
+245 : opticalFlowCaptureRotationWorldBody[3,3] = delay(30, plant.truth.rotationWorldBody[3,3], opticalFlowLatency_s, opticalFlowLatency_s)
+246 : magnetometerCaptureRotationWorldBody = LieGroups.SO3.Quat.to_DCM({plant.dynamics.q[1], plant.dynamics.q[2], plant.dynamics.q[3], plant.dynamics.q[4]})
+247 : magnetometerIdealFieldBodyFlu_T[1] = magnetometerCaptureRotationWorldBody[1,1] * localMagneticFieldWorldEnu_T[1] + magnetometerCaptureRotationWorldBody[2,1] * localMagneticFieldWorldEnu_T[2] + magnetometerCaptureRotationWorldBody[3,1] * localMagneticFieldWorldEnu_T[3]
+248 : magnetometerIdealFieldBodyFlu_T[2] = magnetometerCaptureRotationWorldBody[1,2] * localMagneticFieldWorldEnu_T[1] + magnetometerCaptureRotationWorldBody[2,2] * localMagneticFieldWorldEnu_T[2] + magnetometerCaptureRotationWorldBody[3,2] * localMagneticFieldWorldEnu_T[3]
+249 : magnetometerIdealFieldBodyFlu_T[3] = magnetometerCaptureRotationWorldBody[1,3] * localMagneticFieldWorldEnu_T[1] + magnetometerCaptureRotationWorldBody[2,3] * localMagneticFieldWorldEnu_T[2] + magnetometerCaptureRotationWorldBody[3,3] * localMagneticFieldWorldEnu_T[3]
+250 : avionics.plan.valid = time >= armTime_s
+251 : armed = avionics.reference.valid and time < disarmTime_s
+252 : avionics.pilot.stick[1] = min(max(-3.0 + 0.002 * transmitter.channelPwm_us_out[1], -1.0), 1.0)
+253 : avionics.pilot.stick[2] = min(max(-3.0 + 0.002 * transmitter.channelPwm_us_out[2], -1.0), 1.0)
+254 : avionics.pilot.stick[3] = min(max(-3.0 + 0.002 * transmitter.channelPwm_us_out[3], -1.0), 1.0)
+255 : avionics.pilot.throttle = min(max(-1.0 + 0.001 * transmitter.channelPwm_us_out[4], 0.0), 1.0)
+256 : referenceTrackingError_m = sqrt((referencePositionWorldEnu_m[1] - plant.dynamics.p[1]) ^ 2.0 + (referencePositionWorldEnu_m[2] - plant.dynamics.p[2]) ^ 2.0 + (referencePositionWorldEnu_m[3] - plant.dynamics.p[3]) ^ 2.0)
+257 : estimator.imu.fresh = imuPacketIntegrationTime_s > 0.0
+258 : estimator.imu.angularVelocityBodyFlu_rad_s[1] = imuPacketDeltaAngle_rad[1] / max(imuPacketIntegrationTime_s, 1e-9)
+259 : estimator.imu.angularVelocityBodyFlu_rad_s[2] = imuPacketDeltaAngle_rad[2] / max(imuPacketIntegrationTime_s, 1e-9)
+260 : estimator.imu.angularVelocityBodyFlu_rad_s[3] = imuPacketDeltaAngle_rad[3] / max(imuPacketIntegrationTime_s, 1e-9)
+261 : estimator.imu.specificForceBodyFlu_m_s2[1] = imuPacketDeltaVelocity_m_s[1] / max(imuPacketIntegrationTime_s, 1e-9)
+262 : estimator.imu.specificForceBodyFlu_m_s2[2] = imuPacketDeltaVelocity_m_s[2] / max(imuPacketIntegrationTime_s, 1e-9)
+263 : estimator.imu.specificForceBodyFlu_m_s2[3] = imuPacketDeltaVelocity_m_s[3] / max(imuPacketIntegrationTime_s, 1e-9)
+264 : estimator.gps.fresh = sample(9, 0.0, gpsSamplePeriod)
+265 : (opticalFlowIdealIntegratedLineOfSight_rad, opticalFlowIdealGroundDistance_m, opticalFlowSurfaceVisibility) = Vehicles.Rdd2.simulateOpticalFlowPlane(opticalFlowCapturePositionWorldEnu_m, opticalFlowCaptureVelocityWorldEnu_m_s, opticalFlowCaptureRotationWorldBody, opticalFlowCaptureAngularVelocityBodyFlu_rad_s, opticalFlowGroundNormalWorldEnu, opticalFlowGroundPlaneOffset_m, opticalFlowSamplePeriod, opticalFlowNormalizedImageRadius)
+266 : opticalFlowSurfaceVisible = opticalFlowSurfaceVisibility > 0.5
+267 : estimator.magnetometer.fresh = sample(11, 0.012, magnetometerSamplePeriod)
+268 : estimator.barometer.fresh = sample(12, 0.005, barometerSamplePeriod)
+269 : avionics.navigation.valid = pre(estimator.estimate.valid)
+270 : avionics.navigation.timestamp_s = pre(estimator.estimate.timestamp_s)
+271 : avionics.navigation.positionWorldEnu_m[1] = pre(estimator.estimate.positionWorldEnu_m[1])
+272 : avionics.navigation.positionWorldEnu_m[2] = pre(estimator.estimate.positionWorldEnu_m[2])
+273 : avionics.navigation.positionWorldEnu_m[3] = pre(estimator.estimate.positionWorldEnu_m[3])
+274 : avionics.navigation.velocityWorldEnu_m_s[1] = pre(estimator.estimate.velocityWorldEnu_m_s[1])
+275 : avionics.navigation.velocityWorldEnu_m_s[2] = pre(estimator.estimate.velocityWorldEnu_m_s[2])
+276 : avionics.navigation.velocityWorldEnu_m_s[3] = pre(estimator.estimate.velocityWorldEnu_m_s[3])
+277 : avionics.navigation.accelerationWorldEnu_m_s2[1] = pre(estimator.estimate.accelerationWorldEnu_m_s2[1])
+278 : avionics.navigation.accelerationWorldEnu_m_s2[2] = pre(estimator.estimate.accelerationWorldEnu_m_s2[2])
+279 : avionics.navigation.accelerationWorldEnu_m_s2[3] = pre(estimator.estimate.accelerationWorldEnu_m_s2[3])
+280 : avionics.navigation.quaternionWorldBody[1] = pre(estimator.estimate.quaternionWorldBody[1])
+281 : avionics.navigation.quaternionWorldBody[2] = pre(estimator.estimate.quaternionWorldBody[2])
+282 : avionics.navigation.quaternionWorldBody[3] = pre(estimator.estimate.quaternionWorldBody[3])
+283 : avionics.navigation.quaternionWorldBody[4] = pre(estimator.estimate.quaternionWorldBody[4])
+284 : avionics.navigation.rotationWorldBody[1,1] = pre(estimator.estimate.rotationWorldBody[1,1])
+285 : avionics.navigation.rotationWorldBody[1,2] = pre(estimator.estimate.rotationWorldBody[1,2])
+286 : avionics.navigation.rotationWorldBody[1,3] = pre(estimator.estimate.rotationWorldBody[1,3])
+287 : avionics.navigation.rotationWorldBody[2,1] = pre(estimator.estimate.rotationWorldBody[2,1])
+288 : avionics.navigation.rotationWorldBody[2,2] = pre(estimator.estimate.rotationWorldBody[2,2])
+289 : avionics.navigation.rotationWorldBody[2,3] = pre(estimator.estimate.rotationWorldBody[2,3])
+290 : avionics.navigation.rotationWorldBody[3,1] = pre(estimator.estimate.rotationWorldBody[3,1])
+291 : avionics.navigation.rotationWorldBody[3,2] = pre(estimator.estimate.rotationWorldBody[3,2])
+292 : avionics.navigation.rotationWorldBody[3,3] = pre(estimator.estimate.rotationWorldBody[3,3])
+293 : avionics.navigation.eulerRpy_rad[1] = pre(estimator.estimate.eulerRpy_rad[1])
+294 : avionics.navigation.eulerRpy_rad[2] = pre(estimator.estimate.eulerRpy_rad[2])
+295 : avionics.navigation.eulerRpy_rad[3] = pre(estimator.estimate.eulerRpy_rad[3])
+296 : avionics.navigation.angularVelocityBodyFlu_rad_s[1] = pre(estimator.estimate.angularVelocityBodyFlu_rad_s[1])
+297 : avionics.navigation.angularVelocityBodyFlu_rad_s[2] = pre(estimator.estimate.angularVelocityBodyFlu_rad_s[2])
+298 : avionics.navigation.angularVelocityBodyFlu_rad_s[3] = pre(estimator.estimate.angularVelocityBodyFlu_rad_s[3])
+299 : avionics.navigation.angularVelocityWorldEnu_rad_s[1] = pre(estimator.estimate.angularVelocityWorldEnu_rad_s[1])
+300 : avionics.navigation.angularVelocityWorldEnu_rad_s[2] = pre(estimator.estimate.angularVelocityWorldEnu_rad_s[2])
+301 : avionics.navigation.angularVelocityWorldEnu_rad_s[3] = pre(estimator.estimate.angularVelocityWorldEnu_rad_s[3])
+302 : geodetic = Geodesy.localEnuToGeodetic(origin, position_m[1], position_m[2], position_m[3], 6.378137e6)
+303 : navigationError_m = sqrt((avionics.navigation.positionWorldEnu_m[1] - plant.dynamics.p[1]) ^ 2.0 + (avionics.navigation.positionWorldEnu_m[2] - plant.dynamics.p[2]) ^ 2.0 + (avionics.navigation.positionWorldEnu_m[3] - plant.dynamics.p[3]) ^ 2.0)
+304 : controllerEstimatorFeedbackError_m = sqrt((avionics.navigation.positionWorldEnu_m[1] - estimator.estimate.positionWorldEnu_m[1]) ^ 2.0 + (avionics.navigation.positionWorldEnu_m[2] - estimator.estimate.positionWorldEnu_m[2]) ^ 2.0 + (avionics.navigation.positionWorldEnu_m[3] - estimator.estimate.positionWorldEnu_m[3]) ^ 2.0)
+305 : imuAngularVelocityNoise_rad_s[1] = if enableSensorNoise then sqrt(estimator.processNoise.gyroscope_rad2_s[1,1] / imuSamplePeriod) * Vehicles.Rdd2.standardNormalNoise(time / imuSamplePeriod, 9.0, sensorNoiseSeed) else 0.0
+306 : imuSpecificForceNoise_m_s2[1] = if enableSensorNoise then sqrt(estimator.processNoise.accelerometer_m2_s3[1,1] / imuSamplePeriod) * Vehicles.Rdd2.standardNormalNoise(time / imuSamplePeriod, 12.0, sensorNoiseSeed) else 0.0
+307 : gpsPositionNoise_m[1] = if enableSensorNoise then sqrt(gpsPositionCovarianceWorld_m2[1,1]) * Vehicles.Rdd2.standardNormalNoise(time / gpsSamplePeriod, 1.0, sensorNoiseSeed) else 0.0
+308 : gpsVelocityNoise_m_s[1] = if enableSensorNoise then sqrt(gpsVelocityCovarianceWorld_m2_s2[1,1]) * Vehicles.Rdd2.standardNormalNoise(time / gpsSamplePeriod, 4.0, sensorNoiseSeed) else 0.0
+309 : opticalFlowGyroscopeNoise_rad_s[1] = if enableSensorNoise then sqrt(opticalFlowGyroscopeRateCovariance_rad2_s2[1,1]) * Vehicles.Rdd2.standardNormalNoise(time / opticalFlowSamplePeriod, 22.0, sensorNoiseSeed) else 0.0
+310 : magnetometerNoiseBodyFlu_T[1] = if enableSensorNoise then sqrt(magnetometerCovarianceBody_T2[1,1]) * Vehicles.Rdd2.standardNormalNoise(time / magnetometerSamplePeriod, 25.0, sensorNoiseSeed) else 0.0
+311 : imuAngularVelocityNoise_rad_s[2] = if enableSensorNoise then sqrt(estimator.processNoise.gyroscope_rad2_s[2,2] / imuSamplePeriod) * Vehicles.Rdd2.standardNormalNoise(time / imuSamplePeriod, 10.0, sensorNoiseSeed) else 0.0
+312 : imuSpecificForceNoise_m_s2[2] = if enableSensorNoise then sqrt(estimator.processNoise.accelerometer_m2_s3[2,2] / imuSamplePeriod) * Vehicles.Rdd2.standardNormalNoise(time / imuSamplePeriod, 13.0, sensorNoiseSeed) else 0.0
+313 : gpsPositionNoise_m[2] = if enableSensorNoise then sqrt(gpsPositionCovarianceWorld_m2[2,2]) * Vehicles.Rdd2.standardNormalNoise(time / gpsSamplePeriod, 2.0, sensorNoiseSeed) else 0.0
+314 : gpsVelocityNoise_m_s[2] = if enableSensorNoise then sqrt(gpsVelocityCovarianceWorld_m2_s2[2,2]) * Vehicles.Rdd2.standardNormalNoise(time / gpsSamplePeriod, 5.0, sensorNoiseSeed) else 0.0
+315 : opticalFlowGyroscopeNoise_rad_s[2] = if enableSensorNoise then sqrt(opticalFlowGyroscopeRateCovariance_rad2_s2[2,2]) * Vehicles.Rdd2.standardNormalNoise(time / opticalFlowSamplePeriod, 23.0, sensorNoiseSeed) else 0.0
+316 : magnetometerNoiseBodyFlu_T[2] = if enableSensorNoise then sqrt(magnetometerCovarianceBody_T2[2,2]) * Vehicles.Rdd2.standardNormalNoise(time / magnetometerSamplePeriod, 26.0, sensorNoiseSeed) else 0.0
+317 : imuAngularVelocityNoise_rad_s[3] = if enableSensorNoise then sqrt(estimator.processNoise.gyroscope_rad2_s[3,3] / imuSamplePeriod) * Vehicles.Rdd2.standardNormalNoise(time / imuSamplePeriod, 11.0, sensorNoiseSeed) else 0.0
+318 : imuSpecificForceNoise_m_s2[3] = if enableSensorNoise then sqrt(estimator.processNoise.accelerometer_m2_s3[3,3] / imuSamplePeriod) * Vehicles.Rdd2.standardNormalNoise(time / imuSamplePeriod, 14.0, sensorNoiseSeed) else 0.0
+319 : gpsPositionNoise_m[3] = if enableSensorNoise then sqrt(gpsPositionCovarianceWorld_m2[3,3]) * Vehicles.Rdd2.standardNormalNoise(time / gpsSamplePeriod, 3.0, sensorNoiseSeed) else 0.0
+320 : gpsVelocityNoise_m_s[3] = if enableSensorNoise then sqrt(gpsVelocityCovarianceWorld_m2_s2[3,3]) * Vehicles.Rdd2.standardNormalNoise(time / gpsSamplePeriod, 6.0, sensorNoiseSeed) else 0.0
+321 : opticalFlowGyroscopeNoise_rad_s[3] = if enableSensorNoise then sqrt(opticalFlowGyroscopeRateCovariance_rad2_s2[3,3]) * Vehicles.Rdd2.standardNormalNoise(time / opticalFlowSamplePeriod, 24.0, sensorNoiseSeed) else 0.0
+322 : magnetometerNoiseBodyFlu_T[3] = if enableSensorNoise then sqrt(magnetometerCovarianceBody_T2[3,3]) * Vehicles.Rdd2.standardNormalNoise(time / magnetometerSamplePeriod, 27.0, sensorNoiseSeed) else 0.0
+323 : mocapPositionNoise_m[1] = if enableSensorNoise then sqrt(mocapPositionCovarianceWorld_m2[1,1]) * Vehicles.Rdd2.standardNormalNoise(time / mocapSamplePeriod, 22.0, sensorNoiseSeed) else 0.0
+324 : mocapAttitudeNoise_rad[1] = if enableSensorNoise then sqrt(mocapAttitudeCovarianceBody_rad2[1,1]) * Vehicles.Rdd2.standardNormalNoise(time / mocapSamplePeriod, 25.0, sensorNoiseSeed) else 0.0
+325 : mocapPositionNoise_m[2] = if enableSensorNoise then sqrt(mocapPositionCovarianceWorld_m2[2,2]) * Vehicles.Rdd2.standardNormalNoise(time / mocapSamplePeriod, 23.0, sensorNoiseSeed) else 0.0
+326 : mocapAttitudeNoise_rad[2] = if enableSensorNoise then sqrt(mocapAttitudeCovarianceBody_rad2[2,2]) * Vehicles.Rdd2.standardNormalNoise(time / mocapSamplePeriod, 26.0, sensorNoiseSeed) else 0.0
+327 : mocapPositionNoise_m[3] = if enableSensorNoise then sqrt(mocapPositionCovarianceWorld_m2[3,3]) * Vehicles.Rdd2.standardNormalNoise(time / mocapSamplePeriod, 24.0, sensorNoiseSeed) else 0.0
+328 : mocapAttitudeNoise_rad[3] = if enableSensorNoise then sqrt(mocapAttitudeCovarianceBody_rad2[3,3]) * Vehicles.Rdd2.standardNormalNoise(time / mocapSamplePeriod, 27.0, sensorNoiseSeed) else 0.0
+329 : opticalFlowIntegratedNoise_rad[1] = if enableSensorNoise then sqrt(opticalFlowRateCovariance_rad2_s2[1,1]) * opticalFlowSamplePeriod * Vehicles.Rdd2.standardNormalNoise(time / opticalFlowSamplePeriod, 7.0, sensorNoiseSeed) else 0.0
+330 : opticalFlowIntegratedNoise_rad[2] = if enableSensorNoise then sqrt(opticalFlowRateCovariance_rad2_s2[2,2]) * opticalFlowSamplePeriod * Vehicles.Rdd2.standardNormalNoise(time / opticalFlowSamplePeriod, 8.0, sensorNoiseSeed) else 0.0
+331 : opticalFlowGroundDistanceNoise_m = if enableSensorNoise then sqrt(opticalFlowGroundDistanceVariance_m2) * Vehicles.Rdd2.standardNormalNoise(time / opticalFlowSamplePeriod, 20.0, sensorNoiseSeed) else 0.0
+332 : barometerNoise_m = if enableSensorNoise then sqrt(barometerVariance_m2) * Vehicles.Rdd2.standardNormalNoise(time / barometerSamplePeriod, 28.0, sensorNoiseSeed) else 0.0
+333 : imuGyroscopeBiasDrivingNoise[1] = Vehicles.Rdd2.standardNormalNoise(time / imuSamplePeriod, 29.0, sensorNoiseSeed)
+334 : imuGyroscopeBiasDrivingNoise[2] = Vehicles.Rdd2.standardNormalNoise(time / imuSamplePeriod, 30.0, sensorNoiseSeed)
+335 : imuGyroscopeBiasDrivingNoise[3] = Vehicles.Rdd2.standardNormalNoise(time / imuSamplePeriod, 31.0, sensorNoiseSeed)
+336 : imuAccelerometerBiasDrivingNoise[1] = Vehicles.Rdd2.standardNormalNoise(time / imuSamplePeriod, 32.0, sensorNoiseSeed)
+337 : imuAccelerometerBiasDrivingNoise[2] = Vehicles.Rdd2.standardNormalNoise(time / imuSamplePeriod, 33.0, sensorNoiseSeed)
+338 : imuAccelerometerBiasDrivingNoise[3] = Vehicles.Rdd2.standardNormalNoise(time / imuSamplePeriod, 34.0, sensorNoiseSeed)
+339 : missionPhase = if not armed then 0.0 else if avionics.reference.complete then 2.0 else 1.0
+340 : position_m[3] = plant.dynamics.p[3]
+341 : barometerIdealAltitudeWorldEnu_m = plant.dynamics.p[3]
+342 : position_m[2] = plant.dynamics.p[2]
+343 : position_m[1] = plant.dynamics.p[1]
+344 : imuPacketIntegrationTime_s = imuPreintegrationTime_s
+345 : imuPacketDeltaPosition_m[3] = imuPreintegratedDeltaPosition_m[3]
+346 : imuPacketDeltaPosition_m[2] = imuPreintegratedDeltaPosition_m[2]
+347 : imuPacketDeltaPosition_m[1] = imuPreintegratedDeltaPosition_m[1]
+348 : imuPacketDeltaVelocity_m_s[3] = imuPreintegratedDeltaVelocity_m_s[3]
+349 : imuPacketDeltaVelocity_m_s[2] = imuPreintegratedDeltaVelocity_m_s[2]
+350 : imuPacketDeltaVelocity_m_s[1] = imuPreintegratedDeltaVelocity_m_s[1]
+351 : imuPacketDeltaAngle_rad[3] = imuPreintegratedDeltaAngle_rad[3]
+352 : imuPacketDeltaAngle_rad[2] = imuPreintegratedDeltaAngle_rad[2]
+353 : imuPacketDeltaAngle_rad[1] = imuPreintegratedDeltaAngle_rad[1]
+354 : modeSelector.mode = flightMode
+Error: pre-optimization module encapsulateWhenConditions (simulation) failed.
+[/mnt/scratch/jgoppert/modelica_models/ci-qualification-main-results/omc-manual/run.mos:6:1-6:24:writable] Error: Class getErrorString not found in scope <global scope> (looking for a function or record).
+[/mnt/scratch/jgoppert/modelica_models/ci-qualification-main-results/omc-manual/run.mos:7:1-7:45:writable] Error: Variable res.resultFile not found in scope <global scope>.
+
+# Error encountered! Exiting...
+# Please check the error message and the flags.
+
+Execution failed!
+Command exited with non-zero status 1
+	Command being timed: "/nix/store/6iggbkckmny55dwflvz73pmjq45j8whw-openmodelica-unstable-2026-07-21/bin/omc $HOME/scratch/modelica_models/ci-qualification-main-results/omc-manual/run.mos"
+	User time (seconds): 1.30
+	System time (seconds): 0.18
+	Percent of CPU this job got: 170%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.87
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 242748
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 85
+	Minor (reclaiming a frame) page faults: 59028
+	Voluntary context switches: 4446
+	Involuntary context switches: 51
+	Swaps: 0
+	File system inputs: 6736
+	File system outputs: 376
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1

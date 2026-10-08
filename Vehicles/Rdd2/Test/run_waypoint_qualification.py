@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import base64
 from collections.abc import Iterator
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 import csv
 import hashlib
 import html
@@ -234,8 +234,8 @@ def simulate(scenario: Path) -> dict[str, list[float]]:
     # and is portable to Windows and macOS. Only the qualification columns
     # cross the process boundary; the full trace is released with the worker.
     context = multiprocessing.get_context("spawn")
-    with context.Pool(processes=1, maxtasksperchild=1) as pool:
-        values = pool.apply(_simulate_isolated, (scenario,))
+    with ProcessPoolExecutor(max_workers=1, mp_context=context) as executor:
+        values = executor.submit(_simulate_isolated, scenario).result()
     elapsed = values["_simulation_wall_time_s"][0]
     print(f"completed {scenario.name} in {elapsed:.3f} s", flush=True)
     return values

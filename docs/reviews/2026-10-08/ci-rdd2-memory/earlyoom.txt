@@ -1,0 +1,4 @@
+Local journal evidence, 2026-10-08 00:40:20 EDT:
+earlyoom: mem avail 6014 of 60266 MiB (9.98%), swap free 66053 of 70624 MiB (93.53%).
+SIGTERM sent to the owned Rumoca worker (pid 2342041), VmRSS 52169 MiB.
+The worker exited; multiprocessing.Pool replaced it, leaving the submitted task waiting.

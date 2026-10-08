@@ -15,6 +15,7 @@ keeps the result in the worker process, which is released with it.
 from __future__ import annotations
 
 import multiprocessing
+from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 import sys
 
@@ -37,8 +38,8 @@ def main() -> int:
     # it gives the mission a fresh JIT lifetime and releases the whole trace
     # when it exits, and it is portable to Windows and macOS.
     context = multiprocessing.get_context("spawn")
-    with context.Pool(processes=1, maxtasksperchild=1) as pool:
-        pool.apply(_simulate, (str(SCENARIO),))
+    with ProcessPoolExecutor(max_workers=1, mp_context=context) as executor:
+        executor.submit(_simulate, str(SCENARIO)).result()
     print(f"{SCENARIO.name} flew every assertion", flush=True)
     return 0
 
