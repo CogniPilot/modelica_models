@@ -47,6 +47,19 @@ def report(args):
         json.loads(path.read_text())
         for path in (args.native, args.flights, args.proofs)
     ]
+    stable_releases = native.get("native_campaign") == "stable-releases"
+    if stable_releases:
+        from native_release import SOURCE_PINS
+
+        if native["native_source_pins"] != SOURCE_PINS:
+            raise ValueError("Stable-release label requires the verified release pins")
+        controls = native.get("frozen_controls", [])
+        if len(controls) != 96 or any(
+            not row["identical"]
+            for row in controls
+            if row["name"] in ("horizon", "retrodiction")
+        ):
+            raise ValueError("Stable-release capture and ESKF controls are incomplete")
     conditions = set(
         (seed, frequency, height, scenario, exposure)
         for (seed, frequency), height, scenario, exposure in itertools.product(
@@ -115,17 +128,25 @@ def report(args):
         "ESKF / native EKF2 / native EKF3: measured and formal comparison, 7 October 2026",
         "",
         "This is a two-seed synthetic measurement-contract study. It does not establish",
-        "universal superiority. ESKF has lower horizontal and velocity errors in the",
-        "explicit-exposure cases; ArduPilot still has lower vertical error in every case.",
+        "universal superiority. Per-case counts below compare each error component",
+        "and retain every case, including failures of legacy flow reconstruction.",
         "The new joint-covariance guard is a robustness change, not an accuracy gain.",
         "Raw fallback prediction also restores its previously unassigned transition.",
         "",
         "Evidence and versions",
         f"Native flight source pins: {json.dumps(native['native_source_pins'], sort_keys=True)}",
-        "Native flight results are frozen, actual native cores, not Modelica ports.",
+        (
+            "Native flight cores were freshly rebuilt and replayed at the stable release pins."
+            if stable_releases
+            else "Native flight results are frozen, actual native cores, not Modelica ports."
+        ),
         "Separately refreshed port kernels target PX4 v1.17.0 and Copter-4.7.1.",
-        "Those release-kernel tests do not upgrade or rerun these native flight cores.",
-        "See release-port-refresh.txt for release source hashes and precise port scope.",
+        (
+            "The complete Replay/core runs here are separate from those partial-port kernel tests."
+            if stable_releases
+            else "Those release-kernel tests do not upgrade or rerun these native flight cores."
+        ),
+        "See ../release-port-refresh.txt or release-port-refresh.txt for the precise port scope.",
         "ESKF uses fresh Rumoca 0.10.2 generated C, FOH and bias Jacobians, geometric",
         "alignment and vector magnetic fusion; stationary IMU aiding is disabled.",
         "Fusion horizon is 200 ms, followed by the output predictor; retrodiction is",
@@ -154,6 +175,30 @@ def report(args):
             lines.append(
                 f"{height:4} m {scenario:10} {LABELS[name]:26}"
                 + " ".join(f"{v:12.5f}" for v in values)
+            )
+    if stable_releases:
+        lines.extend(["", "Release replay controls and native configuration"])
+        for name in ("px4", "ekf3"):
+            rows = [row for row in native["frozen_controls"] if row["name"] == name]
+            lines.append(
+                f"{LABELS[name]}: {sum(row['identical'] for row in rows)}/{len(rows)}"
+                " outputs byte-identical to the older native baseline."
+            )
+        lines.extend(
+            [
+                "Both native binaries were freshly built; identical EKF3 output does not",
+                "mean its old executable was reused. Actual binary hashes are recorded.",
+                "The PX4 release and its required API boundary differ from the previous",
+                "development pin. The ranking change is a configured-stack observation,",
+                "not an isolated algorithm change or evidence of fair effective R/Q.",
+            ]
+        )
+        px4_rows = [row for row in groups["px4"].values() if row["explicit_exposure"]]
+        for flag in ("mag_3D", "mag_heading", "flow"):
+            counts = [row["flag_row_counts"][flag] for row in px4_rows]
+            lines.append(
+                f"PX4 {flag}: active in {min(counts)}–{max(counts)} of 4700 audit rows"
+                " across the twelve explicit-exposure cases."
             )
     lines.extend(
         [
@@ -342,7 +387,11 @@ def report(args):
             "",
             "Remaining work before any broad superiority claim",
             "1. Instrument native full covariance and innovations at actual fusion epochs;",
-            "   rebuild whole native cores at the verified release pins, then rerun parity.",
+            (
+                "   release cores are now rebuilt; full native NEES/NIS parity remains outstanding."
+                if stable_releases
+                else "   rebuild whole native cores at the verified release pins, then rerun parity."
+            ),
             "2. Match observable priors, transformed R/Q, sensor epochs and supported",
             "   source policies. Keep default-stack and calibrated comparisons separate.",
             "3. Improve vertical/pressure-datum estimation with modeled cross covariance,",
@@ -357,7 +406,16 @@ def report(args):
         "\n".join(lines) + "\n"
     )
     (args.output / "estimator-theory-summary.json").write_text(
-        json.dumps(dict(comparisons=comparisons, controls=controls), indent=2) + "\n"
+        json.dumps(
+            dict(
+                native_campaign=native.get("native_campaign", "historical-pins"),
+                native_source_pins=native["native_source_pins"],
+                comparisons=comparisons,
+                controls=controls,
+            ),
+            indent=2,
+        )
+        + "\n"
     )
 
     colors = ("#0072B2", "#56B4E9", "#D55E00", "#009E73")
@@ -392,11 +450,17 @@ def report(args):
                     )[scenario]
                 )
     fig.suptitle(
-        "Frozen common captures: ESKF leads horizontally; vertical gap remains\nMedians and ranges of 4 cases (2 heights × 2 coupled motion/seed choices)",
+        "Stable native releases on frozen common captures\nMedians and ranges of 4 cases (2 heights × 2 coupled motion/seed choices)"
+        if stable_releases
+        else "Frozen common captures: ESKF leads horizontally; vertical gap remains\nMedians and ranges of 4 cases (2 heights × 2 coupled motion/seed choices)",
         fontsize=12,
     )
     fig.supxlabel(
-        "13–60 s; explicit flow exposure; unequal effective R/Q and policies\nNative flight pins: PX4 f1c0a1f / ArduPilot 1511f27; release port kernels tested separately",
+        "13–60 s; explicit flow exposure; unequal effective R/Q and policies\nNative flight pins: "
+        + " / ".join(
+            f"{name} {revision[:7]}"
+            for name, revision in native["native_source_pins"].items()
+        ),
         fontsize=9,
     )
     fig.savefig(

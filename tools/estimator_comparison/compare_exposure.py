@@ -153,23 +153,33 @@ def run(args):
         )
         for seed in (7, 101)
     }
+    source_pins = getattr(
+        args, "native_source_pins", historical[7]["native_source_pins"]
+    )
     for name, path in (("px4", args.px4_source), ("ardupilot", args.ap_source)):
         pin = subprocess.check_output(
             ["git", "-C", str(path), "rev-parse", "HEAD"], text=True
         ).strip()
-        if pin != historical[7]["native_source_pins"][name]:
+        if pin != source_pins[name]:
             raise ValueError("Pinned native source changed")
+    binary_pins = getattr(
+        args, "native_core_sha256", historical[7]["core_binary_sha256"]
+    )
     for name, path in (("px4", args.px4_library), ("ekf3", args.ap_replay)):
-        if digest(path) != historical[7]["core_binary_sha256"][name]:
+        if digest(path) != binary_pins[name]:
             raise ValueError("Audited native binary changed")
     args.work.mkdir(parents=True)
     base_work = args.work
     args.imu_noise_density = calibration["imu_noise_density"]
     args.takeoff_clear_s = 18
     result = dict(
+        native_campaign=getattr(args, "native_campaign", "historical-pins"),
         imu_noise_density=args.imu_noise_density,
-        native_source_pins=historical[7]["native_source_pins"],
-        native_core_sha256=historical[7]["core_binary_sha256"],
+        native_source_pins=source_pins,
+        native_core_sha256={
+            "px4": digest(args.px4_library),
+            "ekf3": digest(args.ap_replay),
+        },
         binary_sha256={
             name: digest(getattr(args, name))
             for name in (
@@ -193,7 +203,7 @@ def run(args):
             "Native height/magnetic policies, priors and measurement noise floors remain stack-specific.",
             "Serialization/API checks establish delivered inputs; they do not count every accepted EKF3 measurement.",
             "FOH shared-endpoint noise and inter-packet image/gyro correlations remain approximate.",
-            "Native cores reused at their audited pins; no full CI, fresh firmware build, flight or general superiority claim.",
+            "Core and adapter hashes identify the actual supplied native binaries; this replay is not a complete firmware or real-flight qualification.",
         ],
     )
     for frequency, seed in ((0.6, 7), (0.85, 101)):
@@ -289,6 +299,7 @@ def run(args):
                 json.dumps(scores, indent=2, allow_nan=False) + "\n"
             )
             result["scores"].extend(scores)
+            args.output.write_text(json.dumps(result, indent=2, allow_nan=False) + "\n")
             print(f"Scored {label}", flush=True)
     result["source_sha256"] = {
         path.name: digest(path)

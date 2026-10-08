@@ -130,6 +130,10 @@ def prepare_px4(args):
         )
     if getattr(args, "exposure_flow", False):
         text = px4_source(text, replace_once)
+    if getattr(args, "px4_release", None):
+        from native_release import px4_release_adapter
+
+        text = px4_release_adapter(text, args.px4_release, replace_once)
     staging = args.work / "px4-arrivals.cpp"
     staging.write_text(text)
     px4 = args.px4_source

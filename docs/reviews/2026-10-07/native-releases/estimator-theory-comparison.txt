@@ -1,0 +1,203 @@
+ESKF / native EKF2 / native EKF3: measured and formal comparison, 7 October 2026
+
+This is a two-seed synthetic measurement-contract study. It does not establish
+universal superiority. Per-case counts below compare each error component
+and retain every case, including failures of legacy flow reconstruction.
+The new joint-covariance guard is a robustness change, not an accuracy gain.
+Raw fallback prediction also restores its previously unassigned transition.
+
+Evidence and versions
+Native flight source pins: {"ardupilot": "dbe792162d06cab66c3475fd5556bf7a120f119e", "px4": "d6f12ad1c4f70ad3230afd7d86e971421e02fef4"}
+Native flight cores were freshly rebuilt and replayed at the stable release pins.
+Separately refreshed port kernels target PX4 v1.17.0 and Copter-4.7.1.
+The complete Replay/core runs here are separate from those partial-port kernel tests.
+See ../release-port-refresh.txt or release-port-refresh.txt for the precise port scope.
+ESKF uses fresh Rumoca 0.10.2 generated C, FOH and bias Jacobians, geometric
+alignment and vector magnetic fusion; stationary IMU aiding is disabled.
+Fusion horizon is 200 ms, followed by the output predictor; retrodiction is
+also scored on the same inputs. Root covariance is an optional representation.
+
+Common data and remaining mismatches
+Seeds 7/101 also select motion frequencies 0.6/0.85; motion and seed are coupled.
+Each has 2/4 m climbs and GPS, denied, and GPS loss 25–40 s then return.
+Every method uses the same frozen physical capture and delivered packet trace.
+100 ms optical-flow exposure at 10 Hz, midpoint timestamp, available at its end.
+Independent unbiased camera gyro; no noise construction followed by cancellation.
+GPS/flow/mag/barometer transport delays are 110/30/60/20 ms; no jitter.
+Stack-specific priors, effective R/Q, magnetic/height policies and sensor
+acceptance remain unequal. EKF3 retains its range delay and median filtering.
+ESKF uses a calibrated fixed field; native filters estimate magnetic states.
+No image texture, rolling shutter, magnetic faults, vibration or real flights.
+The legacy flow mapping is retained in the CSV, including catastrophic drift.
+
+Published-state RMSE 13–60 s, medians of two seeds, explicit exposure only
+height scenario   estimator                  horizontal m vertical m velocity m/s attitude deg yaw deg
+   2 m gps        ESKF horizon                   0.02544      0.06210      0.00985      0.15601      0.14543
+   2 m gps        ESKF retrodiction              0.02562      0.05846      0.01100      0.14133      0.12837
+   2 m gps        ESKF horizon root              0.02544      0.06210      0.00985      0.15624      0.14564
+   2 m gps        ESKF retrodiction root         0.02563      0.05846      0.01100      0.14175      0.12879
+   2 m gps        PX4 EKF2                       0.17649      0.10372      0.12835      2.72029      2.71835
+   2 m gps        ArduPilot EKF3                 0.08417      0.05420      0.04024      0.38895      0.36421
+   2 m denied     ESKF horizon                   0.03666      0.06737      0.01763      0.23266      0.21477
+   2 m denied     ESKF retrodiction              0.04834      0.06286      0.02292      0.26165      0.24217
+   2 m denied     ESKF horizon root              0.03662      0.06737      0.01763      0.23274      0.21486
+   2 m denied     ESKF retrodiction root         0.04831      0.06287      0.02292      0.26148      0.24203
+   2 m denied     PX4 EKF2                       0.09387      0.04692      0.02805      0.45944      0.44390
+   2 m denied     ArduPilot EKF3                 0.08583      0.05302      0.03234      0.41315      0.38971
+   2 m transition ESKF horizon                   0.03295      0.06364      0.00942      0.14968      0.13836
+   2 m transition ESKF retrodiction              0.03344      0.06000      0.01096      0.14363      0.13104
+   2 m transition ESKF horizon root              0.03295      0.06364      0.00942      0.14989      0.13855
+   2 m transition ESKF retrodiction root         0.03344      0.05999      0.01096      0.14406      0.13148
+   2 m transition PX4 EKF2                       0.18590      0.16294      0.12787      2.69976      2.69719
+   2 m transition ArduPilot EKF3                 0.07658      0.05141      0.03999      0.41541      0.39303
+   4 m gps        ESKF horizon                   0.02355      0.06199      0.01016      0.17513      0.16397
+   4 m gps        ESKF retrodiction              0.02453      0.05836      0.01189      0.17879      0.16571
+   4 m gps        ESKF horizon root              0.02355      0.06199      0.01016      0.17522      0.16404
+   4 m gps        ESKF retrodiction root         0.02454      0.05836      0.01190      0.17927      0.16617
+   4 m gps        PX4 EKF2                       0.17678      0.10724      0.12920      2.72184      2.71998
+   4 m gps        ArduPilot EKF3                 0.09648      0.05125      0.04339      0.67170      0.65978
+   4 m denied     ESKF horizon                   0.03888      0.06696      0.01735      0.23493      0.21702
+   4 m denied     ESKF retrodiction              0.04977      0.06227      0.02747      0.32620      0.30346
+   4 m denied     ESKF horizon root              0.03884      0.06696      0.01735      0.23499      0.21708
+   4 m denied     ESKF retrodiction root         0.04973      0.06227      0.02747      0.32619      0.30347
+   4 m denied     PX4 EKF2                       0.15183      0.04666      0.03427      0.51369      0.49910
+   4 m denied     ArduPilot EKF3                 0.07266      0.05308      0.03890      0.59978      0.58781
+   4 m transition ESKF horizon                   0.03107      0.06345      0.00987      0.16975      0.15815
+   4 m transition ESKF retrodiction              0.03203      0.05987      0.01249      0.18949      0.17700
+   4 m transition ESKF horizon root              0.03107      0.06345      0.00987      0.16980      0.15819
+   4 m transition ESKF retrodiction root         0.03203      0.05987      0.01249      0.18996      0.17746
+   4 m transition PX4 EKF2                       0.19355      0.16506      0.12964      2.70172      2.69910
+   4 m transition ArduPilot EKF3                 0.09648      0.05125      0.04339      0.67170      0.65978
+
+Release replay controls and native configuration
+PX4 EKF2: 0/24 outputs byte-identical to the older native baseline.
+ArduPilot EKF3: 24/24 outputs byte-identical to the older native baseline.
+Both native binaries were freshly built; identical EKF3 output does not
+mean its old executable was reused. Actual binary hashes are recorded.
+The PX4 release and its required API boundary differ from the previous
+development pin. The ranking change is a configured-stack observation,
+not an isolated algorithm change or evidence of fair effective R/Q.
+PX4 mag_3D: active in 4562–4582 of 4700 audit rows across the twelve explicit-exposure cases.
+PX4 mag_heading: active in 118–138 of 4700 audit rows across the twelve explicit-exposure cases.
+PX4 flow: active in 4700–4700 of 4700 audit rows across the twelve explicit-exposure cases.
+
+Native configured-stack comparison, explicit-exposure flight RMS
+Counts where PX4 has lower RMS than ArduPilot; four pairs per scenario.
+Different policies and effective noise prevent an intrinsic algorithm ranking.
+scenario    horizontal vertical velocity attitude yaw
+gps         0/4       0/4       0/4       0/4       0/4     
+denied      1/4       4/4       4/4       2/4       2/4     
+transition  0/4       0/4       0/4       0/4       0/4     
+
+Paired cases with lower RMSE than BOTH native cores, explicit exposure
+Twelve cases per method; no statistical confidence interval is implied.
+estimator                    window         horizontal vertical velocity attitude yaw
+ESKF horizon                 flight        12/12     0/12    12/12    12/12    12/12   
+ESKF horizon                 outage_window  4/ 4     0/ 4     4/ 4     4/ 4     4/ 4   
+ESKF horizon                 after_return   4/ 4     0/ 4     4/ 4     4/ 4     4/ 4   
+ESKF retrodiction            flight        12/12     0/12    12/12    12/12    12/12   
+ESKF retrodiction            outage_window  3/ 4     0/ 4     4/ 4     4/ 4     4/ 4   
+ESKF retrodiction            after_return   4/ 4     0/ 4     4/ 4     4/ 4     4/ 4   
+ESKF horizon root            flight        12/12     0/12    12/12    12/12    12/12   
+ESKF horizon root            outage_window  4/ 4     0/ 4     4/ 4     4/ 4     4/ 4   
+ESKF horizon root            after_return   4/ 4     0/ 4     4/ 4     4/ 4     4/ 4   
+ESKF retrodiction root       flight        12/12     0/12    12/12    12/12    12/12   
+ESKF retrodiction root       outage_window  3/ 4     0/ 4     4/ 4     4/ 4     4/ 4   
+ESKF retrodiction root       after_return   4/ 4     0/ 4     4/ 4     4/ 4     4/ 4   
+
+GPS loss-and-return windows, median over two seeds and two heights
+window         estimator                  horizontal m vertical m velocity m/s attitude deg yaw deg
+outage_window  ESKF horizon                   0.03203      0.06383      0.00787      0.05178      0.04232
+outage_window  ESKF retrodiction              0.03269      0.06307      0.01078      0.10152      0.08968
+outage_window  ESKF horizon root              0.03203      0.06382      0.00786      0.05181      0.04238
+outage_window  ESKF retrodiction root         0.03269      0.06307      0.01077      0.10157      0.08975
+outage_window  PX4 EKF2                       0.22364      0.09015      0.14002      2.90982      2.90852
+outage_window  ArduPilot EKF3                 0.08010      0.04150      0.03367      0.60327      0.58870
+after_return   ESKF horizon                   0.03437      0.07252      0.01024      0.04828      0.04340
+after_return   ESKF retrodiction              0.03698      0.06499      0.01233      0.06605      0.06192
+after_return   ESKF horizon root              0.03437      0.07252      0.01024      0.04825      0.04338
+after_return   ESKF retrodiction root         0.03698      0.06499      0.01233      0.06607      0.06193
+after_return   PX4 EKF2                       0.18468      0.19389      0.13028      2.71245      2.71038
+after_return   ArduPilot EKF3                 0.09201      0.04580      0.04029      0.52625      0.51187
+
+ESKF GPS-return indicators, four explicit-exposure cases per method
+First accepted-GPS output indicator latency is measured from 40 s;
+it is not a native per-sensor fusion-epoch diagnostic.
+estimator                    median GPS indicator s  median max error jump m
+ESKF horizon                                0.21000                  0.06122
+ESKF retrodiction                           0.11000                  0.05009
+ESKF horizon root                           0.21000                  0.06122
+ESKF retrodiction root                      0.11000                  0.05009
+The 0.25 m / one-second recovery criterion is weak for these small-error
+runs. Do not interpret an immediate threshold pass as demonstrated fast
+reacquisition from a large outage error. Comparable native latency is not
+available in the frozen score summaries.
+
+Consistency and numerical validity
+15D NEES uses local right-error covariance at its own state epoch: fusion
+time for horizon, publication time for retrodiction. It is descriptive:
+samples are correlated, and two seeds do not establish chi-square coverage.
+A smaller NEES is not automatically better calibration; 15 is the modeled
+expectation only under the correct centered joint error distribution.
+Exact native full-covariance NEES and per-sensor NIS are unavailable here.
+Native gate-test ratios and quantized logs cannot replace those quantities.
+ESKF horizon: valid 12/12, median mean NEES 8.34812.
+ESKF retrodiction: valid 12/12, median mean NEES 12.60996.
+ESKF horizon root: valid 12/12, median mean NEES 8.35475.
+ESKF retrodiction root: valid 12/12, median mean NEES 12.60641.
+
+Joint-covariance safety improvement
+Previously dense correction could accept positive innovation covariance
+while the joint state/noise covariance was indefinite, producing negative P.
+The guard factors P=L L^T and solves L U=C, then factors R-U^T U.
+It rejects impossible joint covariance and preserves the complete prior.
+A first guard using a global pivot threshold rejected valid mixed-unit GPS
+updates. That candidate was rejected; its full 96-case evidence is retained.
+Final adversarial tests include that scale disparity and valid cross noise.
+An explicit array copy in the QR root also fixes OpenModelica's constant
+evaluation discrepancy while retaining the fast loop structure. A scalar
+rewrite was rejected after a large flight CPU regression; its partial
+evidence is retained in eskf-theory-rejected-scalar-replays.json.
+The aggregate test also exposed an unassigned raw-IMU transition matrix.
+Its nominal prediction agreed with packet integration, but covariance
+differed by 0.040001. The transition is now computed before propagation.
+Tests.All passes with OpenModelica cflags=-O0; default -Os compilation
+was stopped during a long build. This is not a completed default-CI pass.
+The new -O2 deployment probe passes 640 raw-prediction kinematic cases.
+
+Final fresh flight controls versus saved outputs, all flow mappings
+estimator                    identical  median filter CPU ratio  total CPU ratio  state bytes
+ESKF horizon                 24/24               1.101              1.078   [168720]
+ESKF retrodiction            24/24               0.977              1.010   [124940]
+ESKF horizon root            24/24               1.039              1.049   [168720]
+ESKF retrodiction root       24/24               1.049              1.049   [124940]
+Host thread CPU measurements include compile/run variability and are not
+paired hardware WCET or a native CPU comparison. Root representation's
+historical filter cost is about 3.4–3.6x dense; do not infer a free accuracy gain.
+
+Formal verification
+Ten selected GNC modules checked from source; 1308 project declarations in the imported environment.
+Kernel axiom audit permits only propext, Classical.choice and Quot.sound.
+See estimator-theory-contracts.txt for theorem names, hypotheses and limits.
+Exact-real factor identities prove covariance PSD under a valid joint noise
+model. They do not prove IEEE arithmetic or Modelica-to-Lean refinement.
+Matched optimal Kalman gains have equal modeled linear covariance; ESKF
+cannot strictly beat every correctly modeled EKF2/EKF3 case by coordinates alone.
+Horizontal translation remains unobservable with flat-ground flow, range and
+a constant magnetic field. Lie-group geometry cannot manufacture GPS data.
+The separate 288-replay FOH/ZOH study (eskf-hold-stationary.txt) also does
+not establish uniform stochastic FOH superiority: with stationary IMU off,
+FOH wins horizontal RMS in 11/36 horizon and 17/36 retrodiction cases.
+Those historical captures differ from the explicit-exposure study here.
+
+Remaining work before any broad superiority claim
+1. Instrument native full covariance and innovations at actual fusion epochs;
+   release cores are now rebuilt; full native NEES/NIS parity remains outstanding.
+2. Match observable priors, transformed R/Q, sensor epochs and supported
+   source policies. Keep default-stack and calibrated comparisons separate.
+3. Improve vertical/pressure-datum estimation with modeled cross covariance,
+   qualified against withheld datum drift and independent range observations.
+4. Derive FOH process noise with shared-endpoint correlations; the retained
+   Magnus mean and bias Jacobians still use approximate Simpson noise.
+5. Use independently varied motion/noise seeds, longer outages and realistic
+   disturbances; count invalid runs, recovery latency and target CPU/memory.

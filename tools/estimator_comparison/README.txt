@@ -165,8 +165,20 @@ Reproduce the report from the complete saved evidence:
     --proofs "$review/estimator-theory-lean-final.json" \
     --output "$comparison_root/report"
 
-Reproduction
-------------
+Stable native releases
+----------------------
+
+The follow-up review in docs/reviews/2026-10-07/native-releases rebuilds actual
+native cores at PX4 v1.17.0 and ArduPilot Copter-4.7.1, using frozen physical
+captures and packet delivery traces. compare_native_releases.py checks source
+pins, capture hashes and ESKF byte-identical controls. The report records these
+release results separately from the historical scores in the parent directory.
+Its README describes the release-specific external build/API adaptation.
+The public port and formal-proof pull requests are recorded in publication.json
+there. The partial ports are not used as native flight baselines.
+
+Historical reproduction
+-----------------------
 
 Run from the modelica_models root, using its Nix development environment
 (Rumoca 0.10.2, Python with numpy/matplotlib, and a C compiler):
@@ -191,8 +203,14 @@ testing a different Modelica revision.
   px4_source="$validation_sources/tools/estimator_comparison/upstream/px4"
   ap_source="$validation_sources/tools/estimator_comparison/upstream/ardupilot"
 
-The gitlinks pin PX4-Autopilot f1c0a1f794edf8e5e974b6ed96df3f95eda0df39 and
-ArduPilot Copter 4.7.0 1511f27194f1dcc3728270883047bdf022b3fd53. Do not use
+For the historical commands below, deliberately select the old native pins
+after initialization. Current gitlinks track the separately validated stable
+release campaign; historical scripts retain their original revision guards.
+
+  git -C "$px4_source" checkout f1c0a1f794edf8e5e974b6ed96df3f95eda0df39
+  git -C "$ap_source" checkout 1511f27194f1dcc3728270883047bdf022b3fd53
+
+Those are the historical PX4 revision and ArduPilot Copter 4.7.0. Do not use
 submodule update --remote for a reproducible comparison. Native source and
 adapter licenses remain with their respective repositories; production
 Modelica builds do not depend on these validation submodules.
