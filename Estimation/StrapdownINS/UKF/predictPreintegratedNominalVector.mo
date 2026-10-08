@@ -2,10 +2,10 @@ within Estimation.StrapdownINS.UKF;
 
 function predictPreintegratedNominalVector
   "Apply a shared IMU preintegral to one UKF sigma-state bias hypothesis"
-  input Estimation.StrapdownINS.UKF.NominalVector previous;
+  input NominalVector previous;
   input Avionics.ImuSample imu;
   input Real gravityWorldEnu_m_s2[3];
-  output Estimation.StrapdownINS.UKF.NominalVector predicted;
+  output NominalVector predicted;
 protected
   Real deltaPositionBodyFlu_m[3];
   Real deltaVelocityBodyFlu_m_s[3];

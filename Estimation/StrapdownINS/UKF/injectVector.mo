@@ -2,9 +2,9 @@ within Estimation.StrapdownINS.UKF;
 
 function injectVector
   "Right-inject a local tangent into a flattened nominal state"
-  input Estimation.StrapdownINS.UKF.NominalVector nominal;
-  input Estimation.StrapdownINS.UKF.TangentVector correction;
-  output Estimation.StrapdownINS.UKF.NominalVector corrected;
+  input NominalVector nominal;
+  input TangentVector correction;
+  output NominalVector corrected;
 protected
   Real correctedExtendedPose[10];
 algorithm

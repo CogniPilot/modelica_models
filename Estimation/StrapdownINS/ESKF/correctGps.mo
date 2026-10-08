@@ -1,7 +1,7 @@
 within Estimation.StrapdownINS.ESKF;
 
 function correctGps "Jointly correct GPS position and velocity"
-  input Estimation.StrapdownINS.ESKF.State predicted;
+  input State predicted;
   input Avionics.GpsSample measurement;
   input Real innovationGate = 0.0
     "Per-degree-of-freedom NIS gate; non-positive disables";
@@ -14,7 +14,7 @@ function correctGps "Jointly correct GPS position and velocity"
     "Covariance of the held packet mean, {gyroscope, accelerometer}";
   input Real predictionInterval_s(unit = "s") = 0.0
     "Interval over which this same packet just predicted the current state";
-  output Estimation.StrapdownINS.ESKF.State corrected;
+  output State corrected;
   output Boolean accepted;
   output Integer rejectionReason
     "Estimation.StrapdownINS.Correction* outcome code";
@@ -24,8 +24,6 @@ protected
   Real delayedPosition[3];
   Real delayedVelocity[3];
   Real delayedQuaternion[4];
-  Real delayedGyroscopeBias[3];
-  Real delayedAccelerometerBias[3];
   Real delayedStateVector[16];
   Real currentToDelayed[TangentLength, TangentLength];
   Real A[TangentLength, TangentLength];
@@ -33,7 +31,6 @@ protected
   Real backwardInput[TangentLength, 6];
   Real observationInput[6, 6];
   Real measurementStateCrossCovariance[TangentLength, 6];
-  Boolean delayAccepted;
   Real residual[6];
   Real delayedH[6, TangentLength];
   Real H[6, TangentLength];
@@ -46,15 +43,12 @@ algorithm
   delayedPosition := delayedStateVector[1:3];
   delayedVelocity := delayedStateVector[4:6];
   delayedQuaternion := delayedStateVector[7:10];
-  delayedGyroscopeBias := delayedStateVector[11:13];
-  delayedAccelerometerBias := delayedStateVector[14:16];
   A := continuousTransition(
     angularVelocityMeasuredBodyFlu_rad_s
       - predicted.gyroscopeBiasBodyFlu_rad_s,
     specificForceMeasuredBodyFlu_m_s2
       - predicted.accelerometerBiasBodyFlu_m_s2);
   currentToDelayed := discreteTransition(A, -max(measurementAge_s, 0.0));
-  delayAccepted := true;
   rotationWorldBody := LieGroups.SO3.Quat.to_DCM(
     delayedQuaternion);
   residual := cat(1,
@@ -87,31 +81,18 @@ algorithm
     measurementStateCrossCovariance := forwardInput * heldImuCovariance
       * transpose(observationInput);
   end if;
+  corrected := State(
+    positionWorldEnu_m=predicted.positionWorldEnu_m,
+    velocityWorldEnu_m_s=predicted.velocityWorldEnu_m_s,
+    quaternionWorldBody=predicted.quaternionWorldBody,
+    gyroscopeBiasBodyFlu_rad_s=predicted.gyroscopeBiasBodyFlu_rad_s,
+    accelerometerBiasBodyFlu_m_s2=predicted.accelerometerBiasBodyFlu_m_s2,
+    covariance=predicted.covariance);
+  accepted := false;
+  normalizedInnovationSquared := 0.0;
   if measurementAge_s < -1.0e-6
       or measurementAge_s > maximumAidingDelay_s then
-    corrected := Estimation.StrapdownINS.ESKF.State(
-      positionWorldEnu_m=predicted.positionWorldEnu_m,
-      velocityWorldEnu_m_s=predicted.velocityWorldEnu_m_s,
-      quaternionWorldBody=predicted.quaternionWorldBody,
-      gyroscopeBiasBodyFlu_rad_s=predicted.gyroscopeBiasBodyFlu_rad_s,
-      accelerometerBiasBodyFlu_m_s2=
-        predicted.accelerometerBiasBodyFlu_m_s2,
-      covariance=predicted.covariance);
-    accepted := false;
     rejectionReason := CorrectionRejectedTimestamp;
-    normalizedInnovationSquared := 0.0;
-  elseif not delayAccepted then
-    corrected := Estimation.StrapdownINS.ESKF.State(
-      positionWorldEnu_m=predicted.positionWorldEnu_m,
-      velocityWorldEnu_m_s=predicted.velocityWorldEnu_m_s,
-      quaternionWorldBody=predicted.quaternionWorldBody,
-      gyroscopeBiasBodyFlu_rad_s=predicted.gyroscopeBiasBodyFlu_rad_s,
-      accelerometerBiasBodyFlu_m_s2=
-        predicted.accelerometerBiasBodyFlu_m_s2,
-      covariance=predicted.covariance);
-    accepted := false;
-    rejectionReason := CorrectionRejectedFactorization;
-    normalizedInnovationSquared := 0.0;
   else
     (corrected, accepted, rejectionReason, normalizedInnovationSquared) :=
       correctLinear(predicted, residual, H, measurementCovariance,

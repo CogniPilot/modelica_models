@@ -1,10 +1,10 @@
 within Estimation.StrapdownINS.UKF;
 
 function correctMocap "Unscented motion-capture pose correction"
-  input Estimation.StrapdownINS.UKF.State predicted;
+  input State predicted;
   input Avionics.MocapSample measurement;
   input Real innovationGate = 0.0;
-  output Estimation.StrapdownINS.UKF.State corrected;
+  output State corrected;
   output Boolean accepted;
   output Integer rejectionReason;
   output Real normalizedInnovationSquared;
@@ -20,12 +20,12 @@ protected
 algorithm
   nominal := stateVector(predicted);
   (sigma, sigmaUsable) := sigmaTangents(predicted.covariance);
-  for index in 1:SigmaCount loop
-    sigmaState := injectVector(nominal, sigma[:, index]);
+  for sigmaIndex in 1:SigmaCount loop
+    sigmaState := injectVector(nominal, sigma[:, sigmaIndex]);
     attitudeError := LieGroups.SO3.Quat.product(
       LieGroups.SO3.Quat.inverse(predicted.quaternionWorldBody),
       sigmaState[7:10]);
-    sigmaMeasurement[:, index] := cat(1,
+    sigmaMeasurement[:, sigmaIndex] := cat(1,
       sigmaState[1:3],
       LieGroups.SO3.Quat.log_map(attitudeError));
   end for;

@@ -6,7 +6,7 @@ function discreteProcessCovariance
   input Real G[TangentLength, ProcessNoiseLength];
   input Estimation.StrapdownINS.ProcessNoiseCovariance continuousNoise;
   input Real dt(unit = "s");
-  output Estimation.StrapdownINS.ESKF.Covariance covariance;
+  output Covariance covariance;
 protected
   Real drivenNoise[TangentLength, TangentLength];
   Real halfTransition[TangentLength, TangentLength];

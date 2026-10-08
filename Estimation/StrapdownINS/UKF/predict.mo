@@ -2,13 +2,13 @@ within Estimation.StrapdownINS.UKF;
 
 function predict
   "Unscented propagation through the strapdown nominal mechanization"
-  input Estimation.StrapdownINS.UKF.State previous;
+  input State previous;
   input Real angularVelocityMeasuredBodyFlu_rad_s[3];
   input Real specificForceMeasuredBodyFlu_m_s2[3];
   input Real gravityWorldEnu_m_s2[3];
   input Real dt(unit = "s");
   input Estimation.StrapdownINS.ProcessNoise processNoise;
-  output Estimation.StrapdownINS.UKF.State predicted;
+  output State predicted;
   output Boolean success;
 protected
   Real previousNominal[16];
@@ -28,41 +28,32 @@ protected
 algorithm
   previousNominal := stateVector(previous);
   (sigma, success) := sigmaTangents(previous.covariance);
-  for index in 1:SigmaCount loop
-    sigmaState[:, index] := injectVector(
-      previousNominal, sigma[:, index]);
-    propagated[:, index] := predictNominalVector(
-      sigmaState[:, index], angularVelocityMeasuredBodyFlu_rad_s,
+  for sigmaIndex in 1:SigmaCount loop
+    sigmaState[:, sigmaIndex] := injectVector(
+      previousNominal, sigma[:, sigmaIndex]);
+    propagated[:, sigmaIndex] := predictNominalVector(
+      sigmaState[:, sigmaIndex], angularVelocityMeasuredBodyFlu_rad_s,
       specificForceMeasuredBodyFlu_m_s2, gravityWorldEnu_m_s2, dt);
   end for;
 
   predictedMean := propagated[:, 1];
   for iteration in 1:4 loop
     meanCorrection := zeros(TangentLength);
-    for index in 2:SigmaCount loop
+    for sigmaIndex in 2:SigmaCount loop
       // Preserve the per-sigma call in Rumoca 0.10.2 GALEC reductions.
-      deviation := localErrorVector(predictedMean, propagated[:, index]);
+      deviation := localErrorVector(predictedMean, propagated[:, sigmaIndex]);
       meanCorrection := meanCorrection + SigmaWeight * deviation;
     end for;
     predictedMean := injectVector(predictedMean, meanCorrection);
   end for;
 
   deviation := localErrorVector(predictedMean, propagated[:, 1]);
-  covariance := zeros(TangentLength, TangentLength);
-  for row in 1:TangentLength loop
-    for column in 1:TangentLength loop
-      covariance[row, column] := CentralCovarianceWeight
-        * deviation[row] * deviation[column];
-    end for;
-  end for;
-  for index in 2:SigmaCount loop
-    deviation := localErrorVector(predictedMean, propagated[:, index]);
-    for row in 1:TangentLength loop
-      for column in 1:TangentLength loop
-        covariance[row, column] := covariance[row, column]
-          + SigmaWeight * deviation[row] * deviation[column];
-      end for;
-    end for;
+  covariance := transpose({CentralCovarianceWeight * deviation})
+    * {deviation};
+  for sigmaIndex in 2:SigmaCount loop
+    deviation := localErrorVector(predictedMean, propagated[:, sigmaIndex]);
+    covariance := covariance
+      + transpose({SigmaWeight * deviation}) * {deviation};
   end for;
 
   correctedAngularVelocity := angularVelocityMeasuredBodyFlu_rad_s
@@ -76,7 +67,7 @@ algorithm
     Estimation.StrapdownINS.ESKF.processNoiseMatrix(processNoise);
   discreteNoise := Estimation.StrapdownINS.ESKF.discreteProcessCovariance(
     A, G, continuousNoise, dt);
-  predicted := Estimation.StrapdownINS.UKF.State(
+  predicted := State(
     positionWorldEnu_m=predictedMean[1:3],
     velocityWorldEnu_m_s=predictedMean[4:6],
     quaternionWorldBody=predictedMean[7:10],

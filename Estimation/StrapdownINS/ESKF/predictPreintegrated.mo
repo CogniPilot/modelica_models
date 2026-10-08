@@ -2,19 +2,11 @@ within Estimation.StrapdownINS.ESKF;
 
 function predictPreintegrated
   "Apply one closed-form IMU preintegral and its exact local transition"
-  // The preintegral applied here is the closed-form SE_2(3) mixed exponential
-  // of Lin, Pant, Perseghetti and Goppert, "On Closed-Form Preintegration for
-  // a Class of Mixed-Invariant Systems in SE_n(3)," IEEE L-CSS 2025, under the
-  // first-order-hold extension of the companion manuscript; the bias columns
-  // of the transition are its bias-sensitivity Jacobians, transported by the
-  // preintegrated rotation.  The right-perturbation error convention and the
-  // Phi P Phi' + Q discretization follow Barfoot, State Estimation for
-  // Robotics, 2nd ed., Section 9.4.  References: Estimation.StrapdownINS.
-  input Estimation.StrapdownINS.ESKF.State previous;
+  input State previous;
   input Avionics.ImuSample imu;
   input Real gravityWorldEnu_m_s2[3];
   input Estimation.StrapdownINS.ProcessNoise processNoise;
-  output Estimation.StrapdownINS.ESKF.State predicted;
+  output State predicted;
 protected
   Real dt;
   Real deltaPositionBodyFlu_m[3];
@@ -29,7 +21,7 @@ protected
   Real A[TangentLength, TangentLength];
   Real G[TangentLength, ProcessNoiseLength];
   Estimation.StrapdownINS.ProcessNoiseCovariance continuousNoise;
-  Estimation.StrapdownINS.ESKF.Covariance discreteNoise;
+  Covariance discreteNoise;
 algorithm
   dt := imu.integrationTime_s;
   (deltaPositionBodyFlu_m,
@@ -79,7 +71,7 @@ algorithm
   discreteNoise := discreteProcessCovariance(
     A, G, continuousNoise, dt);
 
-  predicted := Estimation.StrapdownINS.ESKF.State(
+  predicted := State(
     positionWorldEnu_m=previous.positionWorldEnu_m
       + previous.velocityWorldEnu_m_s * dt
       + 0.5 * gravityWorldEnu_m_s2 * dt * dt

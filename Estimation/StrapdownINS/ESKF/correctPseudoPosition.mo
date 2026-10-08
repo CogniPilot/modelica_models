@@ -2,7 +2,7 @@ within Estimation.StrapdownINS.ESKF;
 
 function correctPseudoPosition
   "Fuse a synthetic measurement that the vehicle is still at its held position"
-  input Estimation.StrapdownINS.ESKF.State predicted;
+  input State predicted;
   input Real holdPositionWorldEnu_m[3]
     "Position the filter is held to: the last position it had while an
      anchor source was live, or the initialization position";
@@ -12,7 +12,7 @@ function correctPseudoPosition
      integrate without limit, exactly as the fake-position fusion of the
      PX4 and ArduPilot filters does";
   input Real innovationGate = 0.0;
-  output Estimation.StrapdownINS.ESKF.State corrected;
+  output State corrected;
   output Boolean accepted;
   output Integer rejectionReason;
   output Real normalizedInnovationSquared;

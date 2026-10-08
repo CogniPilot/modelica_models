@@ -16,7 +16,7 @@ protected
     each start=0.0, each fixed=true);
   discrete Real stateAccelerometerBiasBodyFlu_m_s2[3](
     each start=0.0, each fixed=true);
-  discrete Estimation.StrapdownINS.UKF.Covariance stateCovariance(
+  discrete Covariance stateCovariance(
     each start=0.0, each fixed=true);
   discrete Boolean initialized(start=false, fixed=true);
   discrete Boolean predictionSucceeded(start=false, fixed=true);
@@ -208,9 +208,9 @@ algorithm
      gpsTimestampConsumed_s,
      magnetometerTimestampConsumed_s,
      barometerTimestampConsumed_s,
-     opticalFlowTimestampConsumed_s) := Estimation.StrapdownINS.UKF.step(
+     opticalFlowTimestampConsumed_s) := step(
        pre(initialized),
-       Estimation.StrapdownINS.UKF.State(
+       State(
          positionWorldEnu_m=pre(statePositionWorldEnu_m),
          velocityWorldEnu_m_s=pre(stateVelocityWorldEnu_m_s),
          quaternionWorldBody=pre(stateQuaternionWorldBody),

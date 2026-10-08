@@ -22,8 +22,8 @@ algorithm
   Y := zeros(size(B, 1), size(B, 2));
   X := zeros(size(B, 1), size(B, 2));
   scale := 0.0;
-  for i in 1:size(A, 1) loop
-    scale := max(scale, abs(A[i, i]));
+  for row in 1:size(A, 1) loop
+    scale := max(scale, abs(A[row, row]));
   end for;
   scale := max(scale, 1.0e-30);
 
@@ -44,14 +44,14 @@ algorithm
   // the O(n^3) factorization.
   one := scale / scale;
   workingEpsilon := 1.0;
-  for k in 1:60 loop
+  for precisionStep in 1:60 loop
     if one + 0.5 * workingEpsilon > one then
       workingEpsilon := 0.5 * workingEpsilon;
     end if;
   end for;
 
   // Scaled Cholesky pivot criterion: a pivot at or below
-  // n * epsilon * max|A[i,i]| is indistinguishable from accumulated
+  // n * epsilon * max|A[row,row]| is indistinguishable from accumulated
   // rounding noise in the working precision (cf. Higham, "Accuracy and
   // Stability of Numerical Algorithms", ch. 10). This yields ~1.8e-6
   // relative in binary32 (n = 15) and ~3.3e-15 in binary64. Callers can
@@ -64,8 +64,8 @@ algorithm
   for row in 1:size(A, 1) loop
     for column in 1:row loop
       value := 0.5 * (A[row, column] + A[column, row]);
-      for k in 1:(column - 1) loop
-        value := value - L[row, k] * L[column, k];
+      for term in 1:(column - 1) loop
+        value := value - L[row, term] * L[column, term];
       end for;
 
       if row == column then
@@ -102,8 +102,8 @@ algorithm
     for rhs in 1:size(B, 2) loop
       for row in 1:size(A, 1) loop
         value := B[row, rhs];
-        for k in 1:(row - 1) loop
-          value := value - L[row, k] * Y[k, rhs];
+        for term in 1:(row - 1) loop
+          value := value - L[row, term] * Y[term, rhs];
         end for;
         Y[row, rhs] := value / L[row, row];
       end for;
@@ -111,8 +111,8 @@ algorithm
       for reverseRow in 1:size(A, 1) loop
         solveRow := size(A, 1) + 1 - reverseRow;
         value := Y[solveRow, rhs];
-        for k in (solveRow + 1):size(A, 1) loop
-          value := value - L[k, solveRow] * X[k, rhs];
+        for term in (solveRow + 1):size(A, 1) loop
+          value := value - L[term, solveRow] * X[term, rhs];
         end for;
         X[solveRow, rhs] := value / L[solveRow, solveRow];
       end for;

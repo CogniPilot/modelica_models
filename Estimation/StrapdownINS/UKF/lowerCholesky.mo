@@ -18,8 +18,8 @@ algorithm
   // A covariance is positive semi-definite, so this is also the largest entry
   // of the whole matrix.
   scale := 0.0;
-  for i in 1:TangentLength loop
-    scale := max(scale, abs(covariance[i, i]));
+  for row in 1:TangentLength loop
+    scale := max(scale, abs(covariance[row, row]));
   end for;
   scale := max(scale, 1.0e-30);
 
@@ -34,14 +34,14 @@ algorithm
   // built from a factor that does not reproduce the covariance.
   one := scale / scale;
   workingEpsilon := 1.0;
-  for k in 1:60 loop
+  for precisionStep in 1:60 loop
     if one + 0.5 * workingEpsilon > one then
       workingEpsilon := 0.5 * workingEpsilon;
     end if;
   end for;
 
   // Scaled Cholesky pivot criterion: a pivot at or below
-  // n * epsilon * max|A[i,i]| is indistinguishable from accumulated rounding
+  // n * epsilon * max|A[row,row]| is indistinguishable from accumulated rounding
   // noise in the working precision (Higham, "Accuracy and Stability of
   // Numerical Algorithms", ch. 10). About 1.8e-6 relative in binary32 and
   // 3.3e-15 in binary64 at n = 15.

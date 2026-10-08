@@ -2,12 +2,12 @@ within Estimation.StrapdownINS.UKF;
 
 function predictNominalVector
   "Propagate a flattened nominal state through the strapdown mechanization"
-  input Estimation.StrapdownINS.UKF.NominalVector previous;
+  input NominalVector previous;
   input Real angularVelocityMeasuredBodyFlu_rad_s[3];
   input Real specificForceMeasuredBodyFlu_m_s2[3];
   input Real gravityWorldEnu_m_s2[3];
   input Real dt(unit = "s");
-  output Estimation.StrapdownINS.UKF.NominalVector predicted;
+  output NominalVector predicted;
 protected
   Real correctedAngularVelocity[3];
   Real correctedSpecificForce[3];

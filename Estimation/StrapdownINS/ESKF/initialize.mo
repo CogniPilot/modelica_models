@@ -9,9 +9,9 @@ function initialize "Initialize the geometric error-state filter"
   input Real initialAccelerometerBiasBodyFlu_m_s2[3] = zeros(3);
   input Real initialPositionCovarianceWorld_m2[3, 3] = zeros(3, 3)
     "Covariance of an aiding position used as the seed; zero keeps configured priors";
-  output Estimation.StrapdownINS.ESKF.State state;
+  output State state;
 protected
-  Estimation.StrapdownINS.ESKF.Covariance initialCovariance;
+  Covariance initialCovariance;
 algorithm
   initialCovariance := diagonal(cat(1,
     seedPositionVariances(initialPositionCovarianceWorld_m2,
@@ -20,7 +20,7 @@ algorithm
     variances.attitude_rad2,
     variances.gyroscopeBias_rad2_s2,
     variances.accelerometerBias_m2_s4));
-  state := Estimation.StrapdownINS.ESKF.State(
+  state := State(
     positionWorldEnu_m=positionWorldEnu_m,
     velocityWorldEnu_m_s=initialVelocityWorldEnu_m_s,
     quaternionWorldBody=LieGroups.SO3.Quat.normalize(quaternionWorldBody),

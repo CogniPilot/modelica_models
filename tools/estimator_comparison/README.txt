@@ -7,11 +7,12 @@ score GPS-aided, GPS-denied and GPS-loss/recovery cases. This is a controlled
 kinematic benchmark, not a flight qualification or a universal filter ranking.
 The dated review in docs/reviews/2026-10-07 includes findings and all scores.
 
-No upstream GPL source is included here. The native replay adapters live in
-the separately licensed estimator-comparison repository. On this machine its
+PX4 and ArduPilot are pinned validation submodules under upstream/; their
+source files are not vendored into this repository. Native replay adapters
+remain in the separately licensed estimator-comparison repository. Its
 owned worktree is $HOME/scratch/estimator-comparison/matched-sensor-replay,
 branch workspace/matched-sensor-replay, commit 3dbaeb9. That repository has no
-remote. No completed EKF3 Modelica port was located; its directory is scaffolding.
+remote. Modelica ports are maintained separately and do not replace native cores.
 The native harness commit is durable in $HOME/git/estimator-comparison's Git
 object database. Do not substitute the incomplete port for native EKF3.
 
@@ -28,13 +29,42 @@ Run from the modelica_models root, using its Nix development environment
   native_harness="$HOME/scratch/estimator-comparison/matched-sensor-replay/harness"
   python tools/estimator_comparison/build.py --output "$comparison_root/generated"
 
-Build the external cores per the native harness README, using these exact pins:
-PX4-Autopilot f1c0a1f794edf8e5e974b6ed96df3f95eda0df39;
-ArduPilot Copter 4.7.0 1511f27194f1dcc3728270883047bdf022b3fd53.
-AP_REPLAY is supplied explicitly by run.py. Example native binary locations:
+Initialize the validation submodules in a disposable clone on scratch, keeping
+their Git object databases there too. The main checkout can leave them
+uninitialized. Clone once; update the scratch checkout deliberately when
+testing a different Modelica revision.
 
-  px4_binary="$HOME/scratch/modelica_models/estimator-comparison/build-px4/ekf2_replay"
-  ap_binary="$HOME/scratch/modelica_models/estimator-comparison/ardupilot/build/sitl/tool/Replay"
+  validation_sources="$HOME/scratch/modelica_models/validation-sources"
+  git clone --no-hardlinks . "$validation_sources"
+  git -C "$validation_sources" submodule update --init -- \
+    tools/estimator_comparison/upstream/px4 \
+    tools/estimator_comparison/upstream/ardupilot
+  px4_source="$validation_sources/tools/estimator_comparison/upstream/px4"
+  ap_source="$validation_sources/tools/estimator_comparison/upstream/ardupilot"
+
+The gitlinks pin PX4-Autopilot f1c0a1f794edf8e5e974b6ed96df3f95eda0df39 and
+ArduPilot Copter 4.7.0 1511f27194f1dcc3728270883047bdf022b3fd53. Do not use
+submodule update --remote for a reproducible comparison. Native source and
+adapter licenses remain with their respective repositories; production
+Modelica builds do not depend on these validation submodules.
+
+Build the external cores using the separate adapters and the submodule sources:
+
+  cmake -S "$native_harness/px4" -B "$comparison_root/native-px4" \
+    -DPX4_SOURCE_DIR="$px4_source" -DCMAKE_BUILD_TYPE=Release
+  cmake --build "$comparison_root/native-px4" --parallel
+  git -C "$ap_source" submodule update --init --recursive
+  (
+    cd "$ap_source"
+    "$native_harness/ardupilot/apenv" ./waf configure --board sitl \
+      --out="$comparison_root/native-ardupilot"
+    "$native_harness/ardupilot/apenv" ./waf replay
+  )
+
+AP_REPLAY is supplied explicitly by run.py:
+
+  px4_binary="$comparison_root/native-px4/ekf2_replay"
+  ap_binary="$comparison_root/native-ardupilot/sitl/tool/Replay"
   python tools/estimator_comparison/run.py --output "$comparison_root" \
     --native-harness "$native_harness" --px4-replay "$px4_binary" \
     --ap-replay "$ap_binary" \
@@ -114,6 +144,6 @@ exported independently of the valid flag, which stays true during rejection.
 The released Rumoca Python package needs a corrected Cargo dependency-fetch
 hash in flake.nix. The compiler and binding source remain the exact v0.10.2
 release. Whole-array coefficient assignments avoid the release's GALEC
-indexed-storage replay recursion; fixed 3x3 outer-product literals avoid a
-separate GALEC rank limitation. The rest of the implementation uses shared
+indexed-storage replay recursion; explicit row/column matrix products avoid a
+separate GALEC outerProduct rank limitation. The implementation uses shared
 array/matrix expressions.

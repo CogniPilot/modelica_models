@@ -2,7 +2,7 @@ within Estimation.StrapdownINS.ESKF;
 
 function navigationEstimate
   "Publish a canonical estimate with consistent attitude representations"
-  input Estimation.StrapdownINS.ESKF.State state;
+  input State state;
   input Avionics.ImuSample imu;
   input Real gravityWorldEnu_m_s2[3];
   input Boolean validInput;

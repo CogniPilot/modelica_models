@@ -7,20 +7,26 @@ from pathlib import Path
 from .common import ToolError
 
 
-def modelica_files(root: Path) -> list[Path]:
+def library_files(root: Path, pattern: str) -> list[Path]:
+    excluded = (
+        root / "tools" / "rumoca-repros",
+        root / "tools" / "estimator_comparison" / "upstream",
+    )
     return sorted(
         path
-        for path in root.rglob("*.mo")
+        for path in root.rglob(pattern)
         if ".git" not in path.parts
-        and not path.is_relative_to(root / "tools" / "rumoca-repros")
+        and not any(path.is_relative_to(directory) for directory in excluded)
     )
+
+
+def modelica_files(root: Path) -> list[Path]:
+    return library_files(root, "*.mo")
 
 
 def check(root: Path) -> None:
     errors: list[str] = []
-    packages = sorted(
-        path for path in root.rglob("package.mo") if ".git" not in path.parts
-    )
+    packages = library_files(root, "package.mo")
     for package_file in packages:
         directory = package_file.parent
         children = sorted(
@@ -33,9 +39,7 @@ def check(root: Path) -> None:
                 "but no package.order"
             )
 
-    order_files = sorted(
-        path for path in root.rglob("package.order") if ".git" not in path.parts
-    )
+    order_files = library_files(root, "package.order")
     for order_file in order_files:
         entries = order_file.read_text(encoding="utf-8").splitlines()
         seen: set[str] = set()

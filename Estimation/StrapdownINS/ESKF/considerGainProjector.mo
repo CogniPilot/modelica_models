@@ -9,9 +9,7 @@ function considerGainProjector
     "n*n' for a unit axis, the identity for the zero default";
 algorithm
   projector := if axis * axis > 0.5
-    then {{axis[1] * axis[1], axis[1] * axis[2], axis[1] * axis[3]},
-          {axis[2] * axis[1], axis[2] * axis[2], axis[2] * axis[3]},
-          {axis[3] * axis[1], axis[3] * axis[2], axis[3] * axis[3]}}
+    then transpose({axis}) * {axis}
     else identity(3);
   annotation(
     Inline = false,

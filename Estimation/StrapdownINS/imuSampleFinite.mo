@@ -21,33 +21,33 @@ algorithm
   finite := abs(imu.timestamp_s) < ESKF.FiniteMagnitudeLimit
     and imu.integrationTime_s > 0.0
     and imu.integrationTime_s < ESKF.FiniteMagnitudeLimit;
-  for i in 1:3 loop
+  for axis in 1:3 loop
     finite := finite
-      and abs(imu.angularVelocityBodyFlu_rad_s[i]) < ESKF.FiniteMagnitudeLimit
-      and abs(imu.specificForceBodyFlu_m_s2[i]) < ESKF.FiniteMagnitudeLimit
-      and abs(imu.deltaAngleBodyFlu_rad[i]) < ESKF.FiniteMagnitudeLimit
-      and abs(imu.deltaVelocityBodyFlu_m_s[i]) < ESKF.FiniteMagnitudeLimit
-      and abs(imu.deltaPositionBodyFlu_m[i]) < ESKF.FiniteMagnitudeLimit
-      and abs(imu.gyroscopeBiasLinearizationBodyFlu_rad_s[i])
+      and abs(imu.angularVelocityBodyFlu_rad_s[axis]) < ESKF.FiniteMagnitudeLimit
+      and abs(imu.specificForceBodyFlu_m_s2[axis]) < ESKF.FiniteMagnitudeLimit
+      and abs(imu.deltaAngleBodyFlu_rad[axis]) < ESKF.FiniteMagnitudeLimit
+      and abs(imu.deltaVelocityBodyFlu_m_s[axis]) < ESKF.FiniteMagnitudeLimit
+      and abs(imu.deltaPositionBodyFlu_m[axis]) < ESKF.FiniteMagnitudeLimit
+      and abs(imu.gyroscopeBiasLinearizationBodyFlu_rad_s[axis])
         < ESKF.FiniteMagnitudeLimit
-      and abs(imu.accelerometerBiasLinearizationBodyFlu_m_s2[i])
+      and abs(imu.accelerometerBiasLinearizationBodyFlu_m_s2[axis])
         < ESKF.FiniteMagnitudeLimit;
-    for j in 1:3 loop
+    for column in 1:3 loop
       finite := finite
-        and abs(imu.deltaRotationGyroscopeBiasJacobian_s[i, j])
+        and abs(imu.deltaRotationGyroscopeBiasJacobian_s[axis, column])
           < ESKF.FiniteMagnitudeLimit
-        and abs(imu.deltaVelocityGyroscopeBiasJacobian_m[i, j])
+        and abs(imu.deltaVelocityGyroscopeBiasJacobian_m[axis, column])
           < ESKF.FiniteMagnitudeLimit
-        and abs(imu.deltaVelocityAccelerometerBiasJacobian_s[i, j])
+        and abs(imu.deltaVelocityAccelerometerBiasJacobian_s[axis, column])
           < ESKF.FiniteMagnitudeLimit
-        and abs(imu.deltaPositionGyroscopeBiasJacobian_m_s[i, j])
+        and abs(imu.deltaPositionGyroscopeBiasJacobian_m_s[axis, column])
           < ESKF.FiniteMagnitudeLimit
-        and abs(imu.deltaPositionAccelerometerBiasJacobian_s2[i, j])
+        and abs(imu.deltaPositionAccelerometerBiasJacobian_s2[axis, column])
           < ESKF.FiniteMagnitudeLimit;
     end for;
   end for;
-  for i in 1:4 loop
+  for component in 1:4 loop
     finite := finite
-      and abs(imu.deltaQuaternionBodyFlu[i]) < ESKF.FiniteMagnitudeLimit;
+      and abs(imu.deltaQuaternionBodyFlu[component]) < ESKF.FiniteMagnitudeLimit;
   end for;
 end imuSampleFinite;

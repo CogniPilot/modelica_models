@@ -4,7 +4,7 @@ function localError
   "Body-local tangent carrying reference to target"
   input Estimation.StrapdownINS.ESKF.NominalState reference;
   input Estimation.StrapdownINS.ESKF.NominalState target;
-  output Estimation.StrapdownINS.UKF.TangentVector error;
+  output TangentVector error;
 protected
   Real referencePose[10];
   Real targetPose[10];
