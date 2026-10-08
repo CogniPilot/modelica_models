@@ -40,8 +40,9 @@ algorithm
   for iteration in 1:4 loop
     meanCorrection := zeros(TangentLength);
     for index in 2:SigmaCount loop
-      meanCorrection := meanCorrection + SigmaWeight
-        * localErrorVector(predictedMean, propagated[:, index]);
+      // Preserve the per-sigma call in Rumoca 0.10.2 GALEC reductions.
+      deviation := localErrorVector(predictedMean, propagated[:, index]);
+      meanCorrection := meanCorrection + SigmaWeight * deviation;
     end for;
     predictedMean := injectVector(predictedMean, meanCorrection);
   end for;

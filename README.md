@@ -78,6 +78,13 @@ filter would overstate its mathematics. Both filters accept identical sensor,
 noise, initialization, and terrain-plane assumptions so their closed-loop
 comparison is meaningful.
 
+The [FOH paper review](docs/reviews/2026-10-07/preintegration-paper-review.txt)
+documents the physical bias-Jacobian correction. The accompanying
+[estimator replay comparison](docs/reviews/2026-10-07/estimator-comparison.html)
+covers GPS, optical-flow flight without GPS, and GPS loss/recovery against
+native PX4 EKF2 and ArduPilot EKF3, including observed scheduling and generated
+UKF runtime limitations.
+
 Sensor `timestamp_s` is capture time. `valid` may remain true while a usable
 sample is held; `fresh` pulses for one estimator tick when a new sample arrives,
 preventing a slow sensor value from being fused repeatedly. Latency compensation
@@ -367,7 +374,12 @@ To regenerate only the planning artifacts:
 modelica-models test plots
 ```
 
-CI uses the same Python commands. Its optional Nix layer pins compiler binaries
+CI uses the same Python commands. The optional Nix layer uses released Rumoca
+0.10.2 for both the CLI and Python bindings. Its Python dependency override
+corrects the release's stale Cargo vendor hash without patching compiler code.
+The Rumoca checks compile and execute a C99 UKF prediction regression. Native
+use requires `cc` or `MODELICA_MODELS_CC`; the Nix application supplies its compiler.
+The layer pins compiler binaries
 and caches only the Rumoca runtime when that pin changes. OpenModelica runs the complete
 assertion simulation using the pinned container image, with a local `omc` as
 the fallback when Docker is unavailable. Rumoca independently parses, resolves, flattens, and lowers

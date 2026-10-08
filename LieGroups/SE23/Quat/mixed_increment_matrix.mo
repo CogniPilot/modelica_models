@@ -14,11 +14,11 @@ protected
   Real I2[2, 2];
 algorithm
   omega := a[7:9];
-  theta_sq := omega[1]^2 + omega[2]^2 + omega[3]^2;
+  theta_sq := omega * omega;
   C := LieGroups.SE23.Quat.mixed_increment_coefficients(theta_sq);
   Om := LieGroups.SO3.Quat.wedge(omega);
   Om2 := Om * Om;
-  A := {{a[4], a[1]}, {a[5], a[2]}, {a[6], a[3]}};
+  A := transpose({a[4:6], a[1:3]});
   I2 := identity(2);
   N := A + 0.5 * A * B
     + Om * A * (C[1] * I2 + C[2] * B)

@@ -10,9 +10,7 @@ algorithm
   if theta_sq < eps then
     // Exact derivative of the retained series mixed_increment_coefficients
     // evaluates on this branch, so rule and primitive stay consistent.
-    dC[1] := -1.0/24.0;
-    dC[2] := -1.0/120.0;
-    dC[3] := -1.0/720.0;
+    dC := {-1.0/24.0, -1.0/120.0, -1.0/720.0};
   else
     // Written in the coefficients themselves rather than in sines and cosines.
     // The direct forms subtract quantities of order theta^2 to leave numerators
@@ -20,9 +18,9 @@ algorithm
     // cancellation left is of order theta^2/60, which single-precision
     // generated code can carry down to the branch radius.
     C := LieGroups.SE23.Quat.mixed_increment_coefficients(theta_sq);
-    dC[1] := C[3] - 0.5 * C[2];
-    dC[2] := (C[1] - 3.0 * C[2]) / (2.0 * theta_sq);
-    dC[3] := (0.5 * C[2] - 2.0 * C[3]) / theta_sq;
+    dC := {C[3] - 0.5 * C[2],
+      (C[1] - 3.0 * C[2]) / (2.0 * theta_sq),
+      (0.5 * C[2] - 2.0 * C[3]) / theta_sq};
   end if;
   annotation(Documentation(info="<html>
     <p>With s = theta^2 and C1, C2, C3 as in

@@ -39,13 +39,17 @@ protected
   Real rotationIncrement_rad[3];
   Real velocityIncrement_m_s[3];
   Real positionIncrement_m[3];
-  Real halfRotationIncrement_rad[3];
+  Real bodyIncrement[9];
+  Real coupling[2, 2];
+  Real incrementTranslationJacobian[6, 9];
+  Real rotationBiasJacobian[3, 3];
+  Real velocityGyroBiasJacobian[3, 3];
+  Real translationBiasJacobian[6, 6];
+  Real translationIncrement[3, 2];
+  Real previousRotation[3, 3];
   Real previousExtendedPose[10];
   Real updatedExtendedPose[10];
   Real rotationIncrement[3, 3];
-  Real halfRotationIncrement[3, 3];
-  Real rotationAtMidpoint[3, 3];
-  Real rotationJacobianAtMidpoint_s[3, 3];
 algorithm
   correctedAngularVelocity_rad_s := angularVelocityMeasuredBodyFlu_rad_s
     - gyroscopeBiasLinearizationBodyFlu_rad_s;
@@ -61,11 +65,10 @@ algorithm
     // Magnus expansion: Magnus, Comm. Pure Appl. Math. 7(4):649-673, 1954;
     // survey Blanes, Casas, Oteo and Ros, Phys. Rep. 470:151-238, 2009.  The
     // truncation to third order, its exactly-vanishing T^4 grade, and the
-    // O(T^5) residual are the first-order-hold preintegration theorem of Lin,
-    // Pant, Perseghetti and Goppert, "An Exact Error Theory for
-    // Mixed-Invariant Preintegration on SE_2(3)" (manuscript in preparation,
-    // 2026); the coning/sculling/scrolling split of the single bracket is that
-    // manuscript's bracket-decomposition proposition.  The coning term
+    // O(T^5) residual are Lemma 2 and Theorem 2 of Reynolds, Condie,
+    // Perseghetti and Goppert, "First-Order-Hold Magnus Preintegration on
+    // SE_n(3) with Computable Flow-Error Bounds" (ACC 2027 manuscript).
+    // Proposition 3 gives the coning/sculling/scrolling split. The coning term
     // coincides with the classical two-sample correction of Bortz (1971) and
     // Savage (1998, parts 1 and 2).  See the References block on
     // Estimation.StrapdownINS for the full entries.  The deltas are formed as sample differences
@@ -103,7 +106,9 @@ algorithm
     velocityIncrement_m_s := correctedSpecificForce_m_s2 * dt;
     positionIncrement_m := zeros(3);
   end if;
-  halfRotationIncrement_rad := 0.5 * rotationIncrement_rad;
+  bodyIncrement := cat(1, positionIncrement_m, velocityIncrement_m_s,
+    rotationIncrement_rad);
+  coupling := [0.0, dt; 0.0, 0.0];
   previousExtendedPose := cat(1, previousDeltaPosition_m,
     previousDeltaVelocity_m_s, previousDeltaQuaternion);
 
@@ -118,90 +123,54 @@ algorithm
   // applies verbatim.
   updatedExtendedPose := LieGroups.SE23.Quat.exp_mixed(
     previousExtendedPose,
-    cat(1, positionIncrement_m, velocityIncrement_m_s,
-      rotationIncrement_rad),
-    zeros(9), [0.0, dt; 0.0, 0.0]);
+    bodyIncrement, zeros(9), coupling);
   deltaPosition_m := updatedExtendedPose[1:3];
   deltaVelocity_m_s := updatedExtendedPose[4:6];
   deltaQuaternion := LieGroups.SO3.Quat.normalize(
     updatedExtendedPose[7:10]);
 
-  // Bias sensitivities are the first variation of the same composition.
-  // The appended dt^2/12 cross terms below are the FOH bias-sensitivity
-  // proposition of the same manuscript; the zero-order-hold recursions are
-  // those of the L-CSS 2025 closed form.  References: Estimation.StrapdownINS.
-  // Evaluating the sensitivity at the interval midpoint keeps the Jacobians
-  // second-order accurate while the nominal preintegral remains closed-form.
-  // Under the first-order hold the increment sensitivities gain one
-  // (dt^2/12) cross term per channel: the sample differences are invariant
-  // to a constant bias, so only the interval-start factor of each bracket
-  // differentiates.
+  // Equation (11) differentiates the retained exponent, not its physical
+  // translation increments. Apply the chain rule through the same closed-form
+  // increment block used above. This also differentiates the position-column
+  // correction through rotation and transports the previous right attitude
+  // sensitivity through the full increment, without a midpoint approximation.
+  // Columns are {gyro bias, accelerometer bias}; rows are {position, velocity,
+  // rotation}. Sample differences and the time block are bias-invariant.
+  rotationBiasJacobian := -dt * identity(3)
+    + (dt * dt / 12.0) * LieGroups.SO3.Quat.wedge(angularVelocityDelta_rad_s);
+  velocityGyroBiasJacobian := (dt * dt / 12.0)
+    * LieGroups.SO3.Quat.wedge(specificForceDelta_m_s2);
+  translationIncrement := LieGroups.SE23.Quat.mixed_increment_matrix(
+    bodyIncrement, coupling);
+  incrementTranslationJacobian :=
+    LieGroups.SE23.Quat.mixed_increment_matrix_jacobian(
+      bodyIncrement, coupling);
+  translationBiasJacobian := cat(2,
+    incrementTranslationJacobian[:, 4:6] * velocityGyroBiasJacobian
+      + incrementTranslationJacobian[:, 7:9] * rotationBiasJacobian,
+    incrementTranslationJacobian[:, 4:6] * rotationBiasJacobian);
+  previousRotation := LieGroups.SO3.Quat.to_DCM(previousDeltaQuaternion);
   rotationIncrement := LieGroups.SO3.Quat.to_DCM(
     LieGroups.SO3.Quat.exp_map(rotationIncrement_rad));
-  halfRotationIncrement := LieGroups.SO3.Quat.to_DCM(
-    LieGroups.SO3.Quat.exp_map(halfRotationIncrement_rad));
-  rotationAtMidpoint := LieGroups.SO3.Quat.to_DCM(
-    previousDeltaQuaternion) * halfRotationIncrement;
-  rotationJacobianAtMidpoint_s := transpose(halfRotationIncrement)
+  rotationGyroscopeBiasJacobian_s := transpose(rotationIncrement)
       * previousRotationGyroscopeBiasJacobian_s
-    - 0.5 * LieGroups.SO3.Quat.right_jacobian(
-        halfRotationIncrement_rad) * dt;
-  if useFirstOrderHold then
-    rotationGyroscopeBiasJacobian_s := transpose(rotationIncrement)
-        * previousRotationGyroscopeBiasJacobian_s
-      + LieGroups.SO3.Quat.right_jacobian(rotationIncrement_rad)
-        * ((dt * dt / 12.0)
-             * LieGroups.SO3.Quat.wedge(angularVelocityDelta_rad_s)
-           - dt * identity(3));
-    velocityGyroscopeBiasJacobian_m :=
-      previousVelocityGyroscopeBiasJacobian_m
-        - rotationAtMidpoint
-          * LieGroups.SO3.Quat.wedge(startSpecificForce_m_s2
-              + 0.5 * specificForceDelta_m_s2)
-          * rotationJacobianAtMidpoint_s * dt
-        + rotationAtMidpoint * (dt * dt / 12.0)
-          * LieGroups.SO3.Quat.wedge(specificForceDelta_m_s2);
-    velocityAccelerometerBiasJacobian_s :=
-      previousVelocityAccelerometerBiasJacobian_s
-        - rotationAtMidpoint * dt
-        + rotationAtMidpoint * (dt * dt / 12.0)
-          * LieGroups.SO3.Quat.wedge(angularVelocityDelta_rad_s);
-    positionGyroscopeBiasJacobian_m_s :=
-      previousPositionGyroscopeBiasJacobian_m_s
-        + previousVelocityGyroscopeBiasJacobian_m * dt
-        - 0.5 * rotationAtMidpoint
-          * LieGroups.SO3.Quat.wedge(startSpecificForce_m_s2
-              + 0.5 * specificForceDelta_m_s2)
-          * rotationJacobianAtMidpoint_s * dt * dt
-        + 0.5 * rotationAtMidpoint * (dt * dt / 12.0)
-          * LieGroups.SO3.Quat.wedge(specificForceDelta_m_s2) * dt;
-    positionAccelerometerBiasJacobian_s2 :=
-      previousPositionAccelerometerBiasJacobian_s2
-        + previousVelocityAccelerometerBiasJacobian_s * dt
-        - 0.5 * rotationAtMidpoint * dt * dt
-        + 0.5 * rotationAtMidpoint * (dt * dt / 12.0)
-          * LieGroups.SO3.Quat.wedge(angularVelocityDelta_rad_s) * dt;
-  else
-    rotationGyroscopeBiasJacobian_s := transpose(rotationIncrement)
-        * previousRotationGyroscopeBiasJacobian_s
-      - LieGroups.SO3.Quat.right_jacobian(rotationIncrement_rad) * dt;
-    velocityGyroscopeBiasJacobian_m :=
-      previousVelocityGyroscopeBiasJacobian_m
-        - rotationAtMidpoint
-          * LieGroups.SO3.Quat.wedge(correctedSpecificForce_m_s2)
-          * rotationJacobianAtMidpoint_s * dt;
-    velocityAccelerometerBiasJacobian_s :=
-      previousVelocityAccelerometerBiasJacobian_s
-        - rotationAtMidpoint * dt;
-    positionGyroscopeBiasJacobian_m_s :=
-      previousPositionGyroscopeBiasJacobian_m_s
-        + previousVelocityGyroscopeBiasJacobian_m * dt
-        - 0.5 * rotationAtMidpoint
-          * LieGroups.SO3.Quat.wedge(correctedSpecificForce_m_s2)
-          * rotationJacobianAtMidpoint_s * dt * dt;
-    positionAccelerometerBiasJacobian_s2 :=
-      previousPositionAccelerometerBiasJacobian_s2
-        + previousVelocityAccelerometerBiasJacobian_s * dt
-        - 0.5 * rotationAtMidpoint * dt * dt;
-  end if;
+    + LieGroups.SO3.Quat.right_jacobian_exact(rotationIncrement_rad)
+      * rotationBiasJacobian;
+  velocityGyroscopeBiasJacobian_m := previousVelocityGyroscopeBiasJacobian_m
+    + previousRotation * (translationBiasJacobian[1:3, 1:3]
+      - LieGroups.SO3.Quat.wedge(translationIncrement[:, 1])
+        * previousRotationGyroscopeBiasJacobian_s);
+  velocityAccelerometerBiasJacobian_s :=
+    previousVelocityAccelerometerBiasJacobian_s
+      + previousRotation * translationBiasJacobian[1:3, 4:6];
+  positionGyroscopeBiasJacobian_m_s :=
+    previousPositionGyroscopeBiasJacobian_m_s
+      + previousVelocityGyroscopeBiasJacobian_m * dt
+      + previousRotation * (translationBiasJacobian[4:6, 1:3]
+        - LieGroups.SO3.Quat.wedge(translationIncrement[:, 2])
+          * previousRotationGyroscopeBiasJacobian_s);
+  positionAccelerometerBiasJacobian_s2 :=
+    previousPositionAccelerometerBiasJacobian_s2
+      + previousVelocityAccelerometerBiasJacobian_s * dt
+      + previousRotation * translationBiasJacobian[4:6, 4:6];
 end preintegrateImuStep;

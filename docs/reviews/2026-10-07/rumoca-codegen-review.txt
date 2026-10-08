@@ -1,0 +1,65 @@
+Released Rumoca 0.10.2 compatibility findings
+===========================================
+
+Release: v0.10.2, commit 276e82bd0fd48960ac201e782918d28bf19cf7ce.
+The compiler and Python binding code are unmodified. The Nix Python package's
+Cargo dependency-fetch hash is corrected in flake.nix; this is fetch metadata.
+
+1. UKF mean reduction: numerical error in generated code
+
+The source accumulated SigmaWeight * localErrorVector(mean, propagated[:, i])
+over i = 2:31. The released GALEC pipeline emitted one localErrorVector call
+using propagated[:, 2], then added its result thirty times. This is not
+floating-point roundoff: a noiseless hover moved sqrt(15) = 3.87298 metres on
+the first prediction. Covariance then grew rapidly and prediction was rejected.
+The generated error-signal status remained zero, and estimate.valid stayed true.
+
+The workaround materializes the error vector in a separate assignment inside
+the loop, then accumulates it. It preserves the Modelica mathematical operation
+and the released compiler. Both UKF.predict and UKF.predictPreintegrated need it.
+The corrected minimal preintegrated hover had position components below 3e-8 m
+after three predictions; the previous generated code reached about 203 m.
+OpenModelica executing the previous Modelica reduction preserved the same
+noiseless hover to below 1e-8 in position/velocity. This independent calculation
+supports the diagnosis of generated reduction semantics rather than a large
+physical displacement in the underlying model.
+
+Tests.UKFHoverCodegen and tools/estimator_comparison/ukf_hover.c test ten ticks
+of both prediction paths using the declared broad UKF initial covariance.
+tools/ci.py now exports, compiles and executes this test. The previous source
+fails at mode 0, step 1, x = 3.87298 m; the corrected source passes both modes.
+The native compiler comes from the Nix wrapper, or MODELICA_MODELS_CC / cc for
+native use. This checks executable semantics, beyond schema-valid eFMU export.
+
+The complete corrected UKF replay matrix was rerun. Its previous failed scores
+are retained in ukf-before-workaround-scores.json as separate negative evidence;
+the main estimator tables and plots use the corrected replay output.
+
+2. Covariance admission is a separate issue
+
+Matching RDD2's initial gyro-bias variance of 1e-6 makes UKF.lowerCholesky reject
+the initial prior in float32. Its threshold is 15 * epsilon * max diagonal;
+with a largest diagonal of 1, this is approximately 1.79e-6. This is a property
+of the current numerical guard and mixed-scale covariance, not the reduction
+bug above. The comparison retains the declared UKF bias variance of 1e-4.
+
+After the reduction workaround, all GPS, transition and lower-rate denied
+replays sustain prediction throughout scored flight. High-rate denied runs
+still reject some predictions as the covariance evolves. A separate scaling
+and conditioning investigation is needed before calling this configuration
+robust. Finite outputs remain scored; prediction acceptance and validity are
+reported independently. Do not infer a general UKF-versus-ESKF ranking from a
+configuration that rejects prediction.
+
+3. FOH export compatibility
+
+Indexed assignments to the coefficient vector caused unbounded recursion in
+the release's indexed-storage replay during export. Assigning each complete
+three-vector avoids it. Fixed 3x3 outer-product literals avoid the release's
+GALEC rank limitation for outerProduct / nested array comprehensions. The rest
+of the mixed exponential and its Jacobian use shared matrix/array operations.
+
+The composed FusionHorizon.HorizonEstimator still reaches the recorded
+multi-rate sampled-read boundary, identity 573 at line 259. tools/ci.py checks
+that exact diagnostic rather than accepting arbitrary failure. This review
+does not claim that released Rumoca exports the complete composed wrapper.
