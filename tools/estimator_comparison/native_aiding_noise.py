@@ -3,6 +3,7 @@
 import math
 
 from native_noise import PREDICTION_PERIOD_S
+from sensor_noise import COMMON_NOISE_PROFILE, COMMON_SENSOR_NOISE
 
 
 PARAMETER_GROUPS = {
@@ -92,4 +93,19 @@ def sensor_informed_noise(groups=None):
 
 
 def configured_noise(args):
-    return sensor_informed_noise(getattr(args, "noise_groups", None))
+    profile = sensor_informed_noise(getattr(args, "noise_groups", None))
+    if getattr(args, "noise_profile", None) == COMMON_NOISE_PROFILE:
+        if getattr(args, "noise_groups", None) is not None:
+            raise ValueError("Common sensor noise requires all declared groups")
+        profile["name"] = COMMON_NOISE_PROFILE
+        profile["ekf3"]["EK3_VELD_M_NSE"] = COMMON_SENSOR_NOISE.gps_velocity_m_s[2]
+        profile["targets"]["gps_vertical_velocity_std_m_s"] = (
+            COMMON_SENSOR_NOISE.gps_velocity_m_s[2]
+        )
+        profile["limitations"][0] = (
+            "The common capture uses the native flow/magnetic floors and PX4's "
+            "1.5 vertical GPS velocity standard-deviation factor. Dynamic magnetic "
+            "noise, barometer ground-effect inflation, range propagation, height "
+            "source selection and initial priors remain native policies."
+        )
+    return profile

@@ -9,10 +9,24 @@ noisy data, not an estimator-specific fabricated warm-up.
 import argparse
 import json
 from pathlib import Path
+from typing import NamedTuple
 import numpy as np
 from mission import Mission
+from sensor_noise import COMMON_NOISE_PROFILE, COMMON_SENSOR_NOISE
 
 FIELD = np.array([-1.59e-6, 20.04e-6, -47.91e-6])
+
+
+class Trajectory(NamedTuple):
+    position_world_m: np.ndarray
+    velocity_world_m_s: np.ndarray
+    acceleration_world_m_s2: np.ndarray
+    quaternion_world_body: np.ndarray
+    angular_velocity_body_rad_s: np.ndarray
+    specific_force_body_m_s2: np.ndarray
+    velocity_body_m_s: np.ndarray
+    magnetic_body_T: np.ndarray
+    ground_distance_m: np.ndarray
 
 
 def ramp(t, duration):
@@ -107,7 +121,7 @@ def trajectory(t, speed, climb_height_m=2.0, warmup_s=13.0):
     body_v = np.einsum("nji,nj->ni", R, v)
     mag = np.einsum("nji,j->ni", R, FIELD)
     distance = (p[:, 2] + 1) / R[:, 2, 2]
-    return p, v, a, quat, gyro, force, body_v, mag, distance
+    return Trajectory(p, v, a, quat, gyro, force, body_v, mag, distance)
 
 
 def write(directory, name, header, data):
@@ -122,7 +136,13 @@ def write(directory, name, header, data):
 
 
 def generate(
-    directory, seed=7, speed=0.25, lower_rates=False, climb_height_m=2.0, warmup_s=13.0
+    directory,
+    seed=7,
+    speed=0.25,
+    lower_rates=False,
+    climb_height_m=2.0,
+    warmup_s=13.0,
+    common_native_floors=False,
 ):
     if not np.isfinite(climb_height_m) or not 0 < climb_height_m <= 8:
         raise ValueError("Climb height must be finite and between 0 and 8 m")
@@ -149,7 +169,11 @@ def generate(
     )
     g = np.arange(0, len(t), 80)
     pg = p[g] + rng.normal(0, [0.2, 0.2, 0.35], (len(g), 3))
-    vg = v[g] + rng.normal(0, 0.05, (len(g), 3))
+    vg = v[g] + rng.normal(
+        0,
+        COMMON_SENSOR_NOISE.gps_velocity_m_s if common_native_floors else 0.05,
+        (len(g), 3),
+    )
     lat, lon, alt = 40.4237, -86.9212, 200.0
     geod = np.column_stack(
         (
@@ -186,7 +210,11 @@ def generate(
         np.column_stack((t[f], vf, df, np.ones((len(f), 2)))),
     )
     m = np.arange(0, len(t), 16)
-    mm = mag[m] + rng.normal(0, 0.3e-6, (len(m), 3))
+    mm = mag[m] + rng.normal(
+        0,
+        COMMON_SENSOR_NOISE.magnetic_T if common_native_floors else 0.3e-6,
+        (len(m), 3),
+    )
     bm = p[m, 2] + 0.3 + 0.05 * np.sin(0.03 * t[m]) + rng.normal(0, 0.1, len(m))
     # All cores receive the same ground-calibrated pressure altitude. ArduPilot
     # DAL is downstream of its barometer calibration, while the other APIs can
@@ -277,6 +305,11 @@ def generate(
                 ground_plane_offset_m=-1,
                 baro_startup_datum_m=baro_datum,
                 world_magnetic_field_T=FIELD.tolist(),
+                **(
+                    {"measurement_noise_profile": COMMON_NOISE_PROFILE}
+                    if common_native_floors
+                    else {}
+                ),
                 **({"climb_height_m": climb_height_m} if climb_height_m != 2 else {}),
             ),
             indent=2,
@@ -293,6 +326,7 @@ if __name__ == "__main__":
     parser.add_argument("--lower-rates", action="store_true")
     parser.add_argument("--climb-height-m", type=float, default=2.0)
     parser.add_argument("--warmup-s", type=float, default=13.0)
+    parser.add_argument("--common-native-floors", action="store_true")
     args = parser.parse_args()
     generate(
         args.output,
@@ -301,4 +335,5 @@ if __name__ == "__main__":
         args.lower_rates,
         args.climb_height_m,
         args.warmup_s,
+        args.common_native_floors,
     )

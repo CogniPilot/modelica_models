@@ -14,6 +14,7 @@ import numpy as np
 from check_imu_coning import quaternion_product
 from check_preintegration_noise import local_error
 from native_consistency import check, common_state_and_jacobian
+from diagnose_native_covariance import diagnose
 from score import POSITION, QUATERNION, VELOCITY
 
 
@@ -168,6 +169,30 @@ class NativeCovarianceCoordinatesTests(unittest.TestCase):
             )
             self.assertEqual(shifted["windows"]["custom_flight"]["rows"], 20)
             self.assertIn("fusion time 20 s", shifted["sampling"])
+            diagnostic = root / "diagnostic.json"
+            diagnose(
+                SimpleNamespace(
+                    filter="ekf3",
+                    covariance=capture,
+                    output=diagnostic,
+                    start_s=20,
+                    end_s=30,
+                )
+            )
+            inspected = json.loads(diagnostic.read_text())
+            self.assertEqual(inspected["scored_rows"], 20)
+            self.assertEqual(inspected["cholesky_failed_rows"], 0)
+            for start, end in ((30, 20), (-1, 20), (float("nan"), 30)):
+                with self.assertRaisesRegex(ValueError, "diagnostic window"):
+                    diagnose(
+                        SimpleNamespace(
+                            filter="ekf3",
+                            covariance=capture,
+                            output=root / "invalid.json",
+                            start_s=start,
+                            end_s=end,
+                        )
+                    )
 
 
 if __name__ == "__main__":

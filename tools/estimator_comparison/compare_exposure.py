@@ -46,6 +46,8 @@ def eskf(binary, capture, scenario, options, exposure, transport):
     offset = getattr(options, "mission_offset_s", 0)
     if offset:
         command += ["--mission-offset", str(offset)]
+    if getattr(options, "measurement_noise", None):
+        command += ["--measurement-noise", *map(str, options.measurement_noise)]
     if exposure:
         command += ["--flow-packets", str(capture / "flow.csv")]
     completed = subprocess.run(command, capture_output=True, check=True)

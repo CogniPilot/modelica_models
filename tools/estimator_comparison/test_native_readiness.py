@@ -7,6 +7,7 @@ import unittest
 
 from mission import Mission
 from native_readiness import check
+from compare_readiness_covariance import validate_pilot
 
 
 class ReadinessTests(unittest.TestCase):
@@ -36,6 +37,36 @@ class ReadinessTests(unittest.TestCase):
     def test_denied_never_accepts_gps(self):
         self.assertTrue(self.evaluate([], scenario="denied")["qualified"])
         self.assertFalse(self.evaluate([36.7], scenario="denied")["qualified"])
+
+    def test_covariance_diagnostics_cannot_validate_empty_or_duplicate_campaigns(self):
+        row = dict(name="px4", scenario="gps")
+        for scores in ([], [row, row], [dict(name="unknown", scenario="gps")]):
+            with self.assertRaises(ValueError):
+                validate_pilot(
+                    dict(complete=False, scores=scores), allow_incomplete=True
+                )
+        self.assertEqual(
+            validate_pilot(dict(complete=False, scores=[row]), True), [row]
+        )
+        with self.assertRaisesRegex(ValueError, "complete declared"):
+            validate_pilot(dict(complete=False, scores=[row]))
+
+    def test_declared_campaign_needs_every_filter_in_every_scenario(self):
+        scores = [
+            dict(name=name, scenario=scenario)
+            for name in (
+                "horizon",
+                "retrodiction",
+                "horizon_joint",
+                "retrodiction_joint",
+                "px4",
+                "ekf3",
+            )
+            for scenario in ("gps", "denied", "transition")
+        ]
+        self.assertEqual(len(validate_pilot(dict(complete=True, scores=scores))), 6)
+        with self.assertRaisesRegex(ValueError, "complete declared"):
+            validate_pilot(dict(complete=True, scores=scores[:-1]))
 
 
 if __name__ == "__main__":

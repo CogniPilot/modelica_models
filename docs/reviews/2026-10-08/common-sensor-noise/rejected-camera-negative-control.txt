@@ -1,0 +1,27 @@
+F.
+======================================================================
+FAIL: test_capture_noise_matches_declared_packet_covariance (test_sensor_noise.SensorNoiseTests.test_capture_noise_matches_declared_packet_covariance)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jgoppert/git/modelica_models/tools/estimator_comparison/test_sensor_noise.py", line 87, in test_capture_noise_matches_declared_packet_covariance
+    np.testing.assert_allclose(
+  File "/nix/store/gjvxjlip4f1rc89vrizki47qbfa46r5m-python3-3.12.13-env/lib/python3.12/site-packages/numpy/testing/_private/utils.py", line 1768, in assert_allclose
+    assert_array_compare(compare, actual, desired, err_msg=str(err_msg),
+  File "/nix/store/gjvxjlip4f1rc89vrizki47qbfa46r5m-python3-3.12.13-env/lib/python3.12/site-packages/numpy/testing/_private/utils.py", line 983, in assert_array_compare
+    raise AssertionError(msg)
+AssertionError:
+Not equal to tolerance rtol=0.1, atol=0
+
+Mismatched elements: 2 / 2 (100%)
+Mismatch at indices:
+ [0]: 0.3291619393103382 (ACTUAL), 0.05 (DESIRED)
+ [1]: 0.584119034013081 (ACTUAL), 0.05 (DESIRED)
+Max absolute difference among violations: 0.53411903
+Max relative difference among violations: 10.68238068
+ ACTUAL: array([0.329162, 0.584119])
+ DESIRED: array(0.05)
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.492s
+
+FAILED (failures=1)

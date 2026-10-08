@@ -98,6 +98,12 @@ NEES, with six native covariance replays reproducing the state outputs byte for
 byte. ESKF leads on position RMS in this capture; broader scenarios and matched
 effective covariance and magnetic policies remain necessary for a general ranking.
 
+A [common sensor-noise follow-up](docs/reviews/2026-10-08/common-sensor-noise/README.txt)
+aligns nominal GPS velocity, magnetic and optical-flow noise with the native
+floors and checks actual scalar observation variances. ESKF retains its position
+RMS lead on the valid reference cases; EKF3's GPS and transition covariances fail
+under this experimental configuration and are excluded from win counts.
+
 Sensor `timestamp_s` is capture time. `valid` may remain true while a usable
 sample is held; `fresh` pulses for one estimator tick when a new sample arrives,
 preventing a slow sensor value from being fused repeatedly. Latency compensation

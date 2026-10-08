@@ -17,6 +17,8 @@ from mission import Mission
 from native_delay import common_epochs, prepare_px4, run_ardupilot
 from native_innovations import check as innovation_statistics
 from native_readiness import check as readiness
+from native_aiding_noise import configured_noise
+from sensor_noise import COMMON_NOISE_PROFILE, COMMON_SENSOR_NOISE
 from score import metrics, read, transition
 
 
@@ -25,6 +27,17 @@ def run(args):
         raise ValueError("Choose new owned work and evidence paths")
     origin = json.loads((args.capture / "origin.json").read_text())
     mission = Mission(origin["arm_after_s"])
+    args.noise_profile = origin.get(
+        "measurement_noise_profile", "native-default-aiding"
+    )
+    if args.noise_profile not in ("native-default-aiding", COMMON_NOISE_PROFILE):
+        raise ValueError("Unknown capture measurement noise profile")
+    args.sensor_informed_noise = args.noise_profile == COMMON_NOISE_PROFILE
+    if args.sensor_informed_noise:
+        args.measurement_noise = (
+            COMMON_SENSOR_NOISE.magnetic_T,
+            COMMON_SENSOR_NOISE.gps_velocity_m_s[2],
+        )
     args.observation = "innovations"
     observers = verify_observers(args)
     native_reference = json.loads(args.native_reference.read_text())
@@ -55,6 +68,10 @@ def run(args):
             windows=mission.windows,
         ),
         origin=origin,
+        noise_profile=args.noise_profile,
+        native_noise_configuration=configured_noise(args)
+        if args.sensor_informed_noise
+        else None,
         observer_manifests=observers,
         native_reference_sha256=digest(args.native_reference),
         input_sha256={
@@ -77,6 +94,7 @@ def run(args):
         },
         px4_adapter_sha256=digest(root / "px4-arrivals.cpp"),
         scores=[],
+        scenarios=getattr(args, "scenarios", ("gps", "denied", "transition")),
         limitations=[
             "Single-capture readiness pilot, not a held-out ranking or universal superiority result.",
             "Native innovation observers measure accepted scalar updates; incomplete candidate and sensor coverage. Their logging affects CPU cost.",
@@ -88,7 +106,7 @@ def run(args):
     )
     previous_observer = os.environ.get("NATIVE_INNOVATION_PATH")
     try:
-        for scenario in ("gps", "denied", "transition"):
+        for scenario in result["scenarios"]:
             args.work = root / scenario
             args.work.mkdir()
             capture = args.work / "capture"
@@ -198,20 +216,26 @@ def run(args):
                 args.output.write_text(
                     json.dumps(result, indent=2, allow_nan=False) + "\n"
                 )
-                if not score["readiness"]["qualified"]:
-                    raise ValueError(f"Native GPS readiness failed: {scenario} {name}")
                 if any(
                     score[window]["finite_fraction"] != 1
                     for window in ("flight", "outage_window", "after_return")
                 ):
                     raise ValueError("Nonfinite native state in a scoring window")
-                print(f"Scored {scenario} {name}: readiness qualified", flush=True)
+                print(
+                    f"Scored {scenario} {name}: readiness qualified={score['readiness']['qualified']}",
+                    flush=True,
+                )
     finally:
         if previous_observer is None:
             os.environ.pop("NATIVE_INNOVATION_PATH", None)
         else:
             os.environ["NATIVE_INNOVATION_PATH"] = previous_observer
     result["complete"] = True
+    result["readiness_qualified"] = all(
+        score["readiness"]["qualified"]
+        for score in result["scores"]
+        if "readiness" in score
+    )
     result["source_sha256"] = {
         p.name: digest(p)
         for p in sorted(Path(__file__).parent.iterdir())
@@ -243,4 +267,10 @@ if __name__ == "__main__":
     ):
         parser.add_argument("--" + name, type=Path, required=True)
     parser.add_argument("--cxx", required=True)
+    parser.add_argument(
+        "--scenarios",
+        choices=("gps", "denied", "transition"),
+        nargs="+",
+        default=("gps", "denied", "transition"),
+    )
     run(parser.parse_args())

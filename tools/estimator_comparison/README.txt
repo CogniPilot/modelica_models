@@ -40,6 +40,24 @@ replay.c accepts --mission-offset SECONDS. For 120 s warmup the offset is 107 s.
 All large captures, native observer builds and replay outputs belong under
 $HOME/scratch; durable summaries belong in the dated review directory.
 
+The common-sensor-noise follow-up adds generate.py --common-native-floors.
+It uses 1 microtesla magnetic noise, 0.05 rad/s compensated flow noise and
+0.05/0.05/0.075 m/s GPS velocity noise. The camera simulation derives image
+motion from named body-velocity/attitude fields; its independent test oracle
+uses world velocity and quaternion geometry. The capture profile selects
+the declared native noise settings and ESKF --measurement-noise inputs;
+ordinary captures retain the original byte-identical behavior.
+
+compare_readiness.py records readiness failures explicitly and finishes the
+declared scenarios rather than presenting a failed case as qualified. Its
+--scenarios option supports bounded diagnostics. The covariance companion
+records non-positive-definite matrices without repair; --allow-incomplete
+permits diagnosis of available native rows in an interrupted campaign but
+does not declare that comparison complete. Empty, duplicated or unknown
+conditions are rejected. diagnose_native_covariance.py accepts physical
+--start-s/--end-s windows. Read the dated common-sensor-noise review before
+using the experimental configuration; two EKF3 covariance cases fail.
+
 Read docs/reviews/2026-10-07/native-configuration-audit.txt before interpreting
 the native rankings. A later 24-replay audit reproduced the previous native
 outputs but found a persistent ArduPilot takeoff flag, different active magnetic

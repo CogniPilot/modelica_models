@@ -56,6 +56,7 @@ int main(int argc, char **argv) {
             "[--delays GPS_MS FLOW_MS MAG_MS BARO_MS JITTER_MS SEED] "
             "[--timing PROFILE.json] [--stationary-until SECONDS] "
             "[--mission-offset SECONDS] "
+            "[--measurement-noise MAG_STD_T GPS_VZ_STD_M_S] "
             "[--imu-noise-density GYRO ACCEL] [--flow-packets FLOW.csv]\n");
     return 2;
   }
@@ -71,6 +72,7 @@ int main(int argc, char **argv) {
   bool use_transport = false;
   double stationary_until_s = 0;
   double mission_offset_s = 0;
+  double measurement_noise[2] = {0};
   double imu_noise_density[2] = {0};
   double delays[4] = {0}, jitter = 0;
   uint32_t delay_seed = 7;
@@ -106,6 +108,15 @@ int main(int argc, char **argv) {
       if (end == value || *end || !isfinite(mission_offset_s) ||
           mission_offset_s < 0 || mission_offset_s > 600)
         return 2;
+    } else if (!strcmp(option, "--measurement-noise") && argc - argument >= 2) {
+      for (unsigned sensor = 0; sensor < 2; ++sensor) {
+        char *end;
+        const char *value = argv[argument++];
+        measurement_noise[sensor] = strtod(value, &end);
+        if (end == value || *end || !isfinite(measurement_noise[sensor]) ||
+            measurement_noise[sensor] <= 0 || measurement_noise[sensor] > 100)
+          return 2;
+      }
     } else if (!strcmp(option, "--imu-noise-density") && argc - argument >= 2) {
       for (unsigned sensor = 0; sensor < 2; ++sensor) {
         char *end;
@@ -254,6 +265,13 @@ int main(int argc, char **argv) {
     estimator.integratedGyroscopeCovariance_rad2[i][i] = 1e-10f;
   }
   estimator.variance_m2 = .01f;
+  if (measurement_noise[0] > 0) {
+    for (unsigned axis = 0; axis < 3; ++axis)
+      estimator.covarianceBody_T2[axis][axis] =
+          measurement_noise[0] * measurement_noise[0];
+    estimator.velocityCovarianceWorld_m2_s2[2][2] =
+        measurement_noise[1] * measurement_noise[1];
+  }
   estimator.groundDistanceVariance_m2 = .0004f;
   estimator.opticalFlow_integrationTime_s = .01f;
   estimator.quality = 1;

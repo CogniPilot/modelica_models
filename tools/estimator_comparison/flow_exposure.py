@@ -11,6 +11,7 @@ import numpy as np
 
 from generate import trajectory, write
 from score import read
+from sensor_noise import COMMON_NOISE_PROFILE, COMMON_SENSOR_NOISE
 
 
 FIELDS = (
@@ -85,28 +86,52 @@ def generate(source, output):
     flow_truth = trajectory(flow["t_s"], speed, height, warmup_s)
     imu_truth = trajectory(imu["t_s"], speed, height, warmup_s)
     measured_velocity = np.column_stack((flow["vx_flu_m_s"], flow["vy_flu_m_s"]))
-    image_rates = camera_rates(measured_velocity, flow_truth[-1], flow_truth[4])
+    image_rates = camera_rates(
+        measured_velocity,
+        flow_truth.ground_distance_m,
+        flow_truth.angular_velocity_body_rad_s,
+    )
     rng = np.random.default_rng(np.random.SeedSequence([origin["seed"], 20271007, 1]))
-    camera_gyro = imu_truth[4] + rng.normal(0, 0.0015, imu_truth[4].shape)
+    camera_gyro = imu_truth.angular_velocity_body_rad_s + rng.normal(
+        0, 0.0015, imu_truth.angular_velocity_body_rad_s.shape
+    )
     endpoints = np.arange(0.1, imu["t_s"][-1] + 0.00001, 0.1)
     duration = 0.1
     centers = endpoints - duration / 2
-    image = integrate_windows(flow["t_s"], image_rates, endpoints, duration)
+    common_noise = origin.get("measurement_noise_profile") == COMMON_NOISE_PROFILE
+    if common_noise:
+        image_rates = camera_rates(
+            imu_truth.velocity_body_m_s[:, :2],
+            imu_truth.ground_distance_m,
+            imu_truth.angular_velocity_body_rad_s,
+        )
+        image = integrate_windows(imu["t_s"], image_rates, endpoints, duration)
+    else:
+        image = integrate_windows(flow["t_s"], image_rates, endpoints, duration)
     gyro = integrate_windows(imu["t_s"], camera_gyro, endpoints, duration)
     distance = np.interp(centers, flow["t_s"], flow["dist_m"])
+    gyro_variance = 0.0015**2 * 0.00125**2 * (80 - 0.5)
+    if common_noise:
+        image_variance = np.full(
+            len(endpoints),
+            (COMMON_SENSOR_NOISE.flow_rate_rad_s * duration) ** 2 - gyro_variance,
+        )
+        image += rng.normal(0, np.sqrt(image_variance)[:, None], image.shape)
+    else:
+        image_variance = []
+        for end in endpoints:
+            indices = np.flatnonzero(
+                (flow["t_s"] >= end - duration - 1e-8) & (flow["t_s"] <= end + 1e-8)
+            )
+            weights = np.full(len(indices), 0.01)
+            weights[[0, -1]] *= 0.5
+            image_variance.append(
+                np.sum((weights * 0.03 / flow_truth.ground_distance_m[indices]) ** 2)
+            )
     compensated = (image + gyro[:, :2]) / duration
     equivalent_velocity = (
         np.column_stack((compensated[:, 1], -compensated[:, 0])) * distance[:, None]
     )
-    image_variance = []
-    for end in endpoints:
-        indices = np.flatnonzero(
-            (flow["t_s"] >= end - duration - 1e-8) & (flow["t_s"] <= end + 1e-8)
-        )
-        weights = np.full(len(indices), 0.01)
-        weights[[0, -1]] *= 0.5
-        image_variance.append(np.sum((weights * 0.03 / flow_truth[-1][indices]) ** 2))
-    gyro_variance = 0.0015**2 * 0.00125**2 * (80 - 0.5)
     packets = np.column_stack(
         (
             endpoints,
@@ -170,6 +195,11 @@ def generate(source, output):
             )
         },
     )
+    if common_noise:
+        origin["flow_exposure"]["image_noise"] = (
+            "Independent post-exposure Gaussian angular error; image plus independent "
+            "camera gyro covariance gives 0.05 rad/s per compensated flow axis"
+        )
     (output / "origin.json").write_text(json.dumps(origin, indent=2) + "\n")
 
 

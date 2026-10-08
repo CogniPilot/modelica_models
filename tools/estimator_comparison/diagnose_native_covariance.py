@@ -28,7 +28,12 @@ def diagnose(args):
     ):
         raise ValueError("Require a complete finite native state/covariance trace")
     offset = 1e6 if args.filter == "px4" else 0
-    scored = (raw["fusion_us"] >= offset + 10e6) & (raw["fusion_us"] < offset + 59.7e6)
+    start_s, end_s = getattr(args, "start_s", 10), getattr(args, "end_s", 59.7)
+    if not np.isfinite([start_s, end_s]).all() or not 0 <= start_s < end_s:
+        raise ValueError("Invalid covariance diagnostic window")
+    scored = (raw["fusion_us"] >= offset + start_s * 1e6) & (
+        raw["fusion_us"] < offset + end_s * 1e6
+    )
     selected = raw[scored]
     if not len(selected):
         raise ValueError("Empty declared covariance window")
@@ -107,6 +112,8 @@ def diagnose(args):
                     )
     result = dict(
         filter=args.filter,
+        start_s=start_s,
+        end_s=end_s,
         covariance_sha256=digest(args.covariance),
         scored_rows=len(selected),
         unscored_rows=len(raw) - len(selected),
@@ -124,6 +131,8 @@ def diagnose(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("filter", choices=("px4", "ekf3"))
+    parser.add_argument("--start-s", type=float, default=10)
+    parser.add_argument("--end-s", type=float, default=59.7)
     for name in ("covariance", "output"):
         parser.add_argument("--" + name, type=Path, required=True)
     diagnose(parser.parse_args())
