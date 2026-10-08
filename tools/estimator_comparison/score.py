@@ -95,23 +95,24 @@ def metrics(d, truth, start, end):
     return result
 
 
-def transition(d, truth):
-    d = d[(d["t_s"] >= 25) & (d["t_s"] < 46)]
+def transition(d, truth, mission_offset_s=0):
+    returned_at_s = 40 + mission_offset_s
+    d = d[(d["t_s"] >= 25 + mission_offset_s) & (d["t_s"] < 46 + mission_offset_s)]
     p, *_ = errors(d, truth)
     h = np.linalg.norm(p[:, :2], axis=1)
     result = {}
     flag = "gps_fused" if "gps_fused" in d.dtype.names else "gps_active"
-    returned = np.flatnonzero((d["t_s"] >= 40) & (d[flag] > 0.5))
+    returned = np.flatnonzero((d["t_s"] >= returned_at_s) & (d[flag] > 0.5))
     result["first_gps_use_after_return_s"] = (
-        float(d["t_s"][returned[0]] - 40) if len(returned) else None
+        float(d["t_s"][returned[0]] - returned_at_s) if len(returned) else None
     )
     result["recovery_to_025m_for_1s_s"] = None
-    for i in np.flatnonzero(d["t_s"] >= 40):
+    for i in np.flatnonzero(d["t_s"] >= returned_at_s):
         finish = np.searchsorted(d["t_s"], d["t_s"][i] + 1)
         if finish < len(d) and np.all(h[i : finish + 1] < 0.25):
-            result["recovery_to_025m_for_1s_s"] = float(d["t_s"][i] - 40)
+            result["recovery_to_025m_for_1s_s"] = float(d["t_s"][i] - returned_at_s)
             break
-    around = (d["t_s"] >= 39) & (d["t_s"] < 45)
+    around = (d["t_s"] >= returned_at_s - 1) & (d["t_s"] < returned_at_s + 5)
     result["max_return_error_jump_m"] = float(
         np.max(np.linalg.norm(np.diff(p[around], axis=0), axis=1))
     )

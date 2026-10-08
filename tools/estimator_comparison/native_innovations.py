@@ -59,6 +59,7 @@ def summarize(rows):
 
 
 def check(args):
+    clock_offset_s = 1.0 if args.filter == "px4" else 0.0
     with args.innovations.open() as stream:
         rows = list(csv.DictReader(stream))
     if not rows:
@@ -100,8 +101,8 @@ def check(args):
             raise ValueError("Invalid native update mode")
         if fusion >= 10_000_000 and fusion > publication:
             raise ValueError("Native innovation is labelled at a future fusion epoch")
-        for window, start, end in WINDOWS:
-            if start * 1e6 <= fusion < end * 1e6:
+        for window, start, end in getattr(args, "windows", WINDOWS):
+            if start * 1e6 <= fusion - clock_offset_s * 1e6 < end * 1e6:
                 key = (
                     row["sensor"],
                     int(row["axis"]),
@@ -123,6 +124,7 @@ def check(args):
     ]
     result = dict(
         filter=args.filter,
+        native_clock_offset_s=clock_offset_s,
         raw_rows=len(rows),
         records=records,
         observer_csv_sha256=hashlib.sha256(args.innovations.read_bytes()).hexdigest(),

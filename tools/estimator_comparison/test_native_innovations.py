@@ -27,7 +27,7 @@ def observation():
 
 
 class InnovationTests(unittest.TestCase):
-    def evaluate(self, rows):
+    def evaluate(self, rows, name="ekf3", **options):
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / "observations.csv"
             with path.open("w") as stream:
@@ -36,9 +36,10 @@ class InnovationTests(unittest.TestCase):
                 writer.writerows(rows)
             return check(
                 SimpleNamespace(
-                    filter="ekf3",
+                    filter=name,
                     innovations=path,
                     output=Path(temporary) / "result.json",
+                    **options,
                 )
             )
 
@@ -84,6 +85,22 @@ class InnovationTests(unittest.TestCase):
         row["fused"] = -1
         with self.assertRaisesRegex(ValueError, "stay separate"):
             self.evaluate([row])
+
+    def test_px4_clock_offset_at_outage_boundary(self):
+        row = observation()
+        row.update(publication_us=26_500_000, fusion_us=26_000_000)
+        records = self.evaluate([row], "px4")["records"]
+        self.assertEqual({record["window"] for record in records}, {"flight", "outage"})
+        row.update(publication_us=26_499_999, fusion_us=25_999_999)
+        records = self.evaluate([row], "px4")["records"]
+        self.assertEqual({record["window"] for record in records}, {"flight"})
+
+    def test_shifted_windows_use_physical_clock(self):
+        row = observation()
+        row.update(publication_us=133_500_000, fusion_us=133_000_000)
+        result = self.evaluate([row], "px4", windows=(("outage", 132, 147),))
+        self.assertEqual(result["native_clock_offset_s"], 1)
+        self.assertEqual(result["records"][0]["window"], "outage")
 
 
 if __name__ == "__main__":

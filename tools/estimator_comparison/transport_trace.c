@@ -5,7 +5,7 @@
 #include <string.h>
 
 int main(int argc, char **argv) {
-  if (argc != 9)
+  if (argc != 9 && argc != 10)
     return 2;
   double delays[4];
   for (unsigned source = 0; source < SOURCE_COUNT; ++source)
@@ -13,6 +13,13 @@ int main(int argc, char **argv) {
   const double jitter = strtod(argv[7], NULL) * .001;
   SensorTransport transport;
   transport_startup(&transport, delays, jitter, strtoul(argv[8], NULL, 10));
+  if (argc == 10) {
+    char *end;
+    transport.mission_offset_s = strtod(argv[9], &end);
+    if (end == argv[9] || *end || !isfinite(transport.mission_offset_s) ||
+        transport.mission_offset_s < 0 || transport.mission_offset_s > 600)
+      return 2;
+  }
   FILE *input = fopen(argv[1], "r");
   if (!input)
     return 1;

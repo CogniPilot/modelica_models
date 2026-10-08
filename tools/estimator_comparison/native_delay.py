@@ -228,7 +228,9 @@ def run_ardupilot(args, capture, arrivals, delay_profile, scenario, output):
     gps, flow = scheduled_capture(converter, capture, arrivals)
     gyro = arrivals[arrivals["source"] == 1]
     clear_at_s = getattr(args, "takeoff_clear_s", 18.0)
-    original_writer = flight_phase_writer(converter.Writer, clear_at_s)
+    original_writer = flight_phase_writer(
+        converter.Writer, clear_at_s, getattr(args, "arm_after_s", 13)
+    )
     writers = []
 
     class ScheduledWriter(original_writer):
@@ -283,7 +285,7 @@ def run_ardupilot(args, capture, arrivals, delay_profile, scenario, output):
         gps_deny=[],
         nominal_dt=0.00125,
         max_dt=0.02,
-        arm_after=13,
+        arm_after=getattr(args, "arm_after_s", 13),
         gps_check=31,
         gps_lag=0,
         log_period=0.01,

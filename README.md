@@ -91,6 +91,13 @@ stable-release transition cases. Those results describe startup and GPS
 acquisition; a comparison of established GPS loss and recovery still requires
 a common warmup that satisfies each native filter's readiness checks.
 
+The [common-warmup pilot](docs/reviews/2026-10-08/readiness-benchmark/README.txt)
+establishes GPS before flight and verifies actual loss/recovery for both native
+filters. It includes matched position RMS, native scalar NIS and common-state
+NEES, with six native covariance replays reproducing the state outputs byte for
+byte. ESKF leads on position RMS in this capture; broader scenarios and matched
+effective covariance and magnetic policies remain necessary for a general ranking.
+
 Sensor `timestamp_s` is capture time. `valid` may remain true while a usable
 sample is held; `fresh` pulses for one estimator tick when a new sample arrives,
 preventing a slow sensor value from being fused repeatedly. Latency compensation

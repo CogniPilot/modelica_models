@@ -34,7 +34,7 @@ def eskf(binary, capture, scenario, options, exposure, transport):
         "foh",
         str(covariance),
         "--stationary-until",
-        "13",
+        str(getattr(options, "arm_after_s", 13)),
         "--delays",
         *map(str, PROFILES[options.delay_profile]),
         str(options.seed),
@@ -43,6 +43,9 @@ def eskf(binary, capture, scenario, options, exposure, transport):
         "--timing",
         "-",
     ]
+    offset = getattr(options, "mission_offset_s", 0)
+    if offset:
+        command += ["--mission-offset", str(offset)]
     if exposure:
         command += ["--flow-packets", str(capture / "flow.csv")]
     completed = subprocess.run(command, capture_output=True, check=True)
@@ -68,12 +71,13 @@ def eskf(binary, capture, scenario, options, exposure, transport):
     ):
         raise ValueError("ESKF lost a canonical exposure packet")
     truth = read(capture / "truth.csv")
+    end_s = getattr(options, "accuracy_end_s", 60 + offset)
     result = dict(
         output_sha256=hashlib.sha256(completed.stdout).hexdigest(),
         timing=timing,
-        flight=metrics(estimate, truth, 13, 60),
-        outage_window=metrics(estimate, truth, 25, 40),
-        after_return=metrics(estimate, truth, 40, 60),
+        flight=metrics(estimate, truth, 13 + offset, end_s),
+        outage_window=metrics(estimate, truth, 25 + offset, 40 + offset),
+        after_return=metrics(estimate, truth, 40 + offset, end_s),
     )
     diagnostics = read(covariance)
     result["consistency"] = {}
@@ -135,7 +139,7 @@ def eskf(binary, capture, scenario, options, exposure, transport):
                 covariance_sha256=digest(covariance),
             )
     if scenario == "transition":
-        result["transition"] = transition(estimate, truth)
+        result["transition"] = transition(estimate, truth, offset)
     if all(row["valid"] for row in result["consistency"].values()) and not getattr(
         options, "retain_covariance", False
     ):

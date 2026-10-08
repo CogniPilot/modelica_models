@@ -28,6 +28,7 @@ typedef struct {
   TransportQueue queues[SOURCE_COUNT];
   double delay_s[SOURCE_COUNT];
   double jitter_s;
+  double mission_offset_s;
   uint32_t random_state[SOURCE_COUNT];
 } SensorTransport;
 
@@ -49,7 +50,9 @@ static bool transport_step(SensorTransport *transport, const double row[25],
   const unsigned stamps[SOURCE_COUNT] = {8, 15, 20, 20};
   const bool gps_available =
       strcmp(scenario, "denied") != 0 &&
-      !(strcmp(scenario, "transition") == 0 && row[8] >= 25 && row[8] < 40);
+      !(strcmp(scenario, "transition") == 0 &&
+        row[8] >= 25 + transport->mission_offset_s &&
+        row[8] < 40 + transport->mission_offset_s);
   const bool available[SOURCE_COUNT] = {gps_available && row[7] > .5, true,
                                         row[19] > .5, row[19] > .5};
   for (unsigned source = 0; source < SOURCE_COUNT; ++source) {

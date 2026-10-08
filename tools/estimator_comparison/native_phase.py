@@ -3,11 +3,16 @@
 import math
 
 
-def flight_phase_writer(writer, clear_at_s):
+def flight_phase_writer(writer, clear_at_s, arm_after_s=13):
     if clear_at_s is None:
         return writer
-    if not math.isfinite(clear_at_s) or not 13 < clear_at_s <= 60:
-        raise ValueError("Takeoff expectation must clear after arming and by 60 s")
+    if (
+        not math.isfinite(arm_after_s)
+        or arm_after_s < 0
+        or not math.isfinite(clear_at_s)
+        or not arm_after_s < clear_at_s <= arm_after_s + 47
+    ):
+        raise ValueError("Takeoff expectation must clear within the declared flight")
 
     class FlightPhaseWriter(writer):
         frame_time_us = 0

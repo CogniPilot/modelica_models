@@ -152,6 +152,22 @@ class NativeCovarianceCoordinatesTests(unittest.TestCase):
             self.assertEqual(result["scored_observer_rows"], len(times))
             self.assertEqual(result["windows"]["outage"]["rows"], 31)
             self.assertGreater(result["windows"]["outage"]["mean_nees_15d"], 0)
+            with contextlib.redirect_stdout(io.StringIO()):
+                check(
+                    SimpleNamespace(
+                        filter="ekf3",
+                        covariance=capture,
+                        truth=truth,
+                        output=evidence,
+                        windows=(("custom_flight", 20, 30),),
+                    )
+                )
+            shifted = json.loads(evidence.read_text())
+            self.assertEqual(
+                shifted["scored_observer_rows"], int(np.count_nonzero(times >= 20))
+            )
+            self.assertEqual(shifted["windows"]["custom_flight"]["rows"], 20)
+            self.assertIn("fusion time 20 s", shifted["sampling"])
 
 
 if __name__ == "__main__":

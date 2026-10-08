@@ -18,6 +18,28 @@ warmup and revised outage timing are required before a final ranking. The new
 report includes actual scalar NIS and measurement variances with explicit
 selection and sensor-coverage limitations; it does not claim joint vector NIS.
 
+The common-warmup pilot in docs/reviews/2026-10-08/readiness-benchmark uses
+120 s of stationary data, takeoff at 120 s, GPS loss at 132 s and return at
+147 s. Both native filters establish GPS before takeoff, stop GPS corrections
+during the outage, and resume after return. compare_readiness.py shifts capture,
+transport, ESKF rest declaration, native arm/takeoff hints and scoring together.
+compare_readiness_covariance.py requires matching native published-state bytes
+before joining full-covariance NEES. These drivers use the externally instrumented
+native validation cores; no native source is added here.
+
+PX4 innovation observer times include a 1 s clock epoch offset, as already
+accounted for by native_consistency.py. native_innovations.py and
+diagnose_native_readiness.py now remove it too. The older frozen innovation
+report used native-clock windows and reported first GPS at 2.12625 s; physical
+capture time is 1.12625 s. The new pilot uses physical time throughout.
+
+Generate a common warmup with generate.py CAPTURE --warmup-s 120, followed by
+flow_exposure.py --source CAPTURE --output EXPOSURE. The unchanged default is
+13 s. transport_trace accepts an optional final mission-offset argument;
+replay.c accepts --mission-offset SECONDS. For 120 s warmup the offset is 107 s.
+All large captures, native observer builds and replay outputs belong under
+$HOME/scratch; durable summaries belong in the dated review directory.
+
 Read docs/reviews/2026-10-07/native-configuration-audit.txt before interpreting
 the native rankings. A later 24-replay audit reproduced the previous native
 outputs but found a persistent ArduPilot takeoff flag, different active magnetic

@@ -55,6 +55,7 @@ int main(int argc, char **argv) {
             "gps|denied|transition [foh|zoh|mean [DIAGNOSTICS.csv]] "
             "[--delays GPS_MS FLOW_MS MAG_MS BARO_MS JITTER_MS SEED] "
             "[--timing PROFILE.json] [--stationary-until SECONDS] "
+            "[--mission-offset SECONDS] "
             "[--imu-noise-density GYRO ACCEL] [--flow-packets FLOW.csv]\n");
     return 2;
   }
@@ -69,6 +70,7 @@ int main(int argc, char **argv) {
   const char *flow_packet_path = NULL;
   bool use_transport = false;
   double stationary_until_s = 0;
+  double mission_offset_s = 0;
   double imu_noise_density[2] = {0};
   double delays[4] = {0}, jitter = 0;
   uint32_t delay_seed = 7;
@@ -92,11 +94,18 @@ int main(int argc, char **argv) {
       const char *value = argv[argument++];
       stationary_until_s = strtod(value, &end);
       if (end == value || *end || !isfinite(stationary_until_s) ||
-          stationary_until_s < 0 || stationary_until_s > 60)
+          stationary_until_s < 0 || stationary_until_s > 613)
         return 2;
 #ifdef COMPARE_UKF
       return 2;
 #endif
+    } else if (!strcmp(option, "--mission-offset") && argument < argc) {
+      char *end;
+      const char *value = argv[argument++];
+      mission_offset_s = strtod(value, &end);
+      if (end == value || *end || !isfinite(mission_offset_s) ||
+          mission_offset_s < 0 || mission_offset_s > 600)
+        return 2;
     } else if (!strcmp(option, "--imu-noise-density") && argc - argument >= 2) {
       for (unsigned sensor = 0; sensor < 2; ++sensor) {
         char *end;
@@ -131,6 +140,7 @@ int main(int argc, char **argv) {
       return 2;
 #endif
   transport_startup(&transport, delays, jitter, delay_seed);
+  transport.mission_offset_s = mission_offset_s;
   if (flow_packet_path &&
       (!use_transport || !flow_exposure_open(flow_packet_path)))
     return 2;
@@ -330,7 +340,8 @@ int main(int argc, char **argv) {
 #endif
       const int gps =
           strcmp(argv[4], "denied") &&
-          !(strcmp(argv[4], "transition") == 0 && t >= 25 && t < 40);
+          !(strcmp(argv[4], "transition") == 0 &&
+            t >= 25 + mission_offset_s && t < 40 + mission_offset_s);
       estimator.gps_valid = estimator.positionValid = estimator.velocityValid =
           gps;
       estimator.gps_fresh = gps && row[7] > .5;

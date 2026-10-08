@@ -1,0 +1,150 @@
+{
+  "generator_default": {
+    "baro.csv": "f401191cc9f7b5ae0daa9ea8ea72de9b0a4a0314c9dd449e2484314f4af140b3",
+    "baro_raw.csv": "b5cac2ef63927ee67ca6f1443851c8732bf728a4c1fd3bb34e7d60ed2c053f21",
+    "flow.csv": "7d273f02ee5c911d1df86155c824318d580b65c3db42f4ee82ecb10a0ecbfd28",
+    "gps.csv": "7f955ee492dc51398f79bad86483e905981a4ed8ea2b480b0a9d0923d590aeb3",
+    "imu.csv": "9edc160a4575af3dfde4d81c53383cdccae75d331ae658339254489cf34e1046",
+    "mag.csv": "2f27383ae8725e2e25d2f420b0ca160c18ae411d8677754088f35def8ba52507",
+    "modelica_input.csv": "467aefa671c771fba0fd7ae9455b4b21f5d894c050a042508f8670c48a438337",
+    "origin.json": "c0ca13afb6efcb2b29f18f3ac9d7f02d3dd7ff26ed3e5d249b148ded5404b0a2",
+    "truth.csv": "33d28654acba349e570cb65fb05603219bc5f8b3d00f73369925c45db9ee52c2"
+  },
+  "exposure_default": {
+    "baro.csv": "9f623f8ad8ad9394f555bde9fbbfd4566eda0b3a159ea0286332db15d6a226ec",
+    "baro_raw.csv": "b5cac2ef63927ee67ca6f1443851c8732bf728a4c1fd3bb34e7d60ed2c053f21",
+    "flow.csv": "592db07e85b69c0224e3196da73a57d26c7b045de3681138739f1e0fdf004091",
+    "gps.csv": "7f955ee492dc51398f79bad86483e905981a4ed8ea2b480b0a9d0923d590aeb3",
+    "imu.csv": "9edc160a4575af3dfde4d81c53383cdccae75d331ae658339254489cf34e1046",
+    "mag.csv": "24061ce551db268d30ebd869a9ea83e413061859170243a056553088c5b7307a",
+    "modelica_input.csv": "745664f81e9d3f3587aaaa7bced4bb4746a9135e9c3c09b786027577b7f38b8c",
+    "origin.json": "a4957cf60a56bddec3d9dd73de8cbba2552185b19c6f473480ff74f054b0217e",
+    "truth.csv": "33d28654acba349e570cb65fb05603219bc5f8b3d00f73369925c45db9ee52c2"
+  },
+  "transport_default": {
+    "gps": {
+      "csv_sha256": "dde8b5b8d72740e9512dcf1ce3b653c2bfa406408ed85c7f94c16a6cf6e2b44a",
+      "transport": {
+        "transport_delivered": [
+          599,
+          599,
+          600,
+          600
+        ],
+        "transport_digest": [
+          "dfb662eb8013f305",
+          "5d30398550d01ef9",
+          "2a26391a255c176a",
+          "2a26391a255c176a"
+        ]
+      }
+    },
+    "denied": {
+      "csv_sha256": "5097c84df9b9a240d355a61856dba84033ced4c9b48092e06b4ba22daffe2017",
+      "transport": {
+        "transport_delivered": [
+          0,
+          599,
+          600,
+          600
+        ],
+        "transport_digest": [
+          "cbf29ce484222325",
+          "5d30398550d01ef9",
+          "2a26391a255c176a",
+          "2a26391a255c176a"
+        ]
+      }
+    },
+    "transition": {
+      "csv_sha256": "79912ba8f82843d889adf8726255a2f3093ad031fb9522c71eab9cfee01e8ca4",
+      "transport": {
+        "transport_delivered": [
+          449,
+          599,
+          600,
+          600
+        ],
+        "transport_digest": [
+          "62c6a15025534de0",
+          "5d30398550d01ef9",
+          "2a26391a255c176a",
+          "2a26391a255c176a"
+        ]
+      }
+    }
+  },
+  "replay_default": {
+    "horizon-rest-gps": "6a8fefd9eb6ec9c270524411e0954e0550f745ab2a3df6e6dade9771f778e53c",
+    "horizon-rest-transition": "9300971f9e82b6394d66b547ce4a8b5663b87ea392e1d3d7358693f142770a98",
+    "retrodiction-rest-gps": "43b5e69981988875c013ea0a3a5a40eb5030dac98f319d164b75289fa10edd00",
+    "retrodiction-rest-transition": "6488a5354949ac8eae5d3bc1a306c6784c889e003b3d017f72e8c01758020e81",
+    "horizon-rest-joint-gps": "d854d1afe065753453434edcce84cfa6e9a8c09e7504ae774a507c5cc5856e11",
+    "horizon-rest-joint-transition": "2c70e940f2127db9ad4edbdc9371dfc9bb802b6d965559cabf5ff9acc85250ab",
+    "retrodiction-rest-joint-gps": "c62f4ddc6e8554e472e5c23b7b29345f30a64dfe98b75bb2d5a95f38ddf15dcc",
+    "retrodiction-rest-joint-transition": "9a92214b40683c9071cf4cb2c32f6a626f0622e7a3b13a7277639c87ec029636"
+  },
+  "shifted_transport": {
+    "gps": {
+      "gps_packets": 1669,
+      "csv_sha256": "ea414037521986dc0087d5dd8777afaa375f588d08fa7d880764d686010c43e5",
+      "transport": {
+        "transport_delivered": [
+          1669,
+          1669,
+          1670,
+          1670
+        ],
+        "transport_digest": [
+          "509d5e02a090f684",
+          "909d4252a4e530db",
+          "9ee9bf2c013c4257",
+          "9ee9bf2c013c4257"
+        ]
+      }
+    },
+    "denied": {
+      "gps_packets": 0,
+      "csv_sha256": "4e1f6cda8d5b88aa573788ef77e4978d68aa35be074b75a5baf40bd1748fb384",
+      "transport": {
+        "transport_delivered": [
+          0,
+          1669,
+          1670,
+          1670
+        ],
+        "transport_digest": [
+          "cbf29ce484222325",
+          "909d4252a4e530db",
+          "9ee9bf2c013c4257",
+          "9ee9bf2c013c4257"
+        ]
+      }
+    },
+    "transition": {
+      "gps_packets": 1519,
+      "csv_sha256": "ca65ffe3cc958c77b6484d315d896a2041ad4703e5a8b6bb9622720a18fdf92c",
+      "transport": {
+        "transport_delivered": [
+          1519,
+          1669,
+          1670,
+          1670
+        ],
+        "transport_digest": [
+          "63ba26028c666c33",
+          "909d4252a4e530db",
+          "9ee9bf2c013c4257",
+          "9ee9bf2c013c4257"
+        ]
+      }
+    }
+  },
+  "invalid_transport_offsets_rejected": [
+    "-1",
+    "nan",
+    "inf",
+    "abc",
+    "601"
+  ]
+}

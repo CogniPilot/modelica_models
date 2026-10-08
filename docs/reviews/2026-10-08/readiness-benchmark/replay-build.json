@@ -1,0 +1,72 @@
+{
+  "rumoca": "0.10.2",
+  "replay_compiler": "GCC 15.2.0 -O2",
+  "variants": {
+    "horizon-rest": {
+      "definitions": [
+        "-DEQUIVARIANT_MAGNETOMETER",
+        "-DGEOMETRIC_ALIGNMENT",
+        "-DDECLARED_REST_BAROMETER",
+        "-DCOMPARE_HORIZON"
+      ],
+      "binary_sha256": "c1c08601eafaa46749543e26a6ede587150eeb13b85aca4ca507de1db8a4391c",
+      "generated_object_sha256": {
+        "Vehicles_Rdd2_NavigationEstimator.o": "c13d0ea9b7a9bd230a130b1b518101c021954b49e96617ee817b65feaf402406",
+        "Tests_PreintegrationReplay.o": "815f6658c435b5fd4986e3693dab4c0434c6fad4d5bd73c06f1eb623091fb31f",
+        "Estimation_FusionHorizon_OutputPredictor.o": "a4dd49c5fac648f1e1cc07dc7b2ea716f2f7156ca8f7ed8342cc59b933a7ee11",
+        "Estimation_FusionHorizon_AidingBuffer.o": "4a5afde4fdebfc36fd9c1f73ace1ea672c1f7eaa1b4e8034d3b71a2f12c83aff",
+        "rumoca_galec_kernels.o": "bd94b2bbe7fdbe7bf56a805306da17281dc099973f8d3a416e5789370ee71b96"
+      }
+    },
+    "horizon-rest-joint": {
+      "definitions": [
+        "-DEQUIVARIANT_MAGNETOMETER",
+        "-DGEOMETRIC_ALIGNMENT",
+        "-DDECLARED_REST_BAROMETER",
+        "-DJOINT_BAROMETER_BIAS",
+        "-DCOMPARE_HORIZON"
+      ],
+      "binary_sha256": "2a52c45a0a0fad00607ff84f5171f372ff2b9a636ea29aef239a8842acb1807d",
+      "generated_object_sha256": {
+        "Vehicles_Rdd2_NavigationEstimator.o": "c13d0ea9b7a9bd230a130b1b518101c021954b49e96617ee817b65feaf402406",
+        "Tests_PreintegrationReplay.o": "815f6658c435b5fd4986e3693dab4c0434c6fad4d5bd73c06f1eb623091fb31f",
+        "Estimation_FusionHorizon_OutputPredictor.o": "a4dd49c5fac648f1e1cc07dc7b2ea716f2f7156ca8f7ed8342cc59b933a7ee11",
+        "Estimation_FusionHorizon_AidingBuffer.o": "4a5afde4fdebfc36fd9c1f73ace1ea672c1f7eaa1b4e8034d3b71a2f12c83aff",
+        "rumoca_galec_kernels.o": "bd94b2bbe7fdbe7bf56a805306da17281dc099973f8d3a416e5789370ee71b96"
+      }
+    },
+    "retrodiction-rest": {
+      "definitions": [
+        "-DEQUIVARIANT_MAGNETOMETER",
+        "-DGEOMETRIC_ALIGNMENT",
+        "-DDECLARED_REST_BAROMETER"
+      ],
+      "binary_sha256": "0a54f155f318b2f5c193b9d7d0ae752df2488d4026d6c2f5b6ddbdd015b721a6",
+      "generated_object_sha256": {
+        "Vehicles_Rdd2_NavigationEstimator.o": "c13d0ea9b7a9bd230a130b1b518101c021954b49e96617ee817b65feaf402406",
+        "Tests_PreintegrationReplay.o": "815f6658c435b5fd4986e3693dab4c0434c6fad4d5bd73c06f1eb623091fb31f",
+        "rumoca_galec_kernels.o": "bd94b2bbe7fdbe7bf56a805306da17281dc099973f8d3a416e5789370ee71b96"
+      }
+    },
+    "retrodiction-rest-joint": {
+      "definitions": [
+        "-DEQUIVARIANT_MAGNETOMETER",
+        "-DGEOMETRIC_ALIGNMENT",
+        "-DDECLARED_REST_BAROMETER",
+        "-DJOINT_BAROMETER_BIAS"
+      ],
+      "binary_sha256": "d2ceb47899604aa0d3c3846a793e004a52e1b007d9e4104e6edaf57b1625dc17",
+      "generated_object_sha256": {
+        "Vehicles_Rdd2_NavigationEstimator.o": "c13d0ea9b7a9bd230a130b1b518101c021954b49e96617ee817b65feaf402406",
+        "Tests_PreintegrationReplay.o": "815f6658c435b5fd4986e3693dab4c0434c6fad4d5bd73c06f1eb623091fb31f",
+        "rumoca_galec_kernels.o": "bd94b2bbe7fdbe7bf56a805306da17281dc099973f8d3a416e5789370ee71b96"
+      }
+    }
+  },
+  "bridge_sources": {
+    "replay.c": "1fb09d84b2c35551d13982c46433cefe6b1897a7d3d9471dfe1b3127be7ceecb",
+    "transport.h": "a407f3f39cb638747505a78777114d22129ae7b0e91acae8303e50c2af33cf5e",
+    "transport_trace.c": "33a9f7e9d13c71f77a0370486fe4e674591797833e0e8ff1d21c21154b82c5d7"
+  },
+  "note": "Unchanged production-generated Modelica objects reused from the joint-pressure comparison; bridge and transport relinked with configurable physical schedule."
+}

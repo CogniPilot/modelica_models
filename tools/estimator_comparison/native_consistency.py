@@ -74,7 +74,18 @@ def check(args):
         raise ValueError("Nonfinite native covariance export; retain the failed run")
     raw_count = len(raw)
     offset = 1e6 if args.filter == "px4" else 0
-    early = raw["fusion_us"] < offset + 10e6
+    requested_windows = getattr(
+        args,
+        "windows",
+        (
+            ("before_takeoff", 10, 13),
+            ("flight", 13, 59.7),
+            ("outage", 25, 40),
+            ("after_return", 40, 59.7),
+        ),
+    )
+    start_s = min(start for _, start, _ in requested_windows)
+    early = raw["fusion_us"] < offset + start_s * 1e6
     early_epochs = raw["fusion_us"][early]
     unscored_repeated_epochs = int(np.count_nonzero(np.diff(early_epochs) == 0))
     raw = raw[~early]
@@ -124,12 +135,7 @@ def check(args):
             for c in range(15):
                 diagnostics[f"p{r}_{c}"][index] = marginal[r, c]
     windows = {}
-    for name, start, end in (
-        ("before_takeoff", 10, 13),
-        ("flight", 13, 59.7),
-        ("outage", 25, 40),
-        ("after_return", 40, 59.7),
-    ):
+    for name, start, end in requested_windows:
         windows[name] = consistency(
             estimate,
             diagnostics,
@@ -159,7 +165,7 @@ def check(args):
         truth_sha256=hashlib.sha256(args.truth.read_bytes()).hexdigest(),
         windows=windows,
         scope="Full native 24x24 covariance transformed into the common 15x15 navigation/bias marginal; not 24D NEES or NIS.",
-        sampling="Every observer row at/after fusion time 10 s is retained, including repeated epochs and changed posteriors. NEES uses each row's fusion epoch; repeated observations are correlated. Startup rows are retained in the raw trace but outside the declared scoring windows.",
+        sampling=f"Every observer row at/after fusion time {start_s:g} s is retained, including repeated epochs and changed posteriors. NEES uses each row's fusion epoch; repeated observations are correlated. Startup rows are retained in the raw trace but outside the declared scoring windows.",
         conventions={
             "px4": "Native attitude error is LEFT/NED (confirmed in fuse and symbolic derivation); position/velocity NED and bias rates FRD.",
             "ekf3": "Native additive quaternion covariance mapped through normalized right-log differential; bias increments divided by dtEkfAvg. Fusion epoch has millisecond resolution.",

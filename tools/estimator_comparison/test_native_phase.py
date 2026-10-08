@@ -40,6 +40,18 @@ class FlightPhaseTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 flight_phase_writer(Recorder, value)
 
+    def test_long_warmup_preserves_arming_and_clears_takeoff(self):
+        writer = flight_phase_writer(Recorder, 125, 120)()
+        writer.msg("RFRH", 120_000_000, 0)
+        writer.msg("RFRN", 0, 0b11010001)
+        writer.msg("RFRH", 124_998_750, 1)
+        self.assertEqual(writer.messages[-1][0], "RFRH")
+        writer.msg("RFRH", 125_000_000, 2)
+        self.assertEqual(writer.messages[-1], ("RFRN", (0, 0b10010001)))
+        for clear, arm in ((120, 120), (168, 120), (125, float("nan"))):
+            with self.assertRaises(ValueError):
+                flight_phase_writer(Recorder, clear, arm)
+
 
 if __name__ == "__main__":
     unittest.main()

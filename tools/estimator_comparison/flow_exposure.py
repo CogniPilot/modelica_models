@@ -81,13 +81,14 @@ def generate(source, output):
     if not np.allclose(np.diff(imu["t_s"]), 0.00125, atol=1e-8, rtol=0):
         raise ValueError("Exposure generation requires a frozen 800 Hz IMU capture")
     speed, height = origin["speed"], origin.get("climb_height_m", 2)
-    flow_truth = trajectory(flow["t_s"], speed, height)
-    imu_truth = trajectory(imu["t_s"], speed, height)
+    warmup_s = origin.get("arm_after_s", 13)
+    flow_truth = trajectory(flow["t_s"], speed, height, warmup_s)
+    imu_truth = trajectory(imu["t_s"], speed, height, warmup_s)
     measured_velocity = np.column_stack((flow["vx_flu_m_s"], flow["vy_flu_m_s"]))
     image_rates = camera_rates(measured_velocity, flow_truth[-1], flow_truth[4])
     rng = np.random.default_rng(np.random.SeedSequence([origin["seed"], 20271007, 1]))
     camera_gyro = imu_truth[4] + rng.normal(0, 0.0015, imu_truth[4].shape)
-    endpoints = np.arange(0.1, 60.00001, 0.1)
+    endpoints = np.arange(0.1, imu["t_s"][-1] + 0.00001, 0.1)
     duration = 0.1
     centers = endpoints - duration / 2
     image = integrate_windows(flow["t_s"], image_rates, endpoints, duration)

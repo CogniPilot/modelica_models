@@ -57,12 +57,14 @@ def diagnose(args):
             and int(row["fused"]) == 1
             and int(row["axis"]) == 0
         ]
-        epochs = np.array([int(row["fusion_us"]) / 1e6 for row in gps])
+        clock_offset_s = 1.0 if score["name"] == "px4" else 0.0
+        epochs = np.array([int(row["fusion_us"]) / 1e6 - clock_offset_s for row in gps])
         samples = np.array([int(row["sample_us"]) for row in gps])
         before_loss = int(((epochs >= 13) & (epochs < 25)).sum())
         after_return = int(((epochs >= 40) & (epochs < 59.7)).sum())
         record = dict(
             **{field: score[field] for field in FIELDS},
+            native_clock_offset_s=clock_offset_s,
             first_gps_position_fusion_s=float(epochs[0]) if len(epochs) else None,
             gps_position_fusions_before_loss=before_loss,
             gps_position_fusions_after_return=after_return,
