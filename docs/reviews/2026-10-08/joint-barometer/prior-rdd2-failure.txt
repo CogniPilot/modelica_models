@@ -1,0 +1,7 @@
+Prior main CI run https://github.com/CogniPilot/modelica_models/actions/runs/37735797090
+Regression and CUBS2 succeeded. RDD2 job 113180121111 failed; its qualification step was cancelled.
+Selected raw log lines follow; the log does not identify a host OOM cause.
+
+RDD2 Mission Qualification	Run RDD2 qualification	2026-10-08T06:26:01.7587267Z simulating rumoca-scenario.manual-flight.toml...
+RDD2 Mission Qualification	Run RDD2 qualification	2026-10-08T06:28:06.7147885Z /nix/store/30hpb8xig9cxshlzygysly6fz4gwb75s-python3-3.12.13-env/lib/python3.12/multiprocessing/resource_tracker.py:279: UserWarning: resource_tracker: There appear to be 5 leaked semaphore objects to clean up at shutdown
+RDD2 Mission Qualification	Run RDD2 qualification	2026-10-08T06:28:06.8647865Z ##[error]The operation was canceled.

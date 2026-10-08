@@ -8,6 +8,9 @@ static NavigationEstimatorState estimator;
 int main(void) {
   NavigationEstimator_startup(&estimator);
   estimator.useBarometerBiasConsider = true;
+#ifdef JOINT_BAROMETER_BIAS
+  estimator.useJointBarometerBias = true;
+#endif
   estimator.useDeclaredRestBarometerCalibration = true;
   estimator.barometerBiasCalibrationSamples = 2;
   estimator.barometerBiasProcessNoise_m2_s = .1f;
@@ -52,6 +55,7 @@ int main(void) {
       }
   }
   estimator.vehicleAtRest = false;
+  const float variance_before_release = estimator.barometerBiasVariance_m2;
   estimator.imu_timestamp_s += .01f;
   estimator.barometer_timestamp_s += .01f;
   NavigationEstimator_dostep(&estimator);
@@ -61,6 +65,26 @@ int main(void) {
     fputs("Released pressure fusion lost its datum correlation\n", stderr);
     return 1;
   }
+#ifdef JOINT_BAROMETER_BIAS
+  const float posterior_variance = estimator.barometerBiasVariance_m2;
+  if (!(posterior_variance < variance_before_release +
+                            estimator.barometerBiasProcessNoise_m2_s * estimator.samplePeriod)) {
+    fputs("Joint pressure correction did not update the datum variance\n", stderr);
+    return 1;
+  }
+  estimator.barometer_valid = false;
+  estimator.imu_timestamp_s += .01f;
+  NavigationEstimator_dostep(&estimator);
+  const float propagated_variance = posterior_variance +
+      estimator.barometerBiasProcessNoise_m2_s * estimator.samplePeriod;
+  if (estimator.rumoca_galec_error_signal_status ||
+      fabs(estimator.barometerBiasVariance_m2 - propagated_variance) > 2e-6) {
+    fputs("Joint datum variance did not persist across estimator ticks\n", stderr);
+    return 1;
+  }
+#else
+  (void)variance_before_release;
+#endif
   puts("Delayed scalar pressure-datum oracle, withholding and fusion correlation passed");
   return 0;
 }

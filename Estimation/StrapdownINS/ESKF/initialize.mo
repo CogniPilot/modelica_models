@@ -10,6 +10,9 @@ function initialize "Initialize the geometric error-state filter"
   input Real initialPositionCovarianceWorld_m2[3, 3] = zeros(3, 3)
     "Covariance of an aiding position used as the seed; zero keeps configured priors";
   input Boolean useSquareRootCovariance = false;
+  input Real barometerBias_m = 0.0;
+  input Real barometerBiasVariance_m2 = 0.0;
+  input Boolean useJointBarometerBias = false;
   output State state;
 protected
   Covariance initialCovariance;
@@ -30,6 +33,9 @@ algorithm
     covariance=initialCovariance,
     useSquareRootCovariance=useSquareRootCovariance,
     barometerBiasCrossCovariance=zeros(TangentLength),
+    barometerBias_m=barometerBias_m,
+    barometerBiasVariance_m2=barometerBiasVariance_m2,
+    useJointBarometerBias=useJointBarometerBias,
     covarianceRoot=if useSquareRootCovariance then diagonal(
       {sqrt(initialCovariance[axis, axis]) for axis in 1:TangentLength})
       else zeros(TangentLength, TangentLength));

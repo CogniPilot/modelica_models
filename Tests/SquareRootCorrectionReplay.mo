@@ -26,6 +26,7 @@ algorithm
     (posterior, accepted, reason, nis) := Estimation.StrapdownINS.ESKF.correctLinear(
       Estimation.StrapdownINS.ESKF.State(
         barometerBiasCrossCovariance=zeros(15),
+        barometerBias_m=0.0, barometerBiasVariance_m2=0.0, useJointBarometerBias=false,
         positionWorldEnu_m=priorState[1:3], velocityWorldEnu_m_s=priorState[4:6],
         quaternionWorldBody=priorState[7:10], gyroscopeBiasBodyFlu_rad_s=priorState[11:13],
         accelerometerBiasBodyFlu_m_s2=priorState[14:16], covariance=priorCovariance,

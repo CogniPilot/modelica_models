@@ -14,6 +14,7 @@ block BarometerConsiderReplay
   input Real attitudeAxis[3];
   input Real innovationGate;
   input Real biasVariance;
+  input Real biasMean;
   input Real biasProcessNoise;
   input Real pressureAltitude;
   input Real pressureVariance;
@@ -24,9 +25,12 @@ block BarometerConsiderReplay
   input Boolean useSquareRoot;
   input Boolean useSemiDirectBias;
   input Boolean headingOnly;
+  input Boolean useJointBarometerBias;
   output Real correctedState[16];
   output Real posteriorCovariance[15, 15];
   output Real posteriorCrossCovariance[15];
+  output Real posteriorBiasMean;
+  output Real posteriorBiasVariance;
   output Boolean accepted;
   output Integer reason;
   output Real nis;
@@ -36,7 +40,9 @@ protected
     quaternionWorldBody=priorState[7:10], gyroscopeBiasBodyFlu_rad_s=priorState[11:13],
     accelerometerBiasBodyFlu_m_s2=priorState[14:16], covariance=priorCovariance,
     covarianceRoot=priorRoot, useSquareRootCovariance=useSquareRoot,
-    barometerBiasCrossCovariance=priorCrossCovariance);
+    barometerBiasCrossCovariance=priorCrossCovariance,
+    barometerBias_m=biasMean, barometerBiasVariance_m2=biasVariance,
+    useJointBarometerBias=useJointBarometerBias);
   Estimation.StrapdownINS.ESKF.State posterior;
   Estimation.StrapdownINS.ProcessNoise processNoise(
     gyroscope_rad2_s=0.01 * identity(3),
@@ -82,5 +88,7 @@ algorithm
       posterior.gyroscopeBiasBodyFlu_rad_s, posterior.accelerometerBiasBodyFlu_m_s2);
     posteriorCovariance := posterior.covariance;
     posteriorCrossCovariance := posterior.barometerBiasCrossCovariance;
+    posteriorBiasMean := posterior.barometerBias_m;
+    posteriorBiasVariance := posterior.barometerBiasVariance_m2;
   end when;
 end BarometerConsiderReplay;

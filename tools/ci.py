@@ -393,13 +393,20 @@ def check_eskf_native(repository: Path, output: Path) -> None:
             "Build ESKF generated C " + source,
         )
         objects.append(str(object_file))
-    for probe in ("eskf_aiding", "barometer_datum", "barometer_consider_datum"):
-        executable = output / (probe + "-test.exe")
+    for probe, defines in (
+        ("eskf_aiding", []),
+        ("barometer_datum", []),
+        ("barometer_consider_datum", []),
+        ("barometer_consider_datum", ["-DJOINT_BAROMETER_BIAS"]),
+    ):
+        label = probe + ("-joint" if defines else "")
+        executable = output / (label + "-test.exe")
         run_command(
             [
                 compiler,
                 "-std=c99",
                 "-O2",
+                *defines,
                 "-I" + str(code),
                 str(repository / "tools/estimator_comparison" / (probe + ".c")),
                 *objects,
@@ -408,9 +415,9 @@ def check_eskf_native(repository: Path, output: Path) -> None:
                 str(executable),
             ],
             repository,
-            "Build ESKF generated C regression " + probe,
+            "Build ESKF generated C regression " + label,
         )
-        run_command([str(executable)], repository, "ESKF generated C " + probe)
+        run_command([str(executable)], repository, "ESKF generated C " + label)
 
 
 def check_eskf_correction(
@@ -496,24 +503,25 @@ def check_barometer_consider(repository: Path, output: Path) -> None:
         repository,
         "Build generated pressure-datum consider regression",
     )
-    for seed in (20261008, 911):
-        run_command(
-            [
-                sys.executable,
-                str(
-                    repository
-                    / "tools/estimator_comparison/check_barometer_consider.py"
-                ),
-                "--library",
-                str(library),
-                "--seed",
-                str(seed),
-                "--output",
-                str(output / f"barometer-consider-{seed}.json"),
-            ],
-            repository,
-            f"Independent pressure-datum regression, seed {seed}",
-        )
+    for checker, label in (
+        ("check_barometer_consider", "barometer-consider"),
+        ("check_joint_barometer", "joint-barometer"),
+    ):
+        for seed in (20261008, 911):
+            run_command(
+                [
+                    sys.executable,
+                    str(repository / "tools/estimator_comparison" / (checker + ".py")),
+                    "--library",
+                    str(library),
+                    "--seed",
+                    str(seed),
+                    "--output",
+                    str(output / f"{label}-{seed}.json"),
+                ],
+                repository,
+                f"Independent {label} regression, seed {seed}",
+            )
 
 
 def check_raw_prediction(repository: Path, output: Path) -> None:
@@ -691,7 +699,7 @@ PIN_DEPENDENT_MODELS = (
     (
         "Estimation/FusionHorizon/HorizonEstimator.mo",
         "Estimation.FusionHorizon.HorizonEstimator",
-        "identity 589 is not owned by clock identity 0",
+        "identity 590 is not owned by clock identity 0",
         "Estimation/FusionHorizon/HorizonEstimator.mo:259:5",
         "filterPositionHeld_m := filter.estimate.positionWorldEnu_m",
     ),

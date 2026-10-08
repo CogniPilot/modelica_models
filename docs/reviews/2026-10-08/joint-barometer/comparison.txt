@@ -1,0 +1,54 @@
+Joint pressure-bias estimation: frozen matched-data ablation
+
+48 fresh controls reproduce frozen state CSVs byte for byte; 48 candidates.
+Each method covers GPS, GPS-denied and loss/return, two coupled seed/motion choices and two heights.
+Default/rest indicate the startup-calibration policy; candidate estimates the shared pressure bias.
+The joint datum mean, variance and navigation cross covariance update with accepted aiding.
+Effective native R/Q, priors and height/magnetic policies remain unequal.
+Native 15D NEES comes from full 24D covariance; ESKF is evaluated at its fusion epoch.
+Correlated samples are descriptive, not independent Monte Carlo consistency tests.
+Native per-sensor NIS, rich held-out captures and complete Modelica ports remain incomplete.
+Undefined NEES condition/windows retained: 0.
+The option stays disabled pending held-out validation and review of all paired regressions.
+
+Paired flight RMS changes (negative is better):
+horizon_default horizontal_position_rmse_m: 5/12 improved; -4.17% to +37.74%
+horizon_default vertical_position_rmse_m: 12/12 improved; -61.62% to -37.08%
+horizon_default velocity_3d_rmse_m_s: 12/12 improved; -30.84% to -2.87%
+horizon_default attitude_rmse_deg: 8/12 improved; -7.88% to +7.96%
+horizon_default yaw_rmse_deg: 8/12 improved; -8.09% to +8.02%
+retrodiction_default horizontal_position_rmse_m: 4/12 improved; -2.27% to +85.85%
+retrodiction_default vertical_position_rmse_m: 12/12 improved; -63.14% to -37.30%
+retrodiction_default velocity_3d_rmse_m_s: 12/12 improved; -39.91% to -3.46%
+retrodiction_default attitude_rmse_deg: 8/12 improved; -8.77% to +8.32%
+retrodiction_default yaw_rmse_deg: 5/12 improved; -8.64% to +8.60%
+horizon_rest horizontal_position_rmse_m: 3/12 improved; -1.25% to +5.16%
+horizon_rest vertical_position_rmse_m: 12/12 improved; -39.94% to -13.31%
+horizon_rest velocity_3d_rmse_m_s: 12/12 improved; -19.66% to -1.57%
+horizon_rest attitude_rmse_deg: 6/12 improved; -0.57% to +1.52%
+horizon_rest yaw_rmse_deg: 6/12 improved; -0.53% to +1.70%
+retrodiction_rest horizontal_position_rmse_m: 3/12 improved; -1.93% to +84.08%
+retrodiction_rest vertical_position_rmse_m: 12/12 improved; -41.47% to -7.06%
+retrodiction_rest velocity_3d_rmse_m_s: 12/12 improved; -31.28% to -1.78%
+retrodiction_rest attitude_rmse_deg: 5/12 improved; -1.32% to +1.85%
+retrodiction_rest yaw_rmse_deg: 3/12 improved; -1.26% to +2.09%
+
+Flight RMS wins versus BOTH frozen native cores (out of twelve):
+horizon_default_control: horizontal_position_rmse_m=12, vertical_position_rmse_m=0, velocity_3d_rmse_m_s=12, attitude_rmse_deg=12, yaw_rmse_deg=12
+horizon_default_candidate: horizontal_position_rmse_m=12, vertical_position_rmse_m=10, velocity_3d_rmse_m_s=12, attitude_rmse_deg=12, yaw_rmse_deg=12
+retrodiction_default_control: horizontal_position_rmse_m=12, vertical_position_rmse_m=0, velocity_3d_rmse_m_s=12, attitude_rmse_deg=12, yaw_rmse_deg=12
+retrodiction_default_candidate: horizontal_position_rmse_m=10, vertical_position_rmse_m=10, velocity_3d_rmse_m_s=12, attitude_rmse_deg=12, yaw_rmse_deg=12
+horizon_rest_control: horizontal_position_rmse_m=10, vertical_position_rmse_m=10, velocity_3d_rmse_m_s=12, attitude_rmse_deg=12, yaw_rmse_deg=12
+horizon_rest_candidate: horizontal_position_rmse_m=10, vertical_position_rmse_m=12, velocity_3d_rmse_m_s=12, attitude_rmse_deg=12, yaw_rmse_deg=12
+retrodiction_rest_control: horizontal_position_rmse_m=11, vertical_position_rmse_m=11, velocity_3d_rmse_m_s=12, attitude_rmse_deg=12, yaw_rmse_deg=12
+retrodiction_rest_candidate: horizontal_position_rmse_m=10, vertical_position_rmse_m=12, velocity_3d_rmse_m_s=12, attitude_rmse_deg=12, yaw_rmse_deg=12
+
+Thread CPU medians over the full replay, including startup; not embedded worst-case timing:
+horizon_default_control: filter 35.933 us/update, pipeline 11.343 us/IMU packet, generated state [173772] bytes
+horizon_default_candidate: filter 57.321 us/update, pipeline 14.062 us/IMU packet, generated state [173772] bytes
+retrodiction_default_control: filter 29.667 us/update, pipeline 5.698 us/IMU packet, generated state [129992] bytes
+retrodiction_default_candidate: filter 43.802 us/update, pipeline 7.477 us/IMU packet, generated state [129992] bytes
+horizon_rest_control: filter 35.384 us/update, pipeline 11.240 us/IMU packet, generated state [173772] bytes
+horizon_rest_candidate: filter 55.102 us/update, pipeline 13.667 us/IMU packet, generated state [173772] bytes
+retrodiction_rest_control: filter 29.057 us/update, pipeline 5.630 us/IMU packet, generated state [129992] bytes
+retrodiction_rest_candidate: filter 43.446 us/update, pipeline 7.439 us/IMU packet, generated state [129992] bytes

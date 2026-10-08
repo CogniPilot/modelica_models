@@ -24,6 +24,7 @@ def augmented_update(
     axis,
     heading,
     geometry,
+    joint_estimation=False,
 ):
     joint = np.block(
         [
@@ -48,6 +49,8 @@ def augmented_update(
         gain[6:9] *= 0.15 / angle
         correction = gain @ residual
     full_gain = np.r_[gain, np.zeros((1, length))]
+    if joint_estimation:
+        full_gain[15] = np.linalg.solve(innovation, joint[15] @ measurement.T)
     factor = np.c_[np.eye(16), np.zeros((16, length))] - full_gain @ measurement
     posterior = factor @ joint @ factor.T
     order = np.r_[np.arange(9), np.arange(12, 15), np.arange(9, 12)]
@@ -88,6 +91,7 @@ class Kernel:
         heading=False,
         root=False,
         operation=0,
+        joint=False,
     ):
         packed = np.r_[
             np.zeros(3) if residual is None else residual,
@@ -105,12 +109,14 @@ class Kernel:
             packed,
             np.eye(15) if transition is None else transition,
             np.ones(15) if bounds is None else bounds,
-            np.zeros(5) if pressure is None else pressure,
+            np.zeros(6)
+            if pressure is None
+            else np.pad(pressure, (0, 6 - len(pressure))),
         ]
-        output = np.empty(259, dtype=np.float32)
+        output = np.empty(261, dtype=np.float32)
         status = self.library.barometer_consider(
             *[np.ascontiguousarray(value, dtype=np.float32) for value in arguments],
-            int(geometry) | (int(heading) << 1) | (int(root) << 2),
+            int(geometry) | (int(heading) << 1) | (int(root) << 2) | (int(joint) << 3),
             operation,
             output,
         )
@@ -123,6 +129,8 @@ class Kernel:
             output[256],
             int(output[257]),
             bool(output[258]),
+            output[259],
+            output[260],
         )
 
 

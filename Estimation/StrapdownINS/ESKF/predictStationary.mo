@@ -29,6 +29,9 @@ algorithm
         + noise),
     covarianceRoot=previous.covarianceRoot,
     barometerBiasCrossCovariance=transition * previous.barometerBiasCrossCovariance,
+    barometerBias_m=previous.barometerBias_m,
+    barometerBiasVariance_m2=previous.barometerBiasVariance_m2,
+    useJointBarometerBias=previous.useJointBarometerBias,
     useSquareRootCovariance=previous.useSquareRootCovariance);
   if previous.useSquareRootCovariance then
     (noiseRoot, factorized) := LinearAlgebra.factorPSD(noise);

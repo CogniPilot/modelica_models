@@ -1,4 +1,4 @@
-"""Report frozen pressure-consider ablations without hiding regressions."""
+"""Report frozen pressure-datum ablations without hiding regressions."""
 
 import argparse
 import csv
@@ -145,6 +145,9 @@ def report(args):
             if not row["covariance_valid"]
         ],
     )
+    joint = getattr(args, "candidate_policy", "consider") == "joint"
+    if joint:
+        summary["candidate_policy"] = "joint pressure-bias estimation"
     costs = []
     for name, group in groups.items():
         if name in ("px4", "ekf3"):
@@ -174,18 +177,26 @@ def report(args):
         json.dumps(summary, indent=2, allow_nan=False) + "\n"
     )
     text = [
-        "Pressure datum consider state: frozen matched-data ablation",
+        "Joint pressure-bias estimation: frozen matched-data ablation"
+        if joint
+        else "Pressure datum consider state: frozen matched-data ablation",
         "",
         "48 fresh controls reproduce frozen state CSVs byte for byte; 48 candidates.",
         "Each method covers GPS, GPS-denied and loss/return, two coupled seed/motion choices and two heights.",
-        "Default/rest indicate the startup-calibration policy; candidate enables shared-datum cross covariance.",
-        "The consider datum mean is held during navigation corrections. This is not a fully estimated bias state.",
+        "Default/rest indicate the startup-calibration policy; candidate estimates the shared pressure bias."
+        if joint
+        else "Default/rest indicate the startup-calibration policy; candidate enables shared-datum cross covariance.",
+        "The joint datum mean, variance and navigation cross covariance update with accepted aiding."
+        if joint
+        else "The consider datum mean is held during navigation corrections. This is not a fully estimated bias state.",
         "Effective native R/Q, priors and height/magnetic policies remain unequal.",
         "Native 15D NEES comes from full 24D covariance; ESKF is evaluated at its fusion epoch.",
         "Correlated samples are descriptive, not independent Monte Carlo consistency tests.",
         "Native per-sensor NIS, rich held-out captures and complete Modelica ports remain incomplete.",
         f"Undefined NEES condition/windows retained: {len(summary['undefined_nees_windows'])}.",
-        "The option stays disabled; vertical improvements do not offset horizontal regressions.",
+        "The option stays disabled pending held-out validation and review of all paired regressions."
+        if joint
+        else "The option stays disabled; vertical improvements do not offset horizontal regressions.",
         "",
         "Paired flight RMS changes (negative is better):",
     ]
@@ -226,4 +237,7 @@ if __name__ == "__main__":
         "output",
     ):
         parser.add_argument("--" + name, type=Path, required=True)
+    parser.add_argument(
+        "--candidate-policy", choices=("consider", "joint"), default="consider"
+    )
     report(parser.parse_args())

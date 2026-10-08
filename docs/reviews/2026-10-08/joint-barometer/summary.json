@@ -1,0 +1,459 @@
+{
+  "controls_byte_identical": 48,
+  "candidate_replays": 48,
+  "conditions_per_method": 12,
+  "source_sha256": {
+    "native": "43a83e162f38e1dca7a1382bcb154bc965cdd0e70dfa8fddfe5f946234693429",
+    "native_covariance": "f65444fab6882a6c5adeaef5a0235bb191ec8f1dea7aa3fe90e58175da547802",
+    "default": "9112953bb5889048f3de3326935cc9c90d56dc0495a20cc87cddf810823e5f39",
+    "rest": "b95379035bf164fa6af4572ce96a0e0f6cc66f0edd484c3c8af9edfd05e95c4e"
+  },
+  "paired_changes": [
+    {
+      "estimator": "horizon_default",
+      "metric": "horizontal_position_rmse_m",
+      "improved": 5,
+      "conditions": 12,
+      "minimum_change_percent": -4.1653832769397265,
+      "maximum_change_percent": 37.74142919883434
+    },
+    {
+      "estimator": "horizon_default",
+      "metric": "vertical_position_rmse_m",
+      "improved": 12,
+      "conditions": 12,
+      "minimum_change_percent": -61.62323845404502,
+      "maximum_change_percent": -37.075800015620906
+    },
+    {
+      "estimator": "horizon_default",
+      "metric": "velocity_3d_rmse_m_s",
+      "improved": 12,
+      "conditions": 12,
+      "minimum_change_percent": -30.83891831379697,
+      "maximum_change_percent": -2.8703079575559842
+    },
+    {
+      "estimator": "horizon_default",
+      "metric": "attitude_rmse_deg",
+      "improved": 8,
+      "conditions": 12,
+      "minimum_change_percent": -7.88082183280231,
+      "maximum_change_percent": 7.958415105044403
+    },
+    {
+      "estimator": "horizon_default",
+      "metric": "yaw_rmse_deg",
+      "improved": 8,
+      "conditions": 12,
+      "minimum_change_percent": -8.090376366013441,
+      "maximum_change_percent": 8.018009585642805
+    },
+    {
+      "estimator": "retrodiction_default",
+      "metric": "horizontal_position_rmse_m",
+      "improved": 4,
+      "conditions": 12,
+      "minimum_change_percent": -2.270868586228403,
+      "maximum_change_percent": 85.84704427355867
+    },
+    {
+      "estimator": "retrodiction_default",
+      "metric": "vertical_position_rmse_m",
+      "improved": 12,
+      "conditions": 12,
+      "minimum_change_percent": -63.135115774976605,
+      "maximum_change_percent": -37.30085827673616
+    },
+    {
+      "estimator": "retrodiction_default",
+      "metric": "velocity_3d_rmse_m_s",
+      "improved": 12,
+      "conditions": 12,
+      "minimum_change_percent": -39.91284743036117,
+      "maximum_change_percent": -3.462818181381655
+    },
+    {
+      "estimator": "retrodiction_default",
+      "metric": "attitude_rmse_deg",
+      "improved": 8,
+      "conditions": 12,
+      "minimum_change_percent": -8.768916704086294,
+      "maximum_change_percent": 8.324310732313878
+    },
+    {
+      "estimator": "retrodiction_default",
+      "metric": "yaw_rmse_deg",
+      "improved": 5,
+      "conditions": 12,
+      "minimum_change_percent": -8.63859849292914,
+      "maximum_change_percent": 8.596251012870226
+    },
+    {
+      "estimator": "horizon_rest",
+      "metric": "horizontal_position_rmse_m",
+      "improved": 3,
+      "conditions": 12,
+      "minimum_change_percent": -1.2458566535163973,
+      "maximum_change_percent": 5.161198698148528
+    },
+    {
+      "estimator": "horizon_rest",
+      "metric": "vertical_position_rmse_m",
+      "improved": 12,
+      "conditions": 12,
+      "minimum_change_percent": -39.93922124858727,
+      "maximum_change_percent": -13.307339901050796
+    },
+    {
+      "estimator": "horizon_rest",
+      "metric": "velocity_3d_rmse_m_s",
+      "improved": 12,
+      "conditions": 12,
+      "minimum_change_percent": -19.659588423188566,
+      "maximum_change_percent": -1.5710252220967003
+    },
+    {
+      "estimator": "horizon_rest",
+      "metric": "attitude_rmse_deg",
+      "improved": 6,
+      "conditions": 12,
+      "minimum_change_percent": -0.5674814127305305,
+      "maximum_change_percent": 1.5202376582684307
+    },
+    {
+      "estimator": "horizon_rest",
+      "metric": "yaw_rmse_deg",
+      "improved": 6,
+      "conditions": 12,
+      "minimum_change_percent": -0.5331475163110833,
+      "maximum_change_percent": 1.7025213753929735
+    },
+    {
+      "estimator": "retrodiction_rest",
+      "metric": "horizontal_position_rmse_m",
+      "improved": 3,
+      "conditions": 12,
+      "minimum_change_percent": -1.9255351629299144,
+      "maximum_change_percent": 84.08274056058357
+    },
+    {
+      "estimator": "retrodiction_rest",
+      "metric": "vertical_position_rmse_m",
+      "improved": 12,
+      "conditions": 12,
+      "minimum_change_percent": -41.471638064359894,
+      "maximum_change_percent": -7.055159282127688
+    },
+    {
+      "estimator": "retrodiction_rest",
+      "metric": "velocity_3d_rmse_m_s",
+      "improved": 12,
+      "conditions": 12,
+      "minimum_change_percent": -31.284812810240393,
+      "maximum_change_percent": -1.7796966928520064
+    },
+    {
+      "estimator": "retrodiction_rest",
+      "metric": "attitude_rmse_deg",
+      "improved": 5,
+      "conditions": 12,
+      "minimum_change_percent": -1.324335331183213,
+      "maximum_change_percent": 1.8536112852662434
+    },
+    {
+      "estimator": "retrodiction_rest",
+      "metric": "yaw_rmse_deg",
+      "improved": 3,
+      "conditions": 12,
+      "minimum_change_percent": -1.258176971345848,
+      "maximum_change_percent": 2.0907888198709035
+    }
+  ],
+  "lower_rmse_than_both_native": [
+    {
+      "estimator": "horizon_default_control",
+      "window": "flight",
+      "horizontal_position_rmse_m": 12,
+      "vertical_position_rmse_m": 0,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "horizon_default_control",
+      "window": "outage_window",
+      "horizontal_position_rmse_m": 12,
+      "vertical_position_rmse_m": 0,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "horizon_default_control",
+      "window": "after_return",
+      "horizontal_position_rmse_m": 11,
+      "vertical_position_rmse_m": 0,
+      "velocity_3d_rmse_m_s": 11,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "horizon_default_candidate",
+      "window": "flight",
+      "horizontal_position_rmse_m": 12,
+      "vertical_position_rmse_m": 10,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "horizon_default_candidate",
+      "window": "outage_window",
+      "horizontal_position_rmse_m": 12,
+      "vertical_position_rmse_m": 8,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "horizon_default_candidate",
+      "window": "after_return",
+      "horizontal_position_rmse_m": 10,
+      "vertical_position_rmse_m": 10,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 11
+    },
+    {
+      "estimator": "retrodiction_default_control",
+      "window": "flight",
+      "horizontal_position_rmse_m": 12,
+      "vertical_position_rmse_m": 0,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "retrodiction_default_control",
+      "window": "outage_window",
+      "horizontal_position_rmse_m": 10,
+      "vertical_position_rmse_m": 0,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "retrodiction_default_control",
+      "window": "after_return",
+      "horizontal_position_rmse_m": 9,
+      "vertical_position_rmse_m": 0,
+      "velocity_3d_rmse_m_s": 8,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "retrodiction_default_candidate",
+      "window": "flight",
+      "horizontal_position_rmse_m": 10,
+      "vertical_position_rmse_m": 10,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "retrodiction_default_candidate",
+      "window": "outage_window",
+      "horizontal_position_rmse_m": 9,
+      "vertical_position_rmse_m": 9,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "retrodiction_default_candidate",
+      "window": "after_return",
+      "horizontal_position_rmse_m": 8,
+      "vertical_position_rmse_m": 10,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 10
+    },
+    {
+      "estimator": "horizon_rest_control",
+      "window": "flight",
+      "horizontal_position_rmse_m": 10,
+      "vertical_position_rmse_m": 10,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "horizon_rest_control",
+      "window": "outage_window",
+      "horizontal_position_rmse_m": 12,
+      "vertical_position_rmse_m": 10,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "horizon_rest_control",
+      "window": "after_return",
+      "horizontal_position_rmse_m": 10,
+      "vertical_position_rmse_m": 6,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "horizon_rest_candidate",
+      "window": "flight",
+      "horizontal_position_rmse_m": 10,
+      "vertical_position_rmse_m": 12,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "horizon_rest_candidate",
+      "window": "outage_window",
+      "horizontal_position_rmse_m": 12,
+      "vertical_position_rmse_m": 10,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "horizon_rest_candidate",
+      "window": "after_return",
+      "horizontal_position_rmse_m": 10,
+      "vertical_position_rmse_m": 12,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 11
+    },
+    {
+      "estimator": "retrodiction_rest_control",
+      "window": "flight",
+      "horizontal_position_rmse_m": 11,
+      "vertical_position_rmse_m": 11,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "retrodiction_rest_control",
+      "window": "outage_window",
+      "horizontal_position_rmse_m": 10,
+      "vertical_position_rmse_m": 10,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "retrodiction_rest_control",
+      "window": "after_return",
+      "horizontal_position_rmse_m": 10,
+      "vertical_position_rmse_m": 7,
+      "velocity_3d_rmse_m_s": 9,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "retrodiction_rest_candidate",
+      "window": "flight",
+      "horizontal_position_rmse_m": 10,
+      "vertical_position_rmse_m": 12,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "retrodiction_rest_candidate",
+      "window": "outage_window",
+      "horizontal_position_rmse_m": 9,
+      "vertical_position_rmse_m": 12,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 12
+    },
+    {
+      "estimator": "retrodiction_rest_candidate",
+      "window": "after_return",
+      "horizontal_position_rmse_m": 9,
+      "vertical_position_rmse_m": 12,
+      "velocity_3d_rmse_m_s": 12,
+      "attitude_rmse_deg": 12,
+      "yaw_rmse_deg": 10
+    }
+  ],
+  "undefined_nees_windows": [],
+  "candidate_policy": "joint pressure-bias estimation",
+  "cpu_cost": [
+    {
+      "estimator": "horizon_default_control",
+      "median_filter_cpu_us_per_update": 35.93280593645484,
+      "median_pipeline_cpu_us_per_imu_packet": 11.342874606779025,
+      "generated_state_bytes": [
+        173772
+      ]
+    },
+    {
+      "estimator": "horizon_default_candidate",
+      "median_filter_cpu_us_per_update": 57.32116463210703,
+      "median_pipeline_cpu_us_per_imu_packet": 14.061706829024395,
+      "generated_state_bytes": [
+        173772
+      ]
+    },
+    {
+      "estimator": "retrodiction_default_control",
+      "median_filter_cpu_us_per_update": 29.66687052157974,
+      "median_pipeline_cpu_us_per_imu_packet": 5.697806816524656,
+      "generated_state_bytes": [
+        129992
+      ]
+    },
+    {
+      "estimator": "retrodiction_default_candidate",
+      "median_filter_cpu_us_per_update": 43.80231544742543,
+      "median_pipeline_cpu_us_per_imu_packet": 7.4766898606279035,
+      "generated_state_bytes": [
+        129992
+      ]
+    },
+    {
+      "estimator": "horizon_rest_control",
+      "median_filter_cpu_us_per_update": 35.384089381270904,
+      "median_pipeline_cpu_us_per_imu_packet": 11.240314670527699,
+      "generated_state_bytes": [
+        173772
+      ]
+    },
+    {
+      "estimator": "horizon_rest_candidate",
+      "median_filter_cpu_us_per_update": 55.1020627090301,
+      "median_pipeline_cpu_us_per_imu_packet": 13.666697454219703,
+      "generated_state_bytes": [
+        173772
+      ]
+    },
+    {
+      "estimator": "retrodiction_rest_control",
+      "median_filter_cpu_us_per_update": 29.056593901016498,
+      "median_pipeline_cpu_us_per_imu_packet": 5.629950928105664,
+      "generated_state_bytes": [
+        129992
+      ]
+    },
+    {
+      "estimator": "retrodiction_rest_candidate",
+      "median_filter_cpu_us_per_update": 43.445850524912515,
+      "median_pipeline_cpu_us_per_imu_packet": 7.439246349034395,
+      "generated_state_bytes": [
+        129992
+      ]
+    }
+  ]
+}

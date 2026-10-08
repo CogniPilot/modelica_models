@@ -22,6 +22,7 @@ algorithm
   perturbedVector := Estimation.StrapdownINS.ESKF.retrodict(
     Estimation.StrapdownINS.ESKF.State(
       barometerBiasCrossCovariance=zeros(15),
+      barometerBias_m=0.0, barometerBiasVariance_m2=0.0, useJointBarometerBias=false,
       positionWorldEnu_m = perturbedPose[1:3],
       velocityWorldEnu_m_s = perturbedPose[4:6],
       quaternionWorldBody = perturbedPose[7:10],

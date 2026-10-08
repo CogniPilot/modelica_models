@@ -259,6 +259,7 @@ algorithm
       Estimation.StrapdownINS.ESKF.navigationEstimate(
         Estimation.StrapdownINS.ESKF.State(
           barometerBiasCrossCovariance=zeros(15),
+          barometerBias_m=0.0, barometerBiasVariance_m2=0.0, useJointBarometerBias=false,
           positionWorldEnu_m=statePositionWorldEnu_m,
           velocityWorldEnu_m_s=stateVelocityWorldEnu_m_s,
           quaternionWorldBody=stateQuaternionWorldBody,

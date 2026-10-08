@@ -14,5 +14,8 @@ algorithm
     covariance=LinearAlgebra.symmetrize(root * transpose(root)),
     covarianceRoot=root,
     useSquareRootCovariance=previous.useSquareRootCovariance,
-    barometerBiasCrossCovariance=barometerBiasCrossCovariance);
+    barometerBiasCrossCovariance=barometerBiasCrossCovariance,
+    barometerBias_m=previous.barometerBias_m,
+    barometerBiasVariance_m2=previous.barometerBiasVariance_m2,
+    useJointBarometerBias=previous.useJointBarometerBias);
 end withCovarianceRoot;

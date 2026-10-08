@@ -15,6 +15,7 @@ record Tuning
   Real barometerBias_m;
   Real barometerBiasVariance_m2;
   Boolean useBarometerBiasConsider = false;
+  Boolean useJointBarometerBias = false;
   Real barometerBiasProcessNoise_m2_s = 0.0;
   Real maximumAidingDelay_s;
   Real minimumOpticalFlowQuality;

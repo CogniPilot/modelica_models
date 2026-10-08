@@ -12,6 +12,7 @@ block Estimator
   input Boolean vehicleAtRest = false;
   parameter Boolean useDeclaredRestBarometerCalibration = false;
   parameter Boolean useBarometerBiasConsider = false;
+  parameter Boolean useJointBarometerBias = false;
   output Real barometerBiasCrossCovariance[15](each start=0, each fixed=true);
   parameter Real stationaryVelocityVariance_m2_s2(unit = "m2/s2") = 0.01;
 
@@ -299,6 +300,7 @@ algorithm
       pre(stateQuaternion));
     auxiliaryPredictedVariance_m2 := max(
       if not reset and (pre(barometerBiasCalibrationCount) > 0
+          or (useJointBarometerBias and pre(initialized))
           or (useDeclaredRestBarometerCalibration
             and pre(barometerBiasInitialized))) then
         pre(stateBarometerBiasVariance_m2)
@@ -307,7 +309,7 @@ algorithm
     auxiliaryObservationVariance_m2 := barometer.variance_m2;
     barometerObservationAge_s := imu.timestamp_s - barometer.timestamp_s;
     barometerObservationBiasVariance_m2 := auxiliaryPredictedVariance_m2;
-    if useBarometerBiasConsider then
+    if useBarometerBiasConsider or useJointBarometerBias then
       barometerObservationBiasVariance_m2 := auxiliaryPredictedVariance_m2
         - max(barometerBiasProcessNoise_m2_s, 0.0)
           * max(barometerObservationAge_s, 0.0);
@@ -335,7 +337,7 @@ algorithm
         and abs(barometer.altitudeWorldEnu_m) < FiniteMagnitudeLimit
         and barometer.variance_m2 > 0.0
         and barometer.variance_m2 < FiniteMagnitudeLimit
-        and (not useBarometerBiasConsider
+        and (not (useBarometerBiasConsider or useJointBarometerBias)
           or (barometerObservationAge_s >= -1.0e-6
             and barometerObservationAge_s <= maximumAidingDelay_s
             and barometerObservationBiasVariance_m2 >= 0.0
@@ -353,7 +355,7 @@ algorithm
             else initialBarometerBias_m));
       stateBarometerBiasVariance_m2 := max((1.0 - auxiliaryGain)
         * auxiliaryPredictedVariance_m2, 1.0e-12);
-      if useBarometerBiasConsider then
+      if useBarometerBiasConsider or useJointBarometerBias then
         stateBarometerBiasVariance_m2 := max((1.0 - auxiliaryGain)
           * barometerObservationBiasVariance_m2
           + max(barometerBiasProcessNoise_m2_s, 0.0)
@@ -366,7 +368,8 @@ algorithm
       barometerBiasUpdateAccepted := true;
     else
       stateBarometerBias_m := if not reset
-          and pre(barometerBiasCalibrationCount) > 0
+          and (pre(barometerBiasCalibrationCount) > 0
+            or (useJointBarometerBias and pre(initialized)))
         then pre(stateBarometerBias_m) else initialBarometerBias_m;
       stateBarometerBiasVariance_m2 := auxiliaryPredictedVariance_m2;
       barometerBiasInitialized := not reset
@@ -470,7 +473,9 @@ algorithm
      zeroVelocityCorrectionAccepted,
      stationaryImuCorrectionAccepted,
      stateCovarianceRoot,
-     barometerBiasCrossCovariance) :=
+     barometerBiasCrossCovariance,
+     stateBarometerBias_m,
+     stateBarometerBiasVariance_m2) :=
       step(
         pre(initialized),
         State(
@@ -482,6 +487,9 @@ algorithm
           covariance=pre(stateCovariance),
           covarianceRoot=pre(stateCovarianceRoot),
           barometerBiasCrossCovariance=pre(barometerBiasCrossCovariance),
+          barometerBias_m=stateBarometerBias_m,
+          barometerBiasVariance_m2=stateBarometerBiasVariance_m2,
+          useJointBarometerBias=useJointBarometerBias,
           useSquareRootCovariance=useSquareRootCovariance),
         reset,
         imu,
@@ -521,6 +529,7 @@ algorithm
           barometerBias_m=stateBarometerBias_m,
           barometerBiasVariance_m2=stateBarometerBiasVariance_m2,
           useBarometerBiasConsider=useBarometerBiasConsider,
+          useJointBarometerBias=useJointBarometerBias,
           barometerBiasProcessNoise_m2_s=barometerBiasProcessNoise_m2_s,
           maximumAidingDelay_s=maximumAidingDelay_s,
           minimumOpticalFlowQuality=minimumOpticalFlowQuality,
@@ -583,6 +592,9 @@ algorithm
           covariance=stateCovariance,
           covarianceRoot=stateCovarianceRoot,
           barometerBiasCrossCovariance=barometerBiasCrossCovariance,
+          barometerBias_m=stateBarometerBias_m,
+          barometerBiasVariance_m2=stateBarometerBiasVariance_m2,
+          useJointBarometerBias=useJointBarometerBias,
           useSquareRootCovariance=useSquareRootCovariance),
         // The HELD sample, never the raw connector: three published fields
         // are computed from the IMU rather than from the state, so passing

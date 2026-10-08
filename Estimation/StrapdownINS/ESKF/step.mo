@@ -123,6 +123,8 @@ function step
   output Boolean stationaryImuCorrectionAccepted;
   output Covariance covarianceRootNext;
   output Real barometerBiasCrossCovarianceNext[TangentLength];
+  output Real barometerBiasNext_m;
+  output Real barometerBiasVarianceNext_m2;
 protected
   State prior;
   State working;
@@ -469,7 +471,9 @@ algorithm
       tuning.initialState.accelerometerBiasBodyFlu_m_s2,
       if mocapSeedUsable then mocap.positionCovarianceWorld_m2
       elseif gpsSeedUsable then gps.positionCovarianceWorld_m2
-      else zeros(3, 3), tuning.useSquareRootCovariance);
+      else zeros(3, 3), tuning.useSquareRootCovariance,
+      tuning.barometerBias_m, tuning.barometerBiasVariance_m2,
+      tuning.useJointBarometerBias);
     if tuning.useGeometricAlignment and alignmentGateConfigured
         and imuQuiet and not alignmentTimedOut and alignmentAccepted
         and (alignmentSource == AlignmentAccelerometer
@@ -803,6 +807,8 @@ algorithm
   covarianceNext := working.covariance;
   covarianceRootNext := working.covarianceRoot;
   barometerBiasCrossCovarianceNext := working.barometerBiasCrossCovariance;
+  barometerBiasNext_m := working.barometerBias_m;
+  barometerBiasVarianceNext_m2 := working.barometerBiasVariance_m2;
   initializedNext := not alignmentPending;
   estimateValid := initializedNext
     and nominalStateFinite(positionNext, velocityNext, quaternionNext);

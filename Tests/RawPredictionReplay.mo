@@ -14,6 +14,7 @@ algorithm
     predicted := Estimation.StrapdownINS.ESKF.predict(
       Estimation.StrapdownINS.ESKF.State(
         barometerBiasCrossCovariance=zeros(15),
+        barometerBias_m=0.0, barometerBiasVariance_m2=0.0, useJointBarometerBias=false,
         positionWorldEnu_m=zeros(3), velocityWorldEnu_m_s={1.0, -2.0, 0.5},
         quaternionWorldBody={1.0, 0.0, 0.0, 0.0},
         gyroscopeBiasBodyFlu_rad_s=zeros(3),

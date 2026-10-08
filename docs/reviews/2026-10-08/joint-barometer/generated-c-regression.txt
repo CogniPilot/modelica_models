@@ -1,0 +1,172 @@
+    Build ESKF generated C Vehicles_Rdd2_NavigationEstimator
+    Build ESKF generated C rumoca_galec_kernels
+    Build ESKF generated C regression eskf_aiding
+    ESKF generated C eskf_aiding
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+Generated C refused nonfinite stationary variance
+Generated C refused nonfinite stationary variance
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+ESKF simultaneous aiding, GPS loss/return, and independent rejection health passed
+    Build ESKF generated C regression barometer_datum
+    ESKF generated C barometer_datum
+Declared-rest pressure calibration, withholding, duplicates, early takeoff, reset and absent rest passed
+    Build ESKF generated C regression barometer_consider_datum
+    ESKF generated C barometer_consider_datum
+Delayed scalar pressure-datum oracle, withholding and fusion correlation passed
+    Build ESKF generated C regression barometer_consider_datum-joint
+    ESKF generated C barometer_consider_datum-joint
+Delayed scalar pressure-datum oracle, withholding and fusion correlation passed
+    Build generated pressure-datum consider regression
+    Independent barometer-consider regression, seed 20261008
+{
+  "seed": 20261008,
+  "trials": 48,
+  "counts": {
+    "corrections": 360,
+    "rejections": 26,
+    "transformations": 384,
+    "pressure": 606
+  },
+  "maximum_errors": {
+    "covariance": 1.857754036445883e-06,
+    "cross_covariance": 3.47956838968365e-07,
+    "nis": 3.2176695147012447e-07
+  },
+  "library_sha256": "69bb360cc9e62517099eb3c1875d2ac7340a7c9e5b2111510edf413afa7e79a6",
+  "reference": "Full augmented Gaussian Joseph update with zero datum gain, followed by the matching Lie reset; no covariance repair."
+}
+    Independent barometer-consider regression, seed 911
+{
+  "seed": 911,
+  "trials": 48,
+  "counts": {
+    "corrections": 352,
+    "rejections": 34,
+    "transformations": 384,
+    "pressure": 606
+  },
+  "maximum_errors": {
+    "covariance": 1.803493407962071e-06,
+    "cross_covariance": 6.259653698117823e-07,
+    "nis": 3.211925706366545e-07
+  },
+  "library_sha256": "69bb360cc9e62517099eb3c1875d2ac7340a7c9e5b2111510edf413afa7e79a6",
+  "reference": "Full augmented Gaussian Joseph update with zero datum gain, followed by the matching Lie reset; no covariance repair."
+}
+    Independent joint-barometer regression, seed 20261008
+{
+  "seed": 20261008,
+  "trials": 48,
+  "counts": {
+    "accepted": 352,
+    "rejected": 32,
+    "constrained": 192,
+    "pressure": 1200,
+    "gps": 86
+  },
+  "batch_cases": [
+    {
+      "root": false,
+      "gps": false,
+      "vertical_variance_m2": 0.200021430850029,
+      "bias_variance_m2": 0.20000147819519043,
+      "bias_mean_m": 0.0
+    },
+    {
+      "root": false,
+      "gps": true,
+      "vertical_variance_m2": 0.0009259256767109036,
+      "bias_variance_m2": 0.0009590079425834119,
+      "bias_mean_m": 0.0
+    },
+    {
+      "root": true,
+      "gps": false,
+      "vertical_variance_m2": 0.20002031326293945,
+      "bias_variance_m2": 0.20000143349170685,
+      "bias_mean_m": 0.0
+    },
+    {
+      "root": true,
+      "gps": true,
+      "vertical_variance_m2": 0.0009259258513338864,
+      "bias_variance_m2": 0.0009590079425834119,
+      "bias_mean_m": 0.0
+    }
+  ],
+  "maximum_errors": {
+    "joint_covariance": 3.4957776265443673e-06,
+    "bias_mean": 1.5948933043505085e-07
+  },
+  "library_sha256": "69bb360cc9e62517099eb3c1875d2ac7340a7c9e5b2111510edf413afa7e79a6",
+  "reference": "Full augmented Gaussian Joseph correction and independent batch-information posterior; real Lie reset oracle; no covariance repair."
+}
+    Independent joint-barometer regression, seed 911
+{
+  "seed": 911,
+  "trials": 48,
+  "counts": {
+    "accepted": 360,
+    "rejected": 24,
+    "constrained": 192,
+    "pressure": 1200,
+    "gps": 86
+  },
+  "batch_cases": [
+    {
+      "root": false,
+      "gps": false,
+      "vertical_variance_m2": 0.200021430850029,
+      "bias_variance_m2": 0.20000147819519043,
+      "bias_mean_m": 0.0
+    },
+    {
+      "root": false,
+      "gps": true,
+      "vertical_variance_m2": 0.0009259256767109036,
+      "bias_variance_m2": 0.0009590079425834119,
+      "bias_mean_m": 0.0
+    },
+    {
+      "root": true,
+      "gps": false,
+      "vertical_variance_m2": 0.20002031326293945,
+      "bias_variance_m2": 0.20000143349170685,
+      "bias_mean_m": 0.0
+    },
+    {
+      "root": true,
+      "gps": true,
+      "vertical_variance_m2": 0.0009259258513338864,
+      "bias_variance_m2": 0.0009590079425834119,
+      "bias_mean_m": 0.0
+    }
+  ],
+  "maximum_errors": {
+    "joint_covariance": 5.154948124999969e-06,
+    "bias_mean": 1.7771592975277005e-07
+  },
+  "library_sha256": "69bb360cc9e62517099eb3c1875d2ac7340a7c9e5b2111510edf413afa7e79a6",
+  "reference": "Full augmented Gaussian Joseph correction and independent batch-information posterior; real Lie reset oracle; no covariance repair."
+}
+==> Rumoca composed-model lowering (pin dependent)
+    Estimation.FusionHorizon.HorizonEstimator reaches the recorded multi-rate sampled-read boundary at Estimation/FusionHorizon/HorizonEstimator.mo:259:5 (identity 590 is not owned by clock identity 0)

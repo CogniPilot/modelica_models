@@ -45,8 +45,8 @@ protected
   Boolean gatePassed;
   Real crossCovariance[TangentLength, size(residual, 1)];
   Real innovationCovariance[size(residual, 1), size(residual, 1)];
-  Real augmentedRhs[size(residual, 1), TangentLength + 1];
-  Real augmentedSolution[size(residual, 1), TangentLength + 1];
+  Real augmentedRhs[size(residual, 1), TangentLength + 2];
+  Real augmentedSolution[size(residual, 1), TangentLength + 2];
   Real gain[TangentLength, size(residual, 1)];
   Boolean factorized;
   TangentVector correction;
@@ -59,12 +59,20 @@ protected
   Covariance correctedCovariance;
   Covariance correctedRoot;
   Real correctedBarometerCrossCovariance[TangentLength];
+  Real correctedBarometerBias_m;
+  Real correctedBarometerVariance_m2;
+  Real barometerInnovationCrossCovariance[size(residual, 1)];
+  Real barometerGain[size(residual, 1)];
+  Real barometerNavigationErrorMap[TangentLength];
+  Real navigationBarometerCrossCovariance[TangentLength];
+  Real noiseBarometerCrossCovariance[size(residual, 1)];
+  Real barometerErrorCovariance;
   Real noiseStateRoot[TangentLength, size(residual, 1)];
   Real measurementColumns[size(residual, 1), TangentLength];
   Real measurementRoot[size(residual, 1), size(residual, 1)];
   Real innovationRoot[size(residual, 1), size(residual, 1)];
   Covariance priorRoot;
-  Real whitened[size(residual, 1), TangentLength + 1];
+  Real whitened[size(residual, 1), TangentLength + 2];
   Boolean crossFactorized;
   Boolean noiseFactorized;
 algorithm
@@ -98,8 +106,18 @@ algorithm
     end for;
   end for;
 
+  if predicted.useJointBarometerBias then
+    measurementCovarianceUsable := measurementCovarianceUsable
+      and abs(predicted.barometerBias_m) < FiniteMagnitudeLimit
+      and predicted.barometerBiasVariance_m2 >= 0.0
+      and predicted.barometerBiasVariance_m2 < FiniteMagnitudeLimit;
+  end if;
   correctedRoot := predicted.covarianceRoot;
   correctedBarometerCrossCovariance := predicted.barometerBiasCrossCovariance;
+  correctedBarometerBias_m := predicted.barometerBias_m;
+  correctedBarometerVariance_m2 := predicted.barometerBiasVariance_m2;
+  barometerInnovationCrossCovariance := H * predicted.barometerBiasCrossCovariance
+    + measurementBarometerCrossCovariance;
   measurementColumns := zeros(measurementLength, TangentLength);
   measurementRoot := zeros(measurementLength, measurementLength);
   if predicted.useSquareRootCovariance then
@@ -112,9 +130,10 @@ algorithm
     crossCovariance := predicted.covarianceRoot * transpose(measurementColumns);
     innovationRoot := LinearAlgebra.covarianceRoot(
       cat(2, measurementColumns, measurementRoot));
-    augmentedRhs := zeros(measurementLength, TangentLength + 1);
+    augmentedRhs := zeros(measurementLength, TangentLength + 2);
     augmentedRhs[:, 1:TangentLength] := transpose(crossCovariance);
     augmentedRhs[:, TangentLength + 1] := residual;
+    augmentedRhs[:, TangentLength + 2] := barometerInnovationCrossCovariance;
     (augmentedSolution, whitened, factorized) :=
       LinearAlgebra.solveCovarianceRoot(innovationRoot, augmentedRhs);
     factorized := factorized and crossFactorized and noiseFactorized;
@@ -140,12 +159,10 @@ algorithm
       H * crossCovariance
         + transpose(measurementStateCrossCovariance) * transpose(H)
         + measurementCovariance);
-    // One factorization serves both the gain solve S*K' = (P*H')' and the
-    // whitened residual S^-1 * r needed for the innovation gate: append the
-    // residual as one extra right-hand side.
-    augmentedRhs := zeros(measurementLength, TangentLength + 1);
+    augmentedRhs := zeros(measurementLength, TangentLength + 2);
     augmentedRhs[:, 1:TangentLength] := transpose(crossCovariance);
     augmentedRhs[:, TangentLength + 1] := residual;
+    augmentedRhs[:, TangentLength + 2] := barometerInnovationCrossCovariance;
     (augmentedSolution, factorized) := LinearAlgebra.solveSPD(
       innovationCovariance, augmentedRhs);
     normalizedInnovationSquared :=
@@ -172,8 +189,28 @@ algorithm
       transpose(augmentedSolution[:, 1:TangentLength]), residual,
       attitudeGainAxis, headingOnly);
     correctedBarometerCrossCovariance := predicted.barometerBiasCrossCovariance
-      - gain * (H * predicted.barometerBiasCrossCovariance
-        + measurementBarometerCrossCovariance);
+      - gain * barometerInnovationCrossCovariance;
+    if predicted.useJointBarometerBias then
+      barometerGain := augmentedSolution[:, TangentLength + 2];
+      barometerNavigationErrorMap := -transpose(H) * barometerGain;
+      navigationBarometerCrossCovariance :=
+        predicted.covariance * barometerNavigationErrorMap
+        + predicted.barometerBiasCrossCovariance
+        - measurementStateCrossCovariance * barometerGain;
+      noiseBarometerCrossCovariance :=
+        transpose(measurementStateCrossCovariance) * barometerNavigationErrorMap
+        + measurementBarometerCrossCovariance - measurementCovariance * barometerGain;
+      barometerErrorCovariance := predicted.barometerBiasCrossCovariance
+        * barometerNavigationErrorMap + predicted.barometerBiasVariance_m2
+        - measurementBarometerCrossCovariance * barometerGain;
+      correctedBarometerCrossCovariance :=
+        (identity(TangentLength) - gain * H)
+          * navigationBarometerCrossCovariance - gain * noiseBarometerCrossCovariance;
+      correctedBarometerVariance_m2 :=
+        barometerNavigationErrorMap * navigationBarometerCrossCovariance
+        + barometerErrorCovariance - barometerGain * noiseBarometerCrossCovariance;
+      correctedBarometerBias_m := predicted.barometerBias_m + barometerGain * residual;
+    end if;
 
     nominal := NominalState(
       positionWorldEnu_m=predicted.positionWorldEnu_m,
@@ -267,5 +304,8 @@ algorithm
     covariance=correctedCovariance,
     useSquareRootCovariance=predicted.useSquareRootCovariance,
     covarianceRoot=correctedRoot,
-    barometerBiasCrossCovariance=correctedBarometerCrossCovariance);
+    barometerBiasCrossCovariance=correctedBarometerCrossCovariance,
+    barometerBias_m=correctedBarometerBias_m,
+    barometerBiasVariance_m2=correctedBarometerVariance_m2,
+    useJointBarometerBias=predicted.useJointBarometerBias);
 end correctLinear;

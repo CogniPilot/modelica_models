@@ -1,0 +1,1 @@
+wrote Dae IR (json) to $HOME/scratch/modelica_models/joint-barometer/Tests.All.dae.json

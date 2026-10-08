@@ -212,6 +212,9 @@ int main(int argc, char **argv) {
 #ifdef BAROMETER_BIAS_CONSIDER
   estimator.useBarometerBiasConsider = true;
 #endif
+#ifdef JOINT_BAROMETER_BIAS
+  estimator.useJointBarometerBias = true;
+#endif
 #else
   // Match RDD2 process noise, retaining UKF's declared initial variances.
   // Matching RDD2's 1e-6 gyro-bias variance causes lowerCholesky to reject

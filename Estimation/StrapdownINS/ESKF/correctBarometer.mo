@@ -32,6 +32,8 @@ protected
   Real measurementStateCrossCovariance[TangentLength, 1];
   Real measurementBarometerCrossCovariance[1];
   Real observationBiasVariance_m2;
+  Real bias_m;
+  Real biasVariance_m2;
   Real verticalDirectionLocal[3];
   Real verticalVariance_m2;
   Real covarianceFloor[TangentLength, TangentLength];
@@ -57,18 +59,24 @@ algorithm
     -max(measurementAge_s, 0.0));
   rotationWorldBody := LieGroups.SO3.Quat.to_DCM(
     delayedQuaternion);
-  residual[1] := measurement.altitudeWorldEnu_m - barometerBias_m
+  bias_m := barometerBias_m;
+  biasVariance_m2 := barometerBiasVariance_m2;
+  if predicted.useJointBarometerBias then
+    bias_m := predicted.barometerBias_m;
+    biasVariance_m2 := predicted.barometerBiasVariance_m2;
+  end if;
+  residual[1] := measurement.altitudeWorldEnu_m - bias_m
     - delayedPosition[3];
   delayedH := zeros(1, TangentLength);
   delayedH[1, 1:3] := rotationWorldBody[3, :];
   H := delayedH * currentToDelayed;
   measurementCovariance[1, 1] := measurement.variance_m2
-    + max(barometerBiasVariance_m2, 0.0);
+    + max(biasVariance_m2, 0.0);
   measurementStateCrossCovariance := zeros(TangentLength, 1);
   measurementBarometerCrossCovariance := zeros(1);
-  observationBiasVariance_m2 := barometerBiasVariance_m2;
-  if useBarometerBiasConsider then
-    observationBiasVariance_m2 := barometerBiasVariance_m2
+  observationBiasVariance_m2 := biasVariance_m2;
+  if useBarometerBiasConsider or predicted.useJointBarometerBias then
+    observationBiasVariance_m2 := biasVariance_m2
       - max(barometerBiasProcessNoise_m2_s, 0.0) * max(measurementAge_s, 0.0);
     measurementCovariance[1, 1] := measurement.variance_m2
       + observationBiasVariance_m2;
@@ -82,7 +90,8 @@ algorithm
   if measurementAge_s < -1.0e-6
       or measurementAge_s > maximumAidingDelay_s then
     candidateRejectionReason := CorrectionRejectedTimestamp;
-  elseif useBarometerBiasConsider and not (observationBiasVariance_m2 >= 0.0
+  elseif (useBarometerBiasConsider or predicted.useJointBarometerBias)
+      and not (observationBiasVariance_m2 >= 0.0
       and observationBiasVariance_m2 < FiniteMagnitudeLimit) then
     candidateRejectionReason := CorrectionRejectedCovarianceUnusable;
   else
@@ -106,7 +115,7 @@ algorithm
   covarianceFloor := zeros(TangentLength, TangentLength);
   covarianceFloor[1:3, 1:3] := floorIncrement_m2
     * transpose({verticalDirectionLocal}) * {verticalDirectionLocal};
-  if useBarometerBiasConsider then
+  if useBarometerBiasConsider or predicted.useJointBarometerBias then
     corrected := copyState(candidate);
   elseif candidate.useSquareRootCovariance then
     floorColumns := zeros(TangentLength, TangentLength + 1);

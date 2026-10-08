@@ -35,6 +35,9 @@ algorithm
     covarianceRoot=predicted.covarianceRoot,
     barometerBiasCrossCovariance=cat(1, zeros(6),
       predicted.barometerBiasCrossCovariance[7:TangentLength]),
+    barometerBias_m=predicted.barometerBias_m,
+    barometerBiasVariance_m2=predicted.barometerBiasVariance_m2,
+    useJointBarometerBias=predicted.useJointBarometerBias,
     useSquareRootCovariance=predicted.useSquareRootCovariance);
   if predicted.useSquareRootCovariance then
     root := diagonal(cat(1,

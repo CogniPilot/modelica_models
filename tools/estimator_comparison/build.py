@@ -115,6 +115,8 @@ def build(args):
                 defines.append("-DDECLARED_REST_BAROMETER")
             if args.barometer_bias_consider:
                 defines.append("-DBAROMETER_BIAS_CONSIDER")
+            if args.joint_barometer_bias:
+                defines.append("-DJOINT_BAROMETER_BIAS")
         subprocess.run(
             [
                 args.cc,
@@ -163,6 +165,7 @@ if __name__ == "__main__":
     parser.add_argument("--geometric-alignment", action="store_true")
     parser.add_argument("--declared-rest-barometer", action="store_true")
     parser.add_argument("--barometer-bias-consider", action="store_true")
+    parser.add_argument("--joint-barometer-bias", action="store_true")
     parser.add_argument("--horizon", action="store_true")
     parser.add_argument("--semi-direct-bias", action="store_true")
     parser.add_argument("--stationary-imu", action="store_true")

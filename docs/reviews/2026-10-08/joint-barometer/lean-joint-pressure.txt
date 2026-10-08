@@ -1,0 +1,6 @@
+'GNC.Estimation.KalmanCorrection.gain_gap_positive_semidefinite' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'GNC.Estimation.KalmanCorrection.conditional_factor_positive_semidefinite' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]

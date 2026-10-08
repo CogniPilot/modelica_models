@@ -22,6 +22,7 @@ model HeadingConsiderTests
     covariance := 0.01 * identity(15) + transpose({coupling}) * {coupling};
     prior := Estimation.StrapdownINS.ESKF.State(
       barometerBiasCrossCovariance=zeros(15),
+      barometerBias_m=0.0, barometerBiasVariance_m2=0.0, useJointBarometerBias=false,
       positionWorldEnu_m={1, 2, 3},
       velocityWorldEnu_m_s={0.1, 0.2, 0.3},
       quaternionWorldBody={1, 0, 0, 0},

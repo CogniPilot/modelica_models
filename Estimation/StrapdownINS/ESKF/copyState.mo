@@ -12,5 +12,8 @@ algorithm
     covariance=previous.covariance,
     useSquareRootCovariance=previous.useSquareRootCovariance,
     covarianceRoot=previous.covarianceRoot,
-    barometerBiasCrossCovariance=previous.barometerBiasCrossCovariance);
+    barometerBiasCrossCovariance=previous.barometerBiasCrossCovariance,
+    barometerBias_m=previous.barometerBias_m,
+    barometerBiasVariance_m2=previous.barometerBiasVariance_m2,
+    useJointBarometerBias=previous.useJointBarometerBias);
 end copyState;

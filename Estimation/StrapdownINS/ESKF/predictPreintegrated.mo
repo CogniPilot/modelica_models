@@ -81,5 +81,8 @@ algorithm
     covariance=predicted.covariance,
     covarianceRoot=predicted.covarianceRoot,
     barometerBiasCrossCovariance=predicted.barometerBiasCrossCovariance,
+    barometerBias_m=previous.barometerBias_m,
+    barometerBiasVariance_m2=previous.barometerBiasVariance_m2,
+    useJointBarometerBias=previous.useJointBarometerBias,
     useSquareRootCovariance=previous.useSquareRootCovariance);
 end predictPreintegrated;

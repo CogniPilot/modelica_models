@@ -6,8 +6,8 @@
 int barometer_consider(const float nominal[16], const float covariance[225],
                       const float cross[15], const float observation[109],
                       const float transition[225], const float bounds[15],
-                      const float pressure[5], int mode, int operation,
-                      float output[259]) {
+                      const float pressure[6], int mode, int operation,
+                      float output[261]) {
   BarometerConsiderReplayState state = {0};
   BarometerConsiderReplay_startup(&state);
   memcpy(state.priorState, nominal, sizeof(state.priorState));
@@ -42,9 +42,11 @@ int barometer_consider(const float nominal[16], const float covariance[225],
   state.pressureAltitude = pressure[2];
   state.pressureVariance = pressure[3];
   state.measurementAge = pressure[4];
+  state.biasMean = pressure[5];
   state.useSemiDirectBias = (mode & 1) != 0;
   state.headingOnly = (mode & 2) != 0;
   state.useSquareRoot = (mode & 4) != 0;
+  state.useJointBarometerBias = (mode & 8) != 0;
   state.operation = operation;
   BarometerConsiderReplay_dostep(&state);
   memcpy(output, state.correctedState, sizeof(state.correctedState));
@@ -54,5 +56,7 @@ int barometer_consider(const float nominal[16], const float covariance[225],
   output[256] = state.nis;
   output[257] = state.reason;
   output[258] = state.accepted;
+  output[259] = state.posteriorBiasMean;
+  output[260] = state.posteriorBiasVariance;
   return state.rumoca_galec_error_signal_status;
 }
