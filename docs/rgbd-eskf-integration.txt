@@ -138,6 +138,9 @@ https://raw.githubusercontent.com/ros-infrastructure/rep/master/rep-0105.rst
 Current status: canonical SLAM package migration, independently qualified tangent
 and camera Jacobians, and both Modelica fixed-known-map visual update paths.
 The 64 matched correction cases use actual exported Modelica ESKF injection
-and reset; they are not an end-to-end SLAM or GPS-flight comparison. Persistent
-map/reference uncertainty and shared-data handling remain required. See
-docs/slam-models.txt and docs/reviews/2026-10-08/rgbd-coupling for the exact scope.
+and reset. A further 24 paired sequential fixed-known-map replays cover GPS,
+GPS denial, GPS loss/return and camera outage using the same physical captures
+for both paths. All estimator equations in that replay execute from Modelica;
+it is not end-to-end live SLAM. Persistent map/reference uncertainty and
+shared-data handling remain required. See docs/slam-models.txt and
+docs/reviews/2026-10-08/rgbd-coupling and rgbd-navigation for the exact scopes.

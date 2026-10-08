@@ -1,0 +1,401 @@
+/mnt/scratch/jgoppert/modelica_models/rgbd-navigation/qualification-2/export/Tests_VisualNavigationReplay/ProductionCode/Tests_VisualNavigationReplay.c: In function ‘VisualNavigationReplay_dostep’:
+/mnt/scratch/jgoppert/modelica_models/rgbd-navigation/qualification-2/export/Tests_VisualNavigationReplay/ProductionCode/Tests_VisualNavigationReplay.c:15893:11: warning: ‘result1120’ may be used uninitialized [-Wmaybe-uninitialized]
+15893 |     float result1120;
+      |           ^~~~~~~~~~
+/mnt/scratch/jgoppert/modelica_models/rgbd-navigation/qualification-2/export/Tests_VisualNavigationReplay/ProductionCode/Tests_VisualNavigationReplay.c:15894:11: warning: ‘result1121’ may be used uninitialized [-Wmaybe-uninitialized]
+15894 |     float result1121;
+      |           ^~~~~~~~~~
+/mnt/scratch/jgoppert/modelica_models/rgbd-navigation/qualification-2/export/Tests_VisualNavigationReplay/ProductionCode/Tests_VisualNavigationReplay.c:62291:47: warning: ‘call8105_result106’ may be used uninitialized [-Wmaybe-uninitialized]
+62291 |         self->cameraCorrected_barometerBias_m = call8105_result106;
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~
+/mnt/scratch/jgoppert/modelica_models/rgbd-navigation/qualification-2/export/Tests_VisualNavigationReplay/ProductionCode/Tests_VisualNavigationReplay.c:15887:11: note: ‘call8105_result106’ was declared here
+15887 |     float call8105_result106;
+      |           ^~~~~~~~~~~~~~~~~~
+/mnt/scratch/jgoppert/modelica_models/rgbd-navigation/qualification-2/export/Tests_VisualNavigationReplay/ProductionCode/Tests_VisualNavigationReplay.c:62306:56: warning: ‘result107’ may be used uninitialized [-Wmaybe-uninitialized]
+62306 |         self->cameraCorrected_barometerBiasVariance_m2 = result107;
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~
+/mnt/scratch/jgoppert/modelica_models/rgbd-navigation/qualification-2/export/Tests_VisualNavigationReplay/ProductionCode/Tests_VisualNavigationReplay.c:15888:11: note: ‘result107’ was declared here
+15888 |     float result107;
+      |           ^~~~~~~~~
+/mnt/scratch/jgoppert/modelica_models/rgbd-navigation/qualification-2/export/Tests_VisualNavigationReplay/ProductionCode/Tests_VisualNavigationReplay.c:62321:25: warning: ‘call8105_result110’ may be used uninitialized [-Wmaybe-uninitialized]
+62321 |         self->cameraNis = call8105_result110;
+      |         ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~
+/mnt/scratch/jgoppert/modelica_models/rgbd-navigation/qualification-2/export/Tests_VisualNavigationReplay/ProductionCode/Tests_VisualNavigationReplay.c:15889:11: note: ‘call8105_result110’ was declared here
+15889 |     float call8105_result110;
+      |           ^~~~~~~~~~~~~~~~~~
+/mnt/scratch/jgoppert/modelica_models/rgbd-navigation/qualification-2/export/Tests_VisualNavigationReplay/ProductionCode/Tests_VisualNavigationReplay.c:62296:47: warning: ‘result613’ may be used uninitialized [-Wmaybe-uninitialized]
+62296 |         self->cameraCorrected_barometerBias_m = result613;
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~
+/mnt/scratch/jgoppert/modelica_models/rgbd-navigation/qualification-2/export/Tests_VisualNavigationReplay/ProductionCode/Tests_VisualNavigationReplay.c:15890:11: note: ‘result613’ was declared here
+15890 |     float result613;
+      |           ^~~~~~~~~
+/mnt/scratch/jgoppert/modelica_models/rgbd-navigation/qualification-2/export/Tests_VisualNavigationReplay/ProductionCode/Tests_VisualNavigationReplay.c:62311:56: warning: ‘call8148_result614’ may be used uninitialized [-Wmaybe-uninitialized]
+62311 |         self->cameraCorrected_barometerBiasVariance_m2 = call8148_result614;
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~
+/mnt/scratch/jgoppert/modelica_models/rgbd-navigation/qualification-2/export/Tests_VisualNavigationReplay/ProductionCode/Tests_VisualNavigationReplay.c:15891:11: note: ‘call8148_result614’ was declared here
+15891 |     float call8148_result614;
+      |           ^~~~~~~~~~~~~~~~~~
+/mnt/scratch/jgoppert/modelica_models/rgbd-navigation/qualification-2/export/Tests_VisualNavigationReplay/ProductionCode/Tests_VisualNavigationReplay.c:62326:25: warning: ‘call8148_result617’ may be used uninitialized [-Wmaybe-uninitialized]
+62326 |         self->cameraNis = call8148_result617;
+      |         ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~
+/mnt/scratch/jgoppert/modelica_models/rgbd-navigation/qualification-2/export/Tests_VisualNavigationReplay/ProductionCode/Tests_VisualNavigationReplay.c:15892:11: note: ‘call8148_result617’ was declared here
+15892 |     float call8148_result617;
+      |           ^~~~~~~~~~~~~~~~~~
+/mnt/scratch/jgoppert/modelica_models/rgbd-navigation/qualification-2/export/Tests_VisualNavigationReplay/ProductionCode/Tests_VisualNavigationReplay.c:37630:9: warning: ‘result43’ may be used uninitialized [-Wmaybe-uninitialized]
+37630 |         correctMappedLandmarksLoose(
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37631 |             self,
+      |             ~~~~~
+37632 |             (*rumoca_clocked0_argument_2300),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37633 |             (*rumoca_clocked0_argument_2304),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37634 |             (*rumoca_clocked0_argument_2309),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37635 |             (*rumoca_clocked0_argument_2313),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37636 |             (*rumoca_clocked0_argument_2317),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37637 |             (*rumoca_clocked0_argument_2543),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37638 |             rumoca_clocked0_conditional_2544,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37639 |             (*rumoca_clocked0_argument_2770),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37640 |             (*rumoca_clocked0_argument_2786),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37641 |             rumoca_clocked0_conditional_2787,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37642 |             rumoca_clocked0_conditional_2788,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37643 |             rumoca_clocked0_conditional_2789,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37644 |             self->landmarksWorld_m,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~
+37645 |             self->observations,
+      |             ~~~~~~~~~~~~~~~~~~~
+37646 |             self->measurementCovariance,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37647 |             self->rotationBodyCamera,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~
+37648 |             self->cameraPositionBody_m,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37649 |             self->intrinsics);
+      |             ~~~~~~~~~~~~~~~~~
+/mnt/scratch/jgoppert/modelica_models/rgbd-navigation/qualification-2/export/Tests_VisualNavigationReplay/ProductionCode/Tests_VisualNavigationReplay.c:15878:10: note: ‘result43’ was declared here
+15878 |     bool result43;
+      |          ^~~~~~~~
+/mnt/scratch/jgoppert/modelica_models/rgbd-navigation/qualification-2/export/Tests_VisualNavigationReplay/ProductionCode/Tests_VisualNavigationReplay.c:37630:9: warning: ‘result48’ may be used uninitialized [-Wmaybe-uninitialized]
+37630 |         correctMappedLandmarksLoose(
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37631 |             self,
+      |             ~~~~~
+37632 |             (*rumoca_clocked0_argument_2300),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37633 |             (*rumoca_clocked0_argument_2304),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37634 |             (*rumoca_clocked0_argument_2309),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37635 |             (*rumoca_clocked0_argument_2313),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37636 |             (*rumoca_clocked0_argument_2317),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37637 |             (*rumoca_clocked0_argument_2543),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37638 |             rumoca_clocked0_conditional_2544,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37639 |             (*rumoca_clocked0_argument_2770),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37640 |             (*rumoca_clocked0_argument_2786),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37641 |             rumoca_clocked0_conditional_2787,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37642 |             rumoca_clocked0_conditional_2788,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37643 |             rumoca_clocked0_conditional_2789,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37644 |             self->landmarksWorld_m,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~
+37645 |             self->observations,
+      |             ~~~~~~~~~~~~~~~~~~~
+37646 |             self->measurementCovariance,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37647 |             self->rotationBodyCamera,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~
+37648 |             self->cameraPositionBody_m,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37649 |             self->intrinsics);
+      |             ~~~~~~~~~~~~~~~~~
+/mnt/scratch/jgoppert/modelica_models/rgbd-navigation/qualification-2/export/Tests_VisualNavigationReplay/ProductionCode/Tests_VisualNavigationReplay.c:15881:10: note: ‘result48’ was declared here
+15881 |     bool result48;
+      |          ^~~~~~~~
+/mnt/scratch/jgoppert/modelica_models/rgbd-navigation/qualification-2/export/Tests_VisualNavigationReplay/ProductionCode/Tests_VisualNavigationReplay.c:37630:9: warning: ‘result46’ may be used uninitialized [-Wmaybe-uninitialized]
+37630 |         correctMappedLandmarksLoose(
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37631 |             self,
+      |             ~~~~~
+37632 |             (*rumoca_clocked0_argument_2300),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37633 |             (*rumoca_clocked0_argument_2304),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37634 |             (*rumoca_clocked0_argument_2309),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37635 |             (*rumoca_clocked0_argument_2313),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37636 |             (*rumoca_clocked0_argument_2317),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37637 |             (*rumoca_clocked0_argument_2543),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37638 |             rumoca_clocked0_conditional_2544,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37639 |             (*rumoca_clocked0_argument_2770),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37640 |             (*rumoca_clocked0_argument_2786),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37641 |             rumoca_clocked0_conditional_2787,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37642 |             rumoca_clocked0_conditional_2788,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37643 |             rumoca_clocked0_conditional_2789,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37644 |             self->landmarksWorld_m,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~
+37645 |             self->observations,
+      |             ~~~~~~~~~~~~~~~~~~~
+37646 |             self->measurementCovariance,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37647 |             self->rotationBodyCamera,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~
+37648 |             self->cameraPositionBody_m,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37649 |             self->intrinsics);
+      |             ~~~~~~~~~~~~~~~~~
+/mnt/scratch/jgoppert/modelica_models/rgbd-navigation/qualification-2/export/Tests_VisualNavigationReplay/ProductionCode/Tests_VisualNavigationReplay.c:15879:11: note: ‘result46’ was declared here
+15879 |     float result46;
+      |           ^~~~~~~~
+/mnt/scratch/jgoppert/modelica_models/rgbd-navigation/qualification-2/export/Tests_VisualNavigationReplay/ProductionCode/Tests_VisualNavigationReplay.c:37630:9: warning: ‘result47’ may be used uninitialized [-Wmaybe-uninitialized]
+37630 |         correctMappedLandmarksLoose(
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37631 |             self,
+      |             ~~~~~
+37632 |             (*rumoca_clocked0_argument_2300),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37633 |             (*rumoca_clocked0_argument_2304),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37634 |             (*rumoca_clocked0_argument_2309),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37635 |             (*rumoca_clocked0_argument_2313),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37636 |             (*rumoca_clocked0_argument_2317),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37637 |             (*rumoca_clocked0_argument_2543),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37638 |             rumoca_clocked0_conditional_2544,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37639 |             (*rumoca_clocked0_argument_2770),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37640 |             (*rumoca_clocked0_argument_2786),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37641 |             rumoca_clocked0_conditional_2787,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37642 |             rumoca_clocked0_conditional_2788,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37643 |             rumoca_clocked0_conditional_2789,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37644 |             self->landmarksWorld_m,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~
+37645 |             self->observations,
+      |             ~~~~~~~~~~~~~~~~~~~
+37646 |             self->measurementCovariance,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37647 |             self->rotationBodyCamera,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~
+37648 |             self->cameraPositionBody_m,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+37649 |             self->intrinsics);
+      |             ~~~~~~~~~~~~~~~~~
+/mnt/scratch/jgoppert/modelica_models/rgbd-navigation/qualification-2/export/Tests_VisualNavigationReplay/ProductionCode/Tests_VisualNavigationReplay.c:15880:11: note: ‘result47’ was declared here
+15880 |     float result47;
+      |           ^~~~~~~~
+/mnt/scratch/jgoppert/modelica_models/rgbd-navigation/qualification-2/export/Tests_VisualNavigationReplay/ProductionCode/Tests_VisualNavigationReplay.c:34140:9: warning: ‘call8044_result83’ may be used uninitialized [-Wmaybe-uninitialized]
+34140 |         correctMappedLandmarksTight(
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34141 |             self,
+      |             ~~~~~
+34142 |             (*rumoca_clocked0_argument_1793),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34143 |             (*rumoca_clocked0_argument_1797),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34144 |             (*rumoca_clocked0_argument_1802),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34145 |             (*rumoca_clocked0_argument_1806),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34146 |             (*rumoca_clocked0_argument_1810),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34147 |             (*rumoca_clocked0_argument_2036),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34148 |             rumoca_clocked0_conditional_2037,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34149 |             (*rumoca_clocked0_argument_2263),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34150 |             (*rumoca_clocked0_argument_2279),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34151 |             rumoca_clocked0_conditional_2280,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34152 |             rumoca_clocked0_conditional_2281,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34153 |             rumoca_clocked0_conditional_2282,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34154 |             self->landmarksWorld_m,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~
+34155 |             self->observations,
+      |             ~~~~~~~~~~~~~~~~~~~
+34156 |             self->measurementCovariance,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34157 |             self->rotationBodyCamera,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~
+34158 |             self->cameraPositionBody_m,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34159 |             self->intrinsics);
+      |             ~~~~~~~~~~~~~~~~~
+/mnt/scratch/jgoppert/modelica_models/rgbd-navigation/qualification-2/export/Tests_VisualNavigationReplay/ProductionCode/Tests_VisualNavigationReplay.c:15883:10: note: ‘call8044_result83’ was declared here
+15883 |     bool call8044_result83;
+      |          ^~~~~~~~~~~~~~~~~
+/mnt/scratch/jgoppert/modelica_models/rgbd-navigation/qualification-2/export/Tests_VisualNavigationReplay/ProductionCode/Tests_VisualNavigationReplay.c:34140:9: warning: ‘result88’ may be used uninitialized [-Wmaybe-uninitialized]
+34140 |         correctMappedLandmarksTight(
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34141 |             self,
+      |             ~~~~~
+34142 |             (*rumoca_clocked0_argument_1793),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34143 |             (*rumoca_clocked0_argument_1797),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34144 |             (*rumoca_clocked0_argument_1802),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34145 |             (*rumoca_clocked0_argument_1806),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34146 |             (*rumoca_clocked0_argument_1810),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34147 |             (*rumoca_clocked0_argument_2036),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34148 |             rumoca_clocked0_conditional_2037,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34149 |             (*rumoca_clocked0_argument_2263),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34150 |             (*rumoca_clocked0_argument_2279),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34151 |             rumoca_clocked0_conditional_2280,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34152 |             rumoca_clocked0_conditional_2281,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34153 |             rumoca_clocked0_conditional_2282,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34154 |             self->landmarksWorld_m,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~
+34155 |             self->observations,
+      |             ~~~~~~~~~~~~~~~~~~~
+34156 |             self->measurementCovariance,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34157 |             self->rotationBodyCamera,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~
+34158 |             self->cameraPositionBody_m,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34159 |             self->intrinsics);
+      |             ~~~~~~~~~~~~~~~~~
+/mnt/scratch/jgoppert/modelica_models/rgbd-navigation/qualification-2/export/Tests_VisualNavigationReplay/ProductionCode/Tests_VisualNavigationReplay.c:15886:10: note: ‘result88’ was declared here
+15886 |     bool result88;
+      |          ^~~~~~~~
+/mnt/scratch/jgoppert/modelica_models/rgbd-navigation/qualification-2/export/Tests_VisualNavigationReplay/ProductionCode/Tests_VisualNavigationReplay.c:34140:9: warning: ‘result86’ may be used uninitialized [-Wmaybe-uninitialized]
+34140 |         correctMappedLandmarksTight(
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34141 |             self,
+      |             ~~~~~
+34142 |             (*rumoca_clocked0_argument_1793),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34143 |             (*rumoca_clocked0_argument_1797),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34144 |             (*rumoca_clocked0_argument_1802),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34145 |             (*rumoca_clocked0_argument_1806),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34146 |             (*rumoca_clocked0_argument_1810),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34147 |             (*rumoca_clocked0_argument_2036),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34148 |             rumoca_clocked0_conditional_2037,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34149 |             (*rumoca_clocked0_argument_2263),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34150 |             (*rumoca_clocked0_argument_2279),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34151 |             rumoca_clocked0_conditional_2280,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34152 |             rumoca_clocked0_conditional_2281,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34153 |             rumoca_clocked0_conditional_2282,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34154 |             self->landmarksWorld_m,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~
+34155 |             self->observations,
+      |             ~~~~~~~~~~~~~~~~~~~
+34156 |             self->measurementCovariance,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34157 |             self->rotationBodyCamera,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~
+34158 |             self->cameraPositionBody_m,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34159 |             self->intrinsics);
+      |             ~~~~~~~~~~~~~~~~~
+/mnt/scratch/jgoppert/modelica_models/rgbd-navigation/qualification-2/export/Tests_VisualNavigationReplay/ProductionCode/Tests_VisualNavigationReplay.c:15884:11: note: ‘result86’ was declared here
+15884 |     float result86;
+      |           ^~~~~~~~
+/mnt/scratch/jgoppert/modelica_models/rgbd-navigation/qualification-2/export/Tests_VisualNavigationReplay/ProductionCode/Tests_VisualNavigationReplay.c:34140:9: warning: ‘result87’ may be used uninitialized [-Wmaybe-uninitialized]
+34140 |         correctMappedLandmarksTight(
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34141 |             self,
+      |             ~~~~~
+34142 |             (*rumoca_clocked0_argument_1793),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34143 |             (*rumoca_clocked0_argument_1797),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34144 |             (*rumoca_clocked0_argument_1802),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34145 |             (*rumoca_clocked0_argument_1806),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34146 |             (*rumoca_clocked0_argument_1810),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34147 |             (*rumoca_clocked0_argument_2036),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34148 |             rumoca_clocked0_conditional_2037,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34149 |             (*rumoca_clocked0_argument_2263),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34150 |             (*rumoca_clocked0_argument_2279),
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34151 |             rumoca_clocked0_conditional_2280,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34152 |             rumoca_clocked0_conditional_2281,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34153 |             rumoca_clocked0_conditional_2282,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34154 |             self->landmarksWorld_m,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~
+34155 |             self->observations,
+      |             ~~~~~~~~~~~~~~~~~~~
+34156 |             self->measurementCovariance,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34157 |             self->rotationBodyCamera,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~
+34158 |             self->cameraPositionBody_m,
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+34159 |             self->intrinsics);
+      |             ~~~~~~~~~~~~~~~~~
+/mnt/scratch/jgoppert/modelica_models/rgbd-navigation/qualification-2/export/Tests_VisualNavigationReplay/ProductionCode/Tests_VisualNavigationReplay.c:15885:11: note: ‘result87’ was declared here
+15885 |     float result87;
+      |           ^~~~~~~~
+/mnt/scratch/jgoppert/modelica_models/rgbd-navigation/qualification-2/export/Tests_VisualNavigationReplay/ProductionCode/Tests_VisualNavigationReplay.c:60742:22: warning: ‘result51’ may be used uninitialized [-Wmaybe-uninitialized]
+60742 |         self->gpsNis = result51;
+      |         ~~~~~~~~~~~~~^~~~~~~~~~
+/mnt/scratch/jgoppert/modelica_models/rgbd-navigation/qualification-2/export/Tests_VisualNavigationReplay/ProductionCode/Tests_VisualNavigationReplay.c:15882:11: note: ‘result51’ was declared here
+15882 |     float result51;
+      |           ^~~~~~~~

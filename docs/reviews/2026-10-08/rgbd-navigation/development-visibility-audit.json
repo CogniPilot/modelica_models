@@ -1,0 +1,8 @@
+{
+  "admitted_as_camera_flight": false,
+  "algebra_replay_passed": true,
+  "reason": "The first scene omitted image-bound checks. Seed 20271031 has image-coordinate ranges u=[-155.4131,819.0166], v=[-211.7499,712.8862], outside 640x480. It is retained as development evidence only.",
+  "result_sha256": "d736749cca82bc76d18611c811a922ddc9b903f3c3feb0a50cea2b73aab6adeb",
+  "qualification_sha256": "428b11cc133c6e741ca6c81a12608cfc229996ebacb8d2e45a950b060801d9d0",
+  "replacement": "qualification-2 uses a revised visible scene and fresh seeds 20271041 through 20271048; image bounds and positive optical depth are required for every noisy observation."
+}

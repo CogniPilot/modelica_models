@@ -71,7 +71,55 @@ checks. It refuses a source change during qualification.
 These first cases assume a FIXED KNOWN MAP and independent new camera noise.
 Do not feed uncertain live SLAM landmarks or IMU/GPS-correlated external poses
 through these functions as if independent. The retained-map/reference joint
-uncertainty implementation, persistent replay and GPS loss/return comparison
-remain required before full RGB-D SLAM qualification or a superiority claim.
+uncertainty implementation and live SLAM flight comparison remain required
+before full RGB-D SLAM qualification or a superiority claim.
 The imported SLAM full graph likewise retains its prior compiler/runtime
 admission limits; relocation alone does not qualify that graph for Rumoca 0.10.2.
+
+Sequential Modelica navigation replay
+-----------------------------------
+Tests.VisualNavigationReplay advances the same flight ESKF using IMU prediction,
+joint GPS position/velocity correction and either visual correction path. C
+copies packets and carries the generated state/covariance between calls; it
+contains no estimator mathematics. Python generates common physical captures,
+drives the generated entrypoint and independently computes physical errors,
+right-tangent NEES15 and measurement-dimension-specific NIS.
+
+  python tools/estimator_comparison/qualify_visual_navigation.py \
+    --rumoca /path/to/rumoca-0.10.2 --cc /path/to/gcc \
+    --work "$HOME/scratch/modelica_models/visual-navigation-qualification"
+
+The default experiment uses eight distinct noise seeds, each reused across
+GPS available, GPS denied and GPS loss/return. Each 30-second flight has 100 Hz
+IMU, 5 Hz GPS and 10 Hz camera opportunities. GPS is lost from 10 to 20 seconds
+in the transition case; every case loses the camera from 14 to 16 seconds.
+The four fixed landmarks are known exactly in the world frame. All noisy image
+observations must remain inside a 640x480 image with positive optical depth.
+Both paths use the same full camera covariance and prior. Gates are disabled.
+
+The runner freezes source hashes, sensor schedules and numerical acceptance
+criteria before generating captures. It retains captures and both complete
+state/covariance traces outside the checkout. Every raw full15 covariance must
+be symmetric and Cholesky-positive without repair, every available measurement
+must be accepted, and unavailable measurements must never be fused. It reports
+RMS and consistency values without treating correlated ticks as independent
+Monte Carlo samples. See docs/reviews/2026-10-08/rgbd-navigation for receipts.
+
+Generated C warnings can also be checked for initialization-sensitive outputs:
+
+  python tools/estimator_comparison/check_visual_navigation_initialization.py \
+    --qualification "$HOME/scratch/modelica_models/visual-navigation-qualification" \
+    --cc /path/to/gcc \
+    --work "$HOME/scratch/modelica_models/visual-navigation-initialization"
+
+This rebuilds the exact generated source with zero and pattern initialization
+of automatic variables, reuses every frozen capture and requires byte-identical
+outputs against the original replay. It is a sensitivity check on those traces,
+not a general proof that the generated program has no undefined behavior.
+
+This is a known-map visual aiding baseline. World-referenced landmarks provide
+absolute position information even while GPS is denied. This changes the
+observability relative to unknown-map odometry and nadir optical flow. No
+claim about full live SLAM, native EKF2/EKF3 ranking or tight-coupling superiority
+follows from this experiment. Delayed measurements, map uncertainty/shared
+information, reference management and loop closure need their own replay.

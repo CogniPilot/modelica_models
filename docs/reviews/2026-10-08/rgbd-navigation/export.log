@@ -1,0 +1,12 @@
+Compiling target 'galec-production' for Tests_VisualNavigationReplay
+  eFMI Production Code export: eFMU container with generated C99 + LogicalData mapping manifest (ProductionCode/) and co-emitted Algorithm Code representation (AlgorithmCode/), directory and .efmu zip forms
+
+eFMI Production Code eFMU written to: /mnt/scratch/jgoppert/modelica_models/rgbd-navigation/qualification-2/export
+  Tests_VisualNavigationReplay/       eFMU container, directory form (__content.xml + schemas/ + AlgorithmCode/ + ProductionCode/)
+  Tests_VisualNavigationReplay.efmu   eFMU container, zip form (same content, __content.xml at zip root)
+Conformance: "eFMI Production Code export" (SPEC_0034 GAL-021/GAL-024) — schema-valid
+eFMU with Algorithm Code + Production Code representations, all SHA-1 checksums
+computed from the written bytes, LogicalData mapping every block variable and
+method; the co-emitted GALEC also round-trip parses ("GALEC language conformance").
+Safety assurance: designed for the MISRA C:2023 profile in GAL-029/030;
+MISRA compliance and DO-178C compliance are not claimed.
