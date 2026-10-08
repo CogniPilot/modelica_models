@@ -1,0 +1,36 @@
+{
+  "complete": true,
+  "passed": true,
+  "executable_sha256": "0d3a5e67b03b097b63a9bf6d2d18f3819dc5d48dce40d05a23bfaf71738d8984",
+  "geometry_cases": 32,
+  "generated_observations": 2363,
+  "maximum_independent_prediction_error": 5.5392176534496684e-05,
+  "maximum_row_scaled_jacobian_error": 0.0014707919995446683,
+  "wrong_attitude_sign_negative_control_error": 2.000358813078185,
+  "missing_lever_arm_negative_control_prediction_error": 26.918952316757725,
+  "invalid_geometry_cases": 7,
+  "invalid_geometry_rejected_with_zero_outputs": true,
+  "invalid_geometry_error_signal_status": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    4,
+    0
+  ],
+  "matched_linearized_comparison": {
+    "features": 20,
+    "independent_draws": 1024,
+    "pose_information_condition_number": 757.8888514520127,
+    "maximum_correction_difference": 1.3489209749195652e-14,
+    "maximum_covariance_difference": 4.336808689942018e-19,
+    "maximum_nis_decomposition_error": 2.007993771258043e-11,
+    "mean_nees_15d": 15.040258896742671,
+    "mean_raw_nis_60d": 59.70318413352034,
+    "mean_compressed_nis_6d": 6.036742559663646,
+    "mean_discarded_residual_energy_54d": 53.66644157385612,
+    "diagonal_pose_covariance_negative_control_correction_difference": 0.002311469298384593,
+    "scope": "One linearized Gaussian update with known landmarks, independent RGB-D noise and full 6D sufficient pose statistic. Not persistent SLAM, uncertain-map fusion, nonlinear registration or flight superiority."
+  }
+}

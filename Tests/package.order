@@ -57,3 +57,6 @@ SemiDirectBiasReplay
 SemiDirectBiasCorrectionReplay
 SquareRootCorrectionReplay
 BarometerConsiderReplay
+VisualTangentReplay
+VisualLandmarkReplay
+VisualCouplingReplay

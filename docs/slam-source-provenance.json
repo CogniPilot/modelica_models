@@ -1,0 +1,1524 @@
+{
+  "upstream_repository": "https://github.com/CogniPilot/slam_web",
+  "upstream_revision": "99986cac289814d0c4ee0ea5bc8d4519c4560397",
+  "license": "Apache-2.0",
+  "source_sha256": {
+    "models/Estimation/Inertial/ES15CovariancePrediction.mo": "d0ceeeca8ccf150c4d240d2ee07eaeb29a955227ae1251088e5e7aa66e9b65fa",
+    "models/Estimation/Inertial/ES15Dynamics.mo": "df05e38d83a60f48c8cc15a08278fa01b965123edd7be64c420744130815d1cd",
+    "models/Estimation/Inertial/ES15NominalPrediction.mo": "1b4b3c6fe2ae43723a6680535126956eb9dd6aa543fdda03752f8320405c7c0a",
+    "models/Estimation/Inertial/ES15PoseCorrection.mo": "7a2e6f86e8d932fa178ab6d4b71550e768fb1c84921d73fee4d94c72b2645f4b",
+    "models/Estimation/Inertial/ModelicaInertial.mo": "ad59c5747fd8b86808b9d24d93f06874c9abd02c20408213a5107e3007c9d93e",
+    "models/Estimation/Inertial/SchmidtGraphPoseCorrection.mo": "27788a60bae368a305974506d03b3ce002347224a53df45ae7de49797d721ed8",
+    "models/Estimation/Inertial/SchmidtReferenceState.mo": "7794c42b59f4b0cd8c603c275c950cfa67f818e69f4c6e78079e2a4dc4c312e9",
+    "models/Estimation/Inertial/SchmidtRelativePoseCorrection.mo": "d6b98c2960e74cd743faff8e32fbe7e1574e7d0c1182bf7cb684cf817a9cb2cf",
+    "models/Estimation/Localization/RGBDFastInertialLocalizationInitialize.mo": "912ce8a857eb9ea4d3b500ee449dc7aec4affef4eea87feb90c3e5409c642390",
+    "models/Estimation/Localization/RGBDFastInertialLocalizationStep.mo": "a1cc45413dc334f195d8a65a1f043b56b8f4abc124817a922a1124d3ed502532",
+    "models/Estimation/Localization/RGBDInertialLocalizationInitialize.mo": "1dab710712809f5b99af32ec08f8dc6d310f6c5cf04653860a778958a74420b7",
+    "models/Estimation/Localization/RGBDInertialLocalizationStep.mo": "23ca590413811c33c73b31dbd37baf356d9411e31c18b6150b5c86395af716c3",
+    "models/Estimation/Localization/RGBDLocalizationCatalog.mo": "6c2676c84bc7aa2e84ba0ddf8e6c9636b6ed22ffb13893350f2b293dc54cf9cd",
+    "models/Estimation/Localization/RGBDLocalizationFrame.mo": "504a743585af3605d9ab7b371b007edfdcfcdcf53616e2b05c774389c130d257",
+    "models/Estimation/Localization/RGBDLocalizationProcessing.mo": "65791f1915e95e89882ef3b150aa5b2791abb37156263b901911fc86b2490577",
+    "models/Estimation/Localization/RGBDRegistrationUncertainty.mo": "8074f170f8316c4874f4517e1f4875924434fa1f58d27611a1ff93d719441ecd",
+    "models/Estimation/Localization/RGBDRelativePose.mo": "90b1fbb79f52f398389ee8fb6d5e21ab126263a4b2d5f660c688e8d0f58affb8",
+    "models/Estimation/Localization/RGBDVisualObservation.mo": "3524d1c0659e9da47c2818a081ccd211bff7f6fa29e09b1ddf5f31e9078f160f",
+    "models/Estimation/Localization/RGBDVisualRelativeObservation.mo": "5ba0bceb569e4dc20226fa3abc72f64197b4c366d14a149a930d13e63d898e5d",
+    "models/Evaluation/RuntimeEvaluation.mo": "f6dc00fb7971fcfacaf50364949d2469fe7d289e84f11640e989ad52f35bea3b",
+    "models/Examples/InertialOnly.mo": "e5fb852b196684d6bcaee025526274f1ebb9383d89b18924e2c8e36d472edabf",
+    "models/Examples/ResponsiveInertial.mo": "e5503b89406fd000bc38c8fff331680734789a62817637cde25588b02f016e08",
+    "models/Examples/SmoothedInertial.mo": "c2c419a8a3a72c5056e52652172ba3269862db6db9229fe1f34c21589d5efd9f",
+    "models/LoopClosure/RGBDBagOfWords.mo": "0a99b0da2d606de97acd6710f1ff79703820cbcc1796d8ad75dc07ffb2a98883",
+    "models/LoopClosure/RGBDBodyRelativeEdge.mo": "efe11d3002b4487e29ef36c111f4db7de1a743c0466cd48ba798925c6a54fa1b",
+    "models/LoopClosure/RGBDCatalogLoopVerification.mo": "a0cb5654701ccffbd9066441297e8cb89f5e3c270a06f486c0925ecd117dc51e",
+    "models/LoopClosure/RGBDKeyframePolicy.mo": "d865eeb4e5c6d112d83ca63a6ab03d58850a3fc4bec1820606498312ffdba8b8",
+    "models/LoopClosure/RGBDKeyframeRetrieval.mo": "6bbbee4b0355e22745f9b5981b46c9209aab8b9e6cbe7c2e518db779eccc7be3",
+    "models/LoopClosure/RGBDKeyframes.mo": "4316ffb80822dee331ef1b225138fe7a4b79e4c1d4c8e830af720e8f93864f01",
+    "models/LoopClosure/RGBDLoopVerification.mo": "4272177c670972d6c54ce600b4772bbac5b9f2944392eabf828cc32a5ffb4027",
+    "models/LoopClosure/RGBDVisualVocabulary.mo": "fa28cd4dac6185db7addcd053918170851fd75e0f232dfa3e493ecbd5587fbd3",
+    "models/Mapping/RGBDAnchoredLandmarkMap.mo": "fa57e3af6c2e6bfbd4e4005139d268a5f2c9ba7c3ecb63002f306e034dd6b376",
+    "models/Mapping/RGBDCatalogFrame.mo": "adca98610b42d4d3c6892504b02aeae35d5f11cba11f3ad27de15f79cbaaef04",
+    "models/Mapping/RGBDCatalogMapping.mo": "7cc55bffc5f0af4b0199bb1cba76c71dd9d3addbaa150500326bfca7e6614e00",
+    "models/Mapping/RGBDCatalogObservation.mo": "c327a8f047f8218e31412fa671b9026f08c20dae89e4e24ad4c8d6f7ca0597cf",
+    "models/Mapping/RGBDCatalogPoseMapping.mo": "c00939bea3ecdc80ff038235a5059361f4f9f0ac6010e4863334de7d87eebdcb",
+    "models/Mapping/RGBDKeyframeLandmarks.mo": "772ffa66c4e0f3e8834f6bc24036e6ea91a93702e5c1e1f7b42419f2be9241ac",
+    "models/Mapping/RGBDLandmarkCatalog.mo": "e56584b460ceb2ca9be3588dadb881f7b0169aa7b862d434d5755768e3e12ac5",
+    "models/Mapping/RGBDLandmarkMap.mo": "b69b1ece487add6e8bdfdad49ce0cfc10acb0ab26874f29ba56b97aa38666368",
+    "models/Mapping/RGBDLandmarkProjection.mo": "6eb353f1dffdcb54f373ed3ab6e60700dbd097759445edf21e0ceaf702c260d7",
+    "models/Mapping/RGBDMapAnchorAssignment.mo": "392fac79d4d172fe7368d9abfcfac8010bd3c02e7ee825d59ea3331f04fc2a7a",
+    "models/Mapping/RGBDMapAnchorUncertainty.mo": "c63d0f0ec8633b7be4816df1d88231b094d87baf3cfbf8ca007a0be5a6f556dc",
+    "models/Mapping/RGBDMapAnchors.mo": "297dc4d6846745e031163a0a43fa76a140acd5d8058a1226a7d9882323345333",
+    "models/Mapping/RGBDSpatialIndex.mo": "300b3cfa9cd830914464276a6295b42a8c79885590a1a34980ea43edd9979f00",
+    "models/Math/RigidPointRegistration.mo": "b5bd08d9994c978e189f485860d8118699acdcfba2f3745e9b3abcfcf1d219b7",
+    "models/Math/SPD6Solve.mo": "f255441c951bbaa6cbc8e7a471cd2583715b70d5cb0f49621b45963a0a853b8f",
+    "models/Optimization/GraphGaugeUncertainty.mo": "9b346a47823c6cc5ed0bbaf3562d3f946a27ffd729ccc8a14ed063530dc13ba3",
+    "models/Optimization/ModelicaPoseGraph.mo": "c93b6acbbe1f8f699fd6f79bb5bfbcf8f80dffb2830ee6666426a98751785932",
+    "models/Optimization/ModelicaPoseGraphCovariance.mo": "0860150bdf5c8046067068032c2093d9caa30e52acbd804649eddd2ce56f83b0",
+    "models/Optimization/RGBDCatalogGraphCapture.mo": "91d2209ed0dbb23c515d6bd45e1f003b6ab25a02604d916aa7a9ebae45f3341f",
+    "models/Optimization/RGBDGraphAnchorBound.mo": "a135420ce919436edd59bb4e9ab1bc5d7b9a234038db6d0f5bdc57c9de9bcdc8",
+    "models/Optimization/RGBDGraphCaptureLedger.mo": "77fde2f25fe5e7d6ad6e764a668db149215da8eed6bff9522a3ef0867bd83dc0",
+    "models/Optimization/RGBDGraphEstimatorCommit.mo": "85a408671e610f4ddc0d8088dc97ec4097d7e9cb4b7f2efafd245d621fc8bf9b",
+    "models/Optimization/RGBDGraphMeasurements.mo": "b4a570897d79c2131a5cf5338a7c06ea8581f678968f891e8c064e3b8aebc3fe",
+    "models/Optimization/RGBDGraphProcessing.mo": "77bd5ee5a953e991168e26d69d737811a41bc27284f62dc029e623c85954028d",
+    "models/Optimization/RGBDGraphSelectedGauge.mo": "98b74ad75376c317cc36df81bf5162c9954fad9d61e31b4661a7a8d9bb2d8861",
+    "models/SLAM/D435FastSLAM.mo": "bdb8746d6d720289b816efd44acccbd33fa7f3347c2fa1c72d018d974f6cc6ab",
+    "models/SLAM/RGBDFastSLAMInitialize.mo": "20bd093723d7b62faacb0758c232242b6e7d19b39ee8ef0ad20cd1c7d095f235",
+    "models/SLAM/RGBDFastSLAMInterface.mo": "aea93e5f0230ae8c0817db5522d50d6f8b2e057e7585dbb9887e5aed3da7636e",
+    "models/SLAM/RGBDFastSLAMIntervals.mo": "3f9f63b1c98f57f2bb930681dd861a8694d9a6443983eed08deb9bf2789b0690",
+    "models/SLAM/RGBDFastSLAMReset.mo": "423ecc5773b3b0d2df48a504ed9226d18b6e2b7afb6d964908c122fe8261069c",
+    "models/SLAM/RGBDFastSLAMStep.mo": "83f0850b8ce0723ee4da009ebf4a40af64ec3bac410dd3dfeaa138b9ecc7f1f0",
+    "models/Scene/ActorMotion.mo": "e80f5f10f26380ebaf72adff5021da8aed63a388613fea615ee0f25b10c020e6",
+    "models/Sensors/D435ImageProfile.mo": "672c5da58f295f784c131a625cdb9c4f8bb42e5b3a866be7b50fdfe571fc2e92",
+    "models/Sensors/SensorAvailability.mo": "938eae6ad6b039fd2e411ee44934cdd36e977dfd7da5c3c6d791ee4267d2148d",
+    "models/Sensors/SensorObservations.mo": "cb25f6534e3865b81ff38bd42629c682f06fbc1dc6dab9a5a3017d779a06e9b9",
+    "models/Vehicles/LabQuadrotor.mo": "f0b5477092eaf8e7df98ad44b7f19183fcfcfb8c856aa3b7dd5ccf163e1e777c",
+    "models/Vision/Features/D435FastFeatures.mo": "5401a709a1b54146cb09f886c0edb9fad69b8ec5625a9a9a52c171057770f114",
+    "models/Vision/Features/D435HarrisFeatures.mo": "b2b58798e416b0e4e51e4ff0fffe5ea407aadad78d0122b5392b5f3e26667a48",
+    "models/Vision/Features/FastNativeFrame.mo": "94b3a5c5d8f146fef902a2520ae45c1961b0a224b6835cdfae776c14256d77c4",
+    "models/Vision/Features/FeatureSelection.mo": "b1867d5c6d8a401d92c147d32986685271ea8559147ec16153bb9359d42cd28b",
+    "models/Vision/Features/HarrisNativeFrame.mo": "ee6500f298a86c06225ddc5a93300ddfea27520fc4402bba4476148ddee9d520",
+    "models/Vision/Matching/RGBDFeatureMatching.mo": "7fd92ae9fe18248ebe1a2460505a61b796bf62bf388a06bc45709f7909736448",
+    "models/Vision/Matching/RGBDPatchTracking.mo": "e3ad9ba4bf0b91cd00a2404c2e8392e259fbb7af68214c1d2f43334892f6a303"
+  },
+  "classes": [
+    {
+      "source": "models/Estimation/Inertial/ES15CovariancePrediction.mo",
+      "original_name": "ES15TransitionNoise",
+      "destination": "SLAM/Inertial/ES15TransitionNoise.mo",
+      "qualified_name": "SLAM.Inertial.ES15TransitionNoise",
+      "original_class_sha256": "a4fffbef12373882600ff82cb35ca601a77dac9298c98b0ee4167769e9ca504b",
+      "destination_sha256": "c4dc57f364b14c16648405f8964e17e8f3bf7e82970046c92b8262fc127c3be5"
+    },
+    {
+      "source": "models/Estimation/Inertial/ES15CovariancePrediction.mo",
+      "original_name": "ES15CovarianceStep",
+      "destination": "SLAM/Inertial/ES15CovarianceStep.mo",
+      "qualified_name": "SLAM.Inertial.ES15CovarianceStep",
+      "original_class_sha256": "9bfdb8664a2de62deca19f13cb00ac35194557903d083418c078732f9680db37",
+      "destination_sha256": "9df74eb3710f967b9e29a4e61df95a0221895a4bcfcf5086e77f0238df98cbc7"
+    },
+    {
+      "source": "models/Estimation/Inertial/ES15CovariancePrediction.mo",
+      "original_name": "ES15CovariancePrediction",
+      "destination": "SLAM/Inertial/ES15CovariancePrediction.mo",
+      "qualified_name": "SLAM.Inertial.ES15CovariancePrediction",
+      "original_class_sha256": "14e7c7ea0a299cafc90434f00efb108a63cc1a301c3ce1ec585806090f14cfa9",
+      "destination_sha256": "b2a409d71ce14cdcfa3ed4593eb9eda787461527d5c36b8f424cb67db2c394e7"
+    },
+    {
+      "source": "models/Estimation/Inertial/ES15Dynamics.mo",
+      "original_name": "ES15Dynamics",
+      "destination": "SLAM/Inertial/ES15Dynamics.mo",
+      "qualified_name": "SLAM.Inertial.ES15Dynamics",
+      "original_class_sha256": "f4178c7067b3395e2ecc2e9afffc97d5a1f566857f95c2c8abd12982f6baf4c9",
+      "destination_sha256": "09b42aa9b50016fd001c021aa4cd4849027d312fdfc5073e1d1409e064b548c8"
+    },
+    {
+      "source": "models/Estimation/Inertial/ES15NominalPrediction.mo",
+      "original_name": "ES15NominalPrediction",
+      "destination": "SLAM/Inertial/ES15NominalPrediction.mo",
+      "qualified_name": "SLAM.Inertial.ES15NominalPrediction",
+      "original_class_sha256": "f1fb901071f94ac791ffa061118ab8781b2726abfc6ad370e112ded62ced93a1",
+      "destination_sha256": "ab2e8d30b0cbf69ad65c6620389c0595022292d1f89a3ff616a130cc304b77e1"
+    },
+    {
+      "source": "models/Estimation/Inertial/ES15PoseCorrection.mo",
+      "original_name": "ES15PoseCorrection",
+      "destination": "SLAM/Inertial/ES15PoseCorrection.mo",
+      "qualified_name": "SLAM.Inertial.ES15PoseCorrection",
+      "original_class_sha256": "1fc980cfa9a874c58acd72e8cb93ec01abcbfc0b17beab7cbfd306f00928f145",
+      "destination_sha256": "49276f75714bad3500d6cf00b9ca55f5353987a70f5b6dba7c17493bb33ab167"
+    },
+    {
+      "source": "models/Estimation/Inertial/ES15PoseCorrection.mo",
+      "original_name": "ES15CorrectionSolve",
+      "destination": "SLAM/Inertial/ES15CorrectionSolve.mo",
+      "qualified_name": "SLAM.Inertial.ES15CorrectionSolve",
+      "original_class_sha256": "af7393dcf5c97b6c1f6e7c025edb2b14b3a6dbba1f89d3c75670f8ec0f4b597e",
+      "destination_sha256": "44274e00569a884b690bce803a764ef873d4c392855fe9d0048fe97fbcc90bc6"
+    },
+    {
+      "source": "models/Estimation/Inertial/ModelicaInertial.mo",
+      "original_name": "ModelicaInertial",
+      "destination": "SLAM/Inertial/ModelicaInertial.mo",
+      "qualified_name": "SLAM.Inertial.ModelicaInertial",
+      "original_class_sha256": "173b30980bfc5cdd35bad289d01eb82199f226e0c4a5898b695df5f7b0cc2c20",
+      "destination_sha256": "36412b9627686e267717a3ea33fe4c9c5556def574c8065026f91889847ecace"
+    },
+    {
+      "source": "models/Estimation/Inertial/SchmidtGraphPoseCorrection.mo",
+      "original_name": "SchmidtGraphPoseCorrection",
+      "destination": "SLAM/Inertial/SchmidtGraphPoseCorrection.mo",
+      "qualified_name": "SLAM.Inertial.SchmidtGraphPoseCorrection",
+      "original_class_sha256": "253764f51c413c2ba39aa2503ab607f4c89632d6e6ee2d8d214551c746a7a753",
+      "destination_sha256": "4c743146c80311929f65b5e5fee2491fff7ce44f16e004ad4fd6f5692b6fd860"
+    },
+    {
+      "source": "models/Estimation/Inertial/SchmidtReferenceState.mo",
+      "original_name": "SLAMExactRealEqual",
+      "destination": "SLAM/Inertial/SLAMExactRealEqual.mo",
+      "qualified_name": "SLAM.Inertial.SLAMExactRealEqual",
+      "original_class_sha256": "8e417d565b9615f9093194669617bf2d798b082ed3cb91178e352643c2e65546",
+      "destination_sha256": "bd87fe621fcb3b19a26bf47459b6a1d1015d83443fb36d82318fd226bb9b8569"
+    },
+    {
+      "source": "models/Estimation/Inertial/SchmidtReferenceState.mo",
+      "original_name": "ES15HeldIntervalValid",
+      "destination": "SLAM/Inertial/ES15HeldIntervalValid.mo",
+      "qualified_name": "SLAM.Inertial.ES15HeldIntervalValid",
+      "original_class_sha256": "0593f947eea5d5fb370a4fcada26028a7df4f5672e96a86fbb3b8bc491bd1bc9",
+      "destination_sha256": "2d8dcd7ddb984b70628a0eb694920e63c4670a57c1e070fac682f243bff70f53"
+    },
+    {
+      "source": "models/Estimation/Inertial/SchmidtReferenceState.mo",
+      "original_name": "SchmidtPredictCovariance",
+      "destination": "SLAM/Inertial/SchmidtPredictCovariance.mo",
+      "qualified_name": "SLAM.Inertial.SchmidtPredictCovariance",
+      "original_class_sha256": "7dd9b3c2c46dd7710d397d9674e2194265aceec6c3a61d5648e635e204610740",
+      "destination_sha256": "e14391821cb66ed1201930d4b3a2296b3e0db5277642b9aa580b88b92d32de0d"
+    },
+    {
+      "source": "models/Estimation/Inertial/SchmidtReferenceState.mo",
+      "original_name": "ES15PredictHeldInterval",
+      "destination": "SLAM/Inertial/ES15PredictHeldInterval.mo",
+      "qualified_name": "SLAM.Inertial.ES15PredictHeldInterval",
+      "original_class_sha256": "5e8b414f3ab0693d60da8490963f04c851b947624869cd148ebdbbc3114c9974",
+      "destination_sha256": "cc0bad72de80c89b17adef0be37ccb0045bab686d8bad5f37af5c5037330c845"
+    },
+    {
+      "source": "models/Estimation/Inertial/SchmidtReferenceState.mo",
+      "original_name": "SchmidtReferencePrediction",
+      "destination": "SLAM/Inertial/SchmidtReferencePrediction.mo",
+      "qualified_name": "SLAM.Inertial.SchmidtReferencePrediction",
+      "original_class_sha256": "cec75f2225fb51834f2c5a208d32ddffcd92b6f575fc94e00176de2149936c22",
+      "destination_sha256": "42bb527b888de362f7f08461e7c7b182869c1a5fc9dd018105b3a428c394f20c"
+    },
+    {
+      "source": "models/Estimation/Inertial/SchmidtReferenceState.mo",
+      "original_name": "SchmidtCaptureReference",
+      "destination": "SLAM/Inertial/SchmidtCaptureReference.mo",
+      "qualified_name": "SLAM.Inertial.SchmidtCaptureReference",
+      "original_class_sha256": "eb16b71323bd44e5f9ecda2ec2cc38ada02061b0879c384c738d7a04b02af4d9",
+      "destination_sha256": "f9035b7f66ac3676dd05daece84019579d1955a1c7f34e44b041ed75244f3e6a"
+    },
+    {
+      "source": "models/Estimation/Inertial/SchmidtReferenceState.mo",
+      "original_name": "SchmidtReferenceCapture",
+      "destination": "SLAM/Inertial/SchmidtReferenceCapture.mo",
+      "qualified_name": "SLAM.Inertial.SchmidtReferenceCapture",
+      "original_class_sha256": "7090ab542dbbcb9c5c27e04634de8fcfd412907627cd1f399df020395c586f9a",
+      "destination_sha256": "2cda4670065f7266851787d74ad3d92976422cdf027bf3ee846bcac96e99570f"
+    },
+    {
+      "source": "models/Estimation/Inertial/SchmidtReferenceState.mo",
+      "original_name": "ES15SchmidtPrediction",
+      "destination": "SLAM/Inertial/ES15SchmidtPrediction.mo",
+      "qualified_name": "SLAM.Inertial.ES15SchmidtPrediction",
+      "original_class_sha256": "a111720f79a6eb033bbac0973d9953b0f43945165e1d720c2035eda15e1d651f",
+      "destination_sha256": "3378782b7ef9b0beebd55f0e5f0761317eeb4d3286696400b80c5b376d14b1fc"
+    },
+    {
+      "source": "models/Estimation/Inertial/SchmidtReferenceState.mo",
+      "original_name": "SchmidtImagePairEligibility",
+      "destination": "SLAM/Inertial/SchmidtImagePairEligibility.mo",
+      "qualified_name": "SLAM.Inertial.SchmidtImagePairEligibility",
+      "original_class_sha256": "d78c6fcac9865cd1c12a15d75e792aec517770178b6f587c7062378d7e38f6d7",
+      "destination_sha256": "35e6f0090f746d4cc5674de11e124d8d1c7becc2bd3e4042827d98ed144282cd"
+    },
+    {
+      "source": "models/Estimation/Inertial/SchmidtReferenceState.mo",
+      "original_name": "SchmidtImagePairGate",
+      "destination": "SLAM/Inertial/SchmidtImagePairGate.mo",
+      "qualified_name": "SLAM.Inertial.SchmidtImagePairGate",
+      "original_class_sha256": "4e44c3d43f5b17d968ad48b25463d1c2e90644d11ae6c17d046c6e53da712833",
+      "destination_sha256": "2250fe85c1f218fa87f20ab94f3e7736daf22c4d11d25b3e34931d1279f05a57"
+    },
+    {
+      "source": "models/Estimation/Inertial/SchmidtReferenceState.mo",
+      "original_name": "ES15SchmidtReferenceStep",
+      "destination": "SLAM/Inertial/ES15SchmidtReferenceStep.mo",
+      "qualified_name": "SLAM.Inertial.ES15SchmidtReferenceStep",
+      "original_class_sha256": "92e9f50e98ea695871ae91d546fdef80722a14ff59d10e3c71c9e89b889a6e17",
+      "destination_sha256": "4172a477fe22d46f4828841578436134cb409135d40e0674fecf6d04f190cd66"
+    },
+    {
+      "source": "models/Estimation/Inertial/SchmidtRelativePoseCorrection.mo",
+      "original_name": "SLAMCovariancePSDCheck",
+      "destination": "SLAM/Inertial/SLAMCovariancePSDCheck.mo",
+      "qualified_name": "SLAM.Inertial.SLAMCovariancePSDCheck",
+      "original_class_sha256": "0d58374110c881134e0bb757b92ffecfd90a86775d2edf60a5778e6b60960c6d",
+      "destination_sha256": "4d03d2e246af8679c01dae4638b00e1ebfe42bc94015ab3e711e70eef54a4acc"
+    },
+    {
+      "source": "models/Estimation/Inertial/SchmidtRelativePoseCorrection.mo",
+      "original_name": "SLAMCovariancePSD",
+      "destination": "SLAM/Inertial/SLAMCovariancePSD.mo",
+      "qualified_name": "SLAM.Inertial.SLAMCovariancePSD",
+      "original_class_sha256": "0e79ed298c44e7fecd90fb5745667a1deb970ccf577f574571b5dff91252b31e",
+      "destination_sha256": "9834ebc414848a737b4a0a4c96571326d829671279898e8cd3dcc33de09df055"
+    },
+    {
+      "source": "models/Estimation/Inertial/SchmidtRelativePoseCorrection.mo",
+      "original_name": "SLAMRotationCoordinates",
+      "destination": "SLAM/Inertial/SLAMRotationCoordinates.mo",
+      "qualified_name": "SLAM.Inertial.SLAMRotationCoordinates",
+      "original_class_sha256": "82bd13b731c24ed28cfb74f64abc54fa974fa8352dca28c7cff1f5ef03b78def",
+      "destination_sha256": "598a8f3f7f531636586657ea675039de05647a6acf73d3f12ec67cfee949daa2"
+    },
+    {
+      "source": "models/Estimation/Inertial/SchmidtRelativePoseCorrection.mo",
+      "original_name": "SLAMRotationLog",
+      "destination": "SLAM/Inertial/SLAMRotationLog.mo",
+      "qualified_name": "SLAM.Inertial.SLAMRotationLog",
+      "original_class_sha256": "37c01ba34573929f62eac7c37bd7af8dd5de9e80e8b85b3c709ecf8249fe8f2c",
+      "destination_sha256": "90712bcc9fd4cf6fcb7d6f9fa8e8658649930f3505e030b2679d839e6d90370a"
+    },
+    {
+      "source": "models/Estimation/Inertial/SchmidtRelativePoseCorrection.mo",
+      "original_name": "SchmidtRelativePoseCorrection",
+      "destination": "SLAM/Inertial/SchmidtRelativePoseCorrection.mo",
+      "qualified_name": "SLAM.Inertial.SchmidtRelativePoseCorrection",
+      "original_class_sha256": "c03245b308ab5dbac9b92f186c67a035e64e1246ffd910cd7d9cc46a02eb6319",
+      "destination_sha256": "18b78d79de69530a923a10105692aa8cf3e284ca2aee3713a1126659ebe08499"
+    },
+    {
+      "source": "models/Estimation/Inertial/SchmidtRelativePoseCorrection.mo",
+      "original_name": "SchmidtCorrectionSolve",
+      "destination": "SLAM/Inertial/SchmidtCorrectionSolve.mo",
+      "qualified_name": "SLAM.Inertial.SchmidtCorrectionSolve",
+      "original_class_sha256": "a621c9a584c92109540b478340127522376294056c335b5a0896b40c0fb8ad64",
+      "destination_sha256": "dc680c80c8930ce1d06f5ee38456105d3622dd32e472bfbb8e11faaef0b32919"
+    },
+    {
+      "source": "models/Estimation/Inertial/SchmidtRelativePoseCorrection.mo",
+      "original_name": "SchmidtCorrectRelativePose",
+      "destination": "SLAM/Inertial/SchmidtCorrectRelativePose.mo",
+      "qualified_name": "SLAM.Inertial.SchmidtCorrectRelativePose",
+      "original_class_sha256": "a7afc5a4a1394454ae2cd6c6686de2b3946315619246e54778188d98de9ab335",
+      "destination_sha256": "4086a4de32dc2859154ed63fd42b4fa7db0cecc61d51f94f4f7ebf2b8a780178"
+    },
+    {
+      "source": "models/Estimation/Localization/RGBDFastInertialLocalizationInitialize.mo",
+      "original_name": "InitializeFastRGBDLocalization",
+      "destination": "SLAM/Localization/InitializeFastRGBDLocalization.mo",
+      "qualified_name": "SLAM.Localization.InitializeFastRGBDLocalization",
+      "original_class_sha256": "c436eb4c06a4d91b5d872c5d09c4879186afece96d31874b3868cdaf6b5cce10",
+      "destination_sha256": "59b47a72b997820d648fb93e51498055931a6e4fb4d8cedac7d9f97a2bc85122"
+    },
+    {
+      "source": "models/Estimation/Localization/RGBDFastInertialLocalizationInitialize.mo",
+      "original_name": "RGBDFastInertialLocalizationInitialize",
+      "destination": "SLAM/Localization/RGBDFastInertialLocalizationInitialize.mo",
+      "qualified_name": "SLAM.Localization.RGBDFastInertialLocalizationInitialize",
+      "original_class_sha256": "f95429acb70743899db7f66f1cda75e6fd56258f4306e2346756dfda890b7f2a",
+      "destination_sha256": "3e96d0c7b4c2bf47d16c3eae1b62f9d61b733ea49e0cf91c59b77a418c6a3917"
+    },
+    {
+      "source": "models/Estimation/Localization/RGBDFastInertialLocalizationStep.mo",
+      "original_name": "AdvanceFastRGBDLocalization",
+      "destination": "SLAM/Localization/AdvanceFastRGBDLocalization.mo",
+      "qualified_name": "SLAM.Localization.AdvanceFastRGBDLocalization",
+      "original_class_sha256": "a08e4ac32f5c36d5a72f64e43a304c6619e9499f2e2246ca97f6b285527b471d",
+      "destination_sha256": "461e1fec85129c3db36b58f384dd17e81c0e59e2733edcf721d77e2bb6eb58da"
+    },
+    {
+      "source": "models/Estimation/Localization/RGBDFastInertialLocalizationStep.mo",
+      "original_name": "RGBDFastInertialLocalizationStep",
+      "destination": "SLAM/Localization/RGBDFastInertialLocalizationStep.mo",
+      "qualified_name": "SLAM.Localization.RGBDFastInertialLocalizationStep",
+      "original_class_sha256": "feaffdb3105c750dcf1ebaab067c05047e6cdba069ab492c2b171158abbc7ee6",
+      "destination_sha256": "657924290329078a7e4ba17e4f910c03c8787dca1a2402ca8bde10d559152267"
+    },
+    {
+      "source": "models/Estimation/Localization/RGBDInertialLocalizationInitialize.mo",
+      "original_name": "InitializeRGBDLocalization",
+      "destination": "SLAM/Localization/InitializeRGBDLocalization.mo",
+      "qualified_name": "SLAM.Localization.InitializeRGBDLocalization",
+      "original_class_sha256": "340ce3ac06a5e71e8db2e746af0bc61b17912e65f4cae6ebcd6962e823538889",
+      "destination_sha256": "6ff8c270bda3ba5dbb5b0fff566c7b1360514078d2a23a89d8972024629dcb4c"
+    },
+    {
+      "source": "models/Estimation/Localization/RGBDInertialLocalizationInitialize.mo",
+      "original_name": "RGBDInertialLocalizationInitialize",
+      "destination": "SLAM/Localization/RGBDInertialLocalizationInitialize.mo",
+      "qualified_name": "SLAM.Localization.RGBDInertialLocalizationInitialize",
+      "original_class_sha256": "2707ffe21cec16a3abc9b73ebfe4bbc518ecbaf28ef2f3f541d63a8b1f97295d",
+      "destination_sha256": "73c9282fe749a167b6e9fe07e82027500a189474beff83a7a8d8523fce4b58b5"
+    },
+    {
+      "source": "models/Estimation/Localization/RGBDInertialLocalizationStep.mo",
+      "original_name": "RGBDInertialLocalizationInterface",
+      "destination": "SLAM/Localization/RGBDInertialLocalizationInterface.mo",
+      "qualified_name": "SLAM.Localization.RGBDInertialLocalizationInterface",
+      "original_class_sha256": "e945e86a5a46b45e42df42f31d3441230b5ee1ef3dc5a7b681b01d704b49021b",
+      "destination_sha256": "2e2077a94af5e3560e550ea3a23e911abb3056e17ed6bc7ecedd3dc995c9a713"
+    },
+    {
+      "source": "models/Estimation/Localization/RGBDInertialLocalizationStep.mo",
+      "original_name": "RGBDLocalizationOrientation",
+      "destination": "SLAM/Localization/RGBDLocalizationOrientation.mo",
+      "qualified_name": "SLAM.Localization.RGBDLocalizationOrientation",
+      "original_class_sha256": "4a0aa7fe56166bc27274f301dfd44440259f17e1a6e203ae235c3a368f1acc81",
+      "destination_sha256": "384e59627b7825b6a37bdb481f87b13e494315ed64405da242e1d66162896a9c"
+    },
+    {
+      "source": "models/Estimation/Localization/RGBDInertialLocalizationStep.mo",
+      "original_name": "RGBDLocalizationTracking",
+      "destination": "SLAM/Localization/RGBDLocalizationTracking.mo",
+      "qualified_name": "SLAM.Localization.RGBDLocalizationTracking",
+      "original_class_sha256": "49005d7405ddcc3c08f57d9595eed7b5a143347a3064d91ab5ff9153d56d4d40",
+      "destination_sha256": "cceb464879d64469f18fda31e987e97903f19d08bed9a882a879207da215d5f5"
+    },
+    {
+      "source": "models/Estimation/Localization/RGBDInertialLocalizationStep.mo",
+      "original_name": "RGBDInertialLocalizationStep",
+      "destination": "SLAM/Localization/RGBDInertialLocalizationStep.mo",
+      "qualified_name": "SLAM.Localization.RGBDInertialLocalizationStep",
+      "original_class_sha256": "6834294682d8ea572e2ab113c748bd18522b0b2a99971c1ac4f6054c48ca27cc",
+      "destination_sha256": "78c7a8b970d336a73fb95bce270f776f3fe0e7fbf1bbf60379e0711887f181f6"
+    },
+    {
+      "source": "models/Estimation/Localization/RGBDInertialLocalizationStep.mo",
+      "original_name": "AdvanceRGBDLocalization",
+      "destination": "SLAM/Localization/AdvanceRGBDLocalization.mo",
+      "qualified_name": "SLAM.Localization.AdvanceRGBDLocalization",
+      "original_class_sha256": "e360216b86b2f8a0e999590a2effb205c3ed2f5c0c6594bc675fea0757528a50",
+      "destination_sha256": "1100768786b7fe297b9cfa8cc086be20e9523324f65658af8bb0e9bf7acda545"
+    },
+    {
+      "source": "models/Estimation/Localization/RGBDLocalizationCatalog.mo",
+      "original_name": "RGBDLocalizationCatalog",
+      "destination": "SLAM/Localization/RGBDLocalizationCatalog.mo",
+      "qualified_name": "SLAM.Localization.RGBDLocalizationCatalog",
+      "original_class_sha256": "52061c428136e899909c921a4f6a166a4132bd22c2f84aeb90aa23e46cac2b92",
+      "destination_sha256": "66eaae933823762206eacf48f49a56192162e5a50f40efba3e6acf815b242feb"
+    },
+    {
+      "source": "models/Estimation/Localization/RGBDLocalizationFrame.mo",
+      "original_name": "RGBDLocalizationFrame",
+      "destination": "SLAM/Localization/RGBDLocalizationFrame.mo",
+      "qualified_name": "SLAM.Localization.RGBDLocalizationFrame",
+      "original_class_sha256": "2a06bea312b0e310990fb9bedcea1cffa82fd218a2420e7da56260606b00455e",
+      "destination_sha256": "d8486cfcca4250458ca5b57bbfe3d07a383499a77f9f7be2b61712e96aa038b4"
+    },
+    {
+      "source": "models/Estimation/Localization/RGBDLocalizationProcessing.mo",
+      "original_name": "RGBDLocalizationProcessing",
+      "destination": "SLAM/Localization/RGBDLocalizationProcessing.mo",
+      "qualified_name": "SLAM.Localization.RGBDLocalizationProcessing",
+      "original_class_sha256": "3b733c303495ddf1ca10c67c2e3c513c9569fbbd8527c93ae8f30dc849648d9c",
+      "destination_sha256": "65080036f889a3b5357688e59c0dc7b448e4dc3e62cd3f8240a3de0f671a252c"
+    },
+    {
+      "source": "models/Estimation/Localization/RGBDRegistrationUncertainty.mo",
+      "original_name": "RGBDUncertaintySkew",
+      "destination": "SLAM/Localization/RGBDUncertaintySkew.mo",
+      "qualified_name": "SLAM.Localization.RGBDUncertaintySkew",
+      "original_class_sha256": "b681087c78b0aa6542af7344d197148760d09cd13fba37208d73a85062d0ac8d",
+      "destination_sha256": "760debac91018796a40ad729a961ac79416948e4d634dc75d0b80f5f0f46f26b"
+    },
+    {
+      "source": "models/Estimation/Localization/RGBDRegistrationUncertainty.mo",
+      "original_name": "RGBDUncertaintyProper",
+      "destination": "SLAM/Localization/RGBDUncertaintyProper.mo",
+      "qualified_name": "SLAM.Localization.RGBDUncertaintyProper",
+      "original_class_sha256": "de710a19bcdfce52a4acbd2cbcc6d8ae060886e504f3dc4cf34695e2687242eb",
+      "destination_sha256": "c684aa9e6ca4d111c9d7ffa98b4fb94c794667ede975b417ba7c75f423ce2b61"
+    },
+    {
+      "source": "models/Estimation/Localization/RGBDRegistrationUncertainty.mo",
+      "original_name": "RGBDUncertaintyInverse6",
+      "destination": "SLAM/Localization/RGBDUncertaintyInverse6.mo",
+      "qualified_name": "SLAM.Localization.RGBDUncertaintyInverse6",
+      "original_class_sha256": "8e9849d9ff16766678a3cd0bc9c9d3aa285ead1c900c86e677006956b624bf83",
+      "destination_sha256": "d414e298e8ce35a276ed1467674b07c5cf78f69496c5548da6ed400aff2cdd58"
+    },
+    {
+      "source": "models/Estimation/Localization/RGBDRegistrationUncertainty.mo",
+      "original_name": "RGBDOpticalPointCovariance",
+      "destination": "SLAM/Localization/RGBDOpticalPointCovariance.mo",
+      "qualified_name": "SLAM.Localization.RGBDOpticalPointCovariance",
+      "original_class_sha256": "2118209dd9000a94670748c50a5c40e7f7abffc529f0b8846992eb386296ec10",
+      "destination_sha256": "3783f0d05929faaf5406382e83e7846ccc18b730d8ab5300669a03669f4968a8"
+    },
+    {
+      "source": "models/Estimation/Localization/RGBDRegistrationUncertainty.mo",
+      "original_name": "RGBDRegistrationSandwich",
+      "destination": "SLAM/Localization/RGBDRegistrationSandwich.mo",
+      "qualified_name": "SLAM.Localization.RGBDRegistrationSandwich",
+      "original_class_sha256": "ac2988c5dd1cf1a0520f1852d56802d0a5d0699b93d3fc57bc8551da77bb1ecd",
+      "destination_sha256": "75979b7579ff6800ef9f43be3025c17f69fc6af52424e5705746e5cd5ee79622"
+    },
+    {
+      "source": "models/Estimation/Localization/RGBDRegistrationUncertainty.mo",
+      "original_name": "RGBDRegistrationUncertainty",
+      "destination": "SLAM/Localization/RGBDRegistrationUncertainty.mo",
+      "qualified_name": "SLAM.Localization.RGBDRegistrationUncertainty",
+      "original_class_sha256": "67d809df1b9f0f924883dc62b1c642c99a13cb897d2a7ab6979f334e06a2d51e",
+      "destination_sha256": "2f4c970b3c08ea688a025bc7e3393951a8cb84871bff86bf536b070941a686e0"
+    },
+    {
+      "source": "models/Estimation/Localization/RGBDRelativePose.mo",
+      "original_name": "RGBDProperRotationValue",
+      "destination": "SLAM/Localization/RGBDProperRotationValue.mo",
+      "qualified_name": "SLAM.Localization.RGBDProperRotationValue",
+      "original_class_sha256": "46c3812bab397c44a6f18868a8eca2a8ef8a571e80a591ec51f851984d0cc901",
+      "destination_sha256": "35228c9a3dfe7d0e5fe0c29026783e30916ba2a5b2ebbfdebe0536d5deb5fa95"
+    },
+    {
+      "source": "models/Estimation/Localization/RGBDRelativePose.mo",
+      "original_name": "RGBDProperRotation",
+      "destination": "SLAM/Localization/RGBDProperRotation.mo",
+      "qualified_name": "SLAM.Localization.RGBDProperRotation",
+      "original_class_sha256": "457b8645fe0dc87e09e3337eb5cd417c0e3e46efc9d716f7ba9e81e2297759fa",
+      "destination_sha256": "66052c732bb32f69c5855fea18a7cf294d11c32e60fe20ddc3fab6b095496059"
+    },
+    {
+      "source": "models/Estimation/Localization/RGBDRelativePose.mo",
+      "original_name": "RGBDRelativePose",
+      "destination": "SLAM/Localization/RGBDRelativePose.mo",
+      "qualified_name": "SLAM.Localization.RGBDRelativePose",
+      "original_class_sha256": "192eb17698438fceec01d164fe9bfa5f422260618f31788d7a2da949bec009b0",
+      "destination_sha256": "ef9868fdeb1e1fcda84ef28c830d273aada607a8cb70d780ce2f196212b28d44"
+    },
+    {
+      "source": "models/Estimation/Localization/RGBDRelativePose.mo",
+      "original_name": "RGBDRelativeBodyPose",
+      "destination": "SLAM/Localization/RGBDRelativeBodyPose.mo",
+      "qualified_name": "SLAM.Localization.RGBDRelativeBodyPose",
+      "original_class_sha256": "ce37b364c588a8a8430a617864a326ac1d3f81351fd10be4b31a384344f0ee87",
+      "destination_sha256": "1c0647050eca62b85f0526d01f911b6ac2c865a75a458b750caef9dd03f6a3b0"
+    },
+    {
+      "source": "models/Estimation/Localization/RGBDVisualObservation.mo",
+      "original_name": "RGBDVisualObservation",
+      "destination": "SLAM/Localization/RGBDVisualObservation.mo",
+      "qualified_name": "SLAM.Localization.RGBDVisualObservation",
+      "original_class_sha256": "0ee48bf34e3610b77d7da5019d67a23732be04ffface76d4c2cc48623bf00ca9",
+      "destination_sha256": "093e1b12ea68c1e7b3a91d72832a6bf933860d6386f7274f1eb26ce8ba1e6ad5"
+    },
+    {
+      "source": "models/Estimation/Localization/RGBDVisualRelativeObservation.mo",
+      "original_name": "RGBDVisualRelativeObservation",
+      "destination": "SLAM/Localization/RGBDVisualRelativeObservation.mo",
+      "qualified_name": "SLAM.Localization.RGBDVisualRelativeObservation",
+      "original_class_sha256": "27dbffa09b5e12f0e2527cd1b42b4efcef5af0c89480396ee07afeddc91ce105",
+      "destination_sha256": "d0877ed9ddbf2346ce78cd4c39ff6ff7166b488778660d1d0ec86cd7eb2cfe82"
+    },
+    {
+      "source": "models/Estimation/Localization/RGBDVisualRelativeObservation.mo",
+      "original_name": "ObserveRGBDRelativeFrame",
+      "destination": "SLAM/Localization/ObserveRGBDRelativeFrame.mo",
+      "qualified_name": "SLAM.Localization.ObserveRGBDRelativeFrame",
+      "original_class_sha256": "f5f08ebc9598ced3f64bbf28d46f7de9b5fd1ee2505ce12d281de7d54cc58591",
+      "destination_sha256": "e801f81d4789af296b8ddc21d39980a9cdcb38ab39db87e6d6a4803c38b48c3b"
+    },
+    {
+      "source": "models/Evaluation/RuntimeEvaluation.mo",
+      "original_name": "RuntimeEvaluation",
+      "destination": "SLAM/Examples/RuntimeEvaluation.mo",
+      "qualified_name": "SLAM.Examples.RuntimeEvaluation",
+      "original_class_sha256": "f22d732eb837abaa4c75e36114d451cd930a8b79d27ec4a8a9abddf447e6139b",
+      "destination_sha256": "46a56e791f6bcaa22dd2161874241dc5ba3d9c29e8332584774a79d6a29c5ae3"
+    },
+    {
+      "source": "models/Examples/InertialOnly.mo",
+      "original_name": "InertialOnly",
+      "destination": "SLAM/Examples/InertialOnly.mo",
+      "qualified_name": "SLAM.Examples.InertialOnly",
+      "original_class_sha256": "c4934db78b5c4873cab9814e3f8e9e0ff198e232e240db2efb2f7843acd67ef8",
+      "destination_sha256": "8f0c396bc47d21ac6ed78c5ff5909a5dc4083162aa55a57a745f84070bf70860"
+    },
+    {
+      "source": "models/Examples/ResponsiveInertial.mo",
+      "original_name": "ResponsiveInertial",
+      "destination": "SLAM/Examples/ResponsiveInertial.mo",
+      "qualified_name": "SLAM.Examples.ResponsiveInertial",
+      "original_class_sha256": "c3c60dd29a4ab95d4139ff802af227de9d131395fdcf22471aeb09be7020e8d6",
+      "destination_sha256": "97c8cd5948664a3c5c5bdf13406ac7d7c3ce20ee66de27eb0999cf86ea73f083"
+    },
+    {
+      "source": "models/Examples/SmoothedInertial.mo",
+      "original_name": "SmoothedInertial",
+      "destination": "SLAM/Examples/SmoothedInertial.mo",
+      "qualified_name": "SLAM.Examples.SmoothedInertial",
+      "original_class_sha256": "79007ce61f55d05dcb9c3ef99ca3efea422e03b901f79368b1d399606c162578",
+      "destination_sha256": "e83c4dceae5f047b6ded9a0314807d46d104e624b789a8e710d0c9300d9f8d0f"
+    },
+    {
+      "source": "models/LoopClosure/RGBDBagOfWords.mo",
+      "original_name": "NormalizeVisualWord",
+      "destination": "SLAM/LoopClosure/NormalizeVisualWord.mo",
+      "qualified_name": "SLAM.LoopClosure.NormalizeVisualWord",
+      "original_class_sha256": "e622fa4aa9b82be9ea8f1c3d832cff5e1192bf2a5f16bdaec31553bb81da9217",
+      "destination_sha256": "4f43a5c8b0ea257c885c9805c1c19a8a3813907ab16dad00802586d093c16e95"
+    },
+    {
+      "source": "models/LoopClosure/RGBDBagOfWords.mo",
+      "original_name": "RetrieveVisualWords",
+      "destination": "SLAM/LoopClosure/RetrieveVisualWords.mo",
+      "qualified_name": "SLAM.LoopClosure.RetrieveVisualWords",
+      "original_class_sha256": "87cbe17c3cff190f1169138e8f442bd603cc4b75406ff2e3f39a9a10570069be",
+      "destination_sha256": "fcf6224f3537a8851187a40b0129578dcf3838eb5808c092330022816412c32b"
+    },
+    {
+      "source": "models/LoopClosure/RGBDBagOfWords.mo",
+      "original_name": "RGBDBagOfWords",
+      "destination": "SLAM/LoopClosure/RGBDBagOfWords.mo",
+      "qualified_name": "SLAM.LoopClosure.RGBDBagOfWords",
+      "original_class_sha256": "61a2f0cf9eac7a80bf028b21099b333a9675f34a783e19fd6a7e598112c2386a",
+      "destination_sha256": "bc7b87f89f7eab6cbdfb7a607ee1d5c7a9a82caa50173c094f454c838bb9d020"
+    },
+    {
+      "source": "models/LoopClosure/RGBDBodyRelativeEdge.mo",
+      "original_name": "RGBDOpticalToBodyEdge",
+      "destination": "SLAM/LoopClosure/RGBDOpticalToBodyEdge.mo",
+      "qualified_name": "SLAM.LoopClosure.RGBDOpticalToBodyEdge",
+      "original_class_sha256": "b0dcadfcc9ace37f7f2f93b1a4e3178ec47e9f07a27ee9cb522aed290f7531f7",
+      "destination_sha256": "c2e86366185e61363406843af533a52324e6caca9441f8aac784333e22ab3854"
+    },
+    {
+      "source": "models/LoopClosure/RGBDBodyRelativeEdge.mo",
+      "original_name": "RGBDBodyRelativeEdge",
+      "destination": "SLAM/LoopClosure/RGBDBodyRelativeEdge.mo",
+      "qualified_name": "SLAM.LoopClosure.RGBDBodyRelativeEdge",
+      "original_class_sha256": "067d980ce08f20642c30f996452569c73c6a6a96b3f84f649c6d4c76db834769",
+      "destination_sha256": "b40ce08003ccf97dfe9e2c561cf627be5a6edd330df8776e29d07abb666351f5"
+    },
+    {
+      "source": "models/LoopClosure/RGBDCatalogLoopVerification.mo",
+      "original_name": "RGBDCatalogLoopVerification",
+      "destination": "SLAM/LoopClosure/RGBDCatalogLoopVerification.mo",
+      "qualified_name": "SLAM.LoopClosure.RGBDCatalogLoopVerification",
+      "original_class_sha256": "cfd60ae452d1d87a717b62ebc2511598ca472a46d14a49b1873c31e6a63859f4",
+      "destination_sha256": "37720086b6df0c84f4cdb831e93b24c4105c894b5e08e4f49205f976b783cfad"
+    },
+    {
+      "source": "models/LoopClosure/RGBDKeyframePolicy.mo",
+      "original_name": "RGBDKeyframePolicy",
+      "destination": "SLAM/LoopClosure/RGBDKeyframePolicy.mo",
+      "qualified_name": "SLAM.LoopClosure.RGBDKeyframePolicy",
+      "original_class_sha256": "9bacf49c0bbd0465deda9d9fde761a5b1e4c3c6b8bf232dfd6a4ab25c05d62dd",
+      "destination_sha256": "8fe8a47db4818d91f55165e912d44a8c9464ec910740ec7a9465221268cf5bbb"
+    },
+    {
+      "source": "models/LoopClosure/RGBDKeyframeRetrieval.mo",
+      "original_name": "RGBDKeyframeRetrieval",
+      "destination": "SLAM/LoopClosure/RGBDKeyframeRetrieval.mo",
+      "qualified_name": "SLAM.LoopClosure.RGBDKeyframeRetrieval",
+      "original_class_sha256": "038f9bd1abf04d39a494347e2b19b4e31edf0e8fba2271818630c50962f1a1cb",
+      "destination_sha256": "f66abf4f10102415ebcf346de940e5473563ed9bf5abf7596f6a6bdf44bd924a"
+    },
+    {
+      "source": "models/LoopClosure/RGBDKeyframes.mo",
+      "original_name": "RGBDKeyframes",
+      "destination": "SLAM/LoopClosure/RGBDKeyframes.mo",
+      "qualified_name": "SLAM.LoopClosure.RGBDKeyframes",
+      "original_class_sha256": "4a88561ae17913d33fcc6a710fb99011a63aa017d55abfb75fa45a9f378c9b63",
+      "destination_sha256": "a2762544d9ec7038f044e7bd780fb189a197c9c85ec75b00d6f228dee9c12895"
+    },
+    {
+      "source": "models/LoopClosure/RGBDLoopVerification.mo",
+      "original_name": "RGBDLoopVerification",
+      "destination": "SLAM/LoopClosure/RGBDLoopVerification.mo",
+      "qualified_name": "SLAM.LoopClosure.RGBDLoopVerification",
+      "original_class_sha256": "4316d2016d6a754a78cb8edca74cd1860d0e33ef995476b574a6fc28e10db7ae",
+      "destination_sha256": "f81f9c8b3edcda7a5f99782a57b12913afcf3f5c3a2a122f192943abe48d77e5"
+    },
+    {
+      "source": "models/LoopClosure/RGBDVisualVocabulary.mo",
+      "original_name": "RGBDVisualVocabulary",
+      "destination": "SLAM/LoopClosure/RGBDVisualVocabulary.mo",
+      "qualified_name": "SLAM.LoopClosure.RGBDVisualVocabulary",
+      "original_class_sha256": "555466afcb41ec3b80350874db26d694558dac77a79206acd884d09ba8a4bdbf",
+      "destination_sha256": "5cfe1be78212056bc3737ae5128ad527c912d78a15d6551c0978f0f7e6bf4775"
+    },
+    {
+      "source": "models/Mapping/RGBDAnchoredLandmarkMap.mo",
+      "original_name": "UpdateAnchoredLandmarkMap",
+      "destination": "SLAM/Mapping/UpdateAnchoredLandmarkMap.mo",
+      "qualified_name": "SLAM.Mapping.UpdateAnchoredLandmarkMap",
+      "original_class_sha256": "d5e53692133fb62877e45fff0a1619c47631f52dcd495a2bf1151bbc56b7bf3a",
+      "destination_sha256": "9e00fb41f0369526a91225d0190036a4f7b2fcba0d76cc29f4068d0e7b7bc37f"
+    },
+    {
+      "source": "models/Mapping/RGBDAnchoredLandmarkMap.mo",
+      "original_name": "RGBDAnchoredLandmarkMap",
+      "destination": "SLAM/Mapping/RGBDAnchoredLandmarkMap.mo",
+      "qualified_name": "SLAM.Mapping.RGBDAnchoredLandmarkMap",
+      "original_class_sha256": "4d0b7e2351b0e503e73cf60794c3794a29845d29481ecd874df61f1a5ef14870",
+      "destination_sha256": "1ea9a348b2164ea80a3eb92b7206da12ce45f530e9ee23e92359d6923bac15ce"
+    },
+    {
+      "source": "models/Mapping/RGBDCatalogFrame.mo",
+      "original_name": "RGBDCatalogFrame",
+      "destination": "SLAM/Mapping/RGBDCatalogFrame.mo",
+      "qualified_name": "SLAM.Mapping.RGBDCatalogFrame",
+      "original_class_sha256": "d50ff0185bd3129b257a0e4005a35ae610a4d158c24fde4797367ba41f3f9f00",
+      "destination_sha256": "8039acf4ddae3df9a837dafbd48e8ef15eca5a5693436223912ba9f0956c0d29"
+    },
+    {
+      "source": "models/Mapping/RGBDCatalogMapping.mo",
+      "original_name": "RGBDCatalogMapping",
+      "destination": "SLAM/Mapping/RGBDCatalogMapping.mo",
+      "qualified_name": "SLAM.Mapping.RGBDCatalogMapping",
+      "original_class_sha256": "9f26c42f79d0056b677934858594bdb7b4a9657a49a40bbe40fb475e0c2be7b2",
+      "destination_sha256": "5cb9e721ca1686f0d3afd7550f3f1f2c6f7f6f28ffe386e7c8cc2e5f38faf35f"
+    },
+    {
+      "source": "models/Mapping/RGBDCatalogObservation.mo",
+      "original_name": "RGBDCatalogObservation",
+      "destination": "SLAM/Mapping/RGBDCatalogObservation.mo",
+      "qualified_name": "SLAM.Mapping.RGBDCatalogObservation",
+      "original_class_sha256": "a99dca5aa5f967d128256627a1ffe79ce464d746a0dbb407c0aecd0617f5f75c",
+      "destination_sha256": "ee5213655b38c14970bb923aeef7cc0ac6f0e4f54714bfd160a3dd980cb4782e"
+    },
+    {
+      "source": "models/Mapping/RGBDCatalogPoseMapping.mo",
+      "original_name": "RGBDCatalogPoseMapping",
+      "destination": "SLAM/Mapping/RGBDCatalogPoseMapping.mo",
+      "qualified_name": "SLAM.Mapping.RGBDCatalogPoseMapping",
+      "original_class_sha256": "31802b4723786af66eee9868af6b6fd6af0f2a4e5095e6dc067726dff06fdc45",
+      "destination_sha256": "26ec95cad5aac2ca621150b1c357e8db3e59612272f954cde1e7e0c4085c9e0b"
+    },
+    {
+      "source": "models/Mapping/RGBDKeyframeLandmarks.mo",
+      "original_name": "UpdateKeyframeLandmarks",
+      "destination": "SLAM/Mapping/UpdateKeyframeLandmarks.mo",
+      "qualified_name": "SLAM.Mapping.UpdateKeyframeLandmarks",
+      "original_class_sha256": "6489a8ab98c8925bb40a4ec20abad1c2f0abda70caabf00a35430ee527d78079",
+      "destination_sha256": "0ac4a867a69aba9a2549cb9dadfde424b7d3cd429725caee4d3e30bf843fbdac"
+    },
+    {
+      "source": "models/Mapping/RGBDLandmarkCatalog.mo",
+      "original_name": "RGBDLandmarkCatalog",
+      "destination": "SLAM/Mapping/RGBDLandmarkCatalog.mo",
+      "qualified_name": "SLAM.Mapping.RGBDLandmarkCatalog",
+      "original_class_sha256": "cf70e35d5ca89fdc03bc6f4eacf9e067f5e8a76ec30e04ed64e2a51876039353",
+      "destination_sha256": "abcbd7064052e09536f7c39dc9f4fa724160972f7496e14abc1ee1b331617196"
+    },
+    {
+      "source": "models/Mapping/RGBDLandmarkCatalog.mo",
+      "original_name": "UpdateCatalogLandmarkMap",
+      "destination": "SLAM/Mapping/UpdateCatalogLandmarkMap.mo",
+      "qualified_name": "SLAM.Mapping.UpdateCatalogLandmarkMap",
+      "original_class_sha256": "ff2101a1b26f039dca57d2a37ea623286013515ba464a6850c2d12ac251ddc97",
+      "destination_sha256": "2008d85edf75f4e703e934206e0dc759b535c5ade0a94b242d87f46df61ac02a"
+    },
+    {
+      "source": "models/Mapping/RGBDLandmarkMap.mo",
+      "original_name": "RGBDLandmarkMapInterface",
+      "destination": "SLAM/Mapping/RGBDLandmarkMapInterface.mo",
+      "qualified_name": "SLAM.Mapping.RGBDLandmarkMapInterface",
+      "original_class_sha256": "87c031dad75618279ce980368b4b27a483536d1581998fc0cdbe89760b286ff2",
+      "destination_sha256": "8a9422001f8e7ddd24ad226b1fef673206172f85c0ee31c3ca11f13b626107ae"
+    },
+    {
+      "source": "models/Mapping/RGBDLandmarkMap.mo",
+      "original_name": "UpdateLandmarkMapWithReceipts",
+      "destination": "SLAM/Mapping/UpdateLandmarkMapWithReceipts.mo",
+      "qualified_name": "SLAM.Mapping.UpdateLandmarkMapWithReceipts",
+      "original_class_sha256": "026e170629f82ae199f07ecd5ab3f041ccf55ea1e81a92e13b2354f85c5b6299",
+      "destination_sha256": "7513aebf8a50ba8a1e026171aab2d190f6eda4251a3c00de4c3e56fcfd0e5050"
+    },
+    {
+      "source": "models/Mapping/RGBDLandmarkMap.mo",
+      "original_name": "UpdateLandmarkMap",
+      "destination": "SLAM/Mapping/UpdateLandmarkMap.mo",
+      "qualified_name": "SLAM.Mapping.UpdateLandmarkMap",
+      "original_class_sha256": "a6bba82fd5c0d9439004bcbebfa08fc387f43f4cae206226daed12307f646e57",
+      "destination_sha256": "a9a93dfb03f618e1897dfc058722fcecb3ee49c17dd65dcd8c1171afe073a394"
+    },
+    {
+      "source": "models/Mapping/RGBDLandmarkMap.mo",
+      "original_name": "RGBDLandmarkMap",
+      "destination": "SLAM/Mapping/RGBDLandmarkMap.mo",
+      "qualified_name": "SLAM.Mapping.RGBDLandmarkMap",
+      "original_class_sha256": "20f63a22c6efac9e24fb4d283c230ce707a55598e8dae2661cbef66bcbdd096e",
+      "destination_sha256": "a0678bb3c60b39b67240ee118b9886df2d075f49b73da9d7e51cd081b212118d"
+    },
+    {
+      "source": "models/Mapping/RGBDLandmarkProjection.mo",
+      "original_name": "RGBDLandmarkRotationCheck",
+      "destination": "SLAM/Mapping/RGBDLandmarkRotationCheck.mo",
+      "qualified_name": "SLAM.Mapping.RGBDLandmarkRotationCheck",
+      "original_class_sha256": "cc2fbdaae98df325b3e80689b6bfd0829d792afb29eee6d410dee150f41efa6d",
+      "destination_sha256": "ae6a7cdd2c37a8fb36eb24b8ee5eb2f648e701d8e404d60dd65fd652d2e1730f"
+    },
+    {
+      "source": "models/Mapping/RGBDLandmarkProjection.mo",
+      "original_name": "RGBDLandmarkProjection",
+      "destination": "SLAM/Mapping/RGBDLandmarkProjection.mo",
+      "qualified_name": "SLAM.Mapping.RGBDLandmarkProjection",
+      "original_class_sha256": "8350deeea2dc382723fe908bdbea28b63f1b50235d2730e11066d236992dc247",
+      "destination_sha256": "a136e96ca8edfa50d908c45efff22ad2e2d0952dd312bb95cc87755555804dfc"
+    },
+    {
+      "source": "models/Mapping/RGBDLandmarkProjection.mo",
+      "original_name": "RGBDLandmarkRotationValid",
+      "destination": "SLAM/Mapping/RGBDLandmarkRotationValid.mo",
+      "qualified_name": "SLAM.Mapping.RGBDLandmarkRotationValid",
+      "original_class_sha256": "8dde0dd691e065cd0cd710e2514d41ec9573314f80e2a370df0933a516851611",
+      "destination_sha256": "6f9d5c95dd9499792f48cabe35f662747eb2a74abc1dd70fd9413f538dd58971"
+    },
+    {
+      "source": "models/Mapping/RGBDLandmarkProjection.mo",
+      "original_name": "RGBDProjectLandmarks",
+      "destination": "SLAM/Mapping/RGBDProjectLandmarks.mo",
+      "qualified_name": "SLAM.Mapping.RGBDProjectLandmarks",
+      "original_class_sha256": "65ec67644b985f6821dce0ad7026cb27c135ffb4340bf49d84203d4f44bcf025",
+      "destination_sha256": "d0cf9a4e035b0b7b9cdce8da519a13c61df2628a71c44332290f0ac0f9849525"
+    },
+    {
+      "source": "models/Mapping/RGBDMapAnchorAssignment.mo",
+      "original_name": "AssignLandmarkAnchors",
+      "destination": "SLAM/Mapping/AssignLandmarkAnchors.mo",
+      "qualified_name": "SLAM.Mapping.AssignLandmarkAnchors",
+      "original_class_sha256": "9bd397bc0cf8c6340c8c5a8ff52899af9ddf23d5665a4363daa3a4fb9d4fec3d",
+      "destination_sha256": "7b064d06f80ec486c752370916937af976dd9db995376a41ce12d3fce0ea0864"
+    },
+    {
+      "source": "models/Mapping/RGBDMapAnchorUncertainty.mo",
+      "original_name": "RGBDMapAnchorUncertainty",
+      "destination": "SLAM/Mapping/RGBDMapAnchorUncertainty.mo",
+      "qualified_name": "SLAM.Mapping.RGBDMapAnchorUncertainty",
+      "original_class_sha256": "6b9b57de3891758c8c328e5117ab2489966cdb1559e53b78812cc700186e453e",
+      "destination_sha256": "a69ed9abdeabaec29c88063bbdae50070e399411b681e5e352270d8b3cdc82e7"
+    },
+    {
+      "source": "models/Mapping/RGBDMapAnchors.mo",
+      "original_name": "RGBDMapAnchors",
+      "destination": "SLAM/Mapping/RGBDMapAnchors.mo",
+      "qualified_name": "SLAM.Mapping.RGBDMapAnchors",
+      "original_class_sha256": "cdf395551088b39a0966ea27f1b1cd36cdced2f03826a41940a2a1fd86e0ef3e",
+      "destination_sha256": "1fc5f22ca478cd53746633809ffc1307dad1029733f4273bb4612151195eef41"
+    },
+    {
+      "source": "models/Mapping/RGBDMapAnchors.mo",
+      "original_name": "RGBDAnchoredMapCorrection",
+      "destination": "SLAM/Mapping/RGBDAnchoredMapCorrection.mo",
+      "qualified_name": "SLAM.Mapping.RGBDAnchoredMapCorrection",
+      "original_class_sha256": "3786433f5fcb79af7d22dd7dc3c4a90a2389ed327334c846e26ae892898d509b",
+      "destination_sha256": "1ca65b982eab64d34fbe0ed7e02a2f85941c66c038b5e1ab83c33560ecc42355"
+    },
+    {
+      "source": "models/Mapping/RGBDSpatialIndex.mo",
+      "original_name": "RGBDSpatialIndex",
+      "destination": "SLAM/Mapping/RGBDSpatialIndex.mo",
+      "qualified_name": "SLAM.Mapping.RGBDSpatialIndex",
+      "original_class_sha256": "8eb4b58dbcf375464e27abca4b79cc6889a470ba1f55c9826e267663e246711f",
+      "destination_sha256": "6aa1e1a7dbb0908f53c8e4367a12a3ce73c202660ca6962a973808d6ff52a517"
+    },
+    {
+      "source": "models/Math/RigidPointRegistration.mo",
+      "original_name": "RegistrationEigen4",
+      "destination": "Vision/Registration/RegistrationEigen4.mo",
+      "qualified_name": "Vision.Registration.RegistrationEigen4",
+      "original_class_sha256": "c8bbcd36f042cef065303519d22c8b988e385821591cc418c15debab86dba506",
+      "destination_sha256": "ef7a1b8083176b4bde3048a458a5818b0c9bd00f10002d2bb97df8e6d0433c4b"
+    },
+    {
+      "source": "models/Math/RigidPointRegistration.mo",
+      "original_name": "FitRigidPointPairs",
+      "destination": "Vision/Registration/FitRigidPointPairs.mo",
+      "qualified_name": "Vision.Registration.FitRigidPointPairs",
+      "original_class_sha256": "4d4e2cc6c6be1c48592e1ab8a1f02106d2ed80680fd612cb718061035775b818",
+      "destination_sha256": "7cc67eb2d72a7f9ddf7955b1c64efc0183bae18156d2ada731ec16bc6b910e88"
+    },
+    {
+      "source": "models/Math/RigidPointRegistration.mo",
+      "original_name": "RigidPointRegistration",
+      "destination": "Vision/Registration/RigidPointRegistration.mo",
+      "qualified_name": "Vision.Registration.RigidPointRegistration",
+      "original_class_sha256": "0dee06ba557ca29cf59799dc51b419f59078e2dc8b338452b518dac2aa352edd",
+      "destination_sha256": "c419455d898c649493a8eb04ba8e154dabbf06cc05248fac34bb59c4b2a71a3c"
+    },
+    {
+      "source": "models/Math/RigidPointRegistration.mo",
+      "original_name": "RegistrationWhitenedResidual3",
+      "destination": "Vision/Registration/RegistrationWhitenedResidual3.mo",
+      "qualified_name": "Vision.Registration.RegistrationWhitenedResidual3",
+      "original_class_sha256": "2c26d8f6fa4f96616369ae4f15fbabb617ef389cfcd6f4dbe296e5c26db73c55",
+      "destination_sha256": "4749df9453dbd7d0b4ad6c84146b441fa5f60004bfc6eae79f81967555b3680b"
+    },
+    {
+      "source": "models/Math/RigidPointRegistration.mo",
+      "original_name": "RegistrationPairResidual",
+      "destination": "Vision/Registration/RegistrationPairResidual.mo",
+      "qualified_name": "Vision.Registration.RegistrationPairResidual",
+      "original_class_sha256": "285a573ea023226411817de67c96c8b2cc3359be68b32bdc56fa90c2c68d6227",
+      "destination_sha256": "0afebddef8388dd0a69502e25743f0834947f28f163a8518a22fbf9625496aa6"
+    },
+    {
+      "source": "models/Math/RigidPointRegistration.mo",
+      "original_name": "FitRigidPointPairsRobust",
+      "destination": "Vision/Registration/FitRigidPointPairsRobust.mo",
+      "qualified_name": "Vision.Registration.FitRigidPointPairsRobust",
+      "original_class_sha256": "7dfd2e944d4c4edacfabb0ff74c8473ac2b2ae1823c43f1c07648351f3578366",
+      "destination_sha256": "2657182b056fe6e5e56575f1273f18f530180c4ba102d81f23d8c1fd2f5fad00"
+    },
+    {
+      "source": "models/Math/SPD6Solve.mo",
+      "original_name": "SPD6Solve",
+      "destination": "LinearAlgebra/SPD6Solve.mo",
+      "qualified_name": "LinearAlgebra.SPD6Solve",
+      "original_class_sha256": "0e641f406762f2a0b130afe2d4fc6d301ff908b507034bcef406aedaf6ad3e05",
+      "destination_sha256": "fa9c26cbc62444419ce837fd79cb61ca34dc012169962f136852e1b42953060f"
+    },
+    {
+      "source": "models/Optimization/GraphGaugeUncertainty.mo",
+      "original_name": "GraphGaugeUncertainty",
+      "destination": "SLAM/PoseGraph/GraphGaugeUncertainty.mo",
+      "qualified_name": "SLAM.PoseGraph.GraphGaugeUncertainty",
+      "original_class_sha256": "a736f41b43cf04bdd281e36dce06dbdff448f88e32ad5b325a1adc456e479161",
+      "destination_sha256": "395c9db0687f40dece9264e919fc43328981a91375ad609ca73105dac8d7953f"
+    },
+    {
+      "source": "models/Optimization/ModelicaPoseGraph.mo",
+      "original_name": "PGTranspose",
+      "destination": "SLAM/PoseGraph/PGTranspose.mo",
+      "qualified_name": "SLAM.PoseGraph.PGTranspose",
+      "original_class_sha256": "a30a108ebb104f08f74ffb47d824cd55bd88f9fb82cb6e884d39aa585bf55507",
+      "destination_sha256": "4d11f74729548ea2d7da4f75d6491aa086892bc2a2473bc85a30665e33c0fdfe"
+    },
+    {
+      "source": "models/Optimization/ModelicaPoseGraph.mo",
+      "original_name": "PGMultiply",
+      "destination": "SLAM/PoseGraph/PGMultiply.mo",
+      "qualified_name": "SLAM.PoseGraph.PGMultiply",
+      "original_class_sha256": "0df5d0539fdccd0577a55a3437c4497ae24632150c07094d7a68c999119b9532",
+      "destination_sha256": "b261fb8c9f85588b81c09ff311f9c7334c74cf32751d5d55ca62a4e0f53b5452"
+    },
+    {
+      "source": "models/Optimization/ModelicaPoseGraph.mo",
+      "original_name": "PGMatVec",
+      "destination": "SLAM/PoseGraph/PGMatVec.mo",
+      "qualified_name": "SLAM.PoseGraph.PGMatVec",
+      "original_class_sha256": "911c39768e065b458142e8d8cba89e7df81811edd9e7acc78292aeb0d5016d44",
+      "destination_sha256": "bc661ed65de852ee1e4f5fefcabdbc6b2d3851a8536cf1629bc599d2f5b13132"
+    },
+    {
+      "source": "models/Optimization/ModelicaPoseGraph.mo",
+      "original_name": "PGSkew",
+      "destination": "SLAM/PoseGraph/PGSkew.mo",
+      "qualified_name": "SLAM.PoseGraph.PGSkew",
+      "original_class_sha256": "708b8b4fd326c0a64db9d9df41797b7a6628ead0aa55a781b941fecd67aaf670",
+      "destination_sha256": "39481723fbf4f2a69282911994945ab897006f584aed7d8aa3c47b7801b36a22"
+    },
+    {
+      "source": "models/Optimization/ModelicaPoseGraph.mo",
+      "original_name": "PGProperRotation",
+      "destination": "SLAM/PoseGraph/PGProperRotation.mo",
+      "qualified_name": "SLAM.PoseGraph.PGProperRotation",
+      "original_class_sha256": "633505538e1f113835da498a008ec1f36ddfd03b955c3d1adb82b87f3427e689",
+      "destination_sha256": "93e63e53ea75020a2293eb26c3607c0695b7afbb86383d5c51503880db41d68f"
+    },
+    {
+      "source": "models/Optimization/ModelicaPoseGraph.mo",
+      "original_name": "PGExp",
+      "destination": "SLAM/PoseGraph/PGExp.mo",
+      "qualified_name": "SLAM.PoseGraph.PGExp",
+      "original_class_sha256": "996bf527b40382424dd7af4769bb7dca80aab69318696ad78be5a34b0def6a08",
+      "destination_sha256": "03a09b7e49b8a796e98bd326f147428fe2f0af463443bbc4ac28510a6165ee6b"
+    },
+    {
+      "source": "models/Optimization/ModelicaPoseGraph.mo",
+      "original_name": "PGLog",
+      "destination": "SLAM/PoseGraph/PGLog.mo",
+      "qualified_name": "SLAM.PoseGraph.PGLog",
+      "original_class_sha256": "08277d5e29c2a7b82fa9b58d2e29088a425e075ce9d9b73b398174299e9216f5",
+      "destination_sha256": "507ca7f3c5f9924fd7e8a6c0101a6c1b831e1d4854c3b2baa81a57ae836ef313"
+    },
+    {
+      "source": "models/Optimization/ModelicaPoseGraph.mo",
+      "original_name": "PGEdge",
+      "destination": "SLAM/PoseGraph/PGEdge.mo",
+      "qualified_name": "SLAM.PoseGraph.PGEdge",
+      "original_class_sha256": "52e79aacfe1af2215863ad9e183d0239ca6aca06039c4e85cb06cc43871c7e62",
+      "destination_sha256": "3c35013c60c085728db60dceae943575f8bd89b6338fca8d20209223b87d91c4"
+    },
+    {
+      "source": "models/Optimization/ModelicaPoseGraph.mo",
+      "original_name": "PGCholesky",
+      "destination": "SLAM/PoseGraph/PGCholesky.mo",
+      "qualified_name": "SLAM.PoseGraph.PGCholesky",
+      "original_class_sha256": "8b53d6ddedf3ccedb334587ffd8393bc58d52d0731866d759c583099e8d1e673",
+      "destination_sha256": "4b5f67fc889898e2e39786ce8283772dfcbb094bf9bb46f15d2b46ad80745e35"
+    },
+    {
+      "source": "models/Optimization/ModelicaPoseGraph.mo",
+      "original_name": "PGSolveBlock",
+      "destination": "SLAM/PoseGraph/PGSolveBlock.mo",
+      "qualified_name": "SLAM.PoseGraph.PGSolveBlock",
+      "original_class_sha256": "5c2e2bf2a86e238b8598945acaa4a1ee113c6a28173bb541a7747ddd89c767c8",
+      "destination_sha256": "0d3b12eb3385e7e53a3b037b283a3cd84a23f6754c331fcb601714b542929dfd"
+    },
+    {
+      "source": "models/Optimization/ModelicaPoseGraph.mo",
+      "original_name": "PGNormalProduct",
+      "destination": "SLAM/PoseGraph/PGNormalProduct.mo",
+      "qualified_name": "SLAM.PoseGraph.PGNormalProduct",
+      "original_class_sha256": "556e1f868e95388d070f29897c8f2b5de199fecc447b2520470a66dd36ebc855",
+      "destination_sha256": "bdd0746b4eb9c6b28a35d4fa134437985cbba3640873931cfa6fd1a43d87c559"
+    },
+    {
+      "source": "models/Optimization/ModelicaPoseGraph.mo",
+      "original_name": "PGGraphCost",
+      "destination": "SLAM/PoseGraph/PGGraphCost.mo",
+      "qualified_name": "SLAM.PoseGraph.PGGraphCost",
+      "original_class_sha256": "f8473daa206c85e052f6856c42d3cbfeaf742dc3fb2a60c080417ae8c312ebd5",
+      "destination_sha256": "be5691a26748821aee63c59328afc645121b0d2af515126a4c789348328ddc2c"
+    },
+    {
+      "source": "models/Optimization/ModelicaPoseGraph.mo",
+      "original_name": "PGValidateGraph",
+      "destination": "SLAM/PoseGraph/PGValidateGraph.mo",
+      "qualified_name": "SLAM.PoseGraph.PGValidateGraph",
+      "original_class_sha256": "89e24b166b8525e2585150979ebdbf5f5e7f1118664609e58439ce026c60713a",
+      "destination_sha256": "45fc07b736615b768d003846985da195736a48b2712db815532059634c1f695c"
+    },
+    {
+      "source": "models/Optimization/ModelicaPoseGraph.mo",
+      "original_name": "PGLinearize",
+      "destination": "SLAM/PoseGraph/PGLinearize.mo",
+      "qualified_name": "SLAM.PoseGraph.PGLinearize",
+      "original_class_sha256": "719f882e1d7fd473658247d8f3e7d4ced11232c815c459251be390b929948e47",
+      "destination_sha256": "2a774821a003f1e379fdb5a8f6dfc4db36f26768881433516a59adf814343050"
+    },
+    {
+      "source": "models/Optimization/ModelicaPoseGraph.mo",
+      "original_name": "PGDampedFactor",
+      "destination": "SLAM/PoseGraph/PGDampedFactor.mo",
+      "qualified_name": "SLAM.PoseGraph.PGDampedFactor",
+      "original_class_sha256": "d6b2a2aa4c999512e7179276667dc44676959edf5ac76900bc5e8bf28cf2147f",
+      "destination_sha256": "27fa007d51083bf994facaea6d6dece848f4439c9d8363673822da5afb612b45"
+    },
+    {
+      "source": "models/Optimization/ModelicaPoseGraph.mo",
+      "original_name": "PGPrecondition",
+      "destination": "SLAM/PoseGraph/PGPrecondition.mo",
+      "qualified_name": "SLAM.PoseGraph.PGPrecondition",
+      "original_class_sha256": "834b476133e27729be92b4b250f0a707604a3b4f72a36e7fdfc774f4ea0af918",
+      "destination_sha256": "3ee7217f599bf007c87a99757e8591e735c62cc0844313095f74d8f39a76255c"
+    },
+    {
+      "source": "models/Optimization/ModelicaPoseGraph.mo",
+      "original_name": "PGDot",
+      "destination": "SLAM/PoseGraph/PGDot.mo",
+      "qualified_name": "SLAM.PoseGraph.PGDot",
+      "original_class_sha256": "e819ada8517f8e4d69d6a7ba001038e747b3739a6c55ded96e990e72715d854d",
+      "destination_sha256": "0236c4d839a73de1b24151cdf4179fdc17968018e072905f53f169e070b3d9bc"
+    },
+    {
+      "source": "models/Optimization/ModelicaPoseGraph.mo",
+      "original_name": "PGPCG",
+      "destination": "SLAM/PoseGraph/PGPCG.mo",
+      "qualified_name": "SLAM.PoseGraph.PGPCG",
+      "original_class_sha256": "a8d2c49ae9a5592611984cef4361a9239771219a08f364443daf95ff3d481fc0",
+      "destination_sha256": "940ebdf43c5705159eeba06c83bd0730e9948484c842d4cc666f8dfc872156e3"
+    },
+    {
+      "source": "models/Optimization/ModelicaPoseGraph.mo",
+      "original_name": "PGRetract",
+      "destination": "SLAM/PoseGraph/PGRetract.mo",
+      "qualified_name": "SLAM.PoseGraph.PGRetract",
+      "original_class_sha256": "ae9df6441faa2ef83adc4088341ae7268544093f56c515771f1cdc6a1a0a5eb6",
+      "destination_sha256": "ed54765cb078d2427d80cd8afe39dcfce3f0a7eed4adcd43af8cff91092d7281"
+    },
+    {
+      "source": "models/Optimization/ModelicaPoseGraph.mo",
+      "original_name": "PGStep",
+      "destination": "SLAM/PoseGraph/PGStep.mo",
+      "qualified_name": "SLAM.PoseGraph.PGStep",
+      "original_class_sha256": "42d3cf8563a47daa524fb79116dfe82ae6af85c58a5c2bc07624f7129cfe706f",
+      "destination_sha256": "78cc2c2587bbef98296ac7d1d42d6d4e1467664984fa64112604e7de9b279799"
+    },
+    {
+      "source": "models/Optimization/ModelicaPoseGraph.mo",
+      "original_name": "PGRun",
+      "destination": "SLAM/PoseGraph/PGRun.mo",
+      "qualified_name": "SLAM.PoseGraph.PGRun",
+      "original_class_sha256": "0e4a35dee81e67bfb777f6cad31253c36ccf1e225d69f3f5840b7eab4cff39eb",
+      "destination_sha256": "9e849c7d5e2be2f8066377d7da186a6fe9f6ce18191e77b62c5fcc27a0d321ac"
+    },
+    {
+      "source": "models/Optimization/ModelicaPoseGraph.mo",
+      "original_name": "OptimizeModelicaPoseGraph",
+      "destination": "SLAM/PoseGraph/OptimizeModelicaPoseGraph.mo",
+      "qualified_name": "SLAM.PoseGraph.OptimizeModelicaPoseGraph",
+      "original_class_sha256": "9f77c9f10753202ae02a593c7da48f1811ebbd94173cb91e10601f43dd68b1f7",
+      "destination_sha256": "c2d12257e6fa0cf7b548ffb7c3f6bec211aac40b87126f49e2da6d22f47d7f7e"
+    },
+    {
+      "source": "models/Optimization/ModelicaPoseGraph.mo",
+      "original_name": "PGEdgeDiagnostics",
+      "destination": "SLAM/PoseGraph/PGEdgeDiagnostics.mo",
+      "qualified_name": "SLAM.PoseGraph.PGEdgeDiagnostics",
+      "original_class_sha256": "224d6bcc8479eb36391fe88d1eb5deb130095e385c4a1e886ae97b15b357ea90",
+      "destination_sha256": "9944d6152bf8f7dd6550da3ad8f41f0fc8880d8916540dadc73ece11d85033e5"
+    },
+    {
+      "source": "models/Optimization/ModelicaPoseGraph.mo",
+      "original_name": "ModelicaPoseGraph",
+      "destination": "SLAM/PoseGraph/ModelicaPoseGraph.mo",
+      "qualified_name": "SLAM.PoseGraph.ModelicaPoseGraph",
+      "original_class_sha256": "c9d99ff8174c5dac871c629d01aebdd3c9cc513d1604fbe937c67d3496c1a20e",
+      "destination_sha256": "f61451c1a8f0e9b173d60632d7c6498b8b053d49bba8469e044b7d913005ff47"
+    },
+    {
+      "source": "models/Optimization/ModelicaPoseGraph.mo",
+      "original_name": "ModelicaPoseGraphEdge",
+      "destination": "SLAM/PoseGraph/ModelicaPoseGraphEdge.mo",
+      "qualified_name": "SLAM.PoseGraph.ModelicaPoseGraphEdge",
+      "original_class_sha256": "9c3f9597fef19c6bc986da384ace0a73d6deb01c95b13ff6e997187e1fe9829d",
+      "destination_sha256": "c16e24d79831baeed70bf8c05ee2bd797d1491e889d11f4a3429eb07ce343b92"
+    },
+    {
+      "source": "models/Optimization/ModelicaPoseGraphCovariance.mo",
+      "original_name": "ModelicaPoseGraphCovariance",
+      "destination": "SLAM/PoseGraph/ModelicaPoseGraphCovariance.mo",
+      "qualified_name": "SLAM.PoseGraph.ModelicaPoseGraphCovariance",
+      "original_class_sha256": "63e971c7b653bd7414b5e8b3ecedbaed87b75a1accd78db25270b54584f7b11d",
+      "destination_sha256": "4a418a04cc102f261965cf29be8e4aec113587a07322f4956cffd03bdd06b155"
+    },
+    {
+      "source": "models/Optimization/RGBDCatalogGraphCapture.mo",
+      "original_name": "RGBDCatalogGraphCapture",
+      "destination": "SLAM/PoseGraph/RGBDCatalogGraphCapture.mo",
+      "qualified_name": "SLAM.PoseGraph.RGBDCatalogGraphCapture",
+      "original_class_sha256": "623f5de96c90fcd5c16cb2632c306eecfe74bf9e7b476aeddea2bba962102298",
+      "destination_sha256": "4adc8721bcbd5459fe4b90c6cbea551e0c53067e7d946149bf9b06784fe4ad93"
+    },
+    {
+      "source": "models/Optimization/RGBDGraphAnchorBound.mo",
+      "original_name": "RGBDGraphAnchorBound",
+      "destination": "SLAM/PoseGraph/RGBDGraphAnchorBound.mo",
+      "qualified_name": "SLAM.PoseGraph.RGBDGraphAnchorBound",
+      "original_class_sha256": "5e549ebc6530a8b433cb76d1e8d529f136fd8f139a08cb039c3aef726ff131d1",
+      "destination_sha256": "966112ebb63bcd76f025f0b02ef66d49f0f65f2e4eeadade650543574634bd7e"
+    },
+    {
+      "source": "models/Optimization/RGBDGraphCaptureLedger.mo",
+      "original_name": "RGBDGraphCaptureLedger",
+      "destination": "SLAM/PoseGraph/RGBDGraphCaptureLedger.mo",
+      "qualified_name": "SLAM.PoseGraph.RGBDGraphCaptureLedger",
+      "original_class_sha256": "d4baaeea66b740b357af31cd01030b11d12de4d4cdcb17681d00432d241d24ba",
+      "destination_sha256": "3d3d55c86c360894ca6efcbc876b77ae45b41f34b177e455879c0bb153d0c1f3"
+    },
+    {
+      "source": "models/Optimization/RGBDGraphEstimatorCommit.mo",
+      "original_name": "RGBDGraphEstimatorCommit",
+      "destination": "SLAM/PoseGraph/RGBDGraphEstimatorCommit.mo",
+      "qualified_name": "SLAM.PoseGraph.RGBDGraphEstimatorCommit",
+      "original_class_sha256": "67ead8915ebb85fbaaca058114a40b6c4ee234143a57835bef9e3e840e98dde8",
+      "destination_sha256": "db76a9b2cdc2094372f8d62ee744eca7ee24ebe963994baf1523d3407133f485"
+    },
+    {
+      "source": "models/Optimization/RGBDGraphMeasurements.mo",
+      "original_name": "RGBDGraphMeasurements",
+      "destination": "SLAM/PoseGraph/RGBDGraphMeasurements.mo",
+      "qualified_name": "SLAM.PoseGraph.RGBDGraphMeasurements",
+      "original_class_sha256": "21cddce68c35885ffc3a6e62d0267b0c1603f6f02f37582556009012939dba9f",
+      "destination_sha256": "295b6b1a8f63e4cdfae08321b321a7b8123291368a19175992894c0dd0ee5d14"
+    },
+    {
+      "source": "models/Optimization/RGBDGraphProcessing.mo",
+      "original_name": "RGBDGraphProcessing",
+      "destination": "SLAM/PoseGraph/RGBDGraphProcessing.mo",
+      "qualified_name": "SLAM.PoseGraph.RGBDGraphProcessing",
+      "original_class_sha256": "ca04dfabbd72ed40cdb9f871703318821837796faf9bbabfe8b48dbad62bc879",
+      "destination_sha256": "aa42dbf08ab94317d78695d4e6541548ddfd3549264962d3308932a8e8dab340"
+    },
+    {
+      "source": "models/Optimization/RGBDGraphSelectedGauge.mo",
+      "original_name": "RGBDGraphSelectedGauge",
+      "destination": "SLAM/PoseGraph/RGBDGraphSelectedGauge.mo",
+      "qualified_name": "SLAM.PoseGraph.RGBDGraphSelectedGauge",
+      "original_class_sha256": "0816bd6efe162042e4cdd1b626dcb933f6d6d91b802d31a64f864b85b7887939",
+      "destination_sha256": "a29a2d90f876069405cefc18b953b2aedbf729c81832ac6336c81270f9e5ae3f"
+    },
+    {
+      "source": "models/SLAM/D435FastSLAM.mo",
+      "original_name": "D435FastSLAMInitialize",
+      "destination": "SLAM/D435FastSLAMInitialize.mo",
+      "qualified_name": "SLAM.D435FastSLAMInitialize",
+      "original_class_sha256": "01af5cd20b975ba4c1a739ecff86e37201ab5a19d09ae87ba316ababfdcced3a",
+      "destination_sha256": "8687b5727d24face7b82ddff3e32e499cf84c204328171356a85851ab4928bcf"
+    },
+    {
+      "source": "models/SLAM/D435FastSLAM.mo",
+      "original_name": "D435FastSLAMStep",
+      "destination": "SLAM/D435FastSLAMStep.mo",
+      "qualified_name": "SLAM.D435FastSLAMStep",
+      "original_class_sha256": "8ff95797d5d96f65f03e0d6b3072eea33cc88fac622bd783c756cad8db74619d",
+      "destination_sha256": "64ab06d437fc33ed880ca5ff1b2bb6fb1359907ee8cfc22fbd2c1516f9f155a4"
+    },
+    {
+      "source": "models/SLAM/D435FastSLAM.mo",
+      "original_name": "D435FastSLAMIntervals",
+      "destination": "SLAM/D435FastSLAMIntervals.mo",
+      "qualified_name": "SLAM.D435FastSLAMIntervals",
+      "original_class_sha256": "d767b772845eb73f8ed70125963ebcf7244ea15bd1e7f639f346cf6a198ef203",
+      "destination_sha256": "cebb188f5e9bcfdfae0ea8da32da93acf3cc7fc29055ce9b46cb0e9d63267ac2"
+    },
+    {
+      "source": "models/SLAM/RGBDFastSLAMInitialize.mo",
+      "original_name": "RGBDFastSLAMInitialize",
+      "destination": "SLAM/RGBDFastSLAMInitialize.mo",
+      "qualified_name": "SLAM.RGBDFastSLAMInitialize",
+      "original_class_sha256": "9abb4ecdf6cc80e3b4033c616bed569eb19ec752a4b1e322b3186cc41477be2f",
+      "destination_sha256": "e1752870f35f4d02c0ad70bf2615ffdca62bcadc2eebf61f6bdd574609886be2"
+    },
+    {
+      "source": "models/SLAM/RGBDFastSLAMInitialize.mo",
+      "original_name": "InitializeFastSLAM",
+      "destination": "SLAM/InitializeFastSLAM.mo",
+      "qualified_name": "SLAM.InitializeFastSLAM",
+      "original_class_sha256": "b2971b5ef4749a50db884123f8bd78cfa05e5273262de7ce8fade30fb1f91699",
+      "destination_sha256": "8eae66786eacdf3c2e955242ce89d817f840c5b3c5b0917c5c9afa24954194ab"
+    },
+    {
+      "source": "models/SLAM/RGBDFastSLAMInterface.mo",
+      "original_name": "RGBDFastSLAMInterface",
+      "destination": "SLAM/RGBDFastSLAMInterface.mo",
+      "qualified_name": "SLAM.RGBDFastSLAMInterface",
+      "original_class_sha256": "6877f3062fa6200a11fa9befdfb9112926a109a784a8fb2a764c6bafd6dccd9a",
+      "destination_sha256": "681b72713231f50e8d1c960b939d46a1be4eab50214235e694dd6ba9807602fc"
+    },
+    {
+      "source": "models/SLAM/RGBDFastSLAMIntervals.mo",
+      "original_name": "RGBDFastSLAMIntervals",
+      "destination": "SLAM/RGBDFastSLAMIntervals.mo",
+      "qualified_name": "SLAM.RGBDFastSLAMIntervals",
+      "original_class_sha256": "385a72fa189641999ed53e5f1d7d852a402421793970d58d715b0427e843b72f",
+      "destination_sha256": "575745eae261f3c7bff29111e7a90e3b40d2682f10b6c8d2ec55ee7dd24df19a"
+    },
+    {
+      "source": "models/SLAM/RGBDFastSLAMIntervals.mo",
+      "original_name": "AdvanceFastSLAMIntervals",
+      "destination": "SLAM/AdvanceFastSLAMIntervals.mo",
+      "qualified_name": "SLAM.AdvanceFastSLAMIntervals",
+      "original_class_sha256": "9ce6dfa0b559c2d900d8786eb760c2549f11095e230f40fc5487aded91675067",
+      "destination_sha256": "5c03736c2cd50229e706069c2bbb4cdf3c6a363bad430706ed769f8b7b6f88ed"
+    },
+    {
+      "source": "models/SLAM/RGBDFastSLAMReset.mo",
+      "original_name": "RGBDFastSLAMReset",
+      "destination": "SLAM/RGBDFastSLAMReset.mo",
+      "qualified_name": "SLAM.RGBDFastSLAMReset",
+      "original_class_sha256": "7f3a1ddf04dbae5ad81778d59024fd9eeb83c17552362bbbbe174be9e8885caf",
+      "destination_sha256": "4767e4d292118ae35bcca0600c12c2e05096b9ae6b103625d2888c593351d2f1"
+    },
+    {
+      "source": "models/SLAM/RGBDFastSLAMStep.mo",
+      "original_name": "RGBDFastSLAMStep",
+      "destination": "SLAM/RGBDFastSLAMStep.mo",
+      "qualified_name": "SLAM.RGBDFastSLAMStep",
+      "original_class_sha256": "be27c4a01ad36c11dc7c4532a58c8e950d2e1f5bd4d77113fa736ad1396e3130",
+      "destination_sha256": "7f91087b0419a95d9b2c2acaae211627a5a278b8bfb42c65c9d6e46fa8e9ee3e"
+    },
+    {
+      "source": "models/SLAM/RGBDFastSLAMStep.mo",
+      "original_name": "AdvanceFastSLAM",
+      "destination": "SLAM/AdvanceFastSLAM.mo",
+      "qualified_name": "SLAM.AdvanceFastSLAM",
+      "original_class_sha256": "dae00b37039f32c35396da14f3bbba82549ccd3a31cc0ba99ab7761d8f39dce3",
+      "destination_sha256": "90889d8c7c40f568b8a4e74095834795feaa3c386c7f28ea3448a82012c0fb42"
+    },
+    {
+      "source": "models/Scene/ActorMotion.mo",
+      "original_name": "ActorMotion",
+      "destination": "SLAM/Examples/Scene/ActorMotion.mo",
+      "qualified_name": "SLAM.Examples.Scene.ActorMotion",
+      "original_class_sha256": "0ba94e8f0087c28af18e25db855098bbc3a549f88ad1da91099dfc81f31c54ec",
+      "destination_sha256": "c887e2ad27c9533e3f62cddbaba124ae145ea261087e905e6f2978e06c29d7f5"
+    },
+    {
+      "source": "models/Sensors/D435ImageProfile.mo",
+      "original_name": "D435ImageProfile",
+      "destination": "Vision/Sensors/D435ImageProfile.mo",
+      "qualified_name": "Vision.Sensors.D435ImageProfile",
+      "original_class_sha256": "b2e2a49c865e827151b21dd63b7dbe6e52c7512c37ad798dde618dab642015b6",
+      "destination_sha256": "004e44cd1b700dece4a73eff5f59ca544d67786e9152f76d1e16ee0077ada607"
+    },
+    {
+      "source": "models/Sensors/SensorAvailability.mo",
+      "original_name": "SensorAvailability",
+      "destination": "SLAM/Examples/Sensors/SensorAvailability.mo",
+      "qualified_name": "SLAM.Examples.Sensors.SensorAvailability",
+      "original_class_sha256": "deae9cc0fef745fbcd7534e4cfcf5524dff1105820c661c7883a387a6eab52d2",
+      "destination_sha256": "816271babd6a02c1b461f722adf6cff902e0fa5633d15ad93fdc69010354dae7"
+    },
+    {
+      "source": "models/Sensors/SensorObservations.mo",
+      "original_name": "SensorObservations",
+      "destination": "SLAM/Examples/Sensors/SensorObservations.mo",
+      "qualified_name": "SLAM.Examples.Sensors.SensorObservations",
+      "original_class_sha256": "fb7fa41373003b27ba95ee5c1a25dfeaad43a7fcd49bb8a89f6d7695428a1544",
+      "destination_sha256": "68a6ff66cff671403da0144e6d513a541d2f04ab72fcdaf4deb7d78c212775c0"
+    },
+    {
+      "source": "models/Vehicles/LabQuadrotor.mo",
+      "original_name": "QuadrotorSIL",
+      "destination": "SLAM/Examples/Vehicles/QuadrotorSIL.mo",
+      "qualified_name": "SLAM.Examples.Vehicles.QuadrotorSIL",
+      "original_class_sha256": "ec461e004beb9806bb25b999294d1fc98f60e998b1150be6d8797e3ddf3f601b",
+      "destination_sha256": "78ec0d165d429b02f98b191bd810f6969319f9d58ee17f6db42a2e961d002384"
+    },
+    {
+      "source": "models/Vehicles/LabQuadrotor.mo",
+      "original_name": "LabQuadrotor",
+      "destination": "SLAM/Examples/Vehicles/LabQuadrotor.mo",
+      "qualified_name": "SLAM.Examples.Vehicles.LabQuadrotor",
+      "original_class_sha256": "4d3a8221abaa708b4a98f76ef0f62976a2db939d3f1e08f0741c3cb7446eb6b7",
+      "destination_sha256": "a6f5cb403c3f3fe6833f0a85d9a9580cf81db146e440e6ecb0676cc22231389c"
+    },
+    {
+      "source": "models/Vision/Features/D435FastFeatures.mo",
+      "original_name": "D435FastFeatures",
+      "destination": "Vision/Features/D435FastFeatures.mo",
+      "qualified_name": "Vision.Features.D435FastFeatures",
+      "original_class_sha256": "e48f588d5e9ac1a7f2a6e333ab6b92ae1626f1f595e21cdd5ea4e998f28e765f",
+      "destination_sha256": "ba91a37bb43d6a8c5a9f0d7d4c03760eafa420d8006cb5ae1937d1b2b94853a4"
+    },
+    {
+      "source": "models/Vision/Features/D435HarrisFeatures.mo",
+      "original_name": "D435HarrisFeatures",
+      "destination": "Vision/Features/D435HarrisFeatures.mo",
+      "qualified_name": "Vision.Features.D435HarrisFeatures",
+      "original_class_sha256": "5ce6be552660bf8a68734f8ff03e5fdc795299274e508fe61255ed65dfeccd31",
+      "destination_sha256": "36fc910a67c27c40b5ed7bb32a84e50dc16746e763bdbbb082b95da9240ac1af"
+    },
+    {
+      "source": "models/Vision/Features/FastNativeFrame.mo",
+      "original_name": "FastCircleStencil",
+      "destination": "Vision/Features/FastCircleStencil.mo",
+      "qualified_name": "Vision.Features.FastCircleStencil",
+      "original_class_sha256": "49fb47a38355fbd97ffde97c429208cb76b258a36ca33471d74889f36f082101",
+      "destination_sha256": "dde0bb40e731c23f16230cccc6c8d1c12c0b26a185fc057d5272d3914e9c9efa"
+    },
+    {
+      "source": "models/Vision/Features/FastNativeFrame.mo",
+      "original_name": "FastCircleScore",
+      "destination": "Vision/Features/FastCircleScore.mo",
+      "qualified_name": "Vision.Features.FastCircleScore",
+      "original_class_sha256": "a1aeeaf4f3ad94ad7957e8602036f50148b9f7c5ce7d08c2a81f9fcc57b53266",
+      "destination_sha256": "3266b7657a9dea9069e3fc06b491acbcf27a4a3a3b2e0dd2ce6cb660370763c9"
+    },
+    {
+      "source": "models/Vision/Features/FastNativeFrame.mo",
+      "original_name": "FastPatchScore",
+      "destination": "Vision/Features/FastPatchScore.mo",
+      "qualified_name": "Vision.Features.FastPatchScore",
+      "original_class_sha256": "19b83ea114523aff50484a1d5c15bf31bf658262ad1060b4e468eda5fcf497d3",
+      "destination_sha256": "8c16aa8be6001f0b484caa1e5ab56e68f6bbd39daaa9d9e4fc1aa5e57744eb41"
+    },
+    {
+      "source": "models/Vision/Features/FastNativeFrame.mo",
+      "original_name": "FastSelectionScoreFloor",
+      "destination": "Vision/Features/FastSelectionScoreFloor.mo",
+      "qualified_name": "Vision.Features.FastSelectionScoreFloor",
+      "original_class_sha256": "28017cf10bf4def4b879f21610fe4866f295533640b8acc7d093af55ce44fd9f",
+      "destination_sha256": "bbe773aea0f0df63415867c65a87e961540d1864e830e90bc82313260b5d4360"
+    },
+    {
+      "source": "models/Vision/Features/FastNativeFrame.mo",
+      "original_name": "FastCircleCanReachScore",
+      "destination": "Vision/Features/FastCircleCanReachScore.mo",
+      "qualified_name": "Vision.Features.FastCircleCanReachScore",
+      "original_class_sha256": "c54572c23e242eea6bbec26a181e316c8ac8dcd546a3d2d3351f0c64887e65ec",
+      "destination_sha256": "219ec1748e0fe55d03f63fa87ad3ba5728d62a9a9143dde9659499263ca49ffc"
+    },
+    {
+      "source": "models/Vision/Features/FastNativeFrame.mo",
+      "original_name": "FastFrameScores",
+      "destination": "Vision/Features/FastFrameScores.mo",
+      "qualified_name": "Vision.Features.FastFrameScores",
+      "original_class_sha256": "0d52e731a6ca11bb7f98d6880addb45ac0611214bd968a9248b53cd63a4dfb55",
+      "destination_sha256": "c1a9ac1e1920e08827d13201fe11eb98006ba5fad760c8e5b1ce241a13033414"
+    },
+    {
+      "source": "models/Vision/Features/FastNativeFrame.mo",
+      "original_name": "FastNativeFrame",
+      "destination": "Vision/Features/FastNativeFrame.mo",
+      "qualified_name": "Vision.Features.FastNativeFrame",
+      "original_class_sha256": "1ecadd185a706f709c5d6b7a9c9a2db1beeaeb277c35f12272e7aece395f8a75",
+      "destination_sha256": "a036749cd7b36c413bc6758b39acaa89117ab42217512189ea84570ef6a39b0f"
+    },
+    {
+      "source": "models/Vision/Features/FeatureSelection.mo",
+      "original_name": "SelectRasterFeatures",
+      "destination": "Vision/Features/SelectRasterFeatures.mo",
+      "qualified_name": "Vision.Features.SelectRasterFeatures",
+      "original_class_sha256": "c2aa71cf73197420096cba136f484d38e6fd5c4b68892ce794030f36e67c3589",
+      "destination_sha256": "b900e2c83cb642f6a30009212d376e4f72fc3ceaa3565d8deb6b7c07a0b99526"
+    },
+    {
+      "source": "models/Vision/Features/FeatureSelection.mo",
+      "original_name": "FeatureSelection",
+      "destination": "Vision/Features/FeatureSelection.mo",
+      "qualified_name": "Vision.Features.FeatureSelection",
+      "original_class_sha256": "5f338601e59b5c02d599f6213a7c3c1c605510eb5e2f9ead4aba80b344bc46f4",
+      "destination_sha256": "8afe8d631f3826b2b6652bde3ce9efc80f2ab2e76dbd21c3334ac4ea9a8a6d1c"
+    },
+    {
+      "source": "models/Vision/Features/FeatureSelection.mo",
+      "original_name": "GridFeatureSelection",
+      "destination": "Vision/Features/GridFeatureSelection.mo",
+      "qualified_name": "Vision.Features.GridFeatureSelection",
+      "original_class_sha256": "d899a5dab418c079cb759495ac92d3da108a325caa20e4bed647b6aaa2910da5",
+      "destination_sha256": "f6bd2867a38e3f8fa6d7887727f57db89a2a7e4ba10d12ce9e0dac4221995a45"
+    },
+    {
+      "source": "models/Vision/Features/FeatureSelection.mo",
+      "original_name": "FastFeatureSelection",
+      "destination": "Vision/Features/FastFeatureSelection.mo",
+      "qualified_name": "Vision.Features.FastFeatureSelection",
+      "original_class_sha256": "3359056f62f03ff6de628d26ded0f4bc63c11b89b1033d55c08c5ff0abdffba9",
+      "destination_sha256": "7e7525776660e9d1e2d844084d3f1b52f39284c8a95d194f277cfc787b695466"
+    },
+    {
+      "source": "models/Vision/Features/HarrisNativeFrame.mo",
+      "original_name": "HarrisNativeFrame",
+      "destination": "Vision/Features/HarrisNativeFrame.mo",
+      "qualified_name": "Vision.Features.HarrisNativeFrame",
+      "original_class_sha256": "59771e3ca04d5fb6e34e1b3bee2f8bbf15289ea1977a622f7f296d81869d523d",
+      "destination_sha256": "bc058c1ed45ec0eb82b9646380858784415ddee535f5bf9a540f551ce2151dff"
+    },
+    {
+      "source": "models/Vision/Matching/RGBDFeatureMatching.mo",
+      "original_name": "RGBDNominalCalibration",
+      "destination": "Vision/Matching/RGBDNominalCalibration.mo",
+      "qualified_name": "Vision.Matching.RGBDNominalCalibration",
+      "original_class_sha256": "ddf37efed80e909cb8bd32db5fa31319a27ae3f48389b1e906e355a629a701cf",
+      "destination_sha256": "504a5245e68d437a00fb07b576dc380d501822f77e3dc09e9b1737172c58ba75"
+    },
+    {
+      "source": "models/Vision/Matching/RGBDFeatureMatching.mo",
+      "original_name": "RGBDCalibratedPoint",
+      "destination": "Vision/Matching/RGBDCalibratedPoint.mo",
+      "qualified_name": "Vision.Matching.RGBDCalibratedPoint",
+      "original_class_sha256": "12506489dae61e5f39e57decb8522c30cc08e56332702b106771b919351e038c",
+      "destination_sha256": "dcde94fd586250f14db904727adae550d0519e647feb053040dab375f1622a92"
+    },
+    {
+      "source": "models/Vision/Matching/RGBDFeatureMatching.mo",
+      "original_name": "RGBDDepthQualifiedScores",
+      "destination": "Vision/Matching/RGBDDepthQualifiedScores.mo",
+      "qualified_name": "Vision.Matching.RGBDDepthQualifiedScores",
+      "original_class_sha256": "36a4b38d705f3dc34b89a1ded40d10bd20c35c3d7c778c1409f70349be369a50",
+      "destination_sha256": "defcd7c4288a0baced8a4e61c7599b1ce082afd9f47289fd8db86905adef847a"
+    },
+    {
+      "source": "models/Vision/Matching/RGBDFeatureMatching.mo",
+      "original_name": "RGBDDescriptorConfiguration",
+      "destination": "Vision/Matching/RGBDDescriptorConfiguration.mo",
+      "qualified_name": "Vision.Matching.RGBDDescriptorConfiguration",
+      "original_class_sha256": "f074a1c17e35d657cb364d34e50da10c84a1d507941c45b2d727ad556ace5b8a",
+      "destination_sha256": "3c3f6129d5f20fee4db878ed96ebefef680b5a1bee5c0c4b6d8f9bfa7539de81"
+    },
+    {
+      "source": "models/Vision/Matching/RGBDFeatureMatching.mo",
+      "original_name": "RGBDDescriptorPosition",
+      "destination": "Vision/Matching/RGBDDescriptorPosition.mo",
+      "qualified_name": "Vision.Matching.RGBDDescriptorPosition",
+      "original_class_sha256": "bb315e774d1a1f7344af5447d4277d31286a8addcb7d75962b38e4a712fe5ee4",
+      "destination_sha256": "54916917d9e5e21c122a9d8ddcb0c1a1ec8a2dc44bc40d9c8a79798ca978b73c"
+    },
+    {
+      "source": "models/Vision/Matching/RGBDFeatureMatching.mo",
+      "original_name": "RGBDNormalizeDescriptor",
+      "destination": "Vision/Matching/RGBDNormalizeDescriptor.mo",
+      "qualified_name": "Vision.Matching.RGBDNormalizeDescriptor",
+      "original_class_sha256": "3524d443083172d43e50e24f7ce649474deb46775cc94b0929ad38f963009f43",
+      "destination_sha256": "d8ce001be3bc3cc6bdcb505363416cc29aa0caf1803a1e550945a2263f5dc7a3"
+    },
+    {
+      "source": "models/Vision/Matching/RGBDFeatureMatching.mo",
+      "original_name": "DescribeRGBDFeatures",
+      "destination": "Vision/Matching/DescribeRGBDFeatures.mo",
+      "qualified_name": "Vision.Matching.DescribeRGBDFeatures",
+      "original_class_sha256": "7d3d1d898dad2db1677c6cf0c1dd5b775e655494ef1770f1bca84370931b73ae",
+      "destination_sha256": "41d21cfe40bb2f5875a9cab5632d667d101182df655e2b948876a2468fb2faf3"
+    },
+    {
+      "source": "models/Vision/Matching/RGBDFeatureMatching.mo",
+      "original_name": "RGBDDescriptorValid",
+      "destination": "Vision/Matching/RGBDDescriptorValid.mo",
+      "qualified_name": "Vision.Matching.RGBDDescriptorValid",
+      "original_class_sha256": "0fd62c0ac8ecd5ee852e07dd442c60dbc3e3cf579101432423c6cce700c3698e",
+      "destination_sha256": "b7ab5e0ac637f4915be068bd5a6deffe7baf99415d90a24d3d337077a9c810b4"
+    },
+    {
+      "source": "models/Vision/Matching/RGBDFeatureMatching.mo",
+      "original_name": "RGBDDescriptorDistance",
+      "destination": "Vision/Matching/RGBDDescriptorDistance.mo",
+      "qualified_name": "Vision.Matching.RGBDDescriptorDistance",
+      "original_class_sha256": "34f86f07cc123d2012283724e80d6284760296e3dc0e9b873c34ce42490cf80b",
+      "destination_sha256": "8f3c76a1b407c4a4cf0832cdc458c096f911e8ec9c572d00031b7a8cfb7be51e"
+    },
+    {
+      "source": "models/Vision/Matching/RGBDFeatureMatching.mo",
+      "original_name": "RGBDPredictedPoint",
+      "destination": "Vision/Matching/RGBDPredictedPoint.mo",
+      "qualified_name": "Vision.Matching.RGBDPredictedPoint",
+      "original_class_sha256": "1a3f6f402569771b9e0d8ef4b0ecaecd5048f53d140da4610c90fed3a7b95ac7",
+      "destination_sha256": "f1d42a28c94cae4d9acaac7f319fe1addfacec48601e4141078a949b0c484b41"
+    },
+    {
+      "source": "models/Vision/Matching/RGBDFeatureMatching.mo",
+      "original_name": "RGBDGeometricDistance",
+      "destination": "Vision/Matching/RGBDGeometricDistance.mo",
+      "qualified_name": "Vision.Matching.RGBDGeometricDistance",
+      "original_class_sha256": "57a6fd7e558aa0f4d589b95e6fa154f474c3dcff2eb28feafadf50dbeb757f29",
+      "destination_sha256": "bd6cd395fa9f5c790f49d30bb9f83fe834e36f2601fc3a15be189143d94e6a93"
+    },
+    {
+      "source": "models/Vision/Matching/RGBDFeatureMatching.mo",
+      "original_name": "MatchRGBDDescriptors",
+      "destination": "Vision/Matching/MatchRGBDDescriptors.mo",
+      "qualified_name": "Vision.Matching.MatchRGBDDescriptors",
+      "original_class_sha256": "0260d99c3a2caa27bcc6feb331361de11c5a633bf6205edaa6f1b420fbb80205",
+      "destination_sha256": "5dc5e948d55fd11a91323158bc54a293506c858e5393b48fdc4a9d752c0515a9"
+    },
+    {
+      "source": "models/Vision/Matching/RGBDFeatureMatching.mo",
+      "original_name": "RGBDFeatureMatching",
+      "destination": "Vision/Matching/RGBDFeatureMatching.mo",
+      "qualified_name": "Vision.Matching.RGBDFeatureMatching",
+      "original_class_sha256": "76462989c72252968cbb7120fb51fc010c1ea5e2191a2f7289a9792a56bf509f",
+      "destination_sha256": "ca659203ccce67218a9fcb059dd4b2d98de91e6667bc29e2b7f9c649a7d8802f"
+    },
+    {
+      "source": "models/Vision/Matching/RGBDFeatureMatching.mo",
+      "original_name": "DescribeRGBDFrame",
+      "destination": "Vision/Matching/DescribeRGBDFrame.mo",
+      "qualified_name": "Vision.Matching.DescribeRGBDFrame",
+      "original_class_sha256": "56187e0961b12c1256342459dc5365161eb6431b8ed987e8a52100dfef11d0ef",
+      "destination_sha256": "2131d0bde15f99813c9365595e884240516921a295a73fe235e3a4af0df8f9a4"
+    },
+    {
+      "source": "models/Vision/Matching/RGBDFeatureMatching.mo",
+      "original_name": "RGBDDescriptorFrame",
+      "destination": "Vision/Matching/RGBDDescriptorFrame.mo",
+      "qualified_name": "Vision.Matching.RGBDDescriptorFrame",
+      "original_class_sha256": "49648c1e31e629e94b3057544354a7f7018d3ed8a287a272791958eb252a1965",
+      "destination_sha256": "66719b9d7cd350b5bd31f4046afd2c99d760109d96763d185bb7174cdddf8fdb"
+    },
+    {
+      "source": "models/Vision/Matching/RGBDPatchTracking.mo",
+      "original_name": "RGBDPatchTracking",
+      "destination": "Vision/Matching/RGBDPatchTracking.mo",
+      "qualified_name": "Vision.Matching.RGBDPatchTracking",
+      "original_class_sha256": "d48b598782529dd63ceba9574ed45cb34b51e312871bcbf3d70a4bbf47a05d4d",
+      "destination_sha256": "1fa8ee7582a81de8999edd49cb962b5a0ebd63c7f2001f55c09296d493f052f5"
+    }
+  ],
+  "class_count": 179,
+  "transformation": "Split top-level classes; add within clauses and explicit import aliases. Preserve arithmetic, source comments and nested classes. Update three Examples qualifiers.",
+  "excluded": [
+    "models/Libraries",
+    "models/upstream",
+    "browser/TypeScript runtime",
+    "test fixtures"
+  ],
+  "consumer_cutover_complete": false
+}

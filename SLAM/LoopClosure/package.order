@@ -1,0 +1,11 @@
+NormalizeVisualWord
+RGBDBagOfWords
+RGBDBodyRelativeEdge
+RGBDCatalogLoopVerification
+RGBDKeyframePolicy
+RGBDKeyframeRetrieval
+RGBDKeyframes
+RGBDLoopVerification
+RGBDOpticalToBodyEdge
+RGBDVisualVocabulary
+RetrieveVisualWords

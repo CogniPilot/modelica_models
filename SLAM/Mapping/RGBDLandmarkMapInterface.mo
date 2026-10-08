@@ -1,0 +1,51 @@
+within SLAM.Mapping;
+// Persistent state is explicit: callers retain only accepted next-state outputs.
+// All coordinates are in one unchanged world ENU frame. Points come from
+// RGBDLandmarkProjection and bodyPosition is estimated, never ground truth.
+partial function RGBDLandmarkMapInterface
+  input Real previousPoint[:,:];
+  input Real previousOccupied[:];
+  input Real previousConfidence[:];
+  input Real previousLastSeen[:];
+  input Real previousLastFrame[:];
+  input Real candidatePoint[:,:];
+  input Real candidateEnabled[:];
+  input Real candidateCount;
+  input Real bodyPosition[3];
+  input Real poseAccepted;
+  input Real previousTime;
+  input Real timeNow;
+  input Real previousFrame;
+  input Real frameNow;
+  input Real previousWorldFrame;
+  input Real worldFrame;
+  input Real resetRequested;
+  input Real coordinateLimit;
+  input Real voxelWidth;
+  input Real mergeRadius;
+  input Real maximumDistance;
+  input Real tentativeLifetime;
+  input Real confirmedLifetime;
+  input Real confirmationObservations;
+  input Real maximumConfidence;
+  input Real maximumTentative;
+  output Real point[size(previousOccupied,1),3];
+  output Real occupied[size(previousOccupied,1)];
+  output Real confidence[size(previousOccupied,1)];
+  output Real lastSeen[size(previousOccupied,1)];
+  output Real lastFrame[size(previousOccupied,1)];
+  output Real confirmed[size(previousOccupied,1)];
+  output Real accepted;
+  output Real rejectionReason;
+  output Real nextTime;
+  output Real nextFrame;
+  output Real nextWorldFrame;
+  output Real occupiedCount;
+  output Real confirmedCount;
+  output Real tentativeCount;
+  output Real insertedCount;
+  output Real mergedCount;
+  output Real prunedCount;
+  output Real droppedCount;
+  output Real invalidCandidateCount;
+end RGBDLandmarkMapInterface;

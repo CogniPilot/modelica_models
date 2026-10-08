@@ -39,6 +39,11 @@ artifacts; they do not own alternate copies of these models.
   `Multirotor.RateLoop` and `Multirotor.Allocation` inner-loop building blocks.
 - `Planning/`: forward-only bounded-curvature path planning, including all six
   classical Dubins path families.
+- `Vision/`: RGB-D features, matching, calibrated registration and camera
+  profiles, shared with the CogniPilot SLAM application.
+- `SLAM/`: localization, mapping, loop closure, pose graphs, visual fusion and
+  examples. The existing world-additive visual inertial reference is under
+  `SLAM.Inertial`; the navigation ESKF remains under `Estimation.StrapdownINS`.
 - `Vehicles/Templates/`: parameterized fixed-wing and quadrotor plants.
 - `Vehicles/Cubs2/` and `Vehicles/Rdd2/`: named parameterizations,
   flight-control models, avionics plant interfaces, and qualification missions.
@@ -53,6 +58,10 @@ the same separation used by the
 [Modelica Standard Library](https://github.com/modelica/ModelicaStandardLibrary).
 The structure check validates `within` declarations, `package.order` coverage,
 and package metadata without requiring Nix.
+
+The [SLAM source migration](docs/slam-models.txt) records the canonical package
+layout and compatibility export for `slam_web`. Local visual comparison
+algorithms are Modelica; native probes only supply inputs and collect outputs.
 
 ## Navigation estimator boundary
 

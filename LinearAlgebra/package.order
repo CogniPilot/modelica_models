@@ -10,3 +10,4 @@ covarianceRoot
 factorPSD
 solveLower
 solveCovarianceRoot
+SPD6Solve

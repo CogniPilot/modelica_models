@@ -29,6 +29,7 @@ inflateCovariance
 holdCovariance
 inject
 SemiDirectBias
+Visual
 reseed
 conjugateReset
 considerGainProjector

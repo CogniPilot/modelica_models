@@ -1,0 +1,4 @@
+linearizeMappedLandmarks
+compressPose
+correctMappedLandmarksLoose
+correctMappedLandmarksTight
