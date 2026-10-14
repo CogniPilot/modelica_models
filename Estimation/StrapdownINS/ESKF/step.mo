@@ -126,24 +126,15 @@ function step
   output Real barometerBiasNext_m;
   output Real barometerBiasVarianceNext_m2;
 protected
-  State prior;
   State working;
-  Real initializationPosition[3];
-  Real initializationQuaternion[4];
   Boolean correctionAttempted;
   Boolean correctionAccepted;
-  Boolean absoluteAidingAttempted;
-  Boolean opticalFlowAttempted;
-  Integer aidingOutcome;
-  Real aidingNis;
   Boolean aidingLive;
   Boolean inflateCovarianceNow;
   Boolean aidingDivergent;
   Boolean reseedConfigured;
   Boolean reseedNow;
   Integer reseedSource;
-  Real reseedPosition[3];
-  Real reseedVelocity[3];
   Boolean anchorExclusive;
   Boolean imuUsable;
   Boolean imuPayloadFinite;
@@ -152,7 +143,6 @@ protected
   Boolean mocapSeedUsable;
   Boolean gpsSeedUsable;
   Boolean magnetometerSeedUsable;
-  Boolean alignmentAccepted;
   Boolean mocapNew;
   Boolean gpsNew;
   Boolean magnetometerNew;
@@ -171,11 +161,6 @@ protected
   Boolean alignmentReady;
   Boolean alignmentTimedOut;
   Boolean alignmentPending;
-  Boolean pseudoPositionConfigured;
-  Boolean zeroVelocityConfigured;
-  Real alignmentNoiseWeight;
-  Real alignmentSpecificForceCovariance[3, 3];
-  Covariance heldDynamics;
 algorithm
   predictionAccepted := false;
   mocapCorrectionAccepted := false;
@@ -186,10 +171,6 @@ algorithm
   opticalFlowCorrectionAccepted := false;
   correctionAttempted := false;
   correctionAccepted := false;
-  absoluteAidingAttempted := false;
-  opticalFlowAttempted := false;
-  aidingOutcome := CorrectionNotAttempted;
-  aidingNis := 0.0;
   correctionOutcome := CorrectionNotAttempted;
   correctionSource := SourceNone;
   normalizedInnovationSquared := 0.0;
@@ -202,13 +183,6 @@ algorithm
   pseudoPositionHoldNext_m := pseudoPositionHoldPrevious_m;
   reseedNow := false;
   reseedSource := SourceNone;
-  reseedPosition := zeros(3);
-  reseedVelocity := zeros(3);
-  // Initialization-branch scratch, defined here so every read is dominated
-  // by a definition on all control-flow paths through the function.
-  alignmentAccepted := false;
-  initializationPosition := zeros(3);
-  initializationQuaternion := {1.0, 0.0, 0.0, 0.0};
   consecutiveRejectionsNext := 0;
   rejectionElapsedNext_s := 0.0;
   // A commanded reset and first initialization clear every source's
@@ -421,83 +395,15 @@ algorithm
     working := copyState(previous);
     alignmentSource := AlignmentNone;
   elseif not initializedPrevious or reset then
-    initializationPosition := if mocapSeedUsable then
-        mocap.positionWorldEnu_m
-      elseif gpsSeedUsable then
-        gps.positionWorldEnu_m
-      else
-        tuning.initialState.positionWorldEnu_m;
-    if mocapSeedUsable then
-      initializationQuaternion := mocap.quaternionWorldBody;
-      alignmentAccepted := true;
-      alignmentSource := AlignmentMocap;
-    elseif imuUsable and magnetometerSeedUsable then
-      (initializationQuaternion, alignmentAccepted) :=
-        Estimation.StrapdownINS.initialAlignmentQuaternion(
-          alignmentSpecificForce_m_s2,
-          magnetometer.magneticFieldBodyFlu_T,
-          tuning.localMagneticFieldWorldEnu_T,
-          tuning.initialState.quaternionWorldBody);
-      alignmentSource := if alignmentAccepted
-        then AlignmentAccelerometerMagnetometer else AlignmentFallback;
-    elseif imuUsable and alignmentGateConfigured then
-      // No magnetometer: level on the filtered specific force and leave the
-      // heading at zero. Only offered behind the quiet gate, so the vector
-      // is one taken at rest.
-      (initializationQuaternion, alignmentAccepted) :=
-        Estimation.StrapdownINS.initialAlignmentQuaternion(
-          alignmentSpecificForce_m_s2,
-          zeros(3),
-          tuning.localMagneticFieldWorldEnu_T,
-          tuning.initialState.quaternionWorldBody,
-          false);
-      alignmentSource := if alignmentAccepted
-        then AlignmentAccelerometer else AlignmentFallback;
-    else
-      initializationQuaternion := tuning.initialState.quaternionWorldBody;
-      alignmentAccepted := false;
-      alignmentSource := AlignmentFallback;
-    end if;
-    pseudoPositionHoldNext_m := initializationPosition;
-    magnetometerCorrectionAccepted := magnetometerSeedUsable
-      and alignmentAccepted
-      and not mocapSeedUsable;
-    working := initialize(
-      initializationPosition,
-      initializationQuaternion,
-      tuning.initialVariances,
-      tuning.initialState.velocityWorldEnu_m_s,
-      tuning.initialState.gyroscopeBiasBodyFlu_rad_s,
-      tuning.initialState.accelerometerBiasBodyFlu_m_s2,
-      if mocapSeedUsable then mocap.positionCovarianceWorld_m2
-      elseif gpsSeedUsable then gps.positionCovarianceWorld_m2
-      else zeros(3, 3), tuning.useSquareRootCovariance,
-      tuning.barometerBias_m, tuning.barometerBiasVariance_m2,
-      tuning.useJointBarometerBias);
-    if tuning.useGeometricAlignment and alignmentGateConfigured
-        and imuQuiet and not alignmentTimedOut and alignmentAccepted
-        and (alignmentSource == AlignmentAccelerometer
-          or alignmentSource == AlignmentAccelerometerMagnetometer) then
-      alignmentNoiseWeight := (1.0 - quietFilterGain)
-        ^ (2.0 * max(alignmentWaitNext_s / dt - 1.0, 0.0));
-      alignmentSpecificForceCovariance := tuning.processNoise.accelerometer_m2_s3
-        / dt * (alignmentNoiseWeight + (1.0 - alignmentNoiseWeight)
-          * quietFilterGain / (2.0 - quietFilterGain));
-      working := conditionAlignment(working, alignmentSpecificForce_m_s2,
-        alignmentSpecificForceCovariance, gravityWorldEnu_m_s2,
-        tuning.innovationGate, tuning.useSemiDirectBias);
-      if magnetometerSeedUsable then
-        (working, magnetometerCorrectionAccepted, aidingOutcome, aidingNis) :=
-          correctMagnetometer(working, magnetometer,
-            tuning.localMagneticFieldWorldEnu_T, tuning.innovationGate,
-            imuTimestampHeldNext_s - magnetometer.timestamp_s,
-            imuAngularVelocityHeldNext_rad_s,
-            imuSpecificForceHeldNext_m_s2, gravityWorldEnu_m_s2,
-            tuning.maximumAidingDelay_s, tuning.useEquivariantMagnetometer,
-            tuning.useSemiDirectBias);
-        magnetometerTimestampConsumedNext_s := magnetometer.timestamp_s;
-      end if;
-    end if;
+    (working, pseudoPositionHoldNext_m, alignmentSource,
+     magnetometerCorrectionAccepted, magnetometerTimestampConsumedNext_s) :=
+      initializeTick(mocap, gps, magnetometer, tuning,
+        mocapSeedUsable, gpsSeedUsable, magnetometerSeedUsable, imuUsable,
+        alignmentGateConfigured, imuQuiet, alignmentTimedOut,
+        alignmentSpecificForce_m_s2, quietFilterGain, alignmentWaitNext_s,
+        dt, gravityWorldEnu_m_s2, imuTimestampHeldNext_s,
+        imuAngularVelocityHeldNext_rad_s, imuSpecificForceHeldNext_m_s2,
+        magnetometerTimestampConsumedPrevious_s);
     // A seed is already an observation of the position. Consume that packet
     // here so the same held noise is not fused again on the next IMU tick.
     if mocapSeedUsable then
@@ -508,236 +414,29 @@ algorithm
         then gps.timestamp_s else gpsTimestampConsumedPrevious_s;
     end if;
   else
-    prior := if inflateCovarianceNow then
-      inflateStateCovariance(previous, tuning.varianceLimits,
-        dt, tuning.covarianceInflateTimeConstant_s) else copyState(previous);
-    if imuUsable then
-      if vehicleAtRest and tuning.useStationaryImu then
-        working := predictStationary(
-          prior, imu.integrationTime_s, tuning.processNoise);
-        (working, stationaryImuCorrectionAccepted, aidingOutcome, aidingNis) :=
-          correctStationaryImu(working, imu, gravityWorldEnu_m_s2,
-            tuning.processNoise, tuning.innovationGate, tuning.useSemiDirectBias);
-      else
-        working := predictPreintegrated(
-          prior, imu, gravityWorldEnu_m_s2, tuning.processNoise);
-      end if;
-      predictionAccepted := true;
-    elseif not imuPayloadFinite then
-      if prior.useSquareRootCovariance then
-        heldDynamics := continuousTransition(zeros(3), zeros(3));
-        working := predictCovariance(prior, discreteTransition(heldDynamics, dt),
-          heldDynamics, tuning.processNoise, dt);
-      else
-        working := withDenseCovariance(prior,
-          holdCovariance(prior.covariance, dt, tuning.processNoise),
-          discreteTransition(continuousTransition(zeros(3), zeros(3)), dt)
-            * prior.barometerBiasCrossCovariance);
-      end if;
-    else
-      // A valid held packet means the high-rate preintegrator is still
-      // accumulating the next delta-angle/delta-velocity observation. It is
-      // neither a new prediction nor an IMU dropout, so do not propagate the
-      // nominal state or add process noise a second time.
-      working := copyState(prior);
-    end if;
-    working := limitStateCovariance(working, tuning.varianceLimits);
-
-    if reseedNow then
-      reseedSource := anchorPresent;
-      if anchorPresent == SourceMocap then
-        reseedPosition := mocap.positionWorldEnu_m;
-        reseedVelocity := working.velocityWorldEnu_m_s;
-      else
-        reseedPosition := gps.positionWorldEnu_m;
-        reseedVelocity := if gps.velocityValid then
-          gps.velocityWorldEnu_m_s else working.velocityWorldEnu_m_s;
-      end if;
-      // Position and velocity, and only their covariance blocks, are replaced;
-      // the attitude and bias states and their variances are carried through
-      // untouched. The record assembly lives in reseed() so it does not share
-      // a common-subexpression temporary with the prediction-side assemblies.
-      working := reseed(working, reseedPosition, reseedVelocity,
-        tuning.initialVariances);
-      reseeded := true;
-    end if;
-
-    absoluteAidingAttempted := not reseedNow and
-      ((mocapNew and (not anchorExclusive or anchorPresent == SourceMocap))
-        or (gpsNew and (gps.positionValid or gps.velocityValid)
-          and (not anchorExclusive or anchorPresent == SourceGps)));
-    opticalFlowAttempted := not reseedNow and opticalFlowNew
-      and (not anchorExclusive or anchorPresent == SourceOpticalFlow);
-    if reseedNow then
-      // A re-seed happened this tick: the state is already on the anchor
-      // sample with the restored prior, so no correction is attempted.
-      correctionAttempted := false;
-    elseif mocapNew
-        and (not anchorExclusive or anchorPresent == SourceMocap) then
-      (working, mocapCorrectionAccepted, correctionOutcome,
-       normalizedInnovationSquared) :=
-        correctMocap(working, mocap, tuning.innovationGate,
-          imuTimestampHeldNext_s - mocap.timestamp_s,
-          imuAngularVelocityHeldNext_rad_s,
-          imuSpecificForceHeldNext_m_s2, gravityWorldEnu_m_s2,
-          tuning.maximumAidingDelay_s,
-          tuning.useSemiDirectBias);
-      correctionAttempted := true;
-      correctionAccepted := mocapCorrectionAccepted;
-      correctionSource := SourceMocap;
-      mocapTimestampConsumedNext_s := mocap.timestamp_s;
-    elseif gpsNew and gps.positionValid
-        and gps.velocityValid
-        and (not anchorExclusive or anchorPresent == SourceGps) then
-      (working, gpsPositionCorrectionAccepted, correctionOutcome,
-       normalizedInnovationSquared) :=
-        correctGps(working, gps, tuning.innovationGate,
-          imuTimestampHeldNext_s - gps.timestamp_s,
-          imuAngularVelocityHeldNext_rad_s,
-          imuSpecificForceHeldNext_m_s2, gravityWorldEnu_m_s2,
-          tuning.maximumAidingDelay_s,
-          if predictionAccepted and imu.integrationTime_s > 1.0e-6 then
-            cat(1,
-              cat(2, tuning.processNoise.gyroscope_rad2_s, zeros(3, 3)),
-              cat(2, zeros(3, 3), tuning.processNoise.accelerometer_m2_s3))
-              / imu.integrationTime_s
-          else zeros(6, 6),
-          if predictionAccepted and imu.integrationTime_s > 1.0e-6 then
-            imu.integrationTime_s else 0.0,
-          tuning.useSemiDirectBias);
-      gpsVelocityCorrectionAccepted := gpsPositionCorrectionAccepted;
-      correctionAttempted := true;
-      correctionAccepted := gpsPositionCorrectionAccepted;
-      correctionSource := SourceGps;
-      gpsTimestampConsumedNext_s := gps.timestamp_s;
-    elseif gpsNew and gps.positionValid
-        and (not anchorExclusive or anchorPresent == SourceGps) then
-      (working, gpsPositionCorrectionAccepted, correctionOutcome,
-       normalizedInnovationSquared) :=
-        correctGpsPosition(working, gps, tuning.innovationGate,
-          imuTimestampHeldNext_s - gps.timestamp_s,
-          imuAngularVelocityHeldNext_rad_s,
-          imuSpecificForceHeldNext_m_s2, gravityWorldEnu_m_s2,
-          tuning.maximumAidingDelay_s,
-          tuning.useSemiDirectBias);
-      correctionAttempted := true;
-      correctionAccepted := gpsPositionCorrectionAccepted;
-      correctionSource := SourceGps;
-      gpsTimestampConsumedNext_s := gps.timestamp_s;
-    elseif gpsNew and gps.velocityValid
-        and (not anchorExclusive or anchorPresent == SourceGps) then
-      (working, gpsVelocityCorrectionAccepted, correctionOutcome,
-       normalizedInnovationSquared) :=
-        correctGpsVelocity(working, gps, tuning.innovationGate,
-          imuTimestampHeldNext_s - gps.timestamp_s,
-          imuAngularVelocityHeldNext_rad_s,
-          imuSpecificForceHeldNext_m_s2, gravityWorldEnu_m_s2,
-          tuning.maximumAidingDelay_s,
-          tuning.useSemiDirectBias);
-      correctionAttempted := true;
-      correctionAccepted := gpsVelocityCorrectionAccepted;
-      correctionSource := SourceGps;
-      gpsTimestampConsumedNext_s := gps.timestamp_s;
-    end if;
-
-    if opticalFlowAttempted then
-      (working, opticalFlowCorrectionAccepted, aidingOutcome, aidingNis) :=
-        correctOpticalFlow(working, opticalFlow, tuning.innovationGate,
-          imuTimestampHeldNext_s - opticalFlow.timestamp_s,
-          imuAngularVelocityHeldNext_rad_s,
-          imuSpecificForceHeldNext_m_s2, gravityWorldEnu_m_s2,
-          tuning.maximumAidingDelay_s,
-          tuning.minimumOpticalFlowQuality,
-          tuning.minimumOpticalFlowGroundDistance_m,
-          tuning.useSemiDirectBias);
-      if not absoluteAidingAttempted then
-        correctionAccepted := opticalFlowCorrectionAccepted;
-        correctionSource := SourceOpticalFlow;
-        correctionOutcome := aidingOutcome;
-        normalizedInnovationSquared := aidingNis;
-      end if;
-      opticalFlowTimestampConsumedNext_s := opticalFlow.timestamp_s;
-    end if;
-    if not reseedNow and barometerNew then
-      (working, barometerCorrectionAccepted, aidingOutcome, aidingNis) :=
-        correctBarometer(working, barometer,
-          tuning.barometerBias_m, tuning.barometerBiasVariance_m2,
-          tuning.innovationGate,
-          imuTimestampHeldNext_s - barometer.timestamp_s,
-          imuAngularVelocityHeldNext_rad_s,
-          imuSpecificForceHeldNext_m_s2, gravityWorldEnu_m_s2,
-          tuning.maximumAidingDelay_s,
-          tuning.useSemiDirectBias, tuning.useBarometerBiasConsider,
-          tuning.barometerBiasProcessNoise_m2_s);
-      if not absoluteAidingAttempted and not opticalFlowAttempted then
-        correctionAccepted := barometerCorrectionAccepted;
-        correctionSource := SourceBarometer;
-        correctionOutcome := aidingOutcome;
-        normalizedInnovationSquared := aidingNis;
-      end if;
-      barometerTimestampConsumedNext_s := barometer.timestamp_s;
-    end if;
-    if not reseedNow and magnetometerNew then
-      (working, magnetometerCorrectionAccepted, aidingOutcome, aidingNis) :=
-        correctMagnetometer(working, magnetometer,
-          tuning.localMagneticFieldWorldEnu_T, tuning.innovationGate,
-          imuTimestampHeldNext_s - magnetometer.timestamp_s,
-          imuAngularVelocityHeldNext_rad_s,
-          imuSpecificForceHeldNext_m_s2, gravityWorldEnu_m_s2,
-          tuning.maximumAidingDelay_s, tuning.useEquivariantMagnetometer,
-          tuning.useSemiDirectBias);
-      if not absoluteAidingAttempted and not opticalFlowAttempted
-          and not barometerNew then
-        correctionAccepted := magnetometerCorrectionAccepted;
-        correctionSource := SourceMagnetometer;
-        correctionOutcome := aidingOutcome;
-        normalizedInnovationSquared := aidingNis;
-      end if;
-      magnetometerTimestampConsumedNext_s := magnetometer.timestamp_s;
-    end if;
-    correctionAttempted := not reseedNow and (absoluteAidingAttempted
-      or opticalFlowAttempted or barometerNew or magnetometerNew);
-    pseudoPositionConfigured := tuning.pseudoPositionVariance_m2 > 0.0
-      and tuning.pseudoPositionVariance_m2 < FiniteMagnitudeLimit;
-    zeroVelocityConfigured := tuning.zeroVelocityVariance_m2_s2 > 0.0
-      and tuning.zeroVelocityVariance_m2_s2 < FiniteMagnitudeLimit;
-    if vehicleAtRest and imuUsable and not reseedNow
-        and tuning.stationaryVelocityVariance_m2_s2 > 0.0
-        and tuning.stationaryVelocityVariance_m2_s2 < FiniteMagnitudeLimit then
-      (working, zeroVelocityCorrectionAccepted, aidingOutcome, aidingNis) :=
-        correctZeroVelocity(working,
-          tuning.stationaryVelocityVariance_m2_s2, 0.0,
-          tuning.useSemiDirectBias);
-      if not correctionAttempted then
-        correctionAccepted := zeroVelocityCorrectionAccepted;
-        correctionSource := SourceZeroVelocity;
-        correctionOutcome := aidingOutcome;
-        normalizedInnovationSquared := aidingNis;
-      end if;
-    end if;
-    if not correctionAttempted and not zeroVelocityCorrectionAccepted
-        and (not aidingLive or (ladderConfigured
-          and rejectionElapsedPrevious_s
-            >= tuning.aidingDivergentWindow_s)) then
-      if zeroVelocityConfigured and imuQuiet then
-        (working, zeroVelocityCorrectionAccepted, correctionOutcome,
-         normalizedInnovationSquared) :=
-          correctZeroVelocity(working, tuning.zeroVelocityVariance_m2_s2,
-            0.0, tuning.useSemiDirectBias);
-        correctionAccepted := zeroVelocityCorrectionAccepted;
-        correctionSource := SourceZeroVelocity;
-      elseif pseudoPositionConfigured then
-        (working, pseudoPositionCorrectionAccepted, correctionOutcome,
-         normalizedInnovationSquared) :=
-          correctPseudoPosition(working, pseudoPositionHoldPrevious_m,
-            tuning.pseudoPositionVariance_m2, 0.0,
-            tuning.useSemiDirectBias);
-        correctionAccepted := pseudoPositionCorrectionAccepted;
-        correctionSource := SourcePseudoPosition;
-      end if;
-    end if;
-    pseudoPositionHoldNext_m := if aidingLive
-      then working.positionWorldEnu_m else pseudoPositionHoldPrevious_m;
+    (
+      working, predictionAccepted, stationaryImuCorrectionAccepted,
+      mocapCorrectionAccepted, gpsPositionCorrectionAccepted, gpsVelocityCorrectionAccepted,
+      magnetometerCorrectionAccepted, barometerCorrectionAccepted, opticalFlowCorrectionAccepted,
+      correctionAttempted, correctionAccepted, correctionOutcome,
+      correctionSource, normalizedInnovationSquared, reseeded,
+      reseedSource, zeroVelocityCorrectionAccepted, pseudoPositionCorrectionAccepted,
+      pseudoPositionHoldNext_m, mocapTimestampConsumedNext_s, gpsTimestampConsumedNext_s,
+      magnetometerTimestampConsumedNext_s, barometerTimestampConsumedNext_s, opticalFlowTimestampConsumedNext_s
+    ) := advanceStateTick(
+      previous, imu, mocap,
+      gps, magnetometer, barometer,
+      opticalFlow, tuning, gravityWorldEnu_m_s2,
+      dt, inflateCovarianceNow, imuUsable,
+      imuPayloadFinite, vehicleAtRest, reseedNow,
+      anchorExclusive, mocapNew, gpsNew,
+      magnetometerNew, barometerNew, opticalFlowNew,
+      aidingLive, ladderConfigured, imuQuiet,
+      anchorPresent, rejectionElapsedPrevious_s, imuTimestampHeldNext_s,
+      imuAngularVelocityHeldNext_rad_s, imuSpecificForceHeldNext_m_s2, pseudoPositionHoldPrevious_m,
+      mocapTimestampConsumedPrevious_s, gpsTimestampConsumedPrevious_s, magnetometerTimestampConsumedPrevious_s,
+      barometerTimestampConsumedPrevious_s, opticalFlowTimestampConsumedPrevious_s
+    );
 
     if anchorPresent == SourceNone then
       // Total aiding loss FREEZES the clock; it does not clear it.
@@ -778,7 +477,8 @@ algorithm
         (if correctionAccepted then 0 else gpsRejectionsPrevious + 1)
       else gpsRejectionsPrevious;
     opticalFlowRejectionsNext :=
-      if opticalFlowAttempted then
+      if not reseedNow and opticalFlowNew
+          and (not anchorExclusive or anchorPresent == SourceOpticalFlow) then
         (if opticalFlowCorrectionAccepted then 0
           else opticalFlowRejectionsPrevious + 1)
       else opticalFlowRejectionsPrevious;
