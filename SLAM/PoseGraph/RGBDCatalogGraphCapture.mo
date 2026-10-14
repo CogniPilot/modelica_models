@@ -72,7 +72,7 @@ package RGBDCatalogGraphCapture
           result.sequentialDiagnostics.bodyTranslation,result.sequentialDiagnostics.covariance[1:3,1:3],minimumPivot=minimumPivot);
         if not poseConsistent then
           result.sequentialDiagnostics.verified := false;
-          result.sequentialDiagnostics.rejectionReason := 7;
+          result.sequentialDiagnostics.rejectionReason := 11;
         end if;
       end if;
     end if;

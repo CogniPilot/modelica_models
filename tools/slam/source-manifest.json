@@ -653,7 +653,7 @@
       "destination": "SLAM/Mapping/RGBDCatalogFrame.mo",
       "qualified_name": "SLAM.Mapping.RGBDCatalogFrame",
       "original_class_sha256": "d50ff0185bd3129b257a0e4005a35ae610a4d158c24fde4797367ba41f3f9f00",
-      "destination_sha256": "fb9fc0664c6a1cb8df62ccbcb8ea7a7d4de44c34e16c8d3360953065551c7f24"
+      "destination_sha256": "f3dd9b34b360400b9093ad065624e859dd7857b3a18418cc784ca202edd65b07"
     },
     {
       "source": "models/Mapping/RGBDCatalogMapping.mo",
@@ -1085,7 +1085,7 @@
       "destination": "SLAM/PoseGraph/RGBDCatalogGraphCapture.mo",
       "qualified_name": "SLAM.PoseGraph.RGBDCatalogGraphCapture",
       "original_class_sha256": "623f5de96c90fcd5c16cb2632c306eecfe74bf9e7b476aeddea2bba962102298",
-      "destination_sha256": "7e3d8c98fe2d1faadb73f9eca421cbf5169eeb10c1de53c52f01b501d36a8ec1"
+      "destination_sha256": "6470ec0f0ba5f501c8cc182d01663a0fbf0140383bbf3651eaf675495c2222bb"
     },
     {
       "source": "models/Optimization/RGBDGraphAnchorBound.mo",

@@ -61,7 +61,8 @@ package RGBDCatalogFrame
         maximumDescriptorDistance,registrationCoordinateLimit,rankTolerance,localizationSigma,depthInflation,minimumPivot,
         poseConsistentLoops=poseConsistentLoops);
       if visual.rejectionReason == 4 and visual.graphDiagnostics.rejectionReason == 4
-          and visual.sequentialDiagnostics.rejectionReason == 7 then
+          and (visual.sequentialDiagnostics.rejectionReason == 7
+            or visual.sequentialDiagnostics.rejectionReason == 11) then
         // Failed geometric consensus adds no keyframe or edge. The admitted
         // observation can still update landmarks against the retained anchors.
         result := RGBDCatalogObservation.Update(catalog,graph,map,measurement,candidatePoint,candidateEnabled,
