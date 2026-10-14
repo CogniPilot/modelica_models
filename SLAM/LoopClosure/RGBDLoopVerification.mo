@@ -187,7 +187,7 @@ package RGBDLoopVerification
                     sourcePoint,targetPoint,workingMask,size(sourcePoint,1),coordinateLimit,rankTolerance,
                     if calibratedResiduals then 1e6 else maximumRms);
                 if fitAccepted == 1.0 and calibratedResiduals then
-                  (weightedValid,candidateRotation,candidateTranslation,fitRms) := RegistrationWeighted.Refine(
+                  (weightedValid,candidateRotation,candidateTranslation,fitRms) := RegistrationWeighted.WeightedRefine(
                     sourcePoint,targetPoint,workingMask,sourceCovariance,targetCovariance,
                     candidateRotation,candidateTranslation,minimumPivot);
                   if not weightedValid then fitAccepted := 0.0; end if;

@@ -445,7 +445,7 @@
       "destination": "SLAM/Localization/RGBDRegistrationSandwich.mo",
       "qualified_name": "SLAM.Localization.RGBDRegistrationSandwich",
       "original_class_sha256": "ac2988c5dd1cf1a0520f1852d56802d0a5d0699b93d3fc57bc8551da77bb1ecd",
-      "destination_sha256": "c97702d13424dfe583126a553a9ccd27c65865cae5603220706358111ddc37c7"
+      "destination_sha256": "bddf7b52d8a1f2d90b2355de2dca88d2ede17a9ca64c2c38249f71c0c95251c8"
     },
     {
       "source": "models/Estimation/Localization/RGBDRegistrationUncertainty.mo",
@@ -621,7 +621,7 @@
       "destination": "SLAM/LoopClosure/RGBDLoopVerification.mo",
       "qualified_name": "SLAM.LoopClosure.RGBDLoopVerification",
       "original_class_sha256": "4316d2016d6a754a78cb8edca74cd1860d0e33ef995476b574a6fc28e10db7ae",
-      "destination_sha256": "94f59fb6cfa8920ee2c7e3407a9a88538fd29e58ac37f2f97c0fa8f7555c4007"
+      "destination_sha256": "1782bb043913f1404d4c9fe1fac3564b5b65fcc5fb094015950e8c9516a42ab6"
     },
     {
       "source": "models/LoopClosure/RGBDVisualVocabulary.mo",
@@ -853,7 +853,7 @@
       "destination": "Vision/Registration/FitRigidPointPairsRobust.mo",
       "qualified_name": "Vision.Registration.FitRigidPointPairsRobust",
       "original_class_sha256": "7dfd2e944d4c4edacfabb0ff74c8473ac2b2ae1823c43f1c07648351f3578366",
-      "destination_sha256": "4b00dc7d03828978e697dee0a0472422f5bb07b08d82c175ff0cdf5475295dd8"
+      "destination_sha256": "beef07910187efc2a8318bf44056397bf8a29d9b5849e9cf9e955fc87cd8c9ed"
     },
     {
       "source": "models/Math/SPD6Solve.mo",
@@ -1517,7 +1517,7 @@
       "destination": "Vision/Registration/RegistrationWeighted.mo",
       "qualified_name": "Vision.Registration.RegistrationWeighted",
       "original_class_sha256": "18e367f70bae8f58f11ce7c663de79b4c836f9344ac0804ef276bc352b1cad21",
-      "destination_sha256": "18e367f70bae8f58f11ce7c663de79b4c836f9344ac0804ef276bc352b1cad21"
+      "destination_sha256": "57029f891db803aac877ba800ce16310b002d50bcaf951c7a66f9f4f3ad621ae"
     }
   ],
   "class_count": 179,

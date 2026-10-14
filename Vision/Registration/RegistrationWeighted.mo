@@ -2,13 +2,13 @@ within Vision.Registration;
 // Covariance-weighted refinement in the optical translation/left-angle chart.
 // Depth uncertainty is anisotropic: equal-weight Horn fits are only seeds.
 package RegistrationWeighted
-  function Skew
+  function WeightedSkew
     input Real v[3]; output Real result[3,3];
   algorithm
     result := [0,-v[3],v[2];v[3],0,-v[1];-v[2],v[1],0];
-  end Skew;
+  end WeightedSkew;
 
-  function Exp
+  function WeightedExp
     input Real v[3]; output Real result[3,3];
   protected
     Real square; Real angle; Real a; Real b; Real K[3,3];
@@ -16,12 +16,12 @@ package RegistrationWeighted
     square := v*v; angle := sqrt(square);
     a := if square < 1e-8 then 1-square/6+square^2/120 else sin(angle)/angle;
     b := if square < 1e-8 then 0.5-square/24+square^2/720 else (1-cos(angle))/square;
-    K := Skew(v); result := identity(3)+a*K+b*K*K;
-  end Exp;
+    K := WeightedSkew(v); result := identity(3)+a*K+b*K*K;
+  end WeightedExp;
 
 // SPD solve with dimensionless diagonal equilibration, no damping/floor added
 // to the matrix. A small or nonfinite pivot is a refusal, not invented noise.
-function Inverse6
+function WeightedInverse6
   input Real A[6,6];
   input Real minimumPivot;
   output Real inverseA[6,6];
@@ -78,9 +78,9 @@ algorithm
     end for;
   end for;
   inverseA := if valid then inverseA else zeros(6,6);
-end Inverse6;
+end WeightedInverse6;
 
-  function Whiten
+  function WeightedWhiten
     input Real covariance[3,3]; input Real residual[3]; input Real jacobian[3,6];
     input Real minimumPivot;
     output Boolean valid; output Real wr[3]; output Real wj[3,6];
@@ -115,9 +115,9 @@ end Inverse6;
         end for;
       end if;
     end for;
-  end Whiten;
+  end WeightedWhiten;
 
-  function Normal
+  function WeightedNormal
     input Real sourcePoint[:,3]; input Real targetPoint[size(sourcePoint,1),3];
     input Real enabled[size(sourcePoint,1)];
     input Real sourceCovariance[size(sourcePoint,1),3,3]; input Real targetCovariance[size(sourcePoint,1),3,3];
@@ -131,9 +131,9 @@ end Inverse6;
     for point in 1:size(sourcePoint,1) loop
       if enabled[point] == 1.0 then
         q := rotation*sourcePoint[point,:]; r := q+translation-targetPoint[point,:];
-        J := cat(2,identity(3),-Skew(q));
+        J := cat(2,identity(3),-WeightedSkew(q));
         covariance := targetCovariance[point,:,:]+rotation*sourceCovariance[point,:,:]*transpose(rotation);
-        (pointValid,wr,wj) := Whiten(covariance,r,J,minimumPivot);
+        (pointValid,wr,wj) := WeightedWhiten(covariance,r,J,minimumPivot);
         valid := valid and pointValid;
         H := H+transpose(wj)*wj; gradient := gradient+transpose(wj)*wr;
         cost := cost+wr*wr; squared := squared+r*r; count := count+1;
@@ -141,9 +141,9 @@ end Inverse6;
     end for;
     rms := if count > 0 then sqrt(squared/count) else 0;
     valid := valid and count >= 3 and cost >= 0 and cost < 1e100;
-  end Normal;
+  end WeightedNormal;
 
-  function Refine
+  function WeightedRefine
     input Real sourcePoint[:,3]; input Real targetPoint[size(sourcePoint,1),3];
     input Real enabled[size(sourcePoint,1)];
     input Real sourceCovariance[size(sourcePoint,1),3,3]; input Real targetCovariance[size(sourcePoint,1),3,3];
@@ -156,8 +156,8 @@ end Inverse6;
     Boolean trialValid; Boolean accepted; Boolean running;
   algorithm
     rotation := initialRotation; translation := initialTranslation;
-    (normalValid,cost,H,gradient,rms) := Normal(sourcePoint,targetPoint,enabled,sourceCovariance,targetCovariance,rotation,translation,minimumPivot);
-    (inverseH,inverseValid,pivot) := Inverse6(H,minimumPivot);
+    (normalValid,cost,H,gradient,rms) := WeightedNormal(sourcePoint,targetPoint,enabled,sourceCovariance,targetCovariance,rotation,translation,minimumPivot);
+    (inverseH,inverseValid,pivot) := WeightedInverse6(H,minimumPivot);
     valid := normalValid and inverseValid; running := valid;
     for iteration in 1:8 loop
       if running then
@@ -166,8 +166,8 @@ end Inverse6;
         accepted := false;
         for backtrack in 1:8 loop
           if not accepted then
-            trialRotation := Exp(scale*step[4:6])*rotation; trialTranslation := translation+scale*step[1:3];
-            (trialValid,trialCost,trialH,trialGradient,trialRms) := Normal(sourcePoint,targetPoint,enabled,sourceCovariance,targetCovariance,trialRotation,trialTranslation,minimumPivot);
+            trialRotation := WeightedExp(scale*step[4:6])*rotation; trialTranslation := translation+scale*step[1:3];
+            (trialValid,trialCost,trialH,trialGradient,trialRms) := WeightedNormal(sourcePoint,targetPoint,enabled,sourceCovariance,targetCovariance,trialRotation,trialTranslation,minimumPivot);
             if trialValid and trialCost <= cost then
               rotation := trialRotation; translation := trialTranslation; cost := trialCost;
               H := trialH; gradient := trialGradient; rms := trialRms; accepted := true;
@@ -175,9 +175,9 @@ end Inverse6;
           end if;
         end for;
         running := accepted and scale*sqrt(step*step) > 1e-7;
-        (inverseH,inverseValid,pivot) := Inverse6(H,minimumPivot);
+        (inverseH,inverseValid,pivot) := WeightedInverse6(H,minimumPivot);
         valid := valid and inverseValid; running := running and valid;
       end if;
     end for;
-  end Refine;
+  end WeightedRefine;
 end RegistrationWeighted;

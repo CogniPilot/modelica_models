@@ -20,14 +20,14 @@ when initial() then
   (fitAccepted,reason,seedR,seedT,count,invalid,rank,cost,rms,gap,centroidS,centroidT) :=
     FitRigidPointPairs(source,target,mask,8,100,1e-8,1e6);
   assert(fitAccepted > 0.5,"Valid geometric seed");
-  (normalValid,before,H,gradient,rms) := RegistrationWeighted.Normal(source,target,mask,Cs,Ct,seedR,seedT,1e-10);
-  (valid,R,t,rms) := RegistrationWeighted.Refine(source,target,mask,Cs,Ct,seedR,seedT);
-  (normalValid,after,H,gradient,rms) := RegistrationWeighted.Normal(source,target,mask,Cs,Ct,R,t,1e-10);
+  (normalValid,before,H,gradient,rms) := RegistrationWeighted.WeightedNormal(source,target,mask,Cs,Ct,seedR,seedT,1e-10);
+  (valid,R,t,rms) := RegistrationWeighted.WeightedRefine(source,target,mask,Cs,Ct,seedR,seedT);
+  (normalValid,after,H,gradient,rms) := RegistrationWeighted.WeightedNormal(source,target,mask,Cs,Ct,R,t,1e-10);
   assert(valid and normalValid and after < before*0.1,"Weighted objective must improve");
   assert(sqrt((t-truthT)*(t-truthT)) < 0.01,"Noisy far depth must not bias translation");
   assert(sum((R-identity(3)).^2) < 1e-4,"Noisy far depth must not bias attitude");
   Cs[1,:,:] := zeros(3,3); Ct[1,:,:] := zeros(3,3);
-  (valid,R,t,rms) := RegistrationWeighted.Refine(source,target,mask,Cs,Ct,seedR,seedT);
+  (valid,R,t,rms) := RegistrationWeighted.WeightedRefine(source,target,mask,Cs,Ct,seedR,seedT);
   assert(not valid,"Singular covariance must refuse refinement");
 end when;
 end RegistrationWeightedTests;

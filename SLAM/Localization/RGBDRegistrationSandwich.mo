@@ -67,7 +67,7 @@ algorithm
         localizationSigma,disparitySigma,currentNoiseFx,baseline,depthInflation);
       Sigma := Ccur+currentFromReference*Cref*transpose(currentFromReference);
       if weighted then
-        (whiteningValid,wr,wj) := RegistrationWeighted.Whiten(Sigma,zeros(3),J,minimumPivot);
+        (whiteningValid,wr,wj) := RegistrationWeighted.WeightedWhiten(Sigma,zeros(3),J,minimumPivot);
         if not whiteningValid then invalidCount := invalidCount+1; end if;
         normalMatrix := normalMatrix+transpose(wj)*wj;
         noiseMatrix := normalMatrix;

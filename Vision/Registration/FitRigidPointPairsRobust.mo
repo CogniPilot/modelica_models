@@ -84,7 +84,7 @@ algorithm
       end if;
     end for;
     if accepted > 0.5 then
-      (weightedValid,rotation,translation,rms) := RegistrationWeighted.Refine(sourcePoint,targetPoint,pairEnabled,
+      (weightedValid,rotation,translation,rms) := RegistrationWeighted.WeightedRefine(sourcePoint,targetPoint,pairEnabled,
         sourceCovariance,targetCovariance,rotation,translation,covarianceMinimumPivot);
       if not weightedValid then accepted := 0.0; rejectionReason := 7.0; end if;
       allInliers := weightedValid;
@@ -179,7 +179,7 @@ algorithm
           fitCost,fitRms,fitEigenGap,fitSourceCentroid,fitTargetCentroid) := FitRigidPointPairs(
             sourcePoint,targetPoint,bestMask,activeCount,coordinateLimit,rankTolerance,fitMaximumRms);
         if fitAccepted > 0.5 and useCovariance then
-          (weightedValid,fitRotation,fitTranslation,fitRms) := RegistrationWeighted.Refine(sourcePoint,targetPoint,bestMask,
+          (weightedValid,fitRotation,fitTranslation,fitRms) := RegistrationWeighted.WeightedRefine(sourcePoint,targetPoint,bestMask,
             sourceCovariance,targetCovariance,fitRotation,fitTranslation,covarianceMinimumPivot);
           if not weightedValid then fitAccepted := 0.0; end if;
         end if;
