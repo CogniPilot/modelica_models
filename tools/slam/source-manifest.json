@@ -1181,7 +1181,7 @@
       "destination": "SLAM/RGBDFastSLAMInterface.mo",
       "qualified_name": "SLAM.RGBDFastSLAMInterface",
       "original_class_sha256": "6877f3062fa6200a11fa9befdfb9112926a109a784a8fb2a764c6bafd6dccd9a",
-      "destination_sha256": "77ea364a1d85c2e42e5eb03082f788bc4b860f95f7463c2cf6180685cb949776"
+      "destination_sha256": "f021f2a9b9e345eb165ef79c8dc9654638d7ef865ac3d1bd816274a9e985e962"
     },
     {
       "source": "models/SLAM/RGBDFastSLAMIntervals.mo",

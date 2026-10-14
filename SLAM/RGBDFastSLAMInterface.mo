@@ -39,7 +39,8 @@ partial model RGBDFastSLAMInterface
   parameter Integer minimumMeasuredDescriptors = 8;
   parameter Real minimumWordDistanceSquared = 0.04;
   parameter Real selectedFeatureLimit = featureCapacity;
-  parameter Real absoluteThreshold = 18.0;
+  parameter Real absoluteThreshold = max(8.0,18.0*min(1.0,imageWidth/848.0))
+    "Retain lower-contrast corners in reduced rasters; keep the full-raster threshold";
   parameter Boolean depthQualifiedSelection = true;
   parameter Real minimumInterval = 0.5;
   parameter Real maximumInterval = 2.0;
