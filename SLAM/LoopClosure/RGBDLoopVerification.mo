@@ -3,6 +3,7 @@ within SLAM.LoopClosure;
 // proposal: graph identity/eviction and shared-image correlation policies must
 // still admit it before any optimizer or estimator state can change.
 package RGBDLoopVerification
+  import RegistrationWeighted = Vision.Registration.RegistrationWeighted;
   import FitRigidPointPairs = Vision.Registration.FitRigidPointPairs;
   import MatchRGBDDescriptors = Vision.Matching.MatchRGBDDescriptors;
   import RGBDKeyframes = SLAM.LoopClosure.RGBDKeyframes;
@@ -94,7 +95,7 @@ package RGBDLoopVerification
     input Real maximumNormalizedSquared = 9.0;
     input Real minimumPivot = 1e-10;
   protected
-    Boolean configuration; Boolean payload; Boolean eligible; Boolean stable;
+    Boolean configuration; Boolean payload; Boolean eligible; Boolean stable; Boolean weightedValid;
     Boolean covarianceValid;
     Integer slots[size(sourcePoint,1)]; Integer first; Integer second; Integer third;
     Integer chosen[dimension]; Integer state; Integer count; Integer bestCount;
@@ -185,6 +186,12 @@ package RGBDLoopVerification
                   rank,fitCost,fitRms,gap,sourceCentroid,targetCentroid) := FitRigidPointPairs(
                     sourcePoint,targetPoint,workingMask,size(sourcePoint,1),coordinateLimit,rankTolerance,
                     if calibratedResiduals then 1e6 else maximumRms);
+                if fitAccepted == 1.0 and calibratedResiduals then
+                  (weightedValid,candidateRotation,candidateTranslation,fitRms) := RegistrationWeighted.Refine(
+                    sourcePoint,targetPoint,workingMask,sourceCovariance,targetCovariance,
+                    candidateRotation,candidateTranslation,minimumPivot);
+                  if not weightedValid then fitAccepted := 0.0; end if;
+                end if;
                 eligible := fitAccepted == 1.0;
                 if not eligible then rejectionReason := 5; end if;
                 if eligible then
@@ -342,7 +349,7 @@ package RGBDLoopVerification
                       mask,featureCapacity,1.0,C,t,reference.bodyRotation,reference.opticalToBody,
                       reference.cameraOriginBody,reference.rgbCalibration[1:2],current.rgbCalibration[1:2],
                       reference.noiseReferenceFx,current.noiseReferenceFx,reference.baseline,localizationSigma,
-                      reference.disparityNoise,depthInflation,coordinateLimit,minimumPivot);
+                      reference.disparityNoise,depthInflation,coordinateLimit,minimumPivot,weighted=calibratedResiduals);
                   result.rejectionReason := 8;
                   if uncertaintyValid == 1.0 then
                     (D,u,J,edgeCovariance,information,edgeValid,edgeReason,pivot) := RGBDOpticalToBodyEdge(C,t,

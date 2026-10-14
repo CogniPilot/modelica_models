@@ -4,3 +4,4 @@ RegistrationEigen4
 RegistrationPairResidual
 RegistrationWhitenedResidual3
 RigidPointRegistration
+RegistrationWeighted

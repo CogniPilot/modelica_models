@@ -5,6 +5,7 @@ within Vision.Registration;
 // Added configuration: hypotheses1..1024 and consensus fraction in(0,1].
 // Reason7 means no admissible stable consensus within the declared work bounds.
 function FitRigidPointPairsRobust
+  import RegistrationWeighted = Vision.Registration.RegistrationWeighted;
   import FitRigidPointPairs = Vision.Registration.FitRigidPointPairs;
   import RegistrationPairResidual = Vision.Registration.RegistrationPairResidual;
   import RegistrationWhitenedResidual3 = Vision.Registration.RegistrationWhitenedResidual3;
@@ -52,6 +53,7 @@ protected
   Integer minimumConsensus; Integer index;
   Real originalValidCount; Real squaredLimit; Real residual; Real squaredResidual;
   Real candidateCost; Real bestCost;
+  Boolean weightedValid;
   Real fitMaximumRms; Real unusedScore;
   Real candidateMask[size(pairEnabled,1)]; Real bestMask[size(pairEnabled,1)];
   Real sampleSource[dimension,dimension]; Real sampleTarget[dimension,dimension];
@@ -82,7 +84,10 @@ algorithm
       end if;
     end for;
     if accepted > 0.5 then
-      allInliers := true;
+      (weightedValid,rotation,translation,rms) := RegistrationWeighted.Refine(sourcePoint,targetPoint,pairEnabled,
+        sourceCovariance,targetCovariance,rotation,translation,covarianceMinimumPivot);
+      if not weightedValid then accepted := 0.0; rejectionReason := 7.0; end if;
+      allInliers := weightedValid;
       for pair in 1:size(pairEnabled,1) loop
         if pair <= activeCount and pairEnabled[pair] == 1.0 then
           (residualValid,squaredResidual) := RegistrationPairResidual(sourcePoint[pair,:],targetPoint[pair,:],
@@ -173,6 +178,11 @@ algorithm
         (fitAccepted,fitReason,fitRotation,fitTranslation,fitValidCount,fitInvalidCount,fitRank,
           fitCost,fitRms,fitEigenGap,fitSourceCentroid,fitTargetCentroid) := FitRigidPointPairs(
             sourcePoint,targetPoint,bestMask,activeCount,coordinateLimit,rankTolerance,fitMaximumRms);
+        if fitAccepted > 0.5 and useCovariance then
+          (weightedValid,fitRotation,fitTranslation,fitRms) := RegistrationWeighted.Refine(sourcePoint,targetPoint,bestMask,
+            sourceCovariance,targetCovariance,fitRotation,fitTranslation,covarianceMinimumPivot);
+          if not weightedValid then fitAccepted := 0.0; end if;
+        end if;
         if fitAccepted > 0.5 then
           retainedCount := 0;
           for compact in 1:enabledCount loop

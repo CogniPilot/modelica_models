@@ -124,6 +124,7 @@ algorithm
     RGBDRegistrationSandwich(sourcePoint,targetPoint,pairEnabled,featureCapacity,valid,currentFromReference,
       currentFromReferenceTranslation,referenceBodyRotation,opticalToBody,cameraOriginBody,
       referenceRgbFocal,{rgbCalibration[1],rgbCalibration[2]},referenceNoiseReferenceFx,noiseReferenceFx,
-      baseline,localizationSigma,disparityNoise,depthInflation,uncertaintyCoordinateLimit,uncertaintyMinimumPivot);
+      baseline,localizationSigma,disparityNoise,depthInflation,uncertaintyCoordinateLimit,uncertaintyMinimumPivot,
+      weighted=robustRegistration and calibratedRegistration);
   relativeValid := if valid > 0.5 and uncertaintyValid > 0.5 then 1.0 else 0.0;
 end ObserveRGBDRelativeFrame;

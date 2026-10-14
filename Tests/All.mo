@@ -1,5 +1,6 @@
 within Tests;
 model All "Complete Modelica assertion suite"
+  Tests.RegistrationWeightedTests registrationWeighted;
   Tests.LinearAlgebraTests linearAlgebra;
   Tests.CovarianceRootTests covarianceRoot;
   Tests.LieGroupsTests lieGroupsSmoke;

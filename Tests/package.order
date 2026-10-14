@@ -62,3 +62,4 @@ VisualLandmarkReplay
 VisualCouplingReplay
 VisualNavigationReplay
 SyntheticLandmarkReplay
+RegistrationWeightedTests

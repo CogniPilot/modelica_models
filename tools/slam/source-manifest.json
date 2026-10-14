@@ -445,7 +445,7 @@
       "destination": "SLAM/Localization/RGBDRegistrationSandwich.mo",
       "qualified_name": "SLAM.Localization.RGBDRegistrationSandwich",
       "original_class_sha256": "ac2988c5dd1cf1a0520f1852d56802d0a5d0699b93d3fc57bc8551da77bb1ecd",
-      "destination_sha256": "75979b7579ff6800ef9f43be3025c17f69fc6af52424e5705746e5cd5ee79622"
+      "destination_sha256": "c97702d13424dfe583126a553a9ccd27c65865cae5603220706358111ddc37c7"
     },
     {
       "source": "models/Estimation/Localization/RGBDRegistrationUncertainty.mo",
@@ -509,7 +509,7 @@
       "destination": "SLAM/Localization/ObserveRGBDRelativeFrame.mo",
       "qualified_name": "SLAM.Localization.ObserveRGBDRelativeFrame",
       "original_class_sha256": "f5f08ebc9598ced3f64bbf28d46f7de9b5fd1ee2505ce12d281de7d54cc58591",
-      "destination_sha256": "e801f81d4789af296b8ddc21d39980a9cdcb38ab39db87e6d6a4803c38b48c3b"
+      "destination_sha256": "f563867f303fb4066790063efaba4a1588c36e9d2d463dc937ad916247099894"
     },
     {
       "source": "models/Evaluation/RuntimeEvaluation.mo",
@@ -621,7 +621,7 @@
       "destination": "SLAM/LoopClosure/RGBDLoopVerification.mo",
       "qualified_name": "SLAM.LoopClosure.RGBDLoopVerification",
       "original_class_sha256": "4316d2016d6a754a78cb8edca74cd1860d0e33ef995476b574a6fc28e10db7ae",
-      "destination_sha256": "f81f9c8b3edcda7a5f99782a57b12913afcf3f5c3a2a122f192943abe48d77e5"
+      "destination_sha256": "94f59fb6cfa8920ee2c7e3407a9a88538fd29e58ac37f2f97c0fa8f7555c4007"
     },
     {
       "source": "models/LoopClosure/RGBDVisualVocabulary.mo",
@@ -853,7 +853,7 @@
       "destination": "Vision/Registration/FitRigidPointPairsRobust.mo",
       "qualified_name": "Vision.Registration.FitRigidPointPairsRobust",
       "original_class_sha256": "7dfd2e944d4c4edacfabb0ff74c8473ac2b2ae1823c43f1c07648351f3578366",
-      "destination_sha256": "2657182b056fe6e5e56575f1273f18f530180c4ba102d81f23d8c1fd2f5fad00"
+      "destination_sha256": "4b00dc7d03828978e697dee0a0472422f5bb07b08d82c175ff0cdf5475295dd8"
     },
     {
       "source": "models/Math/SPD6Solve.mo",
@@ -1510,6 +1510,14 @@
       "qualified_name": "Vision.Matching.RGBDPatchTracking",
       "original_class_sha256": "d48b598782529dd63ceba9574ed45cb34b51e312871bcbf3d70a4bbf47a05d4d",
       "destination_sha256": "1fa8ee7582a81de8999edd49cb962b5a0ebd63c7f2001f55c09296d493f052f5"
+    },
+    {
+      "source": "models/Math/RigidPointRegistration.mo",
+      "original_name": "RegistrationWeighted",
+      "destination": "Vision/Registration/RegistrationWeighted.mo",
+      "qualified_name": "Vision.Registration.RegistrationWeighted",
+      "original_class_sha256": "18e367f70bae8f58f11ce7c663de79b4c836f9344ac0804ef276bc352b1cad21",
+      "destination_sha256": "18e367f70bae8f58f11ce7c663de79b4c836f9344ac0804ef276bc352b1cad21"
     }
   ],
   "class_count": 179,
