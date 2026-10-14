@@ -39,4 +39,19 @@ algorithm
     covarianceRoot=if useSquareRootCovariance then diagonal(
       {sqrt(initialCovariance[axis, axis]) for axis in 1:TangentLength})
       else zeros(TangentLength, TangentLength));
+  annotation(Documentation(info = "<html>
+    <h4>Initial state and uncertainty</h4>
+<p>Supply world ENU position and velocity, a body-FLU-to-world quaternion and
+body-frame IMU biases. The quaternion is normalized. The initial covariance
+uses the {position, velocity, attitude, gyro bias, accelerometer bias} tangent
+ordering; variance inputs are squared physical units, not standard deviations.</p>
+<p>If an aiding position seeds the state, supply its world-frame covariance.
+The initializer rotates it to the local tangent and retains conservative
+configured variance floors. Zero optional seed covariance keeps the configured
+prior. Initialization does not itself execute prediction or sensor fusion.</p>
+<p>Use <a href=\"modelica://Estimation.StrapdownINS.ESKF.Estimator\">Estimator</a>
+for sampled lifecycle handling or carry the returned
+<a href=\"modelica://Estimation.StrapdownINS.ESKF.State\">State</a> explicitly
+between prediction and correction calls.</p>
+    </html>"));
 end initialize;

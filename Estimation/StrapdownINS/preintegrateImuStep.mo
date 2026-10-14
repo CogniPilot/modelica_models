@@ -173,4 +173,29 @@ algorithm
     previousPositionAccelerometerBiasJacobian_s2
       + previousVelocityAccelerometerBiasJacobian_s * dt
       + previousRotation * translationBiasJacobian[4:6, 4:6];
+  annotation(Documentation(info = "<html>
+    <h4>Accumulate an interval</h4>
+<p>Start a new preintegral with zero position and velocity, identity quaternion
+{1,0,0,0}, and zero bias Jacobians. Choose fixed gyroscope and accelerometer bias
+anchors for the accumulation window. For each positive <code>dt</code>, feed the
+previous outputs back as the next inputs and supply calibrated body FLU IMU data.
+Position and velocity increments are expressed in the body frame at the window
+start; gravity is applied by navigation prediction, not included here.</p>
+<h4>Zero-order or first-order hold</h4>
+<p>The default holds the current sample over the interval.
+<code>useFirstOrderHold=true</code> uses the supplied interval-start sample and
+current interval-end sample. Both endpoints must describe that same interval.
+It evaluates the manuscript's retained Magnus exponent and differentiates its
+mixed exponential and composition; it does not evaluate the continuous-flow
+error certificate or an exact stochastic covariance.</p>
+<h4>Publish the accumulated sample</h4>
+<p>Copy the deltas and all five Jacobians to
+<a href=\"modelica://Avionics.ImuSample\">ImuSample</a>, together with the unchanged
+bias anchors, total integration duration and interval-end timestamp. Consume the
+packet once. Use
+<a href=\"modelica://Estimation.StrapdownINS.correctPreintegratedImu\">correctPreintegratedImu</a>
+when the estimated bias changes. See the references in
+<a href=\"modelica://Estimation.StrapdownINS\">StrapdownINS</a> for the underlying
+ZOH, FOH and bias-anchor results.</p>
+    </html>"));
 end preintegrateImuStep;

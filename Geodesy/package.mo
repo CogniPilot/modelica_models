@@ -188,8 +188,18 @@ package Geodesy "Local-frame and geodetic conversion helpers"
     <code>localNorthEastToLatLon</code>; the East-North-Up wrappers add the
     altitude channel and the route helpers project whole waypoint lists at
     parameter time. Missions with global waypoints project them once through a
-    fixed mission origin; the spherical model is sub-meter accurate to tens of
-    kilometres, well inside the range where re-anchoring the origin would be
-    needed.</p>
+    fixed mission origin. These are spherical approximations, not ellipsoidal
+    geodesy. Round-trip consistency does not establish geographic accuracy;
+    assess projection error over the intended operating area.</p>
+    <h4>Keep one world origin</h4>
+    <p>Choose a fixed <code>GeodeticOrigin</code> before converting GPS and
+    mission waypoints. Changing it changes the world coordinates of every
+    state and landmark. Altitudes must share a datum: the altitude channel
+    subtracts the origin altitude and does not convert between ellipsoid,
+    mean-sea-level and pressure altitudes.</p>
+    <p>For the local magnetic reference, use
+    <a href=\"modelica://Geodesy.WMM2025.magneticFieldEnu\">WMM2025.magneticFieldEnu</a>
+    with the mission location and date, rather than a field vector copied
+    from a different site.</p>
   </html>"));
 end Geodesy;

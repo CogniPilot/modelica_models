@@ -10,8 +10,9 @@ Reusable Modelica building blocks for rigid-body simulation, estimation,
 control, and verification.
 
 Browse the [Modelica library reference](https://cognipilot.github.io/modelica_models/)
-for embedded package and component help. The [project guides](docs/README.md)
-cover validation commands and consumer exports.
+for package and component help, public API tables and browsable source with
+definition links. The [project guides](docs/README.md) cover validation commands
+and consumer exports.
 
 This repository is the aerospace engineering workspace for CogniPilot vehicle
 development. Vehicle physics, flight-control source models, named vehicle
