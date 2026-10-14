@@ -11,6 +11,7 @@ package RGBDCatalogLoopVerification
     input Real referenceCovariance[6,6]; input Real currentCovariance[6,6];
     input Real measuredTranslation[3]; input Real measuredCovariance[3,3];
     input Real maximumSquared = 9.0; input Real minimumPivot = 1e-10;
+    input Real maximumTranslationInnovation = 2.0 "Motion disagreement limit; explicit relocalization policy may enlarge it";
     output Boolean accepted; output Real squared;
   protected
     Real residual[3]; Real arm[3,3]; Real covariance[3,3]; Boolean valid;
@@ -24,7 +25,9 @@ package RGBDCatalogLoopVerification
       +referenceRotation*measuredCovariance*transpose(referenceRotation)
       +arm*referenceCovariance[4:6,4:6]*transpose(arm));
     (valid,squared) := RegistrationWhitenedResidual3(residual,covariance,minimumPivot);
-    accepted := valid and maximumSquared > 0.0 and squared <= maximumSquared;
+    accepted := valid and maximumSquared > 0.0 and squared <= maximumSquared
+      and maximumTranslationInnovation > 0.0
+      and residual*residual <= maximumTranslationInnovation*maximumTranslationInnovation;
   end PoseConsistent;
   import RGBDKeyframeRetrieval = SLAM.LoopClosure.RGBDKeyframeRetrieval;
   import RGBDKeyframes = SLAM.LoopClosure.RGBDKeyframes;

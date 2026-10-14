@@ -44,7 +44,7 @@ package RGBDCatalogGraphCapture
   protected
     RGBDKeyframes.Catalog captured;
     RGBDKeyframes.Frame latest;
-    Boolean stored; Integer slot; Integer evicted;
+    Boolean stored; Integer slot; Integer evicted; Boolean poseConsistent; Real poseSquared;
   algorithm
     result.catalog := previousCatalog; result.graph := previousGraph;
     result.accepted := false; result.rejectionReason := 1;
@@ -62,6 +62,19 @@ package RGBDCatalogGraphCapture
         sequentialSeed,trials,refinements,minimumInliers,minimumFraction,inlierDistance,maximumRms,0.0,
         descriptorRatio,maximumDescriptorDistance,coordinateLimit,rankTolerance,localizationSigma,depthInflation,minimumPivot,
         calibratedResiduals=calibratedResiduals,maximumNormalizedSquared=maximumNormalizedSquared);
+      // The previous retained keyframe can also be a repeated warehouse bay
+      // after a long capture gap. A false sequential edge is as damaging as
+      // a false retrieved loop, so both use the same production motion screen.
+      if result.sequentialDiagnostics.verified and poseConsistentLoops then
+        (poseConsistent,poseSquared) := RGBDCatalogLoopVerification.PoseConsistent(
+          latest.bodyPosition,measurement.bodyPosition,latest.bodyRotation,
+          latest.poseCovariance,measurement.poseCovariance,
+          result.sequentialDiagnostics.bodyTranslation,result.sequentialDiagnostics.covariance[1:3,1:3],minimumPivot=minimumPivot);
+        if not poseConsistent then
+          result.sequentialDiagnostics.verified := false;
+          result.sequentialDiagnostics.rejectionReason := 7;
+        end if;
+      end if;
     end if;
     (captured,stored,slot,evicted) := RGBDKeyframes.Store(previousCatalog,result.loopDiagnostics.prepared,result.loopDiagnostics.retrievalAccepted);
     result.graphDiagnostics := RGBDGraphMeasurements.Capture(previousCatalog,captured,previousGraph,

@@ -12,7 +12,7 @@ algorithm
       0.25*identity(6),0.25*identity(6),zeros(3),0.01*identity(3));
     assert(accepted,"A revisited place with ordinary drift must remain eligible");
     (accepted,squared) := RGBDCatalogLoopVerification.PoseConsistent(zeros(3),{6,0,0},identity(3),
-      4.0*identity(6),4.0*identity(6),zeros(3),0.01*identity(3));
-    assert(accepted,"Uncertain pose cannot rule out a geometrically verified loop");
+      4.0*identity(6),4.0*identity(6),zeros(3),0.01*identity(3),maximumTranslationInnovation=10.0);
+    assert(accepted,"Explicit relocalization policy may accept an uncertain large correction");
   end when;
 end RGBDLoopConsistencyTests;
