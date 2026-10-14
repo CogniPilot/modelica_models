@@ -4,6 +4,12 @@ block NavigationEstimator
   "RDD2 eFMU implementation of the stable navigation estimator boundary"
   extends Estimation.StrapdownINS.ESKF.Estimator(
     samplePeriod = 0.01,
+    // RDD2 supplies a calibrated local field and its body-frame covariance.
+    // Keep its tilt information as well as heading; heading-only corrections
+    // cannot arrest roll/pitch drift driven by gyroscope noise during hover.
+    useEquivariantMagnetometer = true,
+    // Condition startup uncertainty on the vectors used to align the attitude.
+    useGeometricAlignment = true,
     // Flight-log tuning of the generic strapdown defaults, applied only to
     // the RDD2 deployment through these extends modifiers. The values come
     // from replaying a recorded RDD2 flight through the exported estimator
@@ -60,10 +66,12 @@ block NavigationEstimator
     and therefore replace this artifact without changing any sensor input,
     navigation output, status field, or controller wiring.</p>
     <p>The process-noise and initial-variance modifiers, the enabled
-    automatic re-seed window, the half-second quasi-static alignment window,
+    automatic re-seed window, the 0.3-second quasi-static alignment window,
     and the synthetic hold-position (10 m sigma) and zero-velocity (0.3 m/s
     sigma) updates that keep an unaided indoor filter bounded are RDD2
-    flight-log tuning of the generic strapdown defaults; the defaults in
+    flight-log tuning of the generic strapdown defaults. The calibrated
+    magnetic-vector update observes tilt as well as heading, and geometric
+    alignment conditions startup uncertainty on the measured vectors; the defaults in
     <code>Estimation.StrapdownINS.PartialEstimator</code> are unchanged, so
     every other consumer of the filter keeps them.</p>
   </html>"));
