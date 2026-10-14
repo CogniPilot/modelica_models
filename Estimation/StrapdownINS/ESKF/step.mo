@@ -424,7 +424,7 @@ algorithm
       pseudoPositionHoldNext_m, mocapTimestampConsumedNext_s, gpsTimestampConsumedNext_s,
       magnetometerTimestampConsumedNext_s, barometerTimestampConsumedNext_s, opticalFlowTimestampConsumedNext_s
     ) := advanceStateTick(
-      previous, imu, mocap,
+      previous, initializedPrevious, imu, mocap,
       gps, magnetometer, barometer,
       opticalFlow, tuning, gravityWorldEnu_m_s2,
       dt, inflateCovarianceNow, imuUsable,

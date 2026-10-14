@@ -12,8 +12,9 @@ class ESKFThroughputTests(unittest.TestCase):
         self.assertEqual(validate_eskf_throughput(self.report(0.3)), 0.3)
 
     def test_interpreter_cliff_exceeds_budget(self):
-        with self.assertRaises(TaskError):
-            validate_eskf_throughput(self.report(12.019))
+        for seconds in (9.992, 12.019):
+            with self.subTest(seconds=seconds), self.assertRaises(TaskError):
+                validate_eskf_throughput(self.report(seconds))
 
     def test_missing_or_invalid_measurement_refused(self):
         for value in (None, False, 0, -1, float("nan"), float("inf")):

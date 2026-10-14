@@ -390,8 +390,8 @@ def validate_eskf_throughput(report: dict) -> float:
         raise TaskError("ESKF benchmark did not complete the bounded simulation")
     # A generous CI-host budget catches the >40x interpreter regression. It
     # excludes preparation and is not a realtime or vehicle qualification.
-    if seconds > 10.0:
-        raise TaskError(f"ESKF execution exceeded its 10 s budget: {seconds:.3f} s")
+    if seconds > 5.0:
+        raise TaskError(f"ESKF execution exceeded its 5 s budget: {seconds:.3f} s")
     return seconds
 
 
