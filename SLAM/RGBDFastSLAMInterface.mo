@@ -84,4 +84,8 @@ partial model RGBDFastSLAMInterface
   output Real trackingCurrentPixel[featureCapacity,2];
   output Real trackingReferencePixel[featureCapacity,2];
   output Real trackingEnabled[featureCapacity];
+  output Integer keyframeDecisionReason;
+  output Integer keyframeRejectionReason;
+  output Integer sequentialRejectionReason;
+  output Integer frameRejectionDiagnostic;
 end RGBDFastSLAMInterface;
