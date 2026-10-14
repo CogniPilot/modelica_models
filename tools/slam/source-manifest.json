@@ -1181,7 +1181,7 @@
       "destination": "SLAM/RGBDFastSLAMInterface.mo",
       "qualified_name": "SLAM.RGBDFastSLAMInterface",
       "original_class_sha256": "6877f3062fa6200a11fa9befdfb9112926a109a784a8fb2a764c6bafd6dccd9a",
-      "destination_sha256": "f021f2a9b9e345eb165ef79c8dc9654638d7ef865ac3d1bd816274a9e985e962"
+      "destination_sha256": "f4906f3612f8b625acf9002acda8a02f583ddc9c552b80eedd4aff3602d4977a"
     },
     {
       "source": "models/SLAM/RGBDFastSLAMIntervals.mo",
@@ -1517,7 +1517,7 @@
       "destination": "Vision/Registration/RegistrationWeighted.mo",
       "qualified_name": "Vision.Registration.RegistrationWeighted",
       "original_class_sha256": "18e367f70bae8f58f11ce7c663de79b4c836f9344ac0804ef276bc352b1cad21",
-      "destination_sha256": "57029f891db803aac877ba800ce16310b002d50bcaf951c7a66f9f4f3ad621ae"
+      "destination_sha256": "e2e62fe38285b12cdb269f39a16fc9d3f0ec8509ce4f36ae1277deccbad216aa"
     }
   ],
   "class_count": 179,
