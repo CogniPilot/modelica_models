@@ -30,6 +30,12 @@ package ESKF
     <code>vehicleAtRest</code> signal; it does not detect rest. Optional
     square-root covariance changes numerical representation and has additional
     runtime and storage costs. Validate each mode for the intended vehicle.</p>
+    <p>The sampled <code>step</code> boundary delegates initialization and
+    state advancement to bounded functions. Keep those boundaries intact:
+    expanding prediction, recovery and all aiding branches into one dispatcher
+    can exceed a native compiler's function-size limit and silently select a
+    much slower interpreter. Re-seeding remains opt-in and retains the same
+    state, covariance and recovery-reporting contract.</p>
     <p>The nominal extended pose is propagated by
     <code>LieGroups.SE23.Quat.exp_mixed</code>. Covariance lives in a
     body-local right-perturbation error ordered as position, velocity,

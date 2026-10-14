@@ -1,5 +1,6 @@
 within SLAM.Localization;
 function RGBDRegistrationSandwich
+  import RegistrationWeighted = Vision.Registration.RegistrationWeighted;
   import RGBDOpticalPointCovariance = SLAM.Localization.RGBDOpticalPointCovariance;
   import RGBDUncertaintyInverse6 = SLAM.Localization.RGBDUncertaintyInverse6;
   import RGBDUncertaintyProper = SLAM.Localization.RGBDUncertaintyProper;
@@ -19,8 +20,10 @@ function RGBDRegistrationSandwich
   output Real relativeCovariance[6,6]; output Real observationCovariance[6,6];
   output Real normalMatrix[6,6]; output Real noiseMatrix[6,6];
   output Real observationJacobian[6,6]; output Real minimumScaledPivot;
+  input Boolean weighted = false "Must match the registration estimator; legacy Euclidean sandwich remains explicit";
 protected
   Boolean configuration; Boolean pose; Boolean pointValid; Boolean hValid; Boolean cValid;
+  Boolean whiteningValid; Real wr[3]; Real wj[3,6];
   Real q[3]; Real J[3,6]; Real Sigma[3,3]; Real Cref[3,3]; Real Ccur[3,3];
   Real Hinv[6,6]; Real unusedInverse[6,6]; Real unusedPivot;
   Real cameraRotation[3,3]; Real arm[3]; Real skewArm[3,3]; Real rotationBlock[3,3];
@@ -63,8 +66,15 @@ algorithm
       Ccur := RGBDOpticalPointCovariance(currentPoint[i,:],currentRgbFocal[1],currentRgbFocal[2],
         localizationSigma,disparitySigma,currentNoiseFx,baseline,depthInflation);
       Sigma := Ccur+currentFromReference*Cref*transpose(currentFromReference);
-      normalMatrix := normalMatrix+transpose(J)*J;
-      noiseMatrix := noiseMatrix+transpose(J)*Sigma*J;
+      if weighted then
+        (whiteningValid,wr,wj) := RegistrationWeighted.WeightedWhiten(Sigma,zeros(3),J,minimumPivot);
+        if not whiteningValid then invalidCount := invalidCount+1; end if;
+        normalMatrix := normalMatrix+transpose(wj)*wj;
+        noiseMatrix := normalMatrix;
+      else
+        normalMatrix := normalMatrix+transpose(J)*J;
+        noiseMatrix := noiseMatrix+transpose(J)*Sigma*J;
+      end if;
     end if;
   end for;
   (Hinv,hValid,minimumScaledPivot) := RGBDUncertaintyInverse6(normalMatrix,minimumPivot);

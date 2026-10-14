@@ -39,7 +39,8 @@ partial model RGBDFastSLAMInterface
   parameter Integer minimumMeasuredDescriptors = 8;
   parameter Real minimumWordDistanceSquared = 0.04;
   parameter Real selectedFeatureLimit = featureCapacity;
-  parameter Real absoluteThreshold = 18.0;
+  parameter Real absoluteThreshold = max(8.0,18.0*min(1.0,imageWidth/848.0))
+    "Retain lower-contrast corners in reduced rasters; keep the full-raster threshold";
   parameter Boolean depthQualifiedSelection = true;
   parameter Real minimumInterval = 0.5;
   parameter Real maximumInterval = 2.0;
@@ -84,6 +85,10 @@ partial model RGBDFastSLAMInterface
   output Real trackingCurrentPixel[featureCapacity,2];
   output Real trackingReferencePixel[featureCapacity,2];
   output Real trackingEnabled[featureCapacity];
+  output Integer keyframeDecisionReason;
+  output Integer keyframeRejectionReason;
+  output Integer sequentialRejectionReason;
+  output Integer frameRejectionDiagnostic;
   annotation(Documentation(info = "<html>
     <h4>Session lifecycle</h4>
 <p>This boundary owns the complete persistent visual session. Supply the prior

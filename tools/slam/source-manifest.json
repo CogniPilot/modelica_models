@@ -413,7 +413,7 @@
       "destination": "SLAM/Localization/RGBDUncertaintySkew.mo",
       "qualified_name": "SLAM.Localization.RGBDUncertaintySkew",
       "original_class_sha256": "b681087c78b0aa6542af7344d197148760d09cd13fba37208d73a85062d0ac8d",
-      "destination_sha256": "760debac91018796a40ad729a961ac79416948e4d634dc75d0b80f5f0f46f26b"
+      "destination_sha256": "9e7712820334c3aeaed1f7821e9d5db8e58e1274f111c8bf47cdb0a415444e5c"
     },
     {
       "source": "models/Estimation/Localization/RGBDRegistrationUncertainty.mo",
@@ -445,7 +445,7 @@
       "destination": "SLAM/Localization/RGBDRegistrationSandwich.mo",
       "qualified_name": "SLAM.Localization.RGBDRegistrationSandwich",
       "original_class_sha256": "ac2988c5dd1cf1a0520f1852d56802d0a5d0699b93d3fc57bc8551da77bb1ecd",
-      "destination_sha256": "75979b7579ff6800ef9f43be3025c17f69fc6af52424e5705746e5cd5ee79622"
+      "destination_sha256": "bddf7b52d8a1f2d90b2355de2dca88d2ede17a9ca64c2c38249f71c0c95251c8"
     },
     {
       "source": "models/Estimation/Localization/RGBDRegistrationUncertainty.mo",
@@ -509,7 +509,7 @@
       "destination": "SLAM/Localization/ObserveRGBDRelativeFrame.mo",
       "qualified_name": "SLAM.Localization.ObserveRGBDRelativeFrame",
       "original_class_sha256": "f5f08ebc9598ced3f64bbf28d46f7de9b5fd1ee2505ce12d281de7d54cc58591",
-      "destination_sha256": "e801f81d4789af296b8ddc21d39980a9cdcb38ab39db87e6d6a4803c38b48c3b"
+      "destination_sha256": "f563867f303fb4066790063efaba4a1588c36e9d2d463dc937ad916247099894"
     },
     {
       "source": "models/Evaluation/RuntimeEvaluation.mo",
@@ -589,7 +589,7 @@
       "destination": "SLAM/LoopClosure/RGBDCatalogLoopVerification.mo",
       "qualified_name": "SLAM.LoopClosure.RGBDCatalogLoopVerification",
       "original_class_sha256": "cfd60ae452d1d87a717b62ebc2511598ca472a46d14a49b1873c31e6a63859f4",
-      "destination_sha256": "37720086b6df0c84f4cdb831e93b24c4105c894b5e08e4f49205f976b783cfad"
+      "destination_sha256": "e3a8c6c8617dd5fbac4a37f9be622e6029a7daeddc2f2506e3a16cc4592d6546"
     },
     {
       "source": "models/LoopClosure/RGBDKeyframePolicy.mo",
@@ -621,7 +621,7 @@
       "destination": "SLAM/LoopClosure/RGBDLoopVerification.mo",
       "qualified_name": "SLAM.LoopClosure.RGBDLoopVerification",
       "original_class_sha256": "4316d2016d6a754a78cb8edca74cd1860d0e33ef995476b574a6fc28e10db7ae",
-      "destination_sha256": "f81f9c8b3edcda7a5f99782a57b12913afcf3f5c3a2a122f192943abe48d77e5"
+      "destination_sha256": "1782bb043913f1404d4c9fe1fac3564b5b65fcc5fb094015950e8c9516a42ab6"
     },
     {
       "source": "models/LoopClosure/RGBDVisualVocabulary.mo",
@@ -653,7 +653,7 @@
       "destination": "SLAM/Mapping/RGBDCatalogFrame.mo",
       "qualified_name": "SLAM.Mapping.RGBDCatalogFrame",
       "original_class_sha256": "d50ff0185bd3129b257a0e4005a35ae610a4d158c24fde4797367ba41f3f9f00",
-      "destination_sha256": "8039acf4ddae3df9a837dafbd48e8ef15eca5a5693436223912ba9f0956c0d29"
+      "destination_sha256": "f3dd9b34b360400b9093ad065624e859dd7857b3a18418cc784ca202edd65b07"
     },
     {
       "source": "models/Mapping/RGBDCatalogMapping.mo",
@@ -853,7 +853,7 @@
       "destination": "Vision/Registration/FitRigidPointPairsRobust.mo",
       "qualified_name": "Vision.Registration.FitRigidPointPairsRobust",
       "original_class_sha256": "7dfd2e944d4c4edacfabb0ff74c8473ac2b2ae1823c43f1c07648351f3578366",
-      "destination_sha256": "2657182b056fe6e5e56575f1273f18f530180c4ba102d81f23d8c1fd2f5fad00"
+      "destination_sha256": "a5c35f000897d6807eaa8857391a3a81cec7e311e51cf50ec037d677f90fae7e"
     },
     {
       "source": "models/Math/SPD6Solve.mo",
@@ -1085,7 +1085,7 @@
       "destination": "SLAM/PoseGraph/RGBDCatalogGraphCapture.mo",
       "qualified_name": "SLAM.PoseGraph.RGBDCatalogGraphCapture",
       "original_class_sha256": "623f5de96c90fcd5c16cb2632c306eecfe74bf9e7b476aeddea2bba962102298",
-      "destination_sha256": "4adc8721bcbd5459fe4b90c6cbea551e0c53067e7d946149bf9b06784fe4ad93"
+      "destination_sha256": "6470ec0f0ba5f501c8cc182d01663a0fbf0140383bbf3651eaf675495c2222bb"
     },
     {
       "source": "models/Optimization/RGBDGraphAnchorBound.mo",
@@ -1165,7 +1165,7 @@
       "destination": "SLAM/RGBDFastSLAMInitialize.mo",
       "qualified_name": "SLAM.RGBDFastSLAMInitialize",
       "original_class_sha256": "9abb4ecdf6cc80e3b4033c616bed569eb19ec752a4b1e322b3186cc41477be2f",
-      "destination_sha256": "e1752870f35f4d02c0ad70bf2615ffdca62bcadc2eebf61f6bdd574609886be2"
+      "destination_sha256": "deee57817b0882502dd2e1255affba99e3c9813abb20b07697c780c1c8d467f1"
     },
     {
       "source": "models/SLAM/RGBDFastSLAMInitialize.mo",
@@ -1173,7 +1173,7 @@
       "destination": "SLAM/InitializeFastSLAM.mo",
       "qualified_name": "SLAM.InitializeFastSLAM",
       "original_class_sha256": "b2971b5ef4749a50db884123f8bd78cfa05e5273262de7ce8fade30fb1f91699",
-      "destination_sha256": "8eae66786eacdf3c2e955242ce89d817f840c5b3c5b0917c5c9afa24954194ab"
+      "destination_sha256": "4d0d6d376a992da8b078ed2ad83d9f109ba46cf264c592c64635a328baa0d365"
     },
     {
       "source": "models/SLAM/RGBDFastSLAMInterface.mo",
@@ -1181,7 +1181,7 @@
       "destination": "SLAM/RGBDFastSLAMInterface.mo",
       "qualified_name": "SLAM.RGBDFastSLAMInterface",
       "original_class_sha256": "6877f3062fa6200a11fa9befdfb9112926a109a784a8fb2a764c6bafd6dccd9a",
-      "destination_sha256": "681b72713231f50e8d1c960b939d46a1be4eab50214235e694dd6ba9807602fc"
+      "destination_sha256": "f4906f3612f8b625acf9002acda8a02f583ddc9c552b80eedd4aff3602d4977a"
     },
     {
       "source": "models/SLAM/RGBDFastSLAMIntervals.mo",
@@ -1213,7 +1213,7 @@
       "destination": "SLAM/RGBDFastSLAMStep.mo",
       "qualified_name": "SLAM.RGBDFastSLAMStep",
       "original_class_sha256": "be27c4a01ad36c11dc7c4532a58c8e950d2e1f5bd4d77113fa736ad1396e3130",
-      "destination_sha256": "7f91087b0419a95d9b2c2acaae211627a5a278b8bfb42c65c9d6e46fa8e9ee3e"
+      "destination_sha256": "014163f8ebad63feeb63b13cc4c759a716aa48061a893c2a3739ec19062bd95b"
     },
     {
       "source": "models/SLAM/RGBDFastSLAMStep.mo",
@@ -1221,7 +1221,7 @@
       "destination": "SLAM/AdvanceFastSLAM.mo",
       "qualified_name": "SLAM.AdvanceFastSLAM",
       "original_class_sha256": "dae00b37039f32c35396da14f3bbba82549ccd3a31cc0ba99ab7761d8f39dce3",
-      "destination_sha256": "90889d8c7c40f568b8a4e74095834795feaa3c386c7f28ea3448a82012c0fb42"
+      "destination_sha256": "1f782530cb17b5579b7e06cf15b76d084db08a5c16aa530477262bc535f99df4"
     },
     {
       "source": "models/Scene/ActorMotion.mo",
@@ -1269,7 +1269,7 @@
       "destination": "SLAM/Examples/Vehicles/LabQuadrotor.mo",
       "qualified_name": "SLAM.Examples.Vehicles.LabQuadrotor",
       "original_class_sha256": "4d3a8221abaa708b4a98f76ef0f62976a2db939d3f1e08f0741c3cb7446eb6b7",
-      "destination_sha256": "a6f5cb403c3f3fe6833f0a85d9a9580cf81db146e440e6ecb0676cc22231389c"
+      "destination_sha256": "e1238569cd8cfbaa08d3e4542f3f6cdc448d8093a79bda7cd65a6e8fb291e12c"
     },
     {
       "source": "models/Vision/Features/D435FastFeatures.mo",
@@ -1510,6 +1510,14 @@
       "qualified_name": "Vision.Matching.RGBDPatchTracking",
       "original_class_sha256": "d48b598782529dd63ceba9574ed45cb34b51e312871bcbf3d70a4bbf47a05d4d",
       "destination_sha256": "1fa8ee7582a81de8999edd49cb962b5a0ebd63c7f2001f55c09296d493f052f5"
+    },
+    {
+      "source": "models/Math/RigidPointRegistration.mo",
+      "original_name": "RegistrationWeighted",
+      "destination": "Vision/Registration/RegistrationWeighted.mo",
+      "qualified_name": "Vision.Registration.RegistrationWeighted",
+      "original_class_sha256": "18e367f70bae8f58f11ce7c663de79b4c836f9344ac0804ef276bc352b1cad21",
+      "destination_sha256": "e2e62fe38285b12cdb269f39a16fc9d3f0ec8509ce4f36ae1277deccbad216aa"
     }
   ],
   "class_count": 179,

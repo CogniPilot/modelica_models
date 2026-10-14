@@ -62,3 +62,5 @@ VisualLandmarkReplay
 VisualCouplingReplay
 VisualNavigationReplay
 SyntheticLandmarkReplay
+RegistrationWeightedTests
+RGBDLoopConsistencyTests

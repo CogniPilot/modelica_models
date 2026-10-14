@@ -77,6 +77,10 @@ function InitializeFastSLAM
   output Real trackingCurrentPixel[featureCapacity,2];
   output Real trackingReferencePixel[featureCapacity,2];
   output Real trackingEnabled[featureCapacity];
+  output Integer keyframeDecisionReason;
+  output Integer keyframeRejectionReason;
+  output Integer sequentialRejectionReason;
+  output Integer frameRejectionDiagnostic;
   input Boolean depthQualifiedSelection = true;
   input Real depthUnits = 1.0 "Meters per depth sample; 1 for metric depth, SDK scale for Z16";
 protected
@@ -315,6 +319,10 @@ algorithm
     voxelWidth,mergeRadius,maximumDistance,tentativeLifetime,confirmedLifetime,
     confirmationObservations,maximumConfidence,maximumTentative,
     minimumMeasuredDescriptors=minimumMeasuredDescriptors,minimumWordDistanceSquared=minimumWordDistanceSquared);
+  keyframeDecisionReason := publication.publication.decision.reason;
+  keyframeRejectionReason := publication.publication.mapDiagnostics.keyframeRejectionReason;
+  sequentialRejectionReason := publication.publication.mapDiagnostics.sequentialRejectionReason;
+  frameRejectionDiagnostic := publication.publication.frameRejectionReason;
   accepted := publication.accepted;
   imageCompleted := publication.publication.imageCompleted;
   mappingAccepted := publication.publication.mappingAccepted;

@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import json
 import math
 import os
 from pathlib import Path
@@ -49,6 +50,7 @@ def main(arguments: Sequence[str] | None = None) -> int:
                     "-m",
                     "unittest",
                     "Vehicles.Rdd2.Test.test_waypoint_qualification",
+                    "tools.tests.test_eskf_throughput",
                 ],
                 repository,
                 "Waypoint qualification negative controls",
@@ -122,6 +124,7 @@ def run_rumoca_tests(repository: Path) -> None:
             repository,
             "Rumoca DAE lowering for Tests.All",
         )
+        check_eskf_throughput(repository, rumoca, output)
         # DAE and eFMI export can succeed even when the composed mission's
         # simulation event plan is invalid. Initialize the UKF missions here
         # so this compiler boundary fails before the long qualification runs.
@@ -368,6 +371,52 @@ def run_rumoca_tests(repository: Path) -> None:
         check_horizon_native(repository, output)
         check_ukf_native(repository, rumoca, output)
         check_pin_dependent_lowering(repository, rumoca, output)
+
+
+
+def validate_eskf_throughput(report: dict) -> float:
+    """Reject missing measurements and the native-compilation performance cliff."""
+    if not isinstance(report, dict):
+        raise TaskError("ESKF benchmark returned no measurement object")
+    seconds = report.get("hot_average_seconds")
+    if (not isinstance(seconds, (int, float)) or isinstance(seconds, bool)
+            or not math.isfinite(seconds) or seconds <= 0.0):
+        raise TaskError("ESKF benchmark did not report finite positive execution time")
+    final_time = report.get("last_final_time")
+    points = report.get("last_points")
+    if (not isinstance(final_time, (int, float))
+            or not math.isclose(final_time, 0.1, abs_tol=1.0e-9)
+            or not isinstance(points, int) or isinstance(points, bool) or points < 2):
+        raise TaskError("ESKF benchmark did not complete the bounded simulation")
+    # A generous CI-host budget catches the >40x interpreter regression. It
+    # excludes preparation and is not a realtime or vehicle qualification.
+    if seconds > 5.0:
+        raise TaskError(f"ESKF execution exceeded its 5 s budget: {seconds:.3f} s")
+    return seconds
+
+
+def check_eskf_throughput(repository: Path, rumoca: str, output: Path) -> None:
+    print("    Bounded ESKF native throughput regression", flush=True)
+    command = [rumoca, "sim", "bench", "-c",
+               "Vehicles/Rdd2/Test/rumoca-scenario.waypoint-mocap.toml",
+               "--t-end", "0.1", "--warmups", "0", "--iterations", "1",
+               "--json", "--cache-dir", str(output / "eskf-benchmark-cache")]
+    try:
+        result = subprocess.run(command, cwd=repository, text=True,
+                                capture_output=True, timeout=180,
+                                env={**os.environ, "RAYON_NUM_THREADS": "1"})
+    except subprocess.TimeoutExpired as error:
+        raise TaskError("ESKF benchmark exceeded its 180 s preparation/run limit") from error
+    if result.returncode:
+        print(result.stderr, file=sys.stderr, end="")
+        result.check_returncode()
+    try:
+        report = json.loads(result.stdout)
+    except json.JSONDecodeError as error:
+        raise TaskError("ESKF benchmark returned no valid JSON measurement") from error
+    seconds = validate_eskf_throughput(report)
+    print(f"    ESKF: 0.1 simulated seconds in {seconds:.3f} execution seconds",
+          flush=True)
 
 
 def check_eskf_native(repository: Path, output: Path) -> None:

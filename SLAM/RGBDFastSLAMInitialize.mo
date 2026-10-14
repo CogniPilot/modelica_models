@@ -12,7 +12,8 @@ equation
     covarianceStatus,graphCostBefore,graphCostAfter,nextQuaternion,
     selectionValid,predictionAccepted,initializationAccepted,observationAccepted,
     captureAccepted,matchCount,features,featureEnabled,
-    trackingCurrentPixel,trackingReferencePixel,trackingEnabled) =
+    trackingCurrentPixel,trackingReferencePixel,trackingEnabled,
+    keyframeDecisionReason,keyframeRejectionReason,sequentialRejectionReason,frameRejectionDiagnostic) =
     InitializeFastSLAM(
       previous=previous,
       rgb=rgb,

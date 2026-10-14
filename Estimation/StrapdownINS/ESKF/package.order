@@ -48,6 +48,11 @@ opticalFlowRangeJacobian
 correctOpticalFlow
 navigationEstimate
 nominalStateFinite
+initializeTick
+predictTick
+correctAbsoluteAidingTick
+TickUpdates
+advanceStateTick
 step
 Estimator
 withCovarianceRoot
