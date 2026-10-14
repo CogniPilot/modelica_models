@@ -1269,7 +1269,7 @@
       "destination": "SLAM/Examples/Vehicles/LabQuadrotor.mo",
       "qualified_name": "SLAM.Examples.Vehicles.LabQuadrotor",
       "original_class_sha256": "4d3a8221abaa708b4a98f76ef0f62976a2db939d3f1e08f0741c3cb7446eb6b7",
-      "destination_sha256": "a6f5cb403c3f3fe6833f0a85d9a9580cf81db146e440e6ecb0676cc22231389c"
+      "destination_sha256": "a6829b204a850951ea9027e2232640e1d74bb22067f40c9fefc583add79296b0"
     },
     {
       "source": "models/Vision/Features/D435FastFeatures.mo",

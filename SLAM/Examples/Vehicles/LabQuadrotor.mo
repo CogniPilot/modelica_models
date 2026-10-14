@@ -26,6 +26,10 @@ model LabQuadrotor
   input Real yaw(start=0) "Yaw rate setpoint rad/s";
   input Real autopilot = 0.0;
   input Real indoorTour = 0.0;
+  parameter Real indoorSpeed = 0.6;
+  parameter Real indoorLegTime = 10.0;
+  parameter Real indoorPauseTime = 6.0;
+  Real indoorPhase;
   input Real commandTime = 0.0 "Held start-of-frame simulation timestamp";
   input Real positionMode = 0.0 "1 selects an explicit trajectory reference";
   input Real targetPosition[3] = {0,0,initialHeight} "World ENU position m";
@@ -70,10 +74,14 @@ protected
 equation
   // Modelica owns both tours. commandTime is held for a complete lockstep
   // interval, preserving the acquisition-boundary command timing.
+  // The old 40-second outbound leg left the 28 m training enclosure.
+  // Repeat a short out-and-back route so retained views can be revisited.
+  indoorPhase = mod(commandTime,2.0*(indoorLegTime+indoorPauseTime));
   command = if noEvent(autopilot > 0.5) then {
     if noEvent(indoorTour > 0.5) then
-      (if noEvent(commandTime < 40.0) then 1.1 else if noEvent(commandTime < 50.0) then 0.0
-       else if noEvent(commandTime < 90.0) then -1.1 else 0.0) else 0.6,
+      (if noEvent(indoorPhase < indoorLegTime) then indoorSpeed
+       else if noEvent(indoorPhase < indoorLegTime+indoorPauseTime) then 0.0
+       else if noEvent(indoorPhase < 2.0*indoorLegTime+indoorPauseTime) then -indoorSpeed else 0.0) else 0.6,
     0.0,
     if noEvent(indoorTour > 0.5) then 0.0 else 0.06*sin(commandTime*0.3),
     if noEvent(indoorTour > 0.5 or commandTime < 2.0) then 0.0 else 0.4
