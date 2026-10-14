@@ -589,7 +589,7 @@
       "destination": "SLAM/LoopClosure/RGBDCatalogLoopVerification.mo",
       "qualified_name": "SLAM.LoopClosure.RGBDCatalogLoopVerification",
       "original_class_sha256": "cfd60ae452d1d87a717b62ebc2511598ca472a46d14a49b1873c31e6a63859f4",
-      "destination_sha256": "37720086b6df0c84f4cdb831e93b24c4105c894b5e08e4f49205f976b783cfad"
+      "destination_sha256": "309fc22588079cbd7aaf3b542b70367fa40b901556605a279c7f36285c198762"
     },
     {
       "source": "models/LoopClosure/RGBDKeyframePolicy.mo",
@@ -653,7 +653,7 @@
       "destination": "SLAM/Mapping/RGBDCatalogFrame.mo",
       "qualified_name": "SLAM.Mapping.RGBDCatalogFrame",
       "original_class_sha256": "d50ff0185bd3129b257a0e4005a35ae610a4d158c24fde4797367ba41f3f9f00",
-      "destination_sha256": "8039acf4ddae3df9a837dafbd48e8ef15eca5a5693436223912ba9f0956c0d29"
+      "destination_sha256": "fb9fc0664c6a1cb8df62ccbcb8ea7a7d4de44c34e16c8d3360953065551c7f24"
     },
     {
       "source": "models/Mapping/RGBDCatalogMapping.mo",
@@ -1085,7 +1085,7 @@
       "destination": "SLAM/PoseGraph/RGBDCatalogGraphCapture.mo",
       "qualified_name": "SLAM.PoseGraph.RGBDCatalogGraphCapture",
       "original_class_sha256": "623f5de96c90fcd5c16cb2632c306eecfe74bf9e7b476aeddea2bba962102298",
-      "destination_sha256": "4adc8721bcbd5459fe4b90c6cbea551e0c53067e7d946149bf9b06784fe4ad93"
+      "destination_sha256": "798ee08315f4fda51825aec01eb272c78bffb0921ddf84b69776c00fa978cc5b"
     },
     {
       "source": "models/Optimization/RGBDGraphAnchorBound.mo",
@@ -1269,7 +1269,7 @@
       "destination": "SLAM/Examples/Vehicles/LabQuadrotor.mo",
       "qualified_name": "SLAM.Examples.Vehicles.LabQuadrotor",
       "original_class_sha256": "4d3a8221abaa708b4a98f76ef0f62976a2db939d3f1e08f0741c3cb7446eb6b7",
-      "destination_sha256": "a6829b204a850951ea9027e2232640e1d74bb22067f40c9fefc583add79296b0"
+      "destination_sha256": "e1238569cd8cfbaa08d3e4542f3f6cdc448d8093a79bda7cd65a6e8fb291e12c"
     },
     {
       "source": "models/Vision/Features/D435FastFeatures.mo",

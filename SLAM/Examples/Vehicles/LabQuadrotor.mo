@@ -76,10 +76,11 @@ equation
   // interval, preserving the acquisition-boundary command timing.
   // The old 40-second outbound leg left the 28 m training enclosure.
   // Repeat a short out-and-back route so retained views can be revisited.
-  indoorPhase = mod(commandTime,2.0*(indoorLegTime+indoorPauseTime));
+  indoorPhase = mod(max(0.0,commandTime-2.0),2.0*(indoorLegTime+indoorPauseTime));
   command = if noEvent(autopilot > 0.5) then {
     if noEvent(indoorTour > 0.5) then
-      (if noEvent(indoorPhase < indoorLegTime) then indoorSpeed
+      (if noEvent(commandTime < 2.0) then 0.0
+       else if noEvent(indoorPhase < indoorLegTime) then indoorSpeed
        else if noEvent(indoorPhase < indoorLegTime+indoorPauseTime) then 0.0
        else if noEvent(indoorPhase < 2.0*indoorLegTime+indoorPauseTime) then -indoorSpeed else 0.0) else 0.6,
     0.0,

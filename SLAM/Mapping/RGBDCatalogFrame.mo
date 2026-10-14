@@ -43,6 +43,7 @@ package RGBDCatalogFrame
     input Real nodePosition[RGBDKeyframes.keyframeCapacity,3] = catalog.bodyPositions;
     input Real nodeRotation[RGBDKeyframes.keyframeCapacity,3,3] = catalog.bodyRotations;
     input Integer poseRevision = map.catalogRevision;
+    input Boolean poseConsistentLoops = true "Screen repeated-place aliases against retained pose uncertainty";
     output RGBDCatalogMapping.Result result;
     output RGBDKeyframePolicy.Decision decision;
   protected
@@ -57,7 +58,8 @@ package RGBDCatalogFrame
       visual := RGBDCatalogGraphCapture.Capture(catalog,measurement,vocabulary,vocabularyEnabled,graph,
         true,seeds,sequentialSeed,maximumWordDistanceSquared,minimumAssignments,minimumSimilarity,minimumAge,
         trials,refinements,minimumInliers,minimumFraction,inlierDistance,maximumRms,descriptorRatio,
-        maximumDescriptorDistance,registrationCoordinateLimit,rankTolerance,localizationSigma,depthInflation,minimumPivot);
+        maximumDescriptorDistance,registrationCoordinateLimit,rankTolerance,localizationSigma,depthInflation,minimumPivot,
+        poseConsistentLoops=poseConsistentLoops);
       if visual.rejectionReason == 4 and visual.graphDiagnostics.rejectionReason == 4
           and visual.sequentialDiagnostics.rejectionReason == 7 then
         // Failed geometric consensus adds no keyframe or edge. The admitted

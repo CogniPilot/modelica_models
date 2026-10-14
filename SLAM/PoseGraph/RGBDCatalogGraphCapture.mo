@@ -40,6 +40,7 @@ package RGBDCatalogGraphCapture
     output Result result;
     input Boolean calibratedResiduals = true;
     input Real maximumNormalizedSquared = 9.0;
+    input Boolean poseConsistentLoops = false;
   protected
     RGBDKeyframes.Catalog captured;
     RGBDKeyframes.Frame latest;
@@ -52,7 +53,8 @@ package RGBDCatalogGraphCapture
       requested,seeds,maximumWordDistanceSquared,minimumAssignments,minimumSimilarity,minimumAge,trials,refinements,
       minimumInliers,minimumFraction,inlierDistance,maximumRms,descriptorRatio,maximumDescriptorDistance,
       coordinateLimit,rankTolerance,localizationSigma,depthInflation,minimumPivot,
-      calibratedResiduals=calibratedResiduals,maximumNormalizedSquared=maximumNormalizedSquared);
+      calibratedResiduals=calibratedResiduals,maximumNormalizedSquared=maximumNormalizedSquared,
+      poseConsistentLoops=poseConsistentLoops);
     result.sequentialDiagnostics := RGBDLoopVerification.EmptyProposal(sequentialSeed);
     if result.loopDiagnostics.retrievalAccepted and previousCatalog.nextId > 1 then
       latest := RGBDKeyframes.ReadSlot(previousCatalog,mod(previousCatalog.nextId-2,RGBDKeyframes.keyframeCapacity)+1);
