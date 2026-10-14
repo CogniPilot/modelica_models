@@ -84,8 +84,13 @@ algorithm
       end if;
     end for;
     if accepted > 0.5 then
-      (weightedValid,rotation,translation,rms) := RegistrationWeighted.WeightedRefine(sourcePoint,targetPoint,pairEnabled,
-        sourceCovariance,targetCovariance,rotation,translation,covarianceMinimumPivot);
+      // Preserve the exact geometric fast path when there is no residual to
+      // refine; numerical roundoff must not change an already exact seed.
+      weightedValid := true;
+      if rms > 1e-12 then
+        (weightedValid,rotation,translation,rms) := RegistrationWeighted.WeightedRefine(sourcePoint,targetPoint,pairEnabled,
+          sourceCovariance,targetCovariance,rotation,translation,covarianceMinimumPivot);
+      end if;
       if not weightedValid then accepted := 0.0; rejectionReason := 7.0; end if;
       allInliers := weightedValid;
       for pair in 1:size(pairEnabled,1) loop

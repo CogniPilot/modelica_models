@@ -853,7 +853,7 @@
       "destination": "Vision/Registration/FitRigidPointPairsRobust.mo",
       "qualified_name": "Vision.Registration.FitRigidPointPairsRobust",
       "original_class_sha256": "7dfd2e944d4c4edacfabb0ff74c8473ac2b2ae1823c43f1c07648351f3578366",
-      "destination_sha256": "beef07910187efc2a8318bf44056397bf8a29d9b5849e9cf9e955fc87cd8c9ed"
+      "destination_sha256": "a5c35f000897d6807eaa8857391a3a81cec7e311e51cf50ec037d677f90fae7e"
     },
     {
       "source": "models/Math/SPD6Solve.mo",
