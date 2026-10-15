@@ -323,6 +323,9 @@ package RGBDLocalizationCatalog
     input Real loopMaximumRms = 0.03;
     input Boolean loopCalibratedResiduals = true;
     input Real loopMaximumNormalizedSquared = 9.0;
+    input Real loopMaximumPoseInnovation = 2.0;
+    input Real loopPoseConsistencySquared = 9.0;
+    input Boolean loopPoseConsistency = true;
   protected
     Boolean valid; Boolean frameBound;
     RGBDCatalogMapping.Result mapped;
@@ -464,7 +467,8 @@ package RGBDLocalizationCatalog
                       loopInlierDistance=loopInlierDistance,
                       loopMaximumRms=loopMaximumRms,
                       loopCalibratedResiduals=loopCalibratedResiduals,
-                      loopMaximumNormalizedSquared=loopMaximumNormalizedSquared);
+                      loopMaximumNormalizedSquared=loopMaximumNormalizedSquared,
+      loopMaximumPoseInnovation=loopMaximumPoseInnovation, loopPoseConsistencySquared=loopPoseConsistencySquared, loopPoseConsistency=loopPoseConsistency);
                     result.mapDiagnostics := mapped.diagnostics; result.problem := mapped.problem;
                     if mapped.accepted then
                       result.next.catalog := mapped.catalog; result.next.graph := mapped.graph; result.next.map := mapped.map;

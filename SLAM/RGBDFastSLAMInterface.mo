@@ -67,6 +67,9 @@ partial model RGBDFastSLAMInterface
   input Real loopMaximumRms(unit="m") = 0.03;
   input Boolean loopCalibratedResiduals = true;
   input Real loopMaximumNormalizedSquared = 9.0;
+  input Real loopMaximumPoseInnovation(unit="m") = 2.0;
+  input Real loopPoseConsistencySquared = 9.0;
+  input Boolean loopPoseConsistency = true;
 
   output RGBDGraphProcessing.State next;
   output Boolean accepted;
@@ -113,7 +116,7 @@ partial model RGBDFastSLAMInterface
   output Boolean loopCandidateVerified[RGBDKeyframeRetrieval.proposalCapacity];
   annotation(Documentation(info = "<html>
     <h4>Runtime loop tuning</h4>
-<p>The loopMinimumSimilarity, loopMinimumAge, loopMinimumInliers, loopMinimumFraction, loopInlierDistance, loopMaximumRms, loopCalibratedResiduals and loopMaximumNormalizedSquared inputs tune retrieved-loop verification. They preserve the separate consecutive-frame odometry settings. Calibrated residuals use the squared uncertainty-normalized gate; metric distance and RMS limits apply in metric mode. Keyframe interval, translation and rotation inputs tune capture cadence. Defaults retain the existing behavior.</p>
+<p>The loopMinimumSimilarity, loopMinimumAge, loopMinimumInliers, loopMinimumFraction, loopInlierDistance, loopMaximumRms, loopCalibratedResiduals and loopMaximumNormalizedSquared inputs tune retrieved-loop verification. The loopMaximumPoseInnovation, loopPoseConsistencySquared and loopPoseConsistency controls tune retained-pose screening. All loop controls preserve the separate consecutive-frame odometry settings. Calibrated residuals use the squared uncertainty-normalized gate; metric distance and RMS limits apply in metric mode. Keyframe interval, translation and rotation inputs tune capture cadence. Defaults retain the existing behavior.</p>
 <p>loopAttempted marks capture attempts. Per-rank loopCandidate outputs describe the retrieved references and their actual verification outcomes, including rejected proposals. A verified proposal is not a committed loop: inspect graph admission and the published graph separately.</p>
     <h4>Session lifecycle</h4>
 <p>This boundary owns the complete persistent visual session. Supply the prior

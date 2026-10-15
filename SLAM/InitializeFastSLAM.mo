@@ -104,6 +104,9 @@ function InitializeFastSLAM
   input Real loopMaximumRms = 0.03;
   input Boolean loopCalibratedResiduals = true;
   input Real loopMaximumNormalizedSquared = 9.0;
+  input Real loopMaximumPoseInnovation = 2.0;
+  input Real loopPoseConsistencySquared = 9.0;
+  input Boolean loopPoseConsistency = true;
 protected
   constant Integer featureCapacity = RGBDKeyframes.featureCapacity;
   constant Integer descriptorSize = RGBDKeyframes.descriptorSize;
@@ -340,7 +343,8 @@ algorithm
     voxelWidth,mergeRadius,maximumDistance,tentativeLifetime,confirmedLifetime,
     confirmationObservations,maximumConfidence,maximumTentative,
     minimumMeasuredDescriptors=minimumMeasuredDescriptors,minimumWordDistanceSquared=minimumWordDistanceSquared,
-      loopMinimumSimilarity=loopMinimumSimilarity, loopMinimumAge=loopMinimumAge, loopMinimumInliers=loopMinimumInliers, loopMinimumFraction=loopMinimumFraction, loopInlierDistance=loopInlierDistance, loopMaximumRms=loopMaximumRms, loopCalibratedResiduals=loopCalibratedResiduals, loopMaximumNormalizedSquared=loopMaximumNormalizedSquared);
+      loopMinimumSimilarity=loopMinimumSimilarity, loopMinimumAge=loopMinimumAge, loopMinimumInliers=loopMinimumInliers, loopMinimumFraction=loopMinimumFraction, loopInlierDistance=loopInlierDistance, loopMaximumRms=loopMaximumRms, loopCalibratedResiduals=loopCalibratedResiduals, loopMaximumNormalizedSquared=loopMaximumNormalizedSquared,
+      loopMaximumPoseInnovation=loopMaximumPoseInnovation, loopPoseConsistencySquared=loopPoseConsistencySquared, loopPoseConsistency=loopPoseConsistency);
   keyframeDecisionReason := publication.publication.decision.reason;
   keyframeRejectionReason := publication.publication.mapDiagnostics.keyframeRejectionReason;
   sequentialRejectionReason := publication.publication.mapDiagnostics.sequentialRejectionReason;

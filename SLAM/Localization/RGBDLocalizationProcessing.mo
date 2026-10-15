@@ -64,6 +64,9 @@ package RGBDLocalizationProcessing
     input Real loopMaximumRms = 0.03;
     input Boolean loopCalibratedResiduals = true;
     input Real loopMaximumNormalizedSquared = 9.0;
+    input Real loopMaximumPoseInnovation = 2.0;
+    input Real loopPoseConsistencySquared = 9.0;
+    input Boolean loopPoseConsistency = true;
   protected
     RGBDGraphProcessing.State candidate;
     RGBDLocalizationCatalog.Result published;
@@ -134,7 +137,8 @@ package RGBDLocalizationProcessing
           confirmationObservations=confirmationObservations,maximumConfidence=maximumConfidence,maximumTentative=maximumTentative,
           posePositions=previous.estimator.poses.positions,poseRotations=previous.estimator.poses.rotations,
           poseRevision=previous.estimator.poses.revision,
-      loopMinimumSimilarity=loopMinimumSimilarity, loopMinimumAge=loopMinimumAge, loopMinimumInliers=loopMinimumInliers, loopMinimumFraction=loopMinimumFraction, loopInlierDistance=loopInlierDistance, loopMaximumRms=loopMaximumRms, loopCalibratedResiduals=loopCalibratedResiduals, loopMaximumNormalizedSquared=loopMaximumNormalizedSquared);
+      loopMinimumSimilarity=loopMinimumSimilarity, loopMinimumAge=loopMinimumAge, loopMinimumInliers=loopMinimumInliers, loopMinimumFraction=loopMinimumFraction, loopInlierDistance=loopInlierDistance, loopMaximumRms=loopMaximumRms, loopCalibratedResiduals=loopCalibratedResiduals, loopMaximumNormalizedSquared=loopMaximumNormalizedSquared,
+      loopMaximumPoseInnovation=loopMaximumPoseInnovation, loopPoseConsistencySquared=loopPoseConsistencySquared, loopPoseConsistency=loopPoseConsistency);
         result.publication := published;
         if published.accepted then
           result.reason := 4;

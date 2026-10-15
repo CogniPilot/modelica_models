@@ -54,6 +54,9 @@ package RGBDCatalogFrame
     input Real loopMaximumRms = maximumRms;
     input Boolean loopCalibratedResiduals = true;
     input Real loopMaximumNormalizedSquared = 9.0;
+    input Real loopMaximumPoseInnovation = 2.0;
+    input Real loopPoseConsistencySquared = 9.0;
+    input Boolean loopPoseConsistency = poseConsistentLoops;
   protected
     RGBDCatalogGraphCapture.Result visual;
     RGBDKeyframes.Catalog policyCatalog;
@@ -68,7 +71,8 @@ package RGBDCatalogFrame
         trials,refinements,minimumInliers,minimumFraction,inlierDistance,maximumRms,descriptorRatio,
         maximumDescriptorDistance,registrationCoordinateLimit,rankTolerance,localizationSigma,depthInflation,minimumPivot,
         poseConsistentLoops=poseConsistentLoops,
-        loopMinimumSimilarity=loopMinimumSimilarity, loopMinimumAge=loopMinimumAge, loopMinimumInliers=loopMinimumInliers, loopMinimumFraction=loopMinimumFraction, loopInlierDistance=loopInlierDistance, loopMaximumRms=loopMaximumRms, loopCalibratedResiduals=loopCalibratedResiduals, loopMaximumNormalizedSquared=loopMaximumNormalizedSquared);
+        loopMinimumSimilarity=loopMinimumSimilarity, loopMinimumAge=loopMinimumAge, loopMinimumInliers=loopMinimumInliers, loopMinimumFraction=loopMinimumFraction, loopInlierDistance=loopInlierDistance, loopMaximumRms=loopMaximumRms, loopCalibratedResiduals=loopCalibratedResiduals, loopMaximumNormalizedSquared=loopMaximumNormalizedSquared,
+        loopMaximumPoseInnovation=loopMaximumPoseInnovation, loopPoseConsistencySquared=loopPoseConsistencySquared, loopPoseConsistency=loopPoseConsistency);
       if visual.rejectionReason == 4 and visual.graphDiagnostics.rejectionReason == 4
           and (visual.sequentialDiagnostics.rejectionReason == 7
             or visual.sequentialDiagnostics.rejectionReason == 11) then
