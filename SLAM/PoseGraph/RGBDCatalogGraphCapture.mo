@@ -42,7 +42,6 @@ package RGBDCatalogGraphCapture
     input Real maximumNormalizedSquared = 9.0;
     input Boolean poseConsistentLoops = false;
   protected
-    RGBDKeyframes.Catalog captured;
     RGBDKeyframes.Frame latest;
     Boolean stored; Integer slot; Integer evicted; Boolean poseConsistent; Real poseSquared;
   algorithm
@@ -76,22 +75,28 @@ package RGBDCatalogGraphCapture
         end if;
       end if;
     end if;
-    (captured,stored,slot,evicted) := RGBDKeyframes.Store(previousCatalog,result.loopDiagnostics.prepared,result.loopDiagnostics.retrievalAccepted);
-    result.graphDiagnostics := RGBDGraphMeasurements.Capture(previousCatalog,captured,previousGraph,
+    // Store writes the stored catalog straight into the output; a rejected
+    // store returns previous unchanged, and a stored frame whose graph or
+    // problem is rejected is withdrawn below.
+    (result.catalog,stored,slot,evicted) := RGBDKeyframes.Store(previousCatalog,result.loopDiagnostics.prepared,result.loopDiagnostics.retrievalAccepted);
+    result.graphDiagnostics := RGBDGraphMeasurements.Capture(previousCatalog,result.catalog,previousGraph,
       result.sequentialDiagnostics,result.loopDiagnostics.proposals,stored,false,inlierDistance,maximumRms,
       calibratedResiduals=calibratedResiduals,maximumNormalizedSquared=maximumNormalizedSquared,
       localizationSigma=localizationSigma,depthInflation=depthInflation,minimumPivot=minimumPivot);
     result.problem := RGBDGraphMeasurements.EmptyProblem();
     if result.graphDiagnostics.accepted then
-      result.problem := RGBDGraphMeasurements.PrepareProblem(captured,result.graphDiagnostics.state,true);
+      result.problem := RGBDGraphMeasurements.PrepareProblem(result.catalog,result.graphDiagnostics.state,true);
     end if;
     if requested then
       result.rejectionReason := if not result.loopDiagnostics.retrievalAccepted then 2 else if not stored then 3
         else if not result.graphDiagnostics.accepted then 4 else if not result.problem.accepted then 5 else 0;
       if result.rejectionReason == 0 then
-        result.catalog := captured; result.graph := result.graphDiagnostics.state;
+        result.graph := result.graphDiagnostics.state;
         result.accepted := true; result.storedSlot := slot; result.evictedId := evicted;
       end if;
+    end if;
+    if stored and not result.accepted then
+      result.catalog := previousCatalog;
     end if;
   end Capture;
 end RGBDCatalogGraphCapture;
