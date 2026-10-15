@@ -57,6 +57,7 @@ package RGBDLocalizationProcessing
 
     output Result result;
   protected
+    RGBDGraphProcessing.State candidate;
     RGBDLocalizationCatalog.Result published;
     RGBDGraphCaptureLedger.State ledger;
     RGBDVisualVocabulary.State dictionary;
@@ -79,14 +80,9 @@ package RGBDLocalizationProcessing
     learnAccepted := false;
     learnRequested := false;
     mappingFrameReason := frameRejectionReason;
-    if not requested then
-      // The disabled call initializes only diagnostics and its held next; payload
-      // is opaque. A requested step publishes once below instead of twice.
-      published := RGBDLocalizationCatalog.Publish(previous.estimator.localization,proposed,measurement,
-        producerAccepted,observationAccepted,captureAccepted,imageOn,imageEpoch,imageTime,h,initializing,
-        frameAccepted,frameRejectionReason,false,candidatePoint,candidateEnabled,dictionary.words,dictionary.enabled);
-      result.publication := RGBDLocalizationCatalog.ReceiptOf(published);
-    else
+    // Every path reports a receipt; a step that publishes replaces it below.
+    result.publication := RGBDLocalizationCatalog.HeldReceipt(frameRejectionReason);
+    if requested then
       result.reason := 2;
       valid := RGBDGraphProcessing.Valid(previous);
       if valid then
@@ -134,11 +130,10 @@ package RGBDLocalizationProcessing
           (ledger,ledgerAccepted,result.ledgerReason) := RGBDGraphCaptureLedger.Advance(previous.captures,
             previous.estimator.localization.catalog,published.next.catalog,published.next.sourceRevision,published.next.steps,true,true);
           if ledgerAccepted then
-            // The candidate is built in place on the held next, which already
-            // equals previous; a rejected candidate is discarded below.
-            result.next.estimator.localization := published.next;
-            result.next.captures := ledger;
-            result.next.vocabulary := dictionary;
+            candidate := previous;
+            candidate.estimator.localization := published.next;
+            candidate.captures := ledger;
+            candidate.vocabulary := dictionary;
             result.reason := 5;
             captured := published.next.catalog.nextId == previous.estimator.localization.catalog.nextId+1;
             valid := published.next.catalog.nextId == previous.estimator.localization.catalog.nextId or captured;
@@ -146,28 +141,26 @@ package RGBDLocalizationProcessing
               valid := valid and previous.estimator.poses.revision < identifierLimit-1;
               if valid then
                 slot := previous.estimator.localization.catalog.nextSlot;
-                result.next.estimator.poses.catalogNextId := published.next.catalog.nextId;
-                result.next.estimator.poses.revision := previous.estimator.poses.revision+1;
-                result.next.estimator.poses.enabled[slot] := published.next.catalog.occupied[slot];
-                result.next.estimator.poses.ids[slot] := published.next.catalog.ids[slot];
-                result.next.estimator.poses.positions[slot,:] := published.next.catalog.bodyPositions[slot,:];
-                result.next.estimator.poses.rotations[slot,:,:] := published.next.catalog.bodyRotations[slot,:,:];
+                candidate.estimator.poses.catalogNextId := published.next.catalog.nextId;
+                candidate.estimator.poses.revision := previous.estimator.poses.revision+1;
+                candidate.estimator.poses.enabled[slot] := published.next.catalog.occupied[slot];
+                candidate.estimator.poses.ids[slot] := published.next.catalog.ids[slot];
+                candidate.estimator.poses.positions[slot,:] := published.next.catalog.bodyPositions[slot,:];
+                candidate.estimator.poses.rotations[slot,:,:] := published.next.catalog.bodyRotations[slot,:,:];
               end if;
             end if;
             if valid then
-              valid := RGBDGraphEstimatorCommit.ValidView(result.next.estimator.localization.catalog,
-                result.next.estimator.poses,result.next.estimator.localization.sourceRevision);
+              valid := RGBDGraphEstimatorCommit.ValidView(candidate.estimator.localization.catalog,
+                candidate.estimator.poses,candidate.estimator.localization.sourceRevision);
             end if;
             if valid then
               result.reason := 6;
-              valid := RGBDGraphProcessing.Valid(result.next);
+              valid := RGBDGraphProcessing.Valid(candidate);
               if valid then
+                result.next := candidate;
                 result.accepted := true;
                 result.reason := 0;
               end if;
-            end if;
-            if not result.accepted then
-              result.next := previous;
             end if;
           end if;
         end if;
