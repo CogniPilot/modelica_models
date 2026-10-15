@@ -2,13 +2,14 @@ within SLAM;
 // Raw sensor data and the complete persistent Modelica session owner.
 partial model RGBDFastSLAMInterface
   import RGBDGraphProcessing = SLAM.PoseGraph.RGBDGraphProcessing;
+  import RGBDKeyframeRetrieval = SLAM.LoopClosure.RGBDKeyframeRetrieval;
   import RGBDKeyframes = SLAM.LoopClosure.RGBDKeyframes;
   import RGBDNominalCalibration = Vision.Matching.RGBDNominalCalibration;
 
   parameter Integer imageHeight(min=1) = RGBDKeyframes.imageHeight;
   parameter Integer imageWidth(min=1) = RGBDKeyframes.imageWidth;
   constant Integer featureCapacity = RGBDKeyframes.featureCapacity;
-  constant Integer loopCapacity = SLAM.LoopClosure.RGBDKeyframeRetrieval.proposalCapacity;
+  constant Integer loopCapacity = RGBDKeyframeRetrieval.proposalCapacity;
   constant Integer descriptorSize = RGBDKeyframes.descriptorSize;
   final parameter Real defaultRgbCalibration[4] = RGBDNominalCalibration({imageHeight,imageWidth},{69.0,42.0});
   final parameter Real defaultDepthCalibration[4] = RGBDNominalCalibration({imageHeight,imageWidth},{87.0,58.0});

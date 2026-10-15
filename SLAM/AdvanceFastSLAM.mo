@@ -4,6 +4,7 @@ within SLAM;
 function AdvanceFastSLAM
   import AdvanceFastRGBDLocalization = SLAM.Localization.AdvanceFastRGBDLocalization;
   import RGBDGraphProcessing = SLAM.PoseGraph.RGBDGraphProcessing;
+  import RGBDKeyframeRetrieval = SLAM.LoopClosure.RGBDKeyframeRetrieval;
   import RGBDKeyframes = SLAM.LoopClosure.RGBDKeyframes;
   import RGBDLocalizationCatalog = SLAM.Localization.RGBDLocalizationCatalog;
   import RGBDLocalizationFrame = SLAM.Localization.RGBDLocalizationFrame;
@@ -89,7 +90,7 @@ function AdvanceFastSLAM
   input Real depthUnits = 1.0 "Meters per depth sample; 1 for metric depth, SDK scale for Z16";
 protected
   constant Integer featureCapacity = RGBDKeyframes.featureCapacity;
-  constant Integer loopCapacity = SLAM.LoopClosure.RGBDKeyframeRetrieval.proposalCapacity;
+  constant Integer loopCapacity = RGBDKeyframeRetrieval.proposalCapacity;
   constant Integer descriptorSize = RGBDKeyframes.descriptorSize;
   constant Integer spaceDimension = RGBDKeyframes.dimension;
   constant Integer errorDimension = 5*spaceDimension;
