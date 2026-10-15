@@ -315,6 +315,14 @@ package RGBDLocalizationCatalog
     input Real poseRotations[RGBDKeyframes.keyframeCapacity,dimension,dimension] = previous.catalog.bodyRotations;
     input Integer poseRevision = previous.map.catalogRevision;
     output Result result;
+    input Real loopMinimumSimilarity = 0.35;
+    input Real loopMinimumAge = 5.0;
+    input Integer loopMinimumInliers = 12;
+    input Real loopMinimumFraction = 0.5;
+    input Real loopInlierDistance = 0.08;
+    input Real loopMaximumRms = 0.03;
+    input Boolean loopCalibratedResiduals = true;
+    input Real loopMaximumNormalizedSquared = 9.0;
   protected
     Boolean valid; Boolean frameBound;
     RGBDCatalogMapping.Result mapped;
@@ -448,7 +456,15 @@ package RGBDLocalizationCatalog
                       voxelWidth=voxelWidth,mergeRadius=mergeRadius,maximumDistance=maximumDistance,
                       tentativeLifetime=tentativeLifetime,confirmedLifetime=confirmedLifetime,
                       confirmationObservations=confirmationObservations,maximumConfidence=maximumConfidence,maximumTentative=maximumTentative,
-                      nodePosition=posePositions,nodeRotation=poseRotations,poseRevision=poseRevision);
+                      nodePosition=posePositions,nodeRotation=poseRotations,poseRevision=poseRevision,
+                      loopMinimumSimilarity=loopMinimumSimilarity,
+                      loopMinimumAge=loopMinimumAge,
+                      loopMinimumInliers=loopMinimumInliers,
+                      loopMinimumFraction=loopMinimumFraction,
+                      loopInlierDistance=loopInlierDistance,
+                      loopMaximumRms=loopMaximumRms,
+                      loopCalibratedResiduals=loopCalibratedResiduals,
+                      loopMaximumNormalizedSquared=loopMaximumNormalizedSquared);
                     result.mapDiagnostics := mapped.diagnostics; result.problem := mapped.problem;
                     if mapped.accepted then
                       result.next.catalog := mapped.catalog; result.next.graph := mapped.graph; result.next.map := mapped.map;

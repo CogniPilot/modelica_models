@@ -46,6 +46,14 @@ package RGBDCatalogFrame
     input Boolean poseConsistentLoops = true "Screen repeated-place aliases against retained pose uncertainty";
     output RGBDCatalogMapping.Result result;
     output RGBDKeyframePolicy.Decision decision;
+    input Real loopMinimumSimilarity = minimumSimilarity;
+    input Real loopMinimumAge = minimumAge;
+    input Integer loopMinimumInliers = minimumInliers;
+    input Real loopMinimumFraction = minimumFraction;
+    input Real loopInlierDistance = inlierDistance;
+    input Real loopMaximumRms = maximumRms;
+    input Boolean loopCalibratedResiduals = true;
+    input Real loopMaximumNormalizedSquared = 9.0;
   protected
     RGBDCatalogGraphCapture.Result visual;
     RGBDKeyframes.Catalog policyCatalog;
@@ -59,7 +67,8 @@ package RGBDCatalogFrame
         true,seeds,sequentialSeed,maximumWordDistanceSquared,minimumAssignments,minimumSimilarity,minimumAge,
         trials,refinements,minimumInliers,minimumFraction,inlierDistance,maximumRms,descriptorRatio,
         maximumDescriptorDistance,registrationCoordinateLimit,rankTolerance,localizationSigma,depthInflation,minimumPivot,
-        poseConsistentLoops=poseConsistentLoops);
+        poseConsistentLoops=poseConsistentLoops,
+        loopMinimumSimilarity=loopMinimumSimilarity, loopMinimumAge=loopMinimumAge, loopMinimumInliers=loopMinimumInliers, loopMinimumFraction=loopMinimumFraction, loopInlierDistance=loopInlierDistance, loopMaximumRms=loopMaximumRms, loopCalibratedResiduals=loopCalibratedResiduals, loopMaximumNormalizedSquared=loopMaximumNormalizedSquared);
       if visual.rejectionReason == 4 and visual.graphDiagnostics.rejectionReason == 4
           and (visual.sequentialDiagnostics.rejectionReason == 7
             or visual.sequentialDiagnostics.rejectionReason == 11) then
@@ -76,6 +85,20 @@ package RGBDCatalogFrame
       end if;
       result.diagnostics.keyframeRejectionReason := visual.rejectionReason;
       result.diagnostics.sequentialRejectionReason := visual.sequentialDiagnostics.rejectionReason;
+      result.diagnostics.loopAttempted := true;
+      result.diagnostics.loopGraphReason := visual.graphDiagnostics.rejectionReason;
+      result.diagnostics.loopRetrievalReason := visual.loopDiagnostics.retrievalRejectionReason;
+      result.diagnostics.loopCandidateCount := visual.loopDiagnostics.candidateCount;
+      result.diagnostics.loopCandidateReferenceId := visual.loopDiagnostics.candidateId;
+      result.diagnostics.loopCandidateScore := visual.loopDiagnostics.candidateScore;
+      for rank in 1:RGBDKeyframeRetrieval.proposalCapacity loop
+        result.diagnostics.loopCandidateCurrentId[rank] := if rank <= visual.loopDiagnostics.candidateCount then measurement.id else 0;
+        result.diagnostics.loopCandidateReason[rank] := visual.loopDiagnostics.proposals[rank].rejectionReason;
+        result.diagnostics.loopCandidateMatchedCount[rank] := visual.loopDiagnostics.proposals[rank].matchedCount;
+        result.diagnostics.loopCandidateInliers[rank] := visual.loopDiagnostics.proposals[rank].inlierCount;
+        result.diagnostics.loopCandidateRms[rank] := visual.loopDiagnostics.proposals[rank].rms;
+        result.diagnostics.loopCandidateVerified[rank] := visual.loopDiagnostics.proposals[rank].verified;
+      end for;
     else
       result := RGBDCatalogObservation.Update(catalog,graph,map,measurement,candidatePoint,candidateEnabled,
         poseAccepted,requested and decision.valid,coordinateLimit,voxelWidth,mergeRadius,maximumDistance,

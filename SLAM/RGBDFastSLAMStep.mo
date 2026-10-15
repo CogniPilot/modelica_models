@@ -13,7 +13,8 @@ equation
     selectionValid,predictionAccepted,initializationAccepted,observationAccepted,
     captureAccepted,matchCount,features,featureEnabled,
     trackingCurrentPixel,trackingReferencePixel,trackingEnabled,
-    keyframeDecisionReason,keyframeRejectionReason,sequentialRejectionReason,frameRejectionDiagnostic) =
+    keyframeDecisionReason,keyframeRejectionReason,sequentialRejectionReason,frameRejectionDiagnostic,
+    loopAttempted,loopRetrievalReason,loopGraphReason,loopCandidateCount,loopCandidateReferenceId,loopCandidateCurrentId,loopCandidateScore,loopCandidateReason,loopCandidateMatchedCount,loopCandidateInliers,loopCandidateRms,loopCandidateVerified) =
     AdvanceFastSLAM(
       previous=previous,
       rgb=rgb,
@@ -54,5 +55,6 @@ equation
       maximumConfidence=maximumConfidence,
       maximumTentative=maximumTentative,
       graphCorrectionRequested=graphCorrectionRequested,
-      graphPolicy=graphPolicy,depthUnits=depthUnits);
+      graphPolicy=graphPolicy,depthUnits=depthUnits,
+      loopMinimumSimilarity=loopMinimumSimilarity, loopMinimumAge=loopMinimumAge, loopMinimumInliers=loopMinimumInliers, loopMinimumFraction=loopMinimumFraction, loopInlierDistance=loopInlierDistance, loopMaximumRms=loopMaximumRms, loopCalibratedResiduals=loopCalibratedResiduals, loopMaximumNormalizedSquared=loopMaximumNormalizedSquared);
 end RGBDFastSLAMStep;

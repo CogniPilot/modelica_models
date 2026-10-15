@@ -344,6 +344,8 @@ package RGBDLoopVerification
                   maximumNormalizedSquared=maximumNormalizedSquared,minimumPivot=minimumPivot);
                 result.nextSeed := nextSeed; result.rejectionReason := 7;
                 if consensusValid then
+                  // Preserve measured fit diagnostics even if uncertainty or edge validation rejects it.
+                  result.inlierCount := inliers; result.rms := rms;
                   (uncertaintyValid,uncertaintyReason,uncertaintyCount,uncertaintyInvalid,relativeCovariance,
                     unusedCovariance,normal,noise,J,pivot) := RGBDRegistrationSandwich(sourcePoint,targetPoint,
                       mask,featureCapacity,1.0,C,t,reference.bodyRotation,reference.opticalToBody,

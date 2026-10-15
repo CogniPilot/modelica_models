@@ -56,6 +56,14 @@ package RGBDLocalizationProcessing
     input Real minimumWordDistanceSquared = 0.04;
 
     output Result result;
+    input Real loopMinimumSimilarity = 0.35;
+    input Real loopMinimumAge = 5.0;
+    input Integer loopMinimumInliers = 12;
+    input Real loopMinimumFraction = 0.5;
+    input Real loopInlierDistance = 0.08;
+    input Real loopMaximumRms = 0.03;
+    input Boolean loopCalibratedResiduals = true;
+    input Real loopMaximumNormalizedSquared = 9.0;
   protected
     RGBDGraphProcessing.State candidate;
     RGBDLocalizationCatalog.Result published;
@@ -125,7 +133,8 @@ package RGBDLocalizationProcessing
           tentativeLifetime=tentativeLifetime,confirmedLifetime=confirmedLifetime,
           confirmationObservations=confirmationObservations,maximumConfidence=maximumConfidence,maximumTentative=maximumTentative,
           posePositions=previous.estimator.poses.positions,poseRotations=previous.estimator.poses.rotations,
-          poseRevision=previous.estimator.poses.revision);
+          poseRevision=previous.estimator.poses.revision,
+      loopMinimumSimilarity=loopMinimumSimilarity, loopMinimumAge=loopMinimumAge, loopMinimumInliers=loopMinimumInliers, loopMinimumFraction=loopMinimumFraction, loopInlierDistance=loopInlierDistance, loopMaximumRms=loopMaximumRms, loopCalibratedResiduals=loopCalibratedResiduals, loopMaximumNormalizedSquared=loopMaximumNormalizedSquared);
         result.publication := published;
         if published.accepted then
           result.reason := 4;

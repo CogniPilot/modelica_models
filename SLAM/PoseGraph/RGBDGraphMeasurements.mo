@@ -346,6 +346,10 @@ package RGBDGraphMeasurements
     input Boolean calibratedResiduals = true;
     input Real maximumNormalizedSquared = 9.0;
     input Real localizationSigma = 0.5; input Real depthInflation = 1.0; input Real minimumPivot = 1e-10;
+    input Real loopInlierDistance = inlierDistance;
+    input Real loopMaximumRms = maximumRms;
+    input Boolean loopCalibratedResiduals = calibratedResiduals;
+    input Real loopMaximumNormalizedSquared = maximumNormalizedSquared;
   protected
     State working; Insertion insertion;
     Boolean valid; Integer reason; Integer removed; Integer sequentialCount; Integer loopCount; Integer duplicates;
@@ -413,8 +417,8 @@ package RGBDGraphMeasurements
         end if;
         for rank in 1:proposalCapacity loop
           if valid and loops[rank].verified then
-            reason := 5; valid := ValidProposal(capturedCatalog,loops[rank],inlierDistance,maximumRms,
-              calibratedResiduals=calibratedResiduals,maximumNormalizedSquared=maximumNormalizedSquared,
+            reason := 5; valid := ValidProposal(capturedCatalog,loops[rank],loopInlierDistance,loopMaximumRms,
+              calibratedResiduals=loopCalibratedResiduals,maximumNormalizedSquared=loopMaximumNormalizedSquared,
               localizationSigma=localizationSigma,depthInflation=depthInflation,minimumPivot=minimumPivot);
             if valid then
               insertion := Insert(working,loops[rank],2); working := insertion.state; valid := insertion.accepted;

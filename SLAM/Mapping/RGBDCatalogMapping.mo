@@ -4,6 +4,7 @@ within SLAM.Mapping;
 package RGBDCatalogMapping
   import RGBDCatalogGraphCapture = SLAM.PoseGraph.RGBDCatalogGraphCapture;
   import RGBDGraphMeasurements = SLAM.PoseGraph.RGBDGraphMeasurements;
+  import RGBDKeyframeRetrieval = SLAM.LoopClosure.RGBDKeyframeRetrieval;
   import RGBDKeyframes = SLAM.LoopClosure.RGBDKeyframes;
   import RGBDMapAnchors = SLAM.Mapping.RGBDMapAnchors;
   import UpdateCatalogLandmarkMap = SLAM.Mapping.UpdateCatalogLandmarkMap;
@@ -44,6 +45,18 @@ package RGBDCatalogMapping
     Real occupiedCount; Real confirmedCount; Real tentativeCount;
     Real insertedCount; Real mergedCount; Real prunedCount; Real droppedCount; Real invalidCandidateCount;
     Integer projectedCount; Integer evictedCount; Integer assignedCount; Integer retainedCount; Integer clearedCount;
+    Boolean loopAttempted;
+    Integer loopRetrievalReason;
+    Integer loopGraphReason;
+    Integer loopCandidateCount;
+    Integer loopCandidateReferenceId[RGBDKeyframeRetrieval.proposalCapacity];
+    Integer loopCandidateCurrentId[RGBDKeyframeRetrieval.proposalCapacity];
+    Real loopCandidateScore[RGBDKeyframeRetrieval.proposalCapacity];
+    Integer loopCandidateReason[RGBDKeyframeRetrieval.proposalCapacity];
+    Integer loopCandidateMatchedCount[RGBDKeyframeRetrieval.proposalCapacity];
+    Integer loopCandidateInliers[RGBDKeyframeRetrieval.proposalCapacity];
+    Real loopCandidateRms[RGBDKeyframeRetrieval.proposalCapacity];
+    Boolean loopCandidateVerified[RGBDKeyframeRetrieval.proposalCapacity];
   end Diagnostics;
 
   function EmptyDiagnostics
@@ -58,6 +71,18 @@ package RGBDCatalogMapping
     result.droppedCount := 0.0; result.invalidCandidateCount := 0.0;
     result.projectedCount := 0; result.evictedCount := 0; result.assignedCount := 0;
     result.retainedCount := 0; result.clearedCount := 0;
+    result.loopAttempted := false;
+    result.loopRetrievalReason := 0;
+    result.loopGraphReason := 0;
+    result.loopCandidateCount := 0;
+    result.loopCandidateReferenceId := fill(0,RGBDKeyframeRetrieval.proposalCapacity);
+    result.loopCandidateCurrentId := fill(0,RGBDKeyframeRetrieval.proposalCapacity);
+    result.loopCandidateScore := fill(0.0,RGBDKeyframeRetrieval.proposalCapacity);
+    result.loopCandidateReason := fill(0,RGBDKeyframeRetrieval.proposalCapacity);
+    result.loopCandidateMatchedCount := fill(0,RGBDKeyframeRetrieval.proposalCapacity);
+    result.loopCandidateInliers := fill(0,RGBDKeyframeRetrieval.proposalCapacity);
+    result.loopCandidateRms := fill(0.0,RGBDKeyframeRetrieval.proposalCapacity);
+    result.loopCandidateVerified := fill(false,RGBDKeyframeRetrieval.proposalCapacity);
   end EmptyDiagnostics;
 
   record Result
