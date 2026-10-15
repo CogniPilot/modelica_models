@@ -4,6 +4,7 @@ within SLAM;
 function InitializeFastSLAM
   import InitializeFastRGBDLocalization = SLAM.Localization.InitializeFastRGBDLocalization;
   import RGBDGraphProcessing = SLAM.PoseGraph.RGBDGraphProcessing;
+  import RGBDKeyframeRetrieval = SLAM.LoopClosure.RGBDKeyframeRetrieval;
   import RGBDKeyframes = SLAM.LoopClosure.RGBDKeyframes;
   import RGBDLocalizationCatalog = SLAM.Localization.RGBDLocalizationCatalog;
   import RGBDLocalizationFrame = SLAM.Localization.RGBDLocalizationFrame;
@@ -81,10 +82,15 @@ function InitializeFastSLAM
   output Integer keyframeRejectionReason;
   output Integer sequentialRejectionReason;
   output Integer frameRejectionDiagnostic;
+  output Integer loopCandidateCount "Loop-closure retrieval candidates proposed by this step's capture";
+  output Integer loopReferenceId[loopCapacity] "Retained keyframe id per verified loop closure, 0 when the rank holds none";
+  output Integer loopCurrentId[loopCapacity] "Captured keyframe id per verified loop closure, 0 when the rank holds none";
+  output Real loopScore[loopCapacity] "Appearance similarity of each verified loop closure's candidate";
   input Boolean depthQualifiedSelection = true;
   input Real depthUnits = 1.0 "Meters per depth sample; 1 for metric depth, SDK scale for Z16";
 protected
   constant Integer featureCapacity = RGBDKeyframes.featureCapacity;
+  constant Integer loopCapacity = RGBDKeyframeRetrieval.proposalCapacity;
   constant Integer descriptorSize = RGBDKeyframes.descriptorSize;
   constant Integer spaceDimension = RGBDKeyframes.dimension;
   constant Integer errorDimension = 5*spaceDimension;
@@ -354,4 +360,8 @@ algorithm
   trackingCurrentPixel := if publication.publication.imageCompleted then producerTrackingCurrentPixel else zeros(featureCapacity,2);
   trackingReferencePixel := if publication.publication.imageCompleted then producerTrackingReferencePixel else zeros(featureCapacity,2);
   trackingEnabled := if publication.publication.imageCompleted then producerTrackingEnabled else zeros(featureCapacity);
+  loopCandidateCount := publication.publication.mapDiagnostics.loopCandidateCount;
+  loopReferenceId := publication.publication.mapDiagnostics.loopReferenceId;
+  loopCurrentId := publication.publication.mapDiagnostics.loopCurrentId;
+  loopScore := publication.publication.mapDiagnostics.loopScore;
 end InitializeFastSLAM;

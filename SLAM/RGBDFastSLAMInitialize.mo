@@ -13,7 +13,8 @@ equation
     selectionValid,predictionAccepted,initializationAccepted,observationAccepted,
     captureAccepted,matchCount,features,featureEnabled,
     trackingCurrentPixel,trackingReferencePixel,trackingEnabled,
-    keyframeDecisionReason,keyframeRejectionReason,sequentialRejectionReason,frameRejectionDiagnostic) =
+    keyframeDecisionReason,keyframeRejectionReason,sequentialRejectionReason,frameRejectionDiagnostic,
+    loopCandidateCount,loopReferenceId,loopCurrentId,loopScore) =
     InitializeFastSLAM(
       previous=previous,
       rgb=rgb,
@@ -55,8 +56,4 @@ equation
       maximumTentative=maximumTentative,
       graphCorrectionRequested=graphCorrectionRequested,
       graphPolicy=graphPolicy,depthUnits=depthUnits);
-  loopCandidateCount = 0;
-  loopReferenceId = fill(0,loopCapacity);
-  loopCurrentId = fill(0,loopCapacity);
-  loopScore = fill(0.0,loopCapacity);
 end RGBDFastSLAMInitialize;
