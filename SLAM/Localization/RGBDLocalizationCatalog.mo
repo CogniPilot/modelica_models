@@ -65,6 +65,27 @@ package RGBDLocalizationCatalog
     RGBDGraphMeasurements.Problem problem;
   end Result;
 
+  record Receipt "The outcome of a publication without its state, for callers that commit next themselves"
+    Boolean accepted; Integer rejectionReason "0 accepted; 1 idle; 2 binding; 3 chronology; 4 producer; 5 estimator; 6 reference lifecycle";
+    Boolean imageCompleted; Boolean mappingAccepted;
+    Integer frameRejectionReason;
+    RGBDKeyframePolicy.Decision decision;
+    RGBDCatalogMapping.Diagnostics mapDiagnostics;
+    RGBDGraphMeasurements.Problem problem;
+  end Receipt;
+
+  function ReceiptOf
+    input Result result;
+    output Receipt receipt;
+  algorithm
+    receipt.accepted := result.accepted; receipt.rejectionReason := result.rejectionReason;
+    receipt.imageCompleted := result.imageCompleted; receipt.mappingAccepted := result.mappingAccepted;
+    receipt.frameRejectionReason := result.frameRejectionReason;
+    receipt.decision := result.decision;
+    receipt.mapDiagnostics := result.mapDiagnostics;
+    receipt.problem := result.problem;
+  end ReceiptOf;
+
   function EmptyEstimator
     input Real position[dimension] = zeros(dimension);
     input Real velocity[dimension] = zeros(dimension);

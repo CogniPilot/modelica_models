@@ -15,7 +15,7 @@ package RGBDLocalizationProcessing
   constant Integer identifierLimit = RGBDKeyframes.identifierLimit;
   record Result
     RGBDGraphProcessing.State next;
-    RGBDLocalizationCatalog.Result publication;
+    RGBDLocalizationCatalog.Receipt publication "Outcome only; the committed state is next";
     Boolean accepted;
     Integer reason;
     Integer ledgerReason;
@@ -57,6 +57,7 @@ package RGBDLocalizationProcessing
 
     output Result result;
   protected
+    RGBDLocalizationCatalog.Result published;
     RGBDGraphCaptureLedger.State ledger;
     RGBDVisualVocabulary.State dictionary;
     Real descriptorEnabled[RGBDKeyframes.featureCapacity];
@@ -81,9 +82,10 @@ package RGBDLocalizationProcessing
     if not requested then
       // The disabled call initializes only diagnostics and its held next; payload
       // is opaque. A requested step publishes once below instead of twice.
-      result.publication := RGBDLocalizationCatalog.Publish(previous.estimator.localization,proposed,measurement,
+      published := RGBDLocalizationCatalog.Publish(previous.estimator.localization,proposed,measurement,
         producerAccepted,observationAccepted,captureAccepted,imageOn,imageEpoch,imageTime,h,initializing,
         frameAccepted,frameRejectionReason,false,candidatePoint,candidateEnabled,dictionary.words,dictionary.enabled);
+      result.publication := RGBDLocalizationCatalog.ReceiptOf(published);
     else
       result.reason := 2;
       valid := RGBDGraphProcessing.Valid(previous);
@@ -116,7 +118,7 @@ package RGBDLocalizationProcessing
             imageEpoch,imageTime,observationAccepted,captureAccepted,true) then 9 else 8;
         end if;
         result.reason := 3;
-        result.publication := RGBDLocalizationCatalog.Publish(previous.estimator.localization,proposed,measurement,
+        published := RGBDLocalizationCatalog.Publish(previous.estimator.localization,proposed,measurement,
           producerAccepted,observationAccepted,captureAccepted,imageOn,imageEpoch,imageTime,h,initializing,
           frameAccepted and dictionary.ready,mappingFrameReason,true,candidatePoint,candidateEnabled,dictionary.words,dictionary.enabled,
           minimumInterval=minimumInterval,maximumInterval=maximumInterval,
@@ -126,29 +128,30 @@ package RGBDLocalizationProcessing
           confirmationObservations=confirmationObservations,maximumConfidence=maximumConfidence,maximumTentative=maximumTentative,
           posePositions=previous.estimator.poses.positions,poseRotations=previous.estimator.poses.rotations,
           poseRevision=previous.estimator.poses.revision);
-        if result.publication.accepted then
+        result.publication := RGBDLocalizationCatalog.ReceiptOf(published);
+        if published.accepted then
           result.reason := 4;
           (ledger,ledgerAccepted,result.ledgerReason) := RGBDGraphCaptureLedger.Advance(previous.captures,
-            previous.estimator.localization.catalog,result.publication.next.catalog,result.publication.next.sourceRevision,result.publication.next.steps,true,true);
+            previous.estimator.localization.catalog,published.next.catalog,published.next.sourceRevision,published.next.steps,true,true);
           if ledgerAccepted then
             // The candidate is built in place on the held next, which already
             // equals previous; a rejected candidate is discarded below.
-            result.next.estimator.localization := result.publication.next;
+            result.next.estimator.localization := published.next;
             result.next.captures := ledger;
             result.next.vocabulary := dictionary;
             result.reason := 5;
-            captured := result.publication.next.catalog.nextId == previous.estimator.localization.catalog.nextId+1;
-            valid := result.publication.next.catalog.nextId == previous.estimator.localization.catalog.nextId or captured;
+            captured := published.next.catalog.nextId == previous.estimator.localization.catalog.nextId+1;
+            valid := published.next.catalog.nextId == previous.estimator.localization.catalog.nextId or captured;
             if captured then
               valid := valid and previous.estimator.poses.revision < identifierLimit-1;
               if valid then
                 slot := previous.estimator.localization.catalog.nextSlot;
-                result.next.estimator.poses.catalogNextId := result.publication.next.catalog.nextId;
+                result.next.estimator.poses.catalogNextId := published.next.catalog.nextId;
                 result.next.estimator.poses.revision := previous.estimator.poses.revision+1;
-                result.next.estimator.poses.enabled[slot] := result.publication.next.catalog.occupied[slot];
-                result.next.estimator.poses.ids[slot] := result.publication.next.catalog.ids[slot];
-                result.next.estimator.poses.positions[slot,:] := result.publication.next.catalog.bodyPositions[slot,:];
-                result.next.estimator.poses.rotations[slot,:,:] := result.publication.next.catalog.bodyRotations[slot,:,:];
+                result.next.estimator.poses.enabled[slot] := published.next.catalog.occupied[slot];
+                result.next.estimator.poses.ids[slot] := published.next.catalog.ids[slot];
+                result.next.estimator.poses.positions[slot,:] := published.next.catalog.bodyPositions[slot,:];
+                result.next.estimator.poses.rotations[slot,:,:] := published.next.catalog.bodyRotations[slot,:,:];
               end if;
             end if;
             if valid then
@@ -169,11 +172,11 @@ package RGBDLocalizationProcessing
           end if;
         end if;
         if not result.accepted then
-          // No uncommitted inner next may escape as an authoritative receipt.
-          if result.publication.accepted then
+          // No uncommitted inner next escapes: the receipt reports a rejected
+          // publication and result.next still holds previous.
+          if published.accepted then
             result.publication.rejectionReason := 2;
           end if;
-          result.publication.next := previous.estimator.localization;
           result.publication.accepted := false;
           result.publication.imageCompleted := false;
           result.publication.mappingAccepted := false;
