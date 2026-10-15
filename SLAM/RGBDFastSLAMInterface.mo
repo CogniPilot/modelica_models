@@ -8,6 +8,7 @@ partial model RGBDFastSLAMInterface
   parameter Integer imageHeight(min=1) = RGBDKeyframes.imageHeight;
   parameter Integer imageWidth(min=1) = RGBDKeyframes.imageWidth;
   constant Integer featureCapacity = RGBDKeyframes.featureCapacity;
+  constant Integer loopCapacity = SLAM.LoopClosure.RGBDKeyframeRetrieval.proposalCapacity;
   constant Integer descriptorSize = RGBDKeyframes.descriptorSize;
   final parameter Real defaultRgbCalibration[4] = RGBDNominalCalibration({imageHeight,imageWidth},{69.0,42.0});
   final parameter Real defaultDepthCalibration[4] = RGBDNominalCalibration({imageHeight,imageWidth},{87.0,58.0});
@@ -89,6 +90,10 @@ partial model RGBDFastSLAMInterface
   output Integer keyframeRejectionReason;
   output Integer sequentialRejectionReason;
   output Integer frameRejectionDiagnostic;
+  output Integer loopCandidateCount "Loop-closure retrieval candidates proposed by this step's capture";
+  output Integer loopReferenceId[loopCapacity] "Retained keyframe id per verified loop closure, 0 when the rank holds none";
+  output Integer loopCurrentId[loopCapacity] "Captured keyframe id per verified loop closure, 0 when the rank holds none";
+  output Real loopScore[loopCapacity] "Appearance similarity of each verified loop closure's candidate";
   annotation(Documentation(info = "<html>
     <h4>Session lifecycle</h4>
 <p>This boundary owns the complete persistent visual session. Supply the prior

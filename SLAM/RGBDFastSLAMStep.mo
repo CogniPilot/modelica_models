@@ -13,7 +13,8 @@ equation
     selectionValid,predictionAccepted,initializationAccepted,observationAccepted,
     captureAccepted,matchCount,features,featureEnabled,
     trackingCurrentPixel,trackingReferencePixel,trackingEnabled,
-    keyframeDecisionReason,keyframeRejectionReason,sequentialRejectionReason,frameRejectionDiagnostic) =
+    keyframeDecisionReason,keyframeRejectionReason,sequentialRejectionReason,frameRejectionDiagnostic,
+    loopCandidateCount,loopReferenceId,loopCurrentId,loopScore) =
     AdvanceFastSLAM(
       previous=previous,
       rgb=rgb,

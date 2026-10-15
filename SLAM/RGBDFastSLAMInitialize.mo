@@ -55,4 +55,8 @@ equation
       maximumTentative=maximumTentative,
       graphCorrectionRequested=graphCorrectionRequested,
       graphPolicy=graphPolicy,depthUnits=depthUnits);
+  loopCandidateCount = 0;
+  loopReferenceId = fill(0,loopCapacity);
+  loopCurrentId = fill(0,loopCapacity);
+  loopScore = fill(0.0,loopCapacity);
 end RGBDFastSLAMInitialize;
