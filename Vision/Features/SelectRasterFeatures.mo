@@ -25,7 +25,6 @@ protected
   Integer x;
   Integer y;
   Integer index;
-  Integer position;
   Integer root;
   Integer child;
   Integer heapSize;
@@ -145,14 +144,33 @@ algorithm
             end if;
           end while;
         end for;
-        for remove in 1:candidateCount loop
-          heapSize := candidateCount-remove+1;
-          temporaryRank := candidateRank[heapSize];
-          temporaryIndex := candidateIndex[heapSize];
-          candidateRank[heapSize] := candidateRank[1];
-          candidateIndex[heapSize] := candidateIndex[1];
-          candidateRank[1] := temporaryRank;
-          candidateIndex[1] := temporaryIndex;
+        // Pop the max-heap lazily: the pop order (rank descending, raster index
+        // ascending) equals the reversed full heapsort, and no feature can be
+        // accepted once the limit is reached or a raw score falls below threshold.
+        aboveThreshold := true;
+        heapSize := candidateCount;
+        for candidate in 1:candidateCount loop
+          if aboveThreshold and count < featureLimit then
+          index := candidateIndex[1];
+          // Preserve the original early stop on raw score, before occupancy.
+          if scores[index] < threshold then
+            aboveThreshold := false;
+          end if;
+          if aboveThreshold and not occupied[index] then
+            x := mod(index-1,width);
+            y := div(index-1,width);
+            count := count+1.0;
+            features[integer(count),1] := x;
+            features[integer(count),2] := y;
+            features[integer(count),3] := scores[index];
+            for yy in max(border,y-radius):min(height-border-1,y+radius) loop
+              for xx in max(border,x-radius):min(width-border-1,x+radius) loop
+                occupied[yy*width+xx+1] := true;
+              end for;
+            end for;
+          end if;
+          candidateRank[1] := candidateRank[heapSize];
+          candidateIndex[1] := candidateIndex[heapSize];
           heapSize := heapSize-1;
           root := 1;
           sifting := true;
@@ -177,27 +195,6 @@ algorithm
               sifting := false;
             end if;
           end while;
-        end for;
-        aboveThreshold := true;
-        for candidate in 1:candidateCount loop
-          position := candidateCount-candidate+1;
-          index := candidateIndex[position];
-          // Preserve the original early stop on raw score, before occupancy.
-          if scores[index] < threshold then
-            aboveThreshold := false;
-          end if;
-          if aboveThreshold and count < featureLimit and not occupied[index] then
-            x := mod(index-1,width);
-            y := div(index-1,width);
-            count := count+1.0;
-            features[integer(count),1] := x;
-            features[integer(count),2] := y;
-            features[integer(count),3] := scores[index];
-            for yy in max(border,y-radius):min(height-border-1,y+radius) loop
-              for xx in max(border,x-radius):min(width-border-1,x+radius) loop
-                occupied[yy*width+xx+1] := true;
-              end for;
-            end for;
           end if;
         end for;
       end if;
