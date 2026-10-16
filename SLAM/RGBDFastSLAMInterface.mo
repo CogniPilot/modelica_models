@@ -9,6 +9,7 @@ partial model RGBDFastSLAMInterface
   parameter Integer imageHeight(min=1) = RGBDKeyframes.imageHeight;
   parameter Integer imageWidth(min=1) = RGBDKeyframes.imageWidth;
   constant Integer featureCapacity = RGBDKeyframes.featureCapacity;
+  constant Integer loopCapacity = RGBDKeyframeRetrieval.proposalCapacity;
   constant Integer descriptorSize = RGBDKeyframes.descriptorSize;
   final parameter Real defaultRgbCalibration[4] = RGBDNominalCalibration({imageHeight,imageWidth},{69.0,42.0});
   final parameter Real defaultDepthCalibration[4] = RGBDNominalCalibration({imageHeight,imageWidth},{87.0,58.0});
@@ -114,6 +115,9 @@ partial model RGBDFastSLAMInterface
   output Integer loopCandidateInliers[RGBDKeyframeRetrieval.proposalCapacity];
   output Real loopCandidateRms[RGBDKeyframeRetrieval.proposalCapacity];
   output Boolean loopCandidateVerified[RGBDKeyframeRetrieval.proposalCapacity];
+  output Integer loopReferenceId[loopCapacity] "Retained keyframe id per verified loop closure, 0 when the rank holds none";
+  output Integer loopCurrentId[loopCapacity] "Captured keyframe id per verified loop closure, 0 when the rank holds none";
+  output Real loopScore[loopCapacity] "Appearance similarity of each verified loop closure's candidate";
   annotation(Documentation(info = "<html>
     <h4>Runtime loop tuning</h4>
 <p>The loopMinimumSimilarity, loopMinimumAge, loopMinimumInliers, loopMinimumFraction, loopInlierDistance, loopMaximumRms, loopCalibratedResiduals and loopMaximumNormalizedSquared inputs tune retrieved-loop verification. The loopMaximumPoseInnovation, loopPoseConsistencySquared and loopPoseConsistency controls tune retained-pose screening. All loop controls preserve the separate consecutive-frame odometry settings. Calibrated residuals use the squared uncertainty-normalized gate; metric distance and RMS limits apply in metric mode. Keyframe interval, translation and rotation inputs tune capture cadence. Defaults retain the existing behavior.</p>

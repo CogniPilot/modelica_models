@@ -11,6 +11,7 @@ package RGBDCatalogMapping
 
   constant Integer mapCapacity = RGBDMapAnchors.mapCapacity;
   constant Integer featureCapacity = RGBDKeyframes.featureCapacity;
+  constant Integer loopCapacity = RGBDKeyframeRetrieval.proposalCapacity;
   constant Integer dimension = RGBDKeyframes.dimension;
 
   record State
@@ -57,6 +58,9 @@ package RGBDCatalogMapping
     Integer loopCandidateInliers[RGBDKeyframeRetrieval.proposalCapacity];
     Real loopCandidateRms[RGBDKeyframeRetrieval.proposalCapacity];
     Boolean loopCandidateVerified[RGBDKeyframeRetrieval.proposalCapacity];
+    Integer loopReferenceId[loopCapacity] "Retained keyframe id of each verified loop, 0 when the rank holds none";
+    Integer loopCurrentId[loopCapacity] "Captured keyframe id of each verified loop, 0 when the rank holds none";
+    Real loopScore[loopCapacity] "Appearance similarity of each verified loop's candidate, 0 when the rank holds none";
   end Diagnostics;
 
   function EmptyDiagnostics
@@ -83,6 +87,8 @@ package RGBDCatalogMapping
     result.loopCandidateInliers := fill(0,RGBDKeyframeRetrieval.proposalCapacity);
     result.loopCandidateRms := fill(0.0,RGBDKeyframeRetrieval.proposalCapacity);
     result.loopCandidateVerified := fill(false,RGBDKeyframeRetrieval.proposalCapacity);
+    result.loopReferenceId := fill(0,loopCapacity); result.loopCurrentId := fill(0,loopCapacity);
+    result.loopScore := fill(0.0,loopCapacity);
   end EmptyDiagnostics;
 
   record Result

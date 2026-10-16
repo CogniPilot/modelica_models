@@ -103,6 +103,13 @@ package RGBDCatalogFrame
         result.diagnostics.loopCandidateRms[rank] := visual.loopDiagnostics.proposals[rank].rms;
         result.diagnostics.loopCandidateVerified[rank] := visual.loopDiagnostics.proposals[rank].verified;
       end for;
+      for rank in 1:RGBDKeyframeRetrieval.proposalCapacity loop
+        if visual.loopDiagnostics.proposals[rank].verified then
+          result.diagnostics.loopReferenceId[rank] := visual.loopDiagnostics.proposals[rank].referenceId;
+          result.diagnostics.loopCurrentId[rank] := visual.loopDiagnostics.proposals[rank].currentId;
+          result.diagnostics.loopScore[rank] := visual.loopDiagnostics.candidateScore[rank];
+        end if;
+      end for;
     else
       result := RGBDCatalogObservation.Update(catalog,graph,map,measurement,candidatePoint,candidateEnabled,
         poseAccepted,requested and decision.valid,coordinateLimit,voxelWidth,mergeRadius,maximumDistance,

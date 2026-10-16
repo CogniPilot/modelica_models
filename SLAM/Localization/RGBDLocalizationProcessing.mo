@@ -15,7 +15,7 @@ package RGBDLocalizationProcessing
   constant Integer identifierLimit = RGBDKeyframes.identifierLimit;
   record Result
     RGBDGraphProcessing.State next;
-    RGBDLocalizationCatalog.Result publication;
+    RGBDLocalizationCatalog.Receipt publication "Outcome only; the committed state is next";
     Boolean accepted;
     Integer reason;
     Integer ledgerReason;
@@ -91,10 +91,8 @@ package RGBDLocalizationProcessing
     learnAccepted := false;
     learnRequested := false;
     mappingFrameReason := frameRejectionReason;
-    // Disabled call initializes only diagnostics and its held next; payload is opaque.
-    result.publication := RGBDLocalizationCatalog.Publish(previous.estimator.localization,proposed,measurement,
-      producerAccepted,observationAccepted,captureAccepted,imageOn,imageEpoch,imageTime,h,initializing,
-      frameAccepted,frameRejectionReason,false,candidatePoint,candidateEnabled,dictionary.words,dictionary.enabled);
+    // Every path reports a receipt; a step that publishes replaces it below.
+    result.publication := RGBDLocalizationCatalog.HeldReceipt(frameRejectionReason);
     if requested then
       result.reason := 2;
       valid := RGBDGraphProcessing.Valid(previous);
@@ -139,7 +137,7 @@ package RGBDLocalizationProcessing
           poseRevision=previous.estimator.poses.revision,
       loopMinimumSimilarity=loopMinimumSimilarity, loopMinimumAge=loopMinimumAge, loopMinimumInliers=loopMinimumInliers, loopMinimumFraction=loopMinimumFraction, loopInlierDistance=loopInlierDistance, loopMaximumRms=loopMaximumRms, loopCalibratedResiduals=loopCalibratedResiduals, loopMaximumNormalizedSquared=loopMaximumNormalizedSquared,
       loopMaximumPoseInnovation=loopMaximumPoseInnovation, loopPoseConsistencySquared=loopPoseConsistencySquared, loopPoseConsistency=loopPoseConsistency);
-        result.publication := published;
+        result.publication := RGBDLocalizationCatalog.ReceiptOf(published);
         if published.accepted then
           result.reason := 4;
           (ledger,ledgerAccepted,result.ledgerReason) := RGBDGraphCaptureLedger.Advance(previous.captures,
@@ -180,11 +178,11 @@ package RGBDLocalizationProcessing
           end if;
         end if;
         if not result.accepted then
-          // No uncommitted inner next may escape as an authoritative receipt.
+          // No uncommitted inner next escapes: the receipt reports a rejected
+          // publication and result.next still holds previous.
           if published.accepted then
             result.publication.rejectionReason := 2;
           end if;
-          result.publication.next := previous.estimator.localization;
           result.publication.accepted := false;
           result.publication.imageCompleted := false;
           result.publication.mappingAccepted := false;

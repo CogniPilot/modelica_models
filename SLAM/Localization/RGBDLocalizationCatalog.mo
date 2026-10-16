@@ -65,6 +65,41 @@ package RGBDLocalizationCatalog
     RGBDGraphMeasurements.Problem problem;
   end Result;
 
+  record Receipt "The outcome of a publication without its state, for callers that commit next themselves"
+    Boolean accepted; Integer rejectionReason "0 accepted; 1 idle; 2 binding; 3 chronology; 4 producer; 5 estimator; 6 reference lifecycle";
+    Boolean imageCompleted; Boolean mappingAccepted;
+    Integer frameRejectionReason;
+    RGBDKeyframePolicy.Decision decision;
+    RGBDCatalogMapping.Diagnostics mapDiagnostics;
+    RGBDGraphMeasurements.Problem problem;
+  end Receipt;
+
+  function HeldReceipt "The receipt of a publication that was not requested: idle, nothing completed"
+    input Integer frameRejectionReason;
+    output Receipt receipt;
+  algorithm
+    receipt.accepted := false; receipt.rejectionReason := 1;
+    receipt.imageCompleted := false; receipt.mappingAccepted := false;
+    receipt.frameRejectionReason := frameRejectionReason;
+    receipt.decision.valid := false; receipt.decision.captureRequested := false; receipt.decision.reason := 1;
+    receipt.decision.enabledCount := 0; receipt.decision.elapsed := 0.0;
+    receipt.decision.translationSquared := 0.0; receipt.decision.rotationCosine := 1.0;
+    receipt.mapDiagnostics := RGBDCatalogMapping.EmptyDiagnostics();
+    receipt.problem := RGBDGraphMeasurements.EmptyProblem();
+  end HeldReceipt;
+
+  function ReceiptOf
+    input Result result;
+    output Receipt receipt;
+  algorithm
+    receipt.accepted := result.accepted; receipt.rejectionReason := result.rejectionReason;
+    receipt.imageCompleted := result.imageCompleted; receipt.mappingAccepted := result.mappingAccepted;
+    receipt.frameRejectionReason := result.frameRejectionReason;
+    receipt.decision := result.decision;
+    receipt.mapDiagnostics := result.mapDiagnostics;
+    receipt.problem := result.problem;
+  end ReceiptOf;
+
   function EmptyEstimator
     input Real position[dimension] = zeros(dimension);
     input Real velocity[dimension] = zeros(dimension);

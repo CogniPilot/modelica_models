@@ -94,6 +94,9 @@ function AdvanceFastSLAM
   output Integer loopCandidateInliers[RGBDKeyframeRetrieval.proposalCapacity];
   output Real loopCandidateRms[RGBDKeyframeRetrieval.proposalCapacity];
   output Boolean loopCandidateVerified[RGBDKeyframeRetrieval.proposalCapacity];
+  output Integer loopReferenceId[loopCapacity] "Retained keyframe id per verified loop closure, 0 when the rank holds none";
+  output Integer loopCurrentId[loopCapacity] "Captured keyframe id per verified loop closure, 0 when the rank holds none";
+  output Real loopScore[loopCapacity] "Appearance similarity of each verified loop closure's candidate";
   input Boolean depthQualifiedSelection = true;
   input Real depthUnits = 1.0 "Meters per depth sample; 1 for metric depth, SDK scale for Z16";
   input Real loopMinimumSimilarity = 0.35;
@@ -109,6 +112,7 @@ function AdvanceFastSLAM
   input Boolean loopPoseConsistency = true;
 protected
   constant Integer featureCapacity = RGBDKeyframes.featureCapacity;
+  constant Integer loopCapacity = RGBDKeyframeRetrieval.proposalCapacity;
   constant Integer descriptorSize = RGBDKeyframes.descriptorSize;
   constant Integer spaceDimension = RGBDKeyframes.dimension;
   constant Integer errorDimension = 5*spaceDimension;
@@ -388,4 +392,7 @@ algorithm
   loopCandidateInliers := publication.publication.mapDiagnostics.loopCandidateInliers;
   loopCandidateRms := publication.publication.mapDiagnostics.loopCandidateRms;
   loopCandidateVerified := publication.publication.mapDiagnostics.loopCandidateVerified;
+  loopReferenceId := publication.publication.mapDiagnostics.loopReferenceId;
+  loopCurrentId := publication.publication.mapDiagnostics.loopCurrentId;
+  loopScore := publication.publication.mapDiagnostics.loopScore;
 end AdvanceFastSLAM;

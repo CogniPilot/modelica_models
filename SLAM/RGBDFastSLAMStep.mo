@@ -14,7 +14,7 @@ equation
     captureAccepted,matchCount,features,featureEnabled,
     trackingCurrentPixel,trackingReferencePixel,trackingEnabled,
     keyframeDecisionReason,keyframeRejectionReason,sequentialRejectionReason,frameRejectionDiagnostic,
-    loopAttempted,loopRetrievalReason,loopGraphReason,loopCandidateCount,loopCandidateReferenceId,loopCandidateCurrentId,loopCandidateScore,loopCandidateReason,loopCandidateMatchedCount,loopCandidateInliers,loopCandidateRms,loopCandidateVerified) =
+    loopAttempted,loopRetrievalReason,loopGraphReason,loopCandidateCount,loopCandidateReferenceId,loopCandidateCurrentId,loopCandidateScore,loopCandidateReason,loopCandidateMatchedCount,loopCandidateInliers,loopCandidateRms,loopCandidateVerified,loopReferenceId,loopCurrentId,loopScore) =
     AdvanceFastSLAM(
       previous=previous,
       rgb=rgb,
