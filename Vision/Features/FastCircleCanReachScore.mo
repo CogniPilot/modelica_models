@@ -1,4 +1,5 @@
 within Vision.Features;
+// Deprecated: FastFrameScores scores with FastIntegerCircleCanReachScore; kept for one release.
 // Every FAST-9 arc contains adjacent cardinal samples, including wraparound.
 function FastCircleCanReachScore
   import FastCircleStencil = Vision.Features.FastCircleStencil;

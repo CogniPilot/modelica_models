@@ -1,4 +1,5 @@
 within Vision.Features;
+// Deprecated: FastFrameScores scores with FastIntegerCircleScore; kept for one release.
 // Ordered FAST-9 score from the sixteen circle-minus-center differences.
 // Strict comparisons retain the second operand on ties, including signed zero.
 function FastCircleScore
