@@ -4,6 +4,7 @@ within SLAM;
 function InitializeFastSLAM
   import InitializeFastRGBDLocalization = SLAM.Localization.InitializeFastRGBDLocalization;
   import RGBDGraphProcessing = SLAM.PoseGraph.RGBDGraphProcessing;
+  import RGBDKeyframeRetrieval = SLAM.LoopClosure.RGBDKeyframeRetrieval;
   import RGBDKeyframes = SLAM.LoopClosure.RGBDKeyframes;
   import RGBDLocalizationCatalog = SLAM.Localization.RGBDLocalizationCatalog;
   import RGBDLocalizationFrame = SLAM.Localization.RGBDLocalizationFrame;
@@ -81,10 +82,37 @@ function InitializeFastSLAM
   output Integer keyframeRejectionReason;
   output Integer sequentialRejectionReason;
   output Integer frameRejectionDiagnostic;
+  output Boolean loopAttempted;
+  output Integer loopRetrievalReason;
+  output Integer loopGraphReason;
+  output Integer loopCandidateCount;
+  output Integer loopCandidateReferenceId[RGBDKeyframeRetrieval.proposalCapacity];
+  output Integer loopCandidateCurrentId[RGBDKeyframeRetrieval.proposalCapacity];
+  output Real loopCandidateScore[RGBDKeyframeRetrieval.proposalCapacity];
+  output Integer loopCandidateReason[RGBDKeyframeRetrieval.proposalCapacity];
+  output Integer loopCandidateMatchedCount[RGBDKeyframeRetrieval.proposalCapacity];
+  output Integer loopCandidateInliers[RGBDKeyframeRetrieval.proposalCapacity];
+  output Real loopCandidateRms[RGBDKeyframeRetrieval.proposalCapacity];
+  output Boolean loopCandidateVerified[RGBDKeyframeRetrieval.proposalCapacity];
+  output Integer loopReferenceId[loopCapacity] "Retained keyframe id per verified loop closure, 0 when the rank holds none";
+  output Integer loopCurrentId[loopCapacity] "Captured keyframe id per verified loop closure, 0 when the rank holds none";
+  output Real loopScore[loopCapacity] "Appearance similarity of each verified loop closure's candidate";
   input Boolean depthQualifiedSelection = true;
   input Real depthUnits = 1.0 "Meters per depth sample; 1 for metric depth, SDK scale for Z16";
+  input Real loopMinimumSimilarity = 0.35;
+  input Real loopMinimumAge = 5.0;
+  input Integer loopMinimumInliers = 12;
+  input Real loopMinimumFraction = 0.5;
+  input Real loopInlierDistance = 0.08;
+  input Real loopMaximumRms = 0.03;
+  input Boolean loopCalibratedResiduals = true;
+  input Real loopMaximumNormalizedSquared = 9.0;
+  input Real loopMaximumPoseInnovation = 2.0;
+  input Real loopPoseConsistencySquared = 9.0;
+  input Boolean loopPoseConsistency = true;
 protected
   constant Integer featureCapacity = RGBDKeyframes.featureCapacity;
+  constant Integer loopCapacity = RGBDKeyframeRetrieval.proposalCapacity;
   constant Integer descriptorSize = RGBDKeyframes.descriptorSize;
   constant Integer spaceDimension = RGBDKeyframes.dimension;
   constant Integer errorDimension = 5*spaceDimension;
@@ -318,7 +346,9 @@ algorithm
     minimumInterval,maximumInterval,translationThreshold,rotationThreshold,minimumFeatures,
     voxelWidth,mergeRadius,maximumDistance,tentativeLifetime,confirmedLifetime,
     confirmationObservations,maximumConfidence,maximumTentative,
-    minimumMeasuredDescriptors=minimumMeasuredDescriptors,minimumWordDistanceSquared=minimumWordDistanceSquared);
+    minimumMeasuredDescriptors=minimumMeasuredDescriptors,minimumWordDistanceSquared=minimumWordDistanceSquared,
+      loopMinimumSimilarity=loopMinimumSimilarity, loopMinimumAge=loopMinimumAge, loopMinimumInliers=loopMinimumInliers, loopMinimumFraction=loopMinimumFraction, loopInlierDistance=loopInlierDistance, loopMaximumRms=loopMaximumRms, loopCalibratedResiduals=loopCalibratedResiduals, loopMaximumNormalizedSquared=loopMaximumNormalizedSquared,
+      loopMaximumPoseInnovation=loopMaximumPoseInnovation, loopPoseConsistencySquared=loopPoseConsistencySquared, loopPoseConsistency=loopPoseConsistency);
   keyframeDecisionReason := publication.publication.decision.reason;
   keyframeRejectionReason := publication.publication.mapDiagnostics.keyframeRejectionReason;
   sequentialRejectionReason := publication.publication.mapDiagnostics.sequentialRejectionReason;
@@ -354,4 +384,19 @@ algorithm
   trackingCurrentPixel := if publication.publication.imageCompleted then producerTrackingCurrentPixel else zeros(featureCapacity,2);
   trackingReferencePixel := if publication.publication.imageCompleted then producerTrackingReferencePixel else zeros(featureCapacity,2);
   trackingEnabled := if publication.publication.imageCompleted then producerTrackingEnabled else zeros(featureCapacity);
+  loopAttempted := publication.publication.mapDiagnostics.loopAttempted;
+  loopRetrievalReason := publication.publication.mapDiagnostics.loopRetrievalReason;
+  loopGraphReason := publication.publication.mapDiagnostics.loopGraphReason;
+  loopCandidateCount := publication.publication.mapDiagnostics.loopCandidateCount;
+  loopCandidateReferenceId := publication.publication.mapDiagnostics.loopCandidateReferenceId;
+  loopCandidateCurrentId := publication.publication.mapDiagnostics.loopCandidateCurrentId;
+  loopCandidateScore := publication.publication.mapDiagnostics.loopCandidateScore;
+  loopCandidateReason := publication.publication.mapDiagnostics.loopCandidateReason;
+  loopCandidateMatchedCount := publication.publication.mapDiagnostics.loopCandidateMatchedCount;
+  loopCandidateInliers := publication.publication.mapDiagnostics.loopCandidateInliers;
+  loopCandidateRms := publication.publication.mapDiagnostics.loopCandidateRms;
+  loopCandidateVerified := publication.publication.mapDiagnostics.loopCandidateVerified;
+  loopReferenceId := publication.publication.mapDiagnostics.loopReferenceId;
+  loopCurrentId := publication.publication.mapDiagnostics.loopCurrentId;
+  loopScore := publication.publication.mapDiagnostics.loopScore;
 end InitializeFastSLAM;

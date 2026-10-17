@@ -49,6 +49,8 @@ package RGBDCatalogLoopVerification
     input Boolean calibratedResiduals = true;
     input Real maximumNormalizedSquared = 9.0;
     input Boolean poseConsistentLoops = false;
+    input Real maximumPoseInnovation = 2.0;
+    input Real poseConsistencySquared = 9.0;
   protected
     RGBDKeyframes.Frame reference;
     Boolean bound; Boolean poseConsistent; Real poseSquared;
@@ -80,7 +82,8 @@ package RGBDCatalogLoopVerification
           if proposal.verified and poseConsistentLoops then
             (poseConsistent,poseSquared) := PoseConsistent(reference.bodyPosition,current.bodyPosition,
               reference.bodyRotation,reference.poseCovariance,current.poseCovariance,
-              proposal.bodyTranslation,proposal.covariance[1:3,1:3],minimumPivot=minimumPivot);
+              proposal.bodyTranslation,proposal.covariance[1:3,1:3],minimumPivot=minimumPivot,
+              maximumSquared=poseConsistencySquared,maximumTranslationInnovation=maximumPoseInnovation);
             if not poseConsistent then
               proposal.verified := false; proposal.rejectionReason := 11;
             end if;
@@ -122,6 +125,8 @@ package RGBDCatalogLoopVerification
     input Boolean calibratedResiduals = true;
     input Real maximumNormalizedSquared = 9.0;
     input Boolean poseConsistentLoops = false;
+    input Real maximumPoseInnovation = 2.0;
+    input Real poseConsistencySquared = 9.0;
   algorithm
     (result.prepared,result.retrievalAccepted,result.retrievalRejectionReason,result.wordIndex,result.candidateId,result.candidateSlot,result.candidateScore,
       result.candidateCount,result.assignmentCount) := RGBDKeyframeRetrieval.PrepareCapture(catalog,measurement,
@@ -133,7 +138,7 @@ package RGBDCatalogLoopVerification
         minimumFraction,inlierDistance,maximumRms,minimumAge,minimumSimilarity,descriptorRatio,
         maximumDescriptorDistance,coordinateLimit,rankTolerance,localizationSigma,depthInflation,minimumPivot,
         calibratedResiduals=calibratedResiduals,maximumNormalizedSquared=maximumNormalizedSquared,
-        poseConsistentLoops=poseConsistentLoops);
+        poseConsistentLoops=poseConsistentLoops,maximumPoseInnovation=maximumPoseInnovation,poseConsistencySquared=poseConsistencySquared);
       result.nextSeeds[rank] := result.proposals[rank].nextSeed;
       result.verifiedCount := result.verifiedCount+(if result.proposals[rank].verified then 1 else 0);
     end for;

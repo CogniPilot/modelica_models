@@ -5,6 +5,9 @@ FastCircleScore
 FastCircleStencil
 FastFeatureSelection
 FastFrameScores
+FastIntegerCircleCanReachScore
+FastIntegerCircleScore
+FastIntegerFrameScores
 FastNativeFrame
 FastPatchScore
 FastSelectionScoreFloor

@@ -41,8 +41,18 @@ package RGBDCatalogGraphCapture
     input Boolean calibratedResiduals = true;
     input Real maximumNormalizedSquared = 9.0;
     input Boolean poseConsistentLoops = false;
+    input Real loopMinimumSimilarity = minimumSimilarity;
+    input Real loopMinimumAge = minimumAge;
+    input Integer loopMinimumInliers = minimumInliers;
+    input Real loopMinimumFraction = minimumFraction;
+    input Real loopInlierDistance = inlierDistance;
+    input Real loopMaximumRms = maximumRms;
+    input Boolean loopCalibratedResiduals = calibratedResiduals;
+    input Real loopMaximumNormalizedSquared = maximumNormalizedSquared;
+    input Real loopMaximumPoseInnovation = 2.0;
+    input Real loopPoseConsistencySquared = 9.0;
+    input Boolean loopPoseConsistency = poseConsistentLoops;
   protected
-    RGBDKeyframes.Catalog captured;
     RGBDKeyframes.Frame latest;
     Boolean stored; Integer slot; Integer evicted; Boolean poseConsistent; Real poseSquared;
   algorithm
@@ -50,11 +60,11 @@ package RGBDCatalogGraphCapture
     result.accepted := false; result.rejectionReason := 1;
     result.storedSlot := 0; result.evictedId := 0;
     result.loopDiagnostics := RGBDCatalogLoopVerification.ProposeCapture(previousCatalog,measurement,vocabulary,vocabularyEnabled,
-      requested,seeds,maximumWordDistanceSquared,minimumAssignments,minimumSimilarity,minimumAge,trials,refinements,
-      minimumInliers,minimumFraction,inlierDistance,maximumRms,descriptorRatio,maximumDescriptorDistance,
+      requested,seeds,maximumWordDistanceSquared,minimumAssignments,loopMinimumSimilarity,loopMinimumAge,trials,refinements,
+      loopMinimumInliers,loopMinimumFraction,loopInlierDistance,loopMaximumRms,descriptorRatio,maximumDescriptorDistance,
       coordinateLimit,rankTolerance,localizationSigma,depthInflation,minimumPivot,
-      calibratedResiduals=calibratedResiduals,maximumNormalizedSquared=maximumNormalizedSquared,
-      poseConsistentLoops=poseConsistentLoops);
+      calibratedResiduals=loopCalibratedResiduals,maximumNormalizedSquared=loopMaximumNormalizedSquared,
+      poseConsistentLoops=loopPoseConsistency,maximumPoseInnovation=loopMaximumPoseInnovation,poseConsistencySquared=loopPoseConsistencySquared);
     result.sequentialDiagnostics := RGBDLoopVerification.EmptyProposal(sequentialSeed);
     if result.loopDiagnostics.retrievalAccepted and previousCatalog.nextId > 1 then
       latest := RGBDKeyframes.ReadSlot(previousCatalog,mod(previousCatalog.nextId-2,RGBDKeyframes.keyframeCapacity)+1);
@@ -76,22 +86,29 @@ package RGBDCatalogGraphCapture
         end if;
       end if;
     end if;
-    (captured,stored,slot,evicted) := RGBDKeyframes.Store(previousCatalog,result.loopDiagnostics.prepared,result.loopDiagnostics.retrievalAccepted);
-    result.graphDiagnostics := RGBDGraphMeasurements.Capture(previousCatalog,captured,previousGraph,
+    // Store writes the stored catalog straight into the output; a rejected
+    // store returns previous unchanged, and a stored frame whose graph or
+    // problem is rejected is withdrawn below.
+    (result.catalog,stored,slot,evicted) := RGBDKeyframes.Store(previousCatalog,result.loopDiagnostics.prepared,result.loopDiagnostics.retrievalAccepted);
+    result.graphDiagnostics := RGBDGraphMeasurements.Capture(previousCatalog,result.catalog,previousGraph,
       result.sequentialDiagnostics,result.loopDiagnostics.proposals,stored,false,inlierDistance,maximumRms,
       calibratedResiduals=calibratedResiduals,maximumNormalizedSquared=maximumNormalizedSquared,
-      localizationSigma=localizationSigma,depthInflation=depthInflation,minimumPivot=minimumPivot);
+      localizationSigma=localizationSigma,depthInflation=depthInflation,minimumPivot=minimumPivot,
+      loopInlierDistance=loopInlierDistance, loopMaximumRms=loopMaximumRms, loopCalibratedResiduals=loopCalibratedResiduals, loopMaximumNormalizedSquared=loopMaximumNormalizedSquared);
     result.problem := RGBDGraphMeasurements.EmptyProblem();
     if result.graphDiagnostics.accepted then
-      result.problem := RGBDGraphMeasurements.PrepareProblem(captured,result.graphDiagnostics.state,true);
+      result.problem := RGBDGraphMeasurements.PrepareProblem(result.catalog,result.graphDiagnostics.state,true);
     end if;
     if requested then
       result.rejectionReason := if not result.loopDiagnostics.retrievalAccepted then 2 else if not stored then 3
         else if not result.graphDiagnostics.accepted then 4 else if not result.problem.accepted then 5 else 0;
       if result.rejectionReason == 0 then
-        result.catalog := captured; result.graph := result.graphDiagnostics.state;
+        result.graph := result.graphDiagnostics.state;
         result.accepted := true; result.storedSlot := slot; result.evictedId := evicted;
       end if;
+    end if;
+    if stored and not result.accepted then
+      result.catalog := previousCatalog;
     end if;
   end Capture;
 end RGBDCatalogGraphCapture;

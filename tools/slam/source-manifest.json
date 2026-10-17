@@ -1301,7 +1301,7 @@
       "destination": "Vision/Features/FastCircleScore.mo",
       "qualified_name": "Vision.Features.FastCircleScore",
       "original_class_sha256": "a1aeeaf4f3ad94ad7957e8602036f50148b9f7c5ce7d08c2a81f9fcc57b53266",
-      "destination_sha256": "3266b7657a9dea9069e3fc06b491acbcf27a4a3a3b2e0dd2ce6cb660370763c9"
+      "destination_sha256": "8776c6cb32640cd7a0f9f1af307a6e8d3e67625d1667fbe1ec59dda2e23eaa8f"
     },
     {
       "source": "models/Vision/Features/FastNativeFrame.mo",
@@ -1309,7 +1309,7 @@
       "destination": "Vision/Features/FastPatchScore.mo",
       "qualified_name": "Vision.Features.FastPatchScore",
       "original_class_sha256": "19b83ea114523aff50484a1d5c15bf31bf658262ad1060b4e468eda5fcf497d3",
-      "destination_sha256": "8c16aa8be6001f0b484caa1e5ab56e68f6bbd39daaa9d9e4fc1aa5e57744eb41"
+      "destination_sha256": "f8db7c1f309d72697b57925fa5a0f19bba82af42c27306bc150729c5429538e2"
     },
     {
       "source": "models/Vision/Features/FastNativeFrame.mo",
@@ -1325,7 +1325,34 @@
       "destination": "Vision/Features/FastCircleCanReachScore.mo",
       "qualified_name": "Vision.Features.FastCircleCanReachScore",
       "original_class_sha256": "c54572c23e242eea6bbec26a181e316c8ac8dcd546a3d2d3351f0c64887e65ec",
-      "destination_sha256": "219ec1748e0fe55d03f63fa87ad3ba5728d62a9a9143dde9659499263ca49ffc"
+      "destination_sha256": "b0e07b94aef9480df4993fb77e139c5f8eef8431b44ced2f24a5925718202f13"
+    },
+    {
+      "source": "models/Vision/Features/FastNativeFrame.mo",
+      "original_name": "FastIntegerCircleScore",
+      "destination": "Vision/Features/FastIntegerCircleScore.mo",
+      "qualified_name": "Vision.Features.FastIntegerCircleScore",
+      "original_class_sha256": null,
+      "destination_sha256": "cbd43ae7e597ba4e5afe1eea24c88a5dedb2046855fb3627b2fbfe1fd4b81fe4",
+      "note": "Added after the migration; no upstream slam_web original class."
+    },
+    {
+      "source": "models/Vision/Features/FastNativeFrame.mo",
+      "original_name": "FastIntegerCircleCanReachScore",
+      "destination": "Vision/Features/FastIntegerCircleCanReachScore.mo",
+      "qualified_name": "Vision.Features.FastIntegerCircleCanReachScore",
+      "original_class_sha256": null,
+      "destination_sha256": "09a7992a8b06613fb08d294a7826484e1d683b2523a80095f13a8084b4773185",
+      "note": "Added after the migration; no upstream slam_web original class."
+    },
+    {
+      "source": "models/Vision/Features/FastNativeFrame.mo",
+      "original_name": "FastIntegerFrameScores",
+      "destination": "Vision/Features/FastIntegerFrameScores.mo",
+      "qualified_name": "Vision.Features.FastIntegerFrameScores",
+      "original_class_sha256": null,
+      "destination_sha256": "c431449c9b82f379c9c49724fb44643c8258b89f38b5f6d955bd5ada4c03ed7d",
+      "note": "Added after the migration; no upstream slam_web original class."
     },
     {
       "source": "models/Vision/Features/FastNativeFrame.mo",
@@ -1333,7 +1360,7 @@
       "destination": "Vision/Features/FastFrameScores.mo",
       "qualified_name": "Vision.Features.FastFrameScores",
       "original_class_sha256": "0d52e731a6ca11bb7f98d6880addb45ac0611214bd968a9248b53cd63a4dfb55",
-      "destination_sha256": "c1a9ac1e1920e08827d13201fe11eb98006ba5fad760c8e5b1ce241a13033414"
+      "destination_sha256": "482a83cc8d1cc9642d59e9ca0f28fc19505a1506866b3900a2d7391cefeb5912"
     },
     {
       "source": "models/Vision/Features/FastNativeFrame.mo",

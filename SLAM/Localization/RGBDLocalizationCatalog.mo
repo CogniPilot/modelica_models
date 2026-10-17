@@ -65,6 +65,41 @@ package RGBDLocalizationCatalog
     RGBDGraphMeasurements.Problem problem;
   end Result;
 
+  record Receipt "The outcome of a publication without its state, for callers that commit next themselves"
+    Boolean accepted; Integer rejectionReason "0 accepted; 1 idle; 2 binding; 3 chronology; 4 producer; 5 estimator; 6 reference lifecycle";
+    Boolean imageCompleted; Boolean mappingAccepted;
+    Integer frameRejectionReason;
+    RGBDKeyframePolicy.Decision decision;
+    RGBDCatalogMapping.Diagnostics mapDiagnostics;
+    RGBDGraphMeasurements.Problem problem;
+  end Receipt;
+
+  function HeldReceipt "The receipt of a publication that was not requested: idle, nothing completed"
+    input Integer frameRejectionReason;
+    output Receipt receipt;
+  algorithm
+    receipt.accepted := false; receipt.rejectionReason := 1;
+    receipt.imageCompleted := false; receipt.mappingAccepted := false;
+    receipt.frameRejectionReason := frameRejectionReason;
+    receipt.decision.valid := false; receipt.decision.captureRequested := false; receipt.decision.reason := 1;
+    receipt.decision.enabledCount := 0; receipt.decision.elapsed := 0.0;
+    receipt.decision.translationSquared := 0.0; receipt.decision.rotationCosine := 1.0;
+    receipt.mapDiagnostics := RGBDCatalogMapping.EmptyDiagnostics();
+    receipt.problem := RGBDGraphMeasurements.EmptyProblem();
+  end HeldReceipt;
+
+  function ReceiptOf
+    input Result result;
+    output Receipt receipt;
+  algorithm
+    receipt.accepted := result.accepted; receipt.rejectionReason := result.rejectionReason;
+    receipt.imageCompleted := result.imageCompleted; receipt.mappingAccepted := result.mappingAccepted;
+    receipt.frameRejectionReason := result.frameRejectionReason;
+    receipt.decision := result.decision;
+    receipt.mapDiagnostics := result.mapDiagnostics;
+    receipt.problem := result.problem;
+  end ReceiptOf;
+
   function EmptyEstimator
     input Real position[dimension] = zeros(dimension);
     input Real velocity[dimension] = zeros(dimension);
@@ -315,6 +350,17 @@ package RGBDLocalizationCatalog
     input Real poseRotations[RGBDKeyframes.keyframeCapacity,dimension,dimension] = previous.catalog.bodyRotations;
     input Integer poseRevision = previous.map.catalogRevision;
     output Result result;
+    input Real loopMinimumSimilarity = 0.35;
+    input Real loopMinimumAge = 5.0;
+    input Integer loopMinimumInliers = 12;
+    input Real loopMinimumFraction = 0.5;
+    input Real loopInlierDistance = 0.08;
+    input Real loopMaximumRms = 0.03;
+    input Boolean loopCalibratedResiduals = true;
+    input Real loopMaximumNormalizedSquared = 9.0;
+    input Real loopMaximumPoseInnovation = 2.0;
+    input Real loopPoseConsistencySquared = 9.0;
+    input Boolean loopPoseConsistency = true;
   protected
     Boolean valid; Boolean frameBound;
     RGBDCatalogMapping.Result mapped;
@@ -448,7 +494,16 @@ package RGBDLocalizationCatalog
                       voxelWidth=voxelWidth,mergeRadius=mergeRadius,maximumDistance=maximumDistance,
                       tentativeLifetime=tentativeLifetime,confirmedLifetime=confirmedLifetime,
                       confirmationObservations=confirmationObservations,maximumConfidence=maximumConfidence,maximumTentative=maximumTentative,
-                      nodePosition=posePositions,nodeRotation=poseRotations,poseRevision=poseRevision);
+                      nodePosition=posePositions,nodeRotation=poseRotations,poseRevision=poseRevision,
+                      loopMinimumSimilarity=loopMinimumSimilarity,
+                      loopMinimumAge=loopMinimumAge,
+                      loopMinimumInliers=loopMinimumInliers,
+                      loopMinimumFraction=loopMinimumFraction,
+                      loopInlierDistance=loopInlierDistance,
+                      loopMaximumRms=loopMaximumRms,
+                      loopCalibratedResiduals=loopCalibratedResiduals,
+                      loopMaximumNormalizedSquared=loopMaximumNormalizedSquared,
+      loopMaximumPoseInnovation=loopMaximumPoseInnovation, loopPoseConsistencySquared=loopPoseConsistencySquared, loopPoseConsistency=loopPoseConsistency);
                     result.mapDiagnostics := mapped.diagnostics; result.problem := mapped.problem;
                     if mapped.accepted then
                       result.next.catalog := mapped.catalog; result.next.graph := mapped.graph; result.next.map := mapped.map;

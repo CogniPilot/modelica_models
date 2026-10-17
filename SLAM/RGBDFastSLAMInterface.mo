@@ -2,12 +2,14 @@ within SLAM;
 // Raw sensor data and the complete persistent Modelica session owner.
 partial model RGBDFastSLAMInterface
   import RGBDGraphProcessing = SLAM.PoseGraph.RGBDGraphProcessing;
+  import RGBDKeyframeRetrieval = SLAM.LoopClosure.RGBDKeyframeRetrieval;
   import RGBDKeyframes = SLAM.LoopClosure.RGBDKeyframes;
   import RGBDNominalCalibration = Vision.Matching.RGBDNominalCalibration;
 
   parameter Integer imageHeight(min=1) = RGBDKeyframes.imageHeight;
   parameter Integer imageWidth(min=1) = RGBDKeyframes.imageWidth;
   constant Integer featureCapacity = RGBDKeyframes.featureCapacity;
+  constant Integer loopCapacity = RGBDKeyframeRetrieval.proposalCapacity;
   constant Integer descriptorSize = RGBDKeyframes.descriptorSize;
   final parameter Real defaultRgbCalibration[4] = RGBDNominalCalibration({imageHeight,imageWidth},{69.0,42.0});
   final parameter Real defaultDepthCalibration[4] = RGBDNominalCalibration({imageHeight,imageWidth},{87.0,58.0});
@@ -27,36 +29,48 @@ partial model RGBDFastSLAMInterface
 
   input Real accel[3] = {0.0,0.0,9.81};
   input Real gyro[3] = zeros(3);
-  input Real gravity[3] = {0.0,0.0,-9.81};
-  input Real density[12] = {0.06,0.06,0.06,0.006,0.006,0.006,0.002,0.002,0.002,0.0002,0.0002,0.0002};
+  input Real gravity[3] = {0.0,0.0,-9.81} annotation(Dialog(tab="SLAM", group="Inertial prediction"));
+  input Real density[12] = {0.06,0.06,0.06,0.006,0.006,0.006,0.002,0.002,0.002,0.0002,0.0002,0.0002} annotation(Dialog(tab="SLAM", group="Inertial prediction"));
   input Real h = 1.0/90.0;
   input Real intervalTime;
   input Integer imageEpoch;
   input Boolean imageRequested = true;
-  input Boolean localCaptureRequested = true;
+  input Boolean localCaptureRequested = true annotation(Dialog(tab="SLAM", group="Visual reference capture"));
   input Boolean requested = true;
 
-  parameter Integer minimumMeasuredDescriptors = 8;
-  parameter Real minimumWordDistanceSquared = 0.04;
-  parameter Real selectedFeatureLimit = featureCapacity;
-  parameter Real absoluteThreshold = max(8.0,18.0*min(1.0,imageWidth/848.0))
-    "Retain lower-contrast corners in reduced rasters; keep the full-raster threshold";
-  parameter Boolean depthQualifiedSelection = true;
-  parameter Real minimumInterval = 0.5;
-  parameter Real maximumInterval = 2.0;
-  parameter Real translationThreshold = 0.6;
-  parameter Real rotationThreshold = 0.25;
-  parameter Integer minimumFeatures = 12;
-  parameter Real voxelWidth = 0.25;
-  parameter Real mergeRadius = 0.15;
-  parameter Real maximumDistance = 80.0;
-  parameter Real tentativeLifetime = 0.5;
-  parameter Real confirmedLifetime = 5.0;
-  parameter Real confirmationObservations = 3.0;
-  parameter Real maximumConfidence = 8.0;
-  parameter Real maximumTentative = 700.0;
-  input Boolean graphCorrectionRequested = true;
-  input RGBDGraphProcessing.Policy graphPolicy = RGBDGraphProcessing.DefaultPolicy();
+  input Integer minimumMeasuredDescriptors = 8 annotation(Dialog(tab="SLAM", group="Appearance vocabulary"));
+  input Real minimumWordDistanceSquared = 0.04 annotation(Dialog(tab="SLAM", group="Appearance vocabulary"));
+  input Real selectedFeatureLimit = featureCapacity annotation(Dialog(tab="SLAM", group="Feature selection"));
+  input Real absoluteThreshold = max(8.0,18.0*min(1.0,imageWidth/848.0))
+    "Retain lower-contrast corners in reduced rasters; keep the full-raster threshold" annotation(Dialog(tab="SLAM", group="Feature selection"));
+  input Boolean depthQualifiedSelection = true annotation(Dialog(tab="SLAM", group="Feature selection"));
+  input Real minimumInterval(unit="s") = 0.5 annotation(Dialog(tab="SLAM", group="Keyframe capture"));
+  input Real maximumInterval(unit="s") = 2.0 annotation(Dialog(tab="SLAM", group="Keyframe capture"));
+  input Real translationThreshold(unit="m") = 0.6 annotation(Dialog(tab="SLAM", group="Keyframe capture"));
+  input Real rotationThreshold(unit="rad") = 0.25 annotation(Dialog(tab="SLAM", group="Keyframe capture"));
+  input Integer minimumFeatures = 12 annotation(Dialog(tab="SLAM", group="Keyframe capture"));
+  input Real voxelWidth = 0.25 annotation(Dialog(tab="SLAM", group="Map maintenance"));
+  input Real mergeRadius = 0.15 annotation(Dialog(tab="SLAM", group="Map maintenance"));
+  input Real maximumDistance = 80.0 annotation(Dialog(tab="SLAM", group="Map maintenance"));
+  input Real tentativeLifetime = 0.5 annotation(Dialog(tab="SLAM", group="Map maintenance"));
+  input Real confirmedLifetime = 5.0 annotation(Dialog(tab="SLAM", group="Map maintenance"));
+  input Real confirmationObservations = 3.0 annotation(Dialog(tab="SLAM", group="Map maintenance"));
+  input Real maximumConfidence = 8.0 annotation(Dialog(tab="SLAM", group="Map maintenance"));
+  input Real maximumTentative = 700.0 annotation(Dialog(tab="SLAM", group="Map maintenance"));
+  input Boolean graphCorrectionRequested = true annotation(Dialog(tab="SLAM", group="Graph optimization"));
+  input RGBDGraphProcessing.Policy graphPolicy = RGBDGraphProcessing.DefaultPolicy() annotation(Dialog(tab="SLAM", group="Graph optimization"));
+
+  input Real loopMinimumSimilarity = 0.35 annotation(Dialog(tab="SLAM", group="Loop retrieval"));
+  input Real loopMinimumAge(unit="s") = 5.0 annotation(Dialog(tab="SLAM", group="Loop retrieval"));
+  input Integer loopMinimumInliers = 12 annotation(Dialog(tab="SLAM", group="Loop verification"));
+  input Real loopMinimumFraction = 0.5 annotation(Dialog(tab="SLAM", group="Loop verification"));
+  input Real loopInlierDistance(unit="m") = 0.08 annotation(Dialog(tab="SLAM", group="Loop verification"));
+  input Real loopMaximumRms(unit="m") = 0.03 annotation(Dialog(tab="SLAM", group="Loop verification"));
+  input Boolean loopCalibratedResiduals = true annotation(Dialog(tab="SLAM", group="Loop verification"));
+  input Real loopMaximumNormalizedSquared = 9.0 annotation(Dialog(tab="SLAM", group="Loop verification"));
+  input Real loopMaximumPoseInnovation(unit="m") = 2.0 annotation(Dialog(tab="SLAM", group="Loop pose consistency"));
+  input Real loopPoseConsistencySquared = 9.0 annotation(Dialog(tab="SLAM", group="Loop pose consistency"));
+  input Boolean loopPoseConsistency = true annotation(Dialog(tab="SLAM", group="Loop pose consistency"));
 
   output RGBDGraphProcessing.State next;
   output Boolean accepted;
@@ -89,7 +103,25 @@ partial model RGBDFastSLAMInterface
   output Integer keyframeRejectionReason;
   output Integer sequentialRejectionReason;
   output Integer frameRejectionDiagnostic;
+  output Boolean loopAttempted;
+  output Integer loopRetrievalReason;
+  output Integer loopGraphReason;
+  output Integer loopCandidateCount;
+  output Integer loopCandidateReferenceId[RGBDKeyframeRetrieval.proposalCapacity];
+  output Integer loopCandidateCurrentId[RGBDKeyframeRetrieval.proposalCapacity];
+  output Real loopCandidateScore[RGBDKeyframeRetrieval.proposalCapacity];
+  output Integer loopCandidateReason[RGBDKeyframeRetrieval.proposalCapacity];
+  output Integer loopCandidateMatchedCount[RGBDKeyframeRetrieval.proposalCapacity];
+  output Integer loopCandidateInliers[RGBDKeyframeRetrieval.proposalCapacity];
+  output Real loopCandidateRms[RGBDKeyframeRetrieval.proposalCapacity];
+  output Boolean loopCandidateVerified[RGBDKeyframeRetrieval.proposalCapacity];
+  output Integer loopReferenceId[loopCapacity] "Retained keyframe id per verified loop closure, 0 when the rank holds none";
+  output Integer loopCurrentId[loopCapacity] "Captured keyframe id per verified loop closure, 0 when the rank holds none";
+  output Real loopScore[loopCapacity] "Appearance similarity of each verified loop closure's candidate";
   annotation(Documentation(info = "<html>
+    <h4>Runtime loop tuning</h4>
+<p>The loopMinimumSimilarity, loopMinimumAge, loopMinimumInliers, loopMinimumFraction, loopInlierDistance, loopMaximumRms, loopCalibratedResiduals and loopMaximumNormalizedSquared inputs tune retrieved-loop verification. The loopMaximumPoseInnovation, loopPoseConsistencySquared and loopPoseConsistency controls tune retained-pose screening. All loop controls preserve the separate consecutive-frame odometry settings. Calibrated residuals use the squared uncertainty-normalized gate; metric distance and RMS limits apply in metric mode. Keyframe interval, translation and rotation inputs tune capture cadence. Defaults retain the existing behavior.</p>
+<p>loopAttempted marks capture attempts. Per-rank loopCandidate outputs describe the retrieved references and their actual verification outcomes, including rejected proposals. A verified proposal is not a committed loop: inspect graph admission and the published graph separately.</p>
     <h4>Session lifecycle</h4>
 <p>This boundary owns the complete persistent visual session. Supply the prior
 session as <code>previous</code>; initialization and step adapters produce

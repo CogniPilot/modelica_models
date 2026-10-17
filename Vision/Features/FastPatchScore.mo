@@ -1,4 +1,5 @@
 within Vision.Features;
+// Deprecated: unused since FastFrameScores moved to integer channel sums; kept for one release.
 // Standalone patch scoring reads only the FAST circle.
 function FastPatchScore
   import FastCircleScore = Vision.Features.FastCircleScore;
