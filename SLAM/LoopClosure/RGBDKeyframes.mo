@@ -11,7 +11,7 @@ package RGBDKeyframes
   constant Integer featureCapacity = 350;
   constant Integer descriptorSize = 49;
   constant Integer wordCapacity = 256;
-  constant Integer keyframeCapacity = 128;
+  constant Integer keyframeCapacity = 64;
   constant Integer dimension = 3;
   constant Integer poseDimension = 6;
   constant Integer identifierLimit = 1000000000;

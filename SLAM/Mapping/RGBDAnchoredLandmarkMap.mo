@@ -4,7 +4,7 @@ model RGBDAnchoredLandmarkMap
 
   constant Integer imageHeight = 90; constant Integer imageWidth = 160;
   constant Integer mapCapacity = imageHeight*imageWidth;
-  constant Integer featureCapacity = 350; constant Integer keyframeCapacity = 128;
+  constant Integer featureCapacity = 350; constant Integer keyframeCapacity = 64;
   constant Integer dimension = 3;
   parameter Real coordinateLimit = 1e6; parameter Real voxelWidth = 0.25;
   parameter Real mergeRadius = 0.15; parameter Real maximumDistance = 80.0;

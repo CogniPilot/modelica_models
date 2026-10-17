@@ -5,8 +5,11 @@ package RGBDMapAnchorUncertainty
   import RGBDUncertaintyProper = SLAM.Localization.RGBDUncertaintyProper;
   import RGBDUncertaintySkew = SLAM.Localization.RGBDUncertaintySkew;
   import SLAMCovariancePSDCheck = SLAM.Inertial.SLAMCovariancePSDCheck;
+  import RGBDMapAnchors = SLAM.Mapping.RGBDMapAnchors;
 
-  constant Integer anchorCapacity = 128;
+  // Anchor slots are map-anchor ring slots (slot = mod(id-1,capacity)+1), so
+  // the capacity follows that ring instead of repeating its value.
+  constant Integer anchorCapacity = RGBDMapAnchors.keyframeCapacity;
   constant Integer landmarkCapacity = 14400;
   constant Integer positionDimension = 3;
   constant Integer anchorDimension = 6;
