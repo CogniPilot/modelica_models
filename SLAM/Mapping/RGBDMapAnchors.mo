@@ -5,7 +5,7 @@ package RGBDMapAnchors
   constant Integer imageHeight = 90;
   constant Integer imageWidth = 160;
   constant Integer mapCapacity = imageHeight*imageWidth;
-  constant Integer keyframeCapacity = 128;
+  constant Integer keyframeCapacity = 64;
   constant Integer dimension = 3;
   constant Integer identifierLimit = 1000000000;
 

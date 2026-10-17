@@ -11,7 +11,7 @@ package ModelicaPoseGraphCovariance
   import PGSolveBlock = SLAM.PoseGraph.PGSolveBlock;
   import PGValidateGraph = SLAM.PoseGraph.PGValidateGraph;
 
-  constant Integer nodeCapacity=128;
+  constant Integer nodeCapacity=64;
   constant Integer edgeCapacity=256;
   constant Integer poseDimension=6;
   constant Integer selectedDimension=12;
@@ -327,7 +327,7 @@ package ModelicaPoseGraphCovariance
     end for;
     if not valid then L := zeros(pairDimension,pairDimension); end if;
   end FactorPair;
-  // Principal full-H blocks on free rows (2,3),(4,5),...,(128,padding).
+  // Principal full-H blocks on free rows (2,3),(4,5),...,(nodeCapacity,padding).
   // Every active factor contributes diagonal terms; within-pair factors also
   // contribute both cross blocks. This changes only the numerical preconditioner.
   function BuildPairs

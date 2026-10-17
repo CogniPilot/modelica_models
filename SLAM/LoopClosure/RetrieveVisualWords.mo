@@ -46,7 +46,7 @@ protected
   constant Integer featureCapacity = 350;
   constant Integer descriptorSize = 49;
   constant Integer vocabularyCapacity = 256;
-  constant Integer keyframeCapacity = 128;
+  constant Integer keyframeCapacity = 64;
   constant Integer candidateCapacity = 4;
   Real words[vocabularyCapacity,descriptorSize];
   Real usableWord[vocabularyCapacity];
