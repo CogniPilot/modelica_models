@@ -160,13 +160,19 @@ package RGBDGraphEstimatorCommit
         and expectedBinding.currentEpoch == previous.localization.lastProcessedImageEpoch
         and expectedBinding.currentTime == previous.localization.predictionTime
         and expectedBinding.currentCaptureSequence == previous.localization.steps
-        and expectedBinding.anchorId == max(1,previous.localization.catalog.nextId-nodeCapacity)
+        and (RGBDGraphMeasurements.loopAnchoredCapture
+          or expectedBinding.anchorId == max(1,previous.localization.catalog.nextId-nodeCapacity))
         and previousAttempt.generation == previous.localization.generation
         and previousAttempt.graphRevision >= previous.graphRevisionUsed
         and (if previousAttempt.graphRevision == 0 then previousAttempt.factorProvenance == 0
           else previousAttempt.factorProvenance > 0)
         and proposal.graphRevision > previousAttempt.graphRevision
         and proposal.selected.binding.factorProvenance <> previousAttempt.factorProvenance;
+      if valid and RGBDGraphMeasurements.loopAnchoredCapture then
+        // The gauge is the oldest node connected to the newest keyframe.
+        valid := expectedBinding.anchorId == RGBDGraphMeasurements.ActiveOldest(previous.localization.catalog,
+          previous.localization.graph);
+      end if;
       if valid then
         currentSlot := mod(expectedBinding.currentId-1,nodeCapacity)+1;
         referenceSlot := mod(expectedBinding.referenceId-1,nodeCapacity)+1;

@@ -3,6 +3,7 @@ within SLAM.PoseGraph;
 // never poses inferred from them. All results are proposals for an outer
 // estimator/reference/catalog/map transaction; callers must publish together.
 package RGBDGraphMeasurements
+  import RGBDCatalogLoopVerification = SLAM.LoopClosure.RGBDCatalogLoopVerification;
   import RGBDKeyframeRetrieval = SLAM.LoopClosure.RGBDKeyframeRetrieval;
   import RGBDKeyframes = SLAM.LoopClosure.RGBDKeyframes;
   import RGBDLoopVerification = SLAM.LoopClosure.RGBDLoopVerification;
@@ -17,6 +18,14 @@ package RGBDGraphMeasurements
   constant Integer dimension = RGBDKeyframes.dimension;
   constant Integer poseDimension = RGBDKeyframes.poseDimension;
   constant Integer identifierLimit = RGBDKeyframes.identifierLimit;
+  // Loop-anchored capture (experiment, off by default). When the consecutive
+  // edge fails, agreeing verified loops may admit the capture without it, so a
+  // refused capture can no longer pin the catalog to a receding keyframe.
+  constant Boolean loopAnchoredCapture = false;
+  constant Integer anchorMinimumLoops = 2 "Agreeing verified loops to distinct non-anchored references";
+  constant Integer anchorEvictionMargin = div(nodeCapacity,2) "Captures left before the newest agreeing reference is evicted";
+  constant Real anchorConsistencySquared = 9.0;
+  constant Real anchorMaximumInnovation = 2.0;
 
   record Edge
     Boolean enabled;
@@ -153,13 +162,178 @@ package RGBDGraphMeasurements
       end for;
       // Every consecutive retained pair has a measured edge, so eviction
       // leaves a connected chain rooted at the oldest surviving keyframe.
+      // Loop-anchored capture drops this: nodes cut off from the newest
+      // keyframe's component stay stored but leave the solve (PrepareProblem).
       for node in 1:nodeCapacity loop
         if catalog.occupied[node] and catalog.ids[node] > oldest then
-          valid := valid and chain[node];
+          valid := valid and (loopAnchoredCapture or chain[node]);
         end if;
       end for;
     end if;
   end ValidState;
+
+  function Reachable
+    "Slots connected to keyframe seed by enabled edges"
+    // Slots outside the catalog are skipped; callers that need bound edges
+    // check ValidState.
+    input RGBDKeyframes.Catalog catalog;
+    input State state;
+    input Integer seed;
+    output Boolean reach[nodeCapacity];
+  protected
+    Boolean changed; Integer a; Integer b;
+  algorithm
+    reach := fill(false,nodeCapacity);
+    for node in 1:nodeCapacity loop
+      reach[node] := catalog.occupied[node] and catalog.ids[node] == seed;
+    end for;
+    // Each sweep that changes anything reaches at least one more node.
+    changed := true;
+    for pass in 1:nodeCapacity loop
+      if changed then
+        changed := false;
+        for slot in 1:edgeCapacity loop
+          a := state.edges[slot].referenceSlot; b := state.edges[slot].currentSlot;
+          if state.edges[slot].enabled and a >= 1 and a <= nodeCapacity and b >= 1 and b <= nodeCapacity then
+            if reach[a] <> reach[b] then reach[a] := true; reach[b] := true; changed := true; end if;
+          end if;
+        end for;
+      end if;
+    end for;
+  end Reachable;
+
+  function ActiveOldest
+    "Gauge id: oldest keyframe in the newest keyframe's component"
+    input RGBDKeyframes.Catalog catalog;
+    input State state;
+    output Integer id;
+  protected
+    Boolean reach[nodeCapacity];
+  algorithm
+    id := max(1,catalog.nextId-nodeCapacity);
+    if loopAnchoredCapture and catalog.nextId > 1 then
+      reach := Reachable(catalog,state,catalog.nextId-1); id := catalog.nextId-1;
+      for node in 1:nodeCapacity loop
+        if reach[node] and catalog.ids[node] < id then id := catalog.ids[node]; end if;
+      end for;
+    end if;
+  end ActiveOldest;
+
+  function Anchored
+    "Retained keyframe admitted without a consecutive edge"
+    input RGBDKeyframes.Catalog catalog;
+    input State state;
+    input Integer id;
+    output Boolean anchored;
+  algorithm
+    anchored := id > max(1,catalog.nextId-nodeCapacity);
+    for slot in 1:edgeCapacity loop
+      if state.edges[slot].enabled and state.edges[slot].kind == 1 and state.edges[slot].currentId == id then
+        anchored := false;
+      end if;
+    end for;
+  end Anchored;
+
+  function AnchorImplied
+    "Motion screen and implied new keyframe position for one verified loop"
+    input RGBDKeyframes.Catalog catalog;
+    input Integer currentSlot;
+    input RGBDLoopVerification.Proposal proposal;
+    input Real minimumPivot;
+    output Boolean consistent;
+    output Real implied[dimension];
+    output Real impliedCovariance[dimension,dimension];
+  protected
+    Integer slot; Real squared; Real arm[dimension,dimension];
+  algorithm
+    slot := mod(proposal.referenceId-1,nodeCapacity)+1;
+    (consistent,squared) := RGBDCatalogLoopVerification.PoseConsistent(catalog.bodyPositions[slot,:],
+      catalog.bodyPositions[currentSlot,:],catalog.bodyRotations[slot,:,:],
+      catalog.poseCovariances[slot,:,:],catalog.poseCovariances[currentSlot,:,:],
+      proposal.bodyTranslation,proposal.covariance[1:3,1:3],
+      maximumSquared=anchorConsistencySquared,minimumPivot=minimumPivot,
+      maximumTranslationInnovation=anchorMaximumInnovation);
+    implied := catalog.bodyPositions[slot,:]+catalog.bodyRotations[slot,:,:]*proposal.bodyTranslation;
+    arm := catalog.bodyRotations[slot,:,:]*RGBDUncertaintySkew(proposal.bodyTranslation);
+    impliedCovariance := catalog.poseCovariances[slot,1:3,1:3]
+      +catalog.bodyRotations[slot,:,:]*proposal.covariance[1:3,1:3]*transpose(catalog.bodyRotations[slot,:,:])
+      +arm*catalog.poseCovariances[slot,4:6,4:6]*transpose(arm);
+  end AnchorImplied;
+
+  function AnchorAdmissible
+    // The capture is already stored in catalog and graph holds no edge to it.
+    // Each agreeing loop passes admission and the production motion screen
+    // (forced on), and the loops imply the same new keyframe position.
+    input RGBDKeyframes.Catalog catalog;
+    input State graph;
+    input RGBDLoopVerification.Proposal loops[proposalCapacity];
+    input Real inlierDistance; input Real maximumRms;
+    input Boolean calibratedResiduals; input Real maximumNormalizedSquared;
+    input Real localizationSigma; input Real depthInflation; input Real minimumPivot;
+    output Boolean admitted;
+    output Boolean evictionRefused;
+    output Boolean agreed[proposalCapacity] "Loops the anchor admits; no other loop is inserted";
+  protected
+    Boolean usable[proposalCapacity]; Boolean consistent; Boolean distinct;
+    Integer currentSlot; Integer agreeing; Integer newest;
+    Real implied[proposalCapacity,dimension]; Real impliedCovariance[proposalCapacity,dimension,dimension];
+    Real squared; Boolean active[nodeCapacity];
+    Real position[dimension]; Real positionCovariance[dimension,dimension];
+  algorithm
+    admitted := false; evictionRefused := false; agreed := fill(false,proposalCapacity);
+    // A reference must be in the previous keyframe's component, so an
+    // anchor never makes a detached part the active one.
+    active := Reachable(catalog,graph,catalog.nextId-2);
+    usable := fill(false,proposalCapacity);
+    implied := zeros(proposalCapacity,dimension); impliedCovariance := zeros(proposalCapacity,dimension,dimension);
+    currentSlot := mod(catalog.nextId-2,nodeCapacity)+1;
+    for rank in 1:proposalCapacity loop
+      if loops[rank].verified then
+        usable[rank] := ValidProposal(catalog,loops[rank],inlierDistance,maximumRms,
+          calibratedResiduals=calibratedResiduals,maximumNormalizedSquared=maximumNormalizedSquared,
+          localizationSigma=localizationSigma,depthInflation=depthInflation,minimumPivot=minimumPivot)
+          and not Anchored(catalog,graph,loops[rank].referenceId)
+          and active[mod(loops[rank].referenceId-1,nodeCapacity)+1];
+        for earlier in 1:rank-1 loop
+          usable[rank] := usable[rank] and not (usable[earlier] and loops[earlier].referenceId == loops[rank].referenceId);
+        end for;
+        if usable[rank] then
+          // The proposal goes in as an argument: one reference compiler cannot slice a
+          // field of a record array element, and the exporter cannot copy one to a local.
+          (consistent,position,positionCovariance) := AnchorImplied(catalog,currentSlot,loops[rank],minimumPivot);
+          usable[rank] := consistent; implied[rank,:] := position; impliedCovariance[rank,:,:] := positionCovariance;
+        end if;
+      end if;
+    end for;
+    // Agreement is checked against each usable loop in turn: it and every
+    // loop whose implied position matches it within the same gate (four
+    // times the marginal sum, as in the motion screen).
+    for rank in 1:proposalCapacity loop
+      if usable[rank] and not admitted then
+        agreeing := 0; newest := 0; agreed := fill(false,proposalCapacity);
+        for other in 1:proposalCapacity loop
+          if usable[other] then
+            if other == rank then consistent := true;
+            else
+              (consistent,squared) := RegistrationWhitenedResidual3(implied[rank,:]-implied[other,:],
+                4.0*(impliedCovariance[rank,:,:]+impliedCovariance[other,:,:]),minimumPivot);
+              consistent := consistent and squared <= anchorConsistencySquared;
+            end if;
+            if consistent then agreeing := agreeing+1; newest := max(newest,loops[other].referenceId); end if;
+            agreed[other] := consistent;
+          end if;
+        end for;
+        if agreeing >= anchorMinimumLoops then
+          // Eviction is a FIFO ring: refuse an anchor whose references would
+          // all leave the catalog soon, rather than orphan it later.
+          if newest-(catalog.nextId-nodeCapacity) >= anchorEvictionMargin then admitted := true;
+          else evictionRefused := true;
+          end if;
+        end if;
+      end if;
+    end for;
+    if admitted then evictionRefused := false; else agreed := fill(false,proposalCapacity); end if;
+  end AnchorAdmissible;
 
   function ValidProposal
     input RGBDKeyframes.Catalog catalog;
@@ -329,8 +503,9 @@ package RGBDGraphMeasurements
   record Update
     State state;
     Boolean accepted;
-    Integer rejectionReason "1 idle; 2 catalog/config; 3 prior graph; 4 chain; 5 loop; 6 capacity/identity; 7 invariant";
+    Integer rejectionReason "1 idle; 2 catalog/config; 3 prior graph; 4 chain; 5 loop; 6 capacity/identity; 7 invariant; 8 anchor near eviction";
     Integer removedEdges; Integer admittedSequential; Integer admittedLoops; Integer duplicateLoops;
+    Integer admittedLoopAnchored;
   end Update;
 
   function Capture
@@ -353,10 +528,13 @@ package RGBDGraphMeasurements
   protected
     State working; Insertion insertion;
     Boolean valid; Integer reason; Integer removed; Integer sequentialCount; Integer loopCount; Integer duplicates;
+    Boolean evictionRefused; Integer anchoredCount; Boolean sequentialValid; Boolean admit[proposalCapacity];
   algorithm
     result.state := previous; result.accepted := false; result.rejectionReason := 1;
     result.removedEdges := 0; result.admittedSequential := 0; result.admittedLoops := 0; result.duplicateLoops := 0;
-    removed := 0; sequentialCount := 0; loopCount := 0; duplicates := 0;
+    result.admittedLoopAnchored := 0;
+    removed := 0; sequentialCount := 0; loopCount := 0; duplicates := 0; anchoredCount := 0; evictionRefused := false; sequentialValid := false;
+    admit := fill(true,proposalCapacity);
     if requested then
       reason := 2;
       valid := RGBDKeyframes.ValidHeader(capturedCatalog) and capturedCatalog.nextId >= 2
@@ -407,16 +585,24 @@ package RGBDGraphMeasurements
             and ValidProposal(capturedCatalog,sequential,inlierDistance,maximumRms,
               calibratedResiduals=calibratedResiduals,maximumNormalizedSquared=maximumNormalizedSquared,
               localizationSigma=localizationSigma,depthInflation=depthInflation,minimumPivot=minimumPivot);
+          sequentialValid := valid;
           if valid then
             insertion := Insert(working,sequential,1); working := insertion.state;
             valid := insertion.accepted and not insertion.duplicate;
             removed := removed+insertion.replacedLoops; sequentialCount := if valid then 1 else 0;
             if not valid then reason := 6; end if;
           end if;
+          // A separate branch: this exporter rejects a function call under elseif.
+          if loopAnchoredCapture and not sequentialValid then
+            (valid,evictionRefused,admit) := AnchorAdmissible(capturedCatalog,working,loops,loopInlierDistance,loopMaximumRms,
+              loopCalibratedResiduals,loopMaximumNormalizedSquared,localizationSigma,depthInflation,minimumPivot);
+            anchoredCount := if valid then 1 else 0;
+            if evictionRefused then reason := 8; end if;
+          end if;
         else valid := not sequential.verified;
         end if;
         for rank in 1:proposalCapacity loop
-          if valid and loops[rank].verified then
+          if valid and loops[rank].verified and admit[rank] then
             reason := 5; valid := ValidProposal(capturedCatalog,loops[rank],loopInlierDistance,loopMaximumRms,
               calibratedResiduals=loopCalibratedResiduals,maximumNormalizedSquared=loopMaximumNormalizedSquared,
               localizationSigma=localizationSigma,depthInflation=depthInflation,minimumPivot=minimumPivot);
@@ -438,6 +624,7 @@ package RGBDGraphMeasurements
           result.state := working; result.accepted := true; result.rejectionReason := 0;
           result.removedEdges := removed; result.admittedSequential := sequentialCount;
           result.admittedLoops := loopCount; result.duplicateLoops := duplicates;
+          result.admittedLoopAnchored := anchoredCount;
         else result.rejectionReason := reason;
         end if;
       else result.rejectionReason := reason;
@@ -448,6 +635,7 @@ package RGBDGraphMeasurements
   record Problem
     Boolean accepted;
     Integer nodeCount; Integer edgeCount; Integer correlationInflation;
+    Integer detachedNodes "Stored keyframes cut off from the newest one, out of the solve";
     Integer nodeId[nodeCapacity]; Integer catalogSlot[nodeCapacity];
     Real nodeMask[nodeCapacity]; Real positions[nodeCapacity,dimension];
     Real rotations[nodeCapacity,dimension,dimension];
@@ -460,6 +648,7 @@ package RGBDGraphMeasurements
     output Problem result;
   algorithm
     result.accepted := false; result.nodeCount := 0; result.edgeCount := 0; result.correlationInflation := 1;
+    result.detachedNodes := 0;
     result.nodeId := fill(0,nodeCapacity); result.catalogSlot := fill(0,nodeCapacity);
     result.nodeMask := zeros(nodeCapacity); result.positions := zeros(nodeCapacity,dimension);
     result.edgeMask := zeros(edgeCapacity); result.fromNode := zeros(edgeCapacity); result.toNode := zeros(edgeCapacity);
@@ -475,6 +664,7 @@ package RGBDGraphMeasurements
     output Problem result;
   protected
     Integer oldest; Integer id; Integer slot; Boolean valid;
+    Boolean reach[nodeCapacity]; Integer row[nodeCapacity]; Boolean active[edgeCapacity];
   algorithm
     result := EmptyProblem(); valid := false;
     if requested then valid := ValidState(catalog,state) and catalog.nextId > 1; end if;
@@ -486,12 +676,66 @@ package RGBDGraphMeasurements
         end if;
       end for;
     end if;
-    if valid then
+    if valid and loopAnchoredCapture then
+      // Rows follow id order within the newest keyframe's component, so
+      // row 1, the exact gauge, is its oldest node. Detached nodes and the
+      // edges among them stay stored and leave the solve.
+      reach := Reachable(catalog,state,catalog.nextId-1); row := fill(0,nodeCapacity);
+      oldest := max(1,catalog.nextId-nodeCapacity);
+      // Rows fill in id order; filling row node after node at a fixed range
+      // keeps every index a translation-time loop variable.
+      for node in 1:nodeCapacity loop
+        if node <= min(catalog.nextId-1,nodeCapacity) then
+          id := oldest+node-1; slot := mod(id-1,nodeCapacity)+1;
+          if reach[slot] then
+            result.nodeCount := result.nodeCount+1; row[slot] := result.nodeCount;
+          else
+            result.detachedNodes := result.detachedNodes+1;
+          end if;
+        end if;
+      end for;
+      for node in 1:nodeCapacity loop
+        if node <= result.nodeCount then
+          // Row node holds the node-th reachable id.
+          slot := 0;
+          for other in 1:nodeCapacity loop
+            if row[other] == node then slot := other; end if;
+          end for;
+          result.nodeId[node] := catalog.ids[slot]; result.catalogSlot[node] := slot;
+          result.nodeMask[node] := 1.0;
+          result.positions[node,:] := catalog.bodyPositions[slot,:];
+          result.rotations[node,:,:] := catalog.bodyRotations[slot,:,:];
+        end if;
+      end for;
+      // ValidState bound every enabled edge's slots; a disabled edge's are
+      // never read.
+      active := fill(false,edgeCapacity);
+      for edge in 1:edgeCapacity loop
+        if state.edges[edge].enabled then active[edge] := reach[state.edges[edge].referenceSlot]; end if;
+        result.edgeCount := result.edgeCount+(if active[edge] then 1 else 0);
+      end for;
+      result.correlationInflation := max(1,result.edgeCount);
+      for edge in 1:edgeCapacity loop
+        if active[edge] then
+          result.edgeMask[edge] := 1.0;
+          result.fromNode[edge] := row[state.edges[edge].referenceSlot];
+          result.toNode[edge] := row[state.edges[edge].currentSlot];
+          result.measuredRotation[edge,:,:] := state.edges[edge].rotation;
+          result.measuredTranslation[edge,:] := state.edges[edge].translation;
+          result.information[edge,:,:] := state.edges[edge].information/result.correlationInflation;
+        end if;
+      end for;
+      result.accepted := true;
+    end if;
+    if valid and not loopAnchoredCapture then
       result.nodeCount := min(catalog.nextId-1,nodeCapacity); oldest := max(1,catalog.nextId-nodeCapacity);
-      for node in 1:result.nodeCount loop
-        id := oldest+node-1; slot := mod(id-1,nodeCapacity)+1;
-        result.nodeId[node] := id; result.catalogSlot[node] := slot; result.nodeMask[node] := 1.0;
-        result.positions[node,:] := catalog.bodyPositions[slot,:]; result.rotations[node,:,:] := catalog.bodyRotations[slot,:,:];
+      // A fixed range keeps the loop bounded when the flag folds this branch away.
+      for node in 1:nodeCapacity loop
+        if node <= result.nodeCount then
+          id := oldest+node-1; slot := mod(id-1,nodeCapacity)+1;
+          result.nodeId[node] := id; result.catalogSlot[node] := slot; result.nodeMask[node] := 1.0;
+          result.positions[node,:] := catalog.bodyPositions[slot,:]; result.rotations[node,:,:] := catalog.bodyRotations[slot,:,:];
+        end if;
       end for;
       for edge in 1:edgeCapacity loop result.edgeCount := result.edgeCount+(if state.edges[edge].enabled then 1 else 0); end for;
       // No edge independence is presumed. For E arbitrarily correlated

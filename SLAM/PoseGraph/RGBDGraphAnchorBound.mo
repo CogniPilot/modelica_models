@@ -47,6 +47,7 @@ package RGBDGraphAnchorBound
     input Real weight = 0.5;
     input Real maximumPositionShift = 5.0; input Real maximumAngleShift = 0.35;
     input Boolean requested = true;
+    input Integer gaugeId = 0 "Loop-anchored capture: the solve's gauge id when it is not the oldest stored";
     output Estimate result; output Boolean accepted; output Integer reason;
   protected
     Boolean valid; Boolean chartValid; Boolean unchanged;
@@ -65,6 +66,7 @@ package RGBDGraphAnchorBound
       id := 1; slot := 1; unchanged := false;
       if valid then
         id := max(1,catalog.nextId-capacity); slot := mod(id-1,capacity)+1;
+        if gaugeId > 0 then id := gaugeId; slot := mod(id-1,capacity)+1; end if;
         valid := catalog.occupied[slot] and catalog.ids[slot] == id;
       end if;
       if valid then

@@ -79,6 +79,9 @@ package RGBDGraphSelectedGauge
         and GraphGaugeUncertainty.ValidBinding(binding);
       if valid then
         id := max(1,catalog.nextId-nodeCapacity); slot := mod(id-1,nodeCapacity)+1;
+        if RGBDGraphMeasurements.loopAnchoredCapture then
+          id := RGBDGraphMeasurements.ActiveOldest(catalog,graph); slot := mod(id-1,nodeCapacity)+1;
+        end if;
         valid := anchor.binding.generation == catalog.generation
           and anchor.binding.generation == context.generation and anchor.binding.generation == binding.generation
           and anchor.binding.sourceRevision == context.sourceRevision and anchor.binding.sourceRevision == binding.sourceRevision
