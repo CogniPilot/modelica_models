@@ -103,6 +103,7 @@ pure function AdvanceRGBDLocalization
   output Real visualValid;
   output Real matchCount;
   output Real uncertaintyRejectionReason;
+  output Real nextNullspaceDirection[9] "Carried global-yaw nullspace direction after this interval";
   output Real currentDescriptor[featureCapacity,descriptorSize];
   output Real currentPoint[featureCapacity,3];
   output Real currentEnabled[featureCapacity];
@@ -123,6 +124,7 @@ pure function AdvanceRGBDLocalization
   output Real trackingReferencePixel[featureCapacity,2];
   output Real trackingEnabled[featureCapacity];
   input Real depthUnits = 1.0 "Meters per depth sample; 1 for metric depth, SDK scale for Z16";
+  input Real nullspaceDirection[9] = zeros(9) "Carried global-yaw nullspace direction for the observability-constrained prediction";
 protected
   constant Integer featureCapacity = 350;
   constant Integer descriptorSize = 49;
@@ -183,9 +185,9 @@ algorithm
   (pairValid,pairEligible,captureFresh) := SchmidtImagePairEligibility(
     referenceAvailable,referenceUsed,referenceEpoch,currentEpoch,lastUsedEpoch);
   (predictionAccepted,transition,processCovariance,predictedPosition,predictedVelocity,predictedRotation,
-    predictedCovariance,predictedCross,substeps) := ES15PredictHeldInterval(
+    predictedCovariance,predictedCross,substeps,nextNullspaceDirection) := ES15PredictHeldInterval(
       position,velocity,rotation,accelBias,gyroBias,covariance,crossCovariance,referenceCovariance,
-      referencePosition,referenceRotation,referenceAvailable,accel,gyro,gravity,h,density);
+      referencePosition,referenceRotation,referenceAvailable,accel,gyro,gravity,h,density,nullspaceDirection);
   // Visual diagnostics stay observable even when prediction refuses this interval.
   (visual_observedBodyRotation,
     visual_observedBodyPosition,
@@ -237,6 +239,13 @@ algorithm
       referencePosition=referencePosition,referenceRotation=referenceRotation,opticalToBody=opticalToBody,
       cameraOriginBody=cameraOriginBody,measuredRotation=currentFromReference,measuredTranslation=currentFromReferenceTranslation,
       relativeCovariance=relativeCovariance,measurementEnabled=if predictionAccepted > 0.5 and pairEligible > 0.5 then measurementEnabled else 0.0);
+  // The first accepted correction seeds the carried direction at the nominal its
+  // Jacobian was linearized at (the predicted state); prediction propagates it from
+  // then on, so nothing before the first accepted correction differs from the
+  // unconstrained filter.
+  if observationAccepted > 0.5 and nextNullspaceDirection*nextNullspaceDirection <= 1e-18 then
+    nextNullspaceDirection := cat(1,cross({0.0,0.0,1.0},predictedPosition),cross({0.0,0.0,1.0},predictedVelocity),transpose(predictedRotation)*{0.0,0.0,1.0});
+  end if;
   // An eligible attempted pair consumes its epoch even when correction rejects.
   pairAttempted := if predictionAccepted > 0.5 and pairEligible > 0.5
     and SLAMExactRealEqual(measurementEnabled,1.0) then 1.0 else 0.0;

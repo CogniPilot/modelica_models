@@ -24,6 +24,7 @@ package RGBDLocalizationCatalog
   record Estimator
     Real position[dimension]; Real velocity[dimension]; Real rotation[dimension,dimension];
     Real accelBias[dimension]; Real gyroBias[dimension];
+    Real nullspaceDirection[9] "Carried global-yaw nullspace direction of the observability-constrained prediction";
     Real covariance[currentDimension,currentDimension];
     Real crossCovariance[currentDimension,referenceDimension];
     Real referenceCovariance[referenceDimension,referenceDimension];
@@ -108,10 +109,12 @@ package RGBDLocalizationCatalog
     input Real gyroBias[dimension] = zeros(dimension);
     input Real covariance[currentDimension,currentDimension] = diagonal({0.25,0.25,0.25,
       0.04,0.04,0.04,0.01,0.01,0.01,0.0004,0.0004,0.0004,0.000025,0.000025,0.000025});
+    input Real nullspaceDirection[9] = zeros(9);
     output Estimator result;
   algorithm
     result.position := position; result.velocity := velocity; result.rotation := rotation;
     result.accelBias := accelBias; result.gyroBias := gyroBias; result.covariance := covariance;
+    result.nullspaceDirection := nullspaceDirection;
     result.crossCovariance := zeros(currentDimension,referenceDimension);
     result.referenceCovariance := zeros(referenceDimension,referenceDimension);
     result.referencePosition := zeros(dimension); result.referenceRotation := identity(dimension);

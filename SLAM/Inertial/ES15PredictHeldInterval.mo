@@ -18,11 +18,13 @@ function ES15PredictHeldInterval
   input Real referenceRotation[3,3]; input Real referenceAvailable;
   input Real accel[3]; input Real gyro[3]; input Real gravity[3];
   input Real h; input Real density[12];
+  input Real nullspaceDirection[9] = zeros(9) "Global-yaw nullspace direction (e_z x p, e_z x v, R' e_z) at the nominal the last correction Jacobian used; zeros (no correction yet) leave the transition unchanged";
   output Real accepted;
   output Real transition[15,15]; output Real processCovariance[15,15];
   output Real nextPosition[3]; output Real nextVelocity[3]; output Real nextRotation[3,3];
   output Real nextCovariance[15,15]; output Real nextCrossCovariance[15,6];
   output Integer substeps;
+  output Real nextNullspaceDirection[9] "Carried direction after the interval (the direction at the predicted nominal); unchanged when prediction refused or when no direction was carried in";
 protected
   constant Integer maximumSubsteps = 64;
   Real rate; Real requestedSteps; Real dt;
@@ -31,12 +33,20 @@ protected
   Real F[15,15]; Real G[15,12]; Real Phi[15,15]; Real Q[15,15];
   Real proposedCovariance[15,15]; Real proposedCross[15,6]; Real retainedReference[6,6];
   Real rawNoise[15,15]; Real nominalValid; Real jointAccepted;
-  Boolean geometryValid; Boolean densityValid; Boolean running;
+  Real carried[15]; Real carriedNorm; Real target[15]; Real defect[15]; Real constrained[15,15];
+  Boolean geometryValid; Boolean densityValid; Boolean running; Boolean constrainedActive;
 algorithm
   accepted := 0.0; substeps := 0;
   transition := identity(15); processCovariance := zeros(15,15);
   nextPosition := position; nextVelocity := velocity; nextRotation := rotation;
   nextCovariance := covariance; nextCrossCovariance := crossCovariance;
+  nextNullspaceDirection := nullspaceDirection;
+  // Observability-constrained prediction: the carried global-yaw direction must map
+  // onto the direction at the predicted nominal, so consecutive Jacobians share one
+  // unobservable direction. Before the first accepted correction no Jacobian has been
+  // linearized, the carry is zero, and the transition is left exactly as computed.
+  carried := cat(1,nullspaceDirection,zeros(6));
+  constrainedActive := carried*carried > 1e-18;
   rate := sqrt(sum((gyro-gyroBias).^2));
   requestedSteps := max(h/0.02,rate*h/0.1);
   running := ES15HeldIntervalValid(h) and requestedSteps >= 0.0
@@ -61,6 +71,18 @@ algorithm
           // The joint propagator below owns Phi*P*Phi'; compute it only once.
           (Phi,Q) := ES15TransitionNoise(F,G,
             if nominalValid > 0.5 then dt else 0.0,density);
+          // Rank-1 change along the carried direction only: Phi* u = N(x_end), (Phi* - Phi) v = 0 for v orthogonal to u.
+          target := cat(1,cross({0.0,0.0,1.0},proposedPosition),cross({0.0,0.0,1.0},proposedVelocity),transpose(proposedRotation)*{0.0,0.0,1.0},zeros(6));
+          if constrainedActive and nominalValid > 0.5 then
+            carriedNorm := carried*carried;
+            defect := target - Phi*carried;
+            for row in 1:15 loop
+              for column in 1:15 loop
+                constrained[row,column] := Phi[row,column] + defect[row]*carried[column]/carriedNorm;
+              end for;
+            end for;
+            Phi := constrained;
+          end if;
           geometryValid := RGBDProperRotationValue(nextRotation) > 0.5
             and RGBDProperRotationValue(proposedRotation) > 0.5;
           for axis in 1:3 loop
@@ -86,12 +108,14 @@ algorithm
           if running then
             nextPosition := proposedPosition; nextVelocity := proposedVelocity; nextRotation := proposedRotation;
             nextCovariance := proposedCovariance; nextCrossCovariance := proposedCross;
+            if constrainedActive then carried := target; end if;
           end if;
         end if;
       end for;
     end if;
     if running then
       accepted := 1.0;
+      nextNullspaceDirection := carried[1:9];
     else
       nextPosition := position; nextVelocity := velocity; nextRotation := rotation;
       nextCovariance := covariance; nextCrossCovariance := crossCovariance;

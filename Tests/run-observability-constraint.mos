@@ -1,0 +1,28 @@
+setCommandLineOptions("--std=3.6");
+// Compile the test functions instead of evaluating them in the frontend.
+setDebugFlags("-evalfunc,-nfEvalConstArgFuncs,-nfExpandFuncArgs,-nfExpandOperations,nfScalarize");
+
+if not loadModel(Tests) then
+  print(getErrorString());
+  exit(1);
+end if;
+
+print(checkModel(Tests.ObservabilityConstrainedPredictionTests));
+print(getErrorString());
+
+testOutputDirectory := getTempDirectoryPath();
+cd(testOutputDirectory);
+res := simulate(
+  Tests.ObservabilityConstrainedPredictionTests,
+  startTime=0.0,
+  stopTime=0.001,
+  numberOfIntervals=1,
+  outputFormat="mat",
+  fileNamePrefix="modelica_models_Tests_ObservabilityConstrainedPredictionTests"); getErrorString();
+print(res.messages);
+resultFile := res.resultFile;
+if resultFile <> "" then
+  exit(0);
+end if;
+print("Observability-constrained prediction test simulation failed\n");
+exit(1);

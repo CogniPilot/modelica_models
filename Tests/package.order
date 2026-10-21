@@ -64,3 +64,4 @@ VisualNavigationReplay
 SyntheticLandmarkReplay
 RegistrationWeightedTests
 RGBDLoopConsistencyTests
+ObservabilityConstrainedPredictionTests

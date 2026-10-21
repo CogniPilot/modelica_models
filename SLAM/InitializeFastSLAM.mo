@@ -308,6 +308,7 @@ algorithm
   proposed.rotation := producerNextRotation;
   proposed.accelBias := producerNextAccelBias;
   proposed.gyroBias := producerNextGyroBias;
+  proposed.nullspaceDirection := zeros(9);
   proposed.covariance := producerNextCovariance;
   proposed.crossCovariance := producerNextCrossCovariance;
   proposed.referenceCovariance := producerNextReferenceCovariance;
