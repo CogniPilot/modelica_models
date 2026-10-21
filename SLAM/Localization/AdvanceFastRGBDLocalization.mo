@@ -97,6 +97,7 @@ pure function AdvanceFastRGBDLocalization
   output Real visualValid;
   output Real matchCount;
   output Real uncertaintyRejectionReason;
+  output Real nextNullspaceDirection[9];
   output Real currentDescriptor[featureCapacity,descriptorSize];
   output Real currentPoint[featureCapacity,3];
   output Real currentEnabled[featureCapacity];
@@ -119,6 +120,7 @@ pure function AdvanceFastRGBDLocalization
   output Real selectionValid;
   input Boolean depthQualifiedSelection = false "Reserve the RGB-D budget for valid calibrated depth";
   input Real depthUnits = 1.0 "Meters per depth sample; 1 for metric depth, SDK scale for Z16";
+  input Real nullspaceDirection[9] = zeros(9);
 protected
   constant Integer featureCapacity = 350;
   constant Integer descriptorSize = 49;
@@ -186,6 +188,7 @@ algorithm
     visualValid,
     matchCount,
     uncertaintyRejectionReason,
+    nextNullspaceDirection,
     currentDescriptor,
     currentPoint,
     currentEnabled,
@@ -221,6 +224,7 @@ algorithm
     rotation=rotation,
     accelBias=accelBias,
     gyroBias=gyroBias,
+    nullspaceDirection=nullspaceDirection,
     covariance=covariance,
     crossCovariance=crossCovariance,
     referenceCovariance=referenceCovariance,

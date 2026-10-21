@@ -170,6 +170,7 @@ protected
   Real producerVisualValid;
   Real producerMatchCount;
   Real producerUncertaintyRejectionReason;
+  Real producerNextNullspaceDirection[9];
   Real producerCurrentDescriptor[featureCapacity,descriptorSize];
   Real producerCurrentPoint[featureCapacity,spaceDimension];
   Real producerCurrentEnabled[featureCapacity];
@@ -232,6 +233,7 @@ algorithm
     producerVisualValid,
     producerMatchCount,
     producerUncertaintyRejectionReason,
+    producerNextNullspaceDirection,
     producerCurrentDescriptor,
     producerCurrentPoint,
     producerCurrentEnabled,
@@ -273,6 +275,7 @@ algorithm
     rotation=previous.estimator.localization.estimator.rotation,
     accelBias=previous.estimator.localization.estimator.accelBias,
     gyroBias=previous.estimator.localization.estimator.gyroBias,
+    nullspaceDirection=previous.estimator.localization.estimator.nullspaceDirection,
     covariance=previous.estimator.localization.estimator.covariance,
     crossCovariance=previous.estimator.localization.estimator.crossCovariance,
     referenceCovariance=previous.estimator.localization.estimator.referenceCovariance,
@@ -303,6 +306,7 @@ algorithm
   proposed.rotation := producerNextRotation;
   proposed.accelBias := producerNextAccelBias;
   proposed.gyroBias := producerNextGyroBias;
+  proposed.nullspaceDirection := producerNextNullspaceDirection;
   proposed.covariance := producerNextCovariance;
   proposed.crossCovariance := producerNextCrossCovariance;
   proposed.referenceCovariance := producerNextReferenceCovariance;
