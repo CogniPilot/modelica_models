@@ -155,13 +155,18 @@ package RGBDLocalizationProcessing
             if captured then
               valid := valid and previous.estimator.poses.revision < identifierLimit-1;
               if valid then
-                slot := previous.estimator.localization.catalog.nextSlot;
-                candidate.estimator.poses.catalogNextId := published.next.catalog.nextId;
-                candidate.estimator.poses.revision := previous.estimator.poses.revision+1;
-                candidate.estimator.poses.enabled[slot] := published.next.catalog.occupied[slot];
-                candidate.estimator.poses.ids[slot] := published.next.catalog.ids[slot];
-                candidate.estimator.poses.positions[slot,:] := published.next.catalog.bodyPositions[slot,:];
-                candidate.estimator.poses.rotations[slot,:,:] := published.next.catalog.bodyRotations[slot,:,:];
+                slot := max(1,RGBDKeyframes.SlotOf(published.next.catalog,
+                  previous.estimator.localization.catalog.nextId));
+                valid := RGBDKeyframes.SlotOf(published.next.catalog,
+                  previous.estimator.localization.catalog.nextId) >= 1;
+                if valid then
+                  candidate.estimator.poses.catalogNextId := published.next.catalog.nextId;
+                  candidate.estimator.poses.revision := previous.estimator.poses.revision+1;
+                  candidate.estimator.poses.enabled[slot] := published.next.catalog.occupied[slot];
+                  candidate.estimator.poses.ids[slot] := published.next.catalog.ids[slot];
+                  candidate.estimator.poses.positions[slot,:] := published.next.catalog.bodyPositions[slot,:];
+                  candidate.estimator.poses.rotations[slot,:,:] := published.next.catalog.bodyRotations[slot,:,:];
+                end if;
               end if;
             end if;
             if valid then

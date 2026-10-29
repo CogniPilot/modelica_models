@@ -15,6 +15,13 @@ package RGBDKeyframes
   constant Integer dimension = 3;
   constant Integer poseDimension = 6;
   constant Integer identifierLimit = 1000000000;
+  // Place-keeping retention. Slots are assigned by Store, never derived from
+  // ids; every reader resolves an id through ids[slot] == id.
+  constant Integer retainedNewest = 16 "Newest ids never chosen for eviction (local tracking window)";
+  constant Integer retentionHeld = 0 "Retention tier: the graph needs this keyframe";
+  constant Integer retentionFirst = 1 "Retention tier: evictable without changing any kept edge";
+  constant Integer retentionBridged = 2 "Retention tier: evictable after its consecutive edges are composed";
+  constant Integer storeRetentionRefused = 3 "Store reason: retention holds the slot due for eviction";
 
   record Frame
     Integer generation "Reset/source/world ownership generation";
@@ -38,6 +45,10 @@ package RGBDKeyframes
     Real bodyRotation[dimension,dimension];
     Real bodyPosition[dimension];
     Real poseCovariance[poseDimension,poseDimension];
+    // Filter epoch of bodyPosition/bodyRotation: two captures share one
+    // uncorrected filter frame only when both counters match (odometry bridge).
+    Integer filterSourceRevision "Estimator source revision at capture";
+    Integer filterCorrectionRevision "Accepted graph-to-filter commits before capture";
     Integer vocabularyVersion;
     Real histogram[wordCapacity];
   end Frame;
@@ -66,6 +77,7 @@ package RGBDKeyframes
     frame.bodyRotation := identity(dimension);
     frame.bodyPosition := zeros(dimension);
     frame.poseCovariance := identity(poseDimension);
+    frame.filterSourceRevision := 0; frame.filterCorrectionRevision := 0;
     frame.vocabularyVersion := 1;
     frame.histogram := zeros(wordCapacity);
   end EmptyFrame;
@@ -102,6 +114,8 @@ package RGBDKeyframes
     Real bodyRotations[keyframeCapacity,dimension,dimension];
     Real bodyPositions[keyframeCapacity,dimension];
     Real poseCovariances[keyframeCapacity,poseDimension,poseDimension];
+    Integer filterSourceRevisions[keyframeCapacity];
+    Integer filterCorrectionRevisions[keyframeCapacity];
     Integer vocabularyVersions[keyframeCapacity];
     Real histograms[keyframeCapacity,wordCapacity];
   end Catalog;
@@ -146,6 +160,8 @@ package RGBDKeyframes
       state.bodyRotations[slot,:,:] := emptyFrame.bodyRotation;
       state.bodyPositions[slot,:] := emptyFrame.bodyPosition;
       state.poseCovariances[slot,:,:] := emptyFrame.poseCovariance;
+      state.filterSourceRevisions[slot] := emptyFrame.filterSourceRevision;
+      state.filterCorrectionRevisions[slot] := emptyFrame.filterCorrectionRevision;
       state.vocabularyVersions[slot] := emptyFrame.vocabularyVersion;
       state.histograms[slot,:] := emptyFrame.histogram;
     end for;
@@ -181,6 +197,8 @@ package RGBDKeyframes
       frame.bodyRotation := state.bodyRotations[slot,:,:];
       frame.bodyPosition := state.bodyPositions[slot,:];
       frame.poseCovariance := state.poseCovariances[slot,:,:];
+      frame.filterSourceRevision := state.filterSourceRevisions[slot];
+      frame.filterCorrectionRevision := state.filterCorrectionRevisions[slot];
       frame.vocabularyVersion := state.vocabularyVersions[slot];
       frame.histogram := state.histograms[slot,:];
     end if;
@@ -229,7 +247,9 @@ package RGBDKeyframes
     end for;
     (inverseCovariance,covarianceValid,scaledPivot) :=
       RGBDUncertaintyInverse6(frame.poseCovariance,1e-10);
-    valid := valid and covarianceValid;
+    valid := valid and covarianceValid
+      and frame.filterSourceRevision >= 0 and frame.filterSourceRevision < identifierLimit
+      and frame.filterCorrectionRevision >= 0 and frame.filterCorrectionRevision < identifierLimit;
     measured := 0;
     for feature in 1:featureCapacity loop
       if frame.enabled[feature] then
@@ -260,20 +280,24 @@ package RGBDKeyframes
     valid := valid and abs(mass-1.0) <= 1e-6;
   end ValidFrame;
 
-  // Header checks are cheap; full payload validation belongs to admission or
-  // restore. Store operates on an already validated, Modelica-owned catalog.
-  function ValidHeader
+  // Header checks are cheap relative to payload validation; full payload
+  // validation belongs to admission or restore. Store operates on an already
+  // validated, Modelica-owned catalog. Slots are not a function of ids: ids
+  // are unique, ordered like epochs and image times, and the slot due for
+  // eviction (nextSlot) is free while filling and outside the newest
+  // retainedNewest ids once full.
+  function ValidHeader "Header and identity invariants of a keyframe catalog"
     input Catalog state;
     output Boolean valid;
   protected
     Integer expectedOccupied;
     Integer actualOccupied;
-    Integer olderSlot;
     Integer newestSlot;
+    Integer recentCount;
     Boolean identityValid;
   algorithm
     expectedOccupied := 0; actualOccupied := 0;
-    olderSlot := 1; newestSlot := 1; identityValid := false;
+    newestSlot := 0; recentCount := 0; identityValid := false;
     valid := state.generation >= 1 and state.generation <= identifierLimit
       and state.vocabularyVersion >= 1 and state.vocabularyVersion <= identifierLimit
       and state.nextId >= 1 and state.nextId <= identifierLimit
@@ -282,39 +306,48 @@ package RGBDKeyframes
       and state.lastTime >= 0 and state.lastTime <= 1e9;
     // Certify Integer domains before subtraction or computing array indices.
     if valid then
-      valid := state.nextSlot == mod(state.nextId-1,keyframeCapacity)+1;
       expectedOccupied := min(state.nextId-1,keyframeCapacity);
       for slot in 1:keyframeCapacity loop
         if state.occupied[slot] then
           actualOccupied := actualOccupied+1;
-          identityValid := state.ids[slot] >= max(1,state.nextId-keyframeCapacity)
-            and state.ids[slot] < state.nextId;
+          identityValid := state.ids[slot] >= 1 and state.ids[slot] < state.nextId;
           valid := valid and identityValid
             and state.generations[slot] == state.generation
             and state.vocabularyVersions[slot] == state.vocabularyVersion
             and state.epochs[slot] >= 0 and state.epochs[slot] <= state.lastEpoch
             and state.imageTimes[slot] >= 0 and state.imageTimes[slot] <= state.lastTime;
           if identityValid then
-            valid := valid and mod(state.ids[slot]-1,keyframeCapacity)+1 == slot;
-            if state.ids[slot] > max(1,state.nextId-keyframeCapacity) then
-              olderSlot := mod(state.ids[slot]-2,keyframeCapacity)+1;
-              valid := valid and state.occupied[olderSlot]
-                and state.ids[olderSlot] == state.ids[slot]-1
-                and state.epochs[olderSlot] < state.epochs[slot]
-                and state.imageTimes[olderSlot] < state.imageTimes[slot];
-            end if;
+            if state.ids[slot] == state.nextId-1 then newestSlot := slot; end if;
+            if state.ids[slot] >= state.nextId-retainedNewest then recentCount := recentCount+1; end if;
           end if;
+          // Unique ids; a smaller id is an older capture. Replaces the former
+          // contiguity chain, which no longer holds once places are thinned.
+          for other in 1:slot-1 loop
+            if state.occupied[other] then
+              valid := valid and state.ids[other] <> state.ids[slot]
+                and (if state.ids[other] < state.ids[slot]
+                  then state.epochs[other] < state.epochs[slot] and state.imageTimes[other] < state.imageTimes[slot]
+                  else state.epochs[other] > state.epochs[slot] and state.imageTimes[other] > state.imageTimes[slot]);
+            end if;
+          end for;
         end if;
       end for;
       valid := valid and actualOccupied == expectedOccupied
+        and recentCount == min(state.nextId-1,retainedNewest)
         and ((state.nextId == 1 and state.lastEpoch == -1 and state.lastTime == 0)
           or (state.nextId > 1 and state.lastEpoch >= 0));
       if state.nextId > 1 then
-        newestSlot := mod(state.nextId-2,keyframeCapacity)+1;
-        valid := valid and state.occupied[newestSlot]
-          and state.ids[newestSlot] == state.nextId-1
-          and state.epochs[newestSlot] == state.lastEpoch
-          and state.imageTimes[newestSlot] == state.lastTime;
+        valid := valid and newestSlot >= 1;
+        if newestSlot >= 1 then
+          valid := valid and state.epochs[newestSlot] == state.lastEpoch
+            and state.imageTimes[newestSlot] == state.lastTime;
+        end if;
+      end if;
+      if actualOccupied < keyframeCapacity then
+        valid := valid and not state.occupied[state.nextSlot];
+      else
+        valid := valid and state.occupied[state.nextSlot]
+          and state.ids[state.nextSlot] < state.nextId-retainedNewest;
       end if;
     end if;
   end ValidHeader;
@@ -331,26 +364,39 @@ package RGBDKeyframes
     end for;
   end ValidCatalog;
 
-  function Store
+  function Store "Admit one keyframe into the slot chosen by the previous Store"
     input Catalog previous;
     input Frame candidate;
     input Boolean requested;
+    input Integer retention[keyframeCapacity] = fill(retentionFirst,keyframeCapacity)
+      "Graph-side eviction tier per slot (retentionHeld/First/Bridged); the default suits catalogs without a graph";
     output Catalog next;
     output Boolean accepted;
     output Integer storedSlot;
     output Integer evictedId "Invalidate this generation/id in graph and landmark owners";
+    output Integer rejectionReason "0 stored; 1 idle; 2 header or candidate; 3 retention holds the slot due for eviction";
+  protected
+    Boolean evictable;
   algorithm
     next := previous;
     accepted := false;
     storedSlot := 0;
     evictedId := 0;
+    rejectionReason := if requested then 2 else 1;
     if requested and ValidHeader(previous) and previous.nextId < identifierLimit then
       accepted := candidate.generation == previous.generation
         and candidate.vocabularyVersion == previous.vocabularyVersion
         and candidate.id == previous.nextId and candidate.epoch > previous.lastEpoch
         and (previous.nextId == 1 or candidate.imageTime > previous.lastTime)
         and ValidFrame(candidate);
+      // The victim was chosen by the previous Store. Refuse, with a distinct
+      // reason, when the graph now holds it instead of orphaning its edges.
+      if accepted and previous.occupied[previous.nextSlot]
+        and retention[previous.nextSlot] <> retentionFirst and retention[previous.nextSlot] <> retentionBridged then
+        accepted := false; rejectionReason := storeRetentionRefused;
+      end if;
       if accepted then
+        rejectionReason := 0;
         storedSlot := previous.nextSlot;
         evictedId := if previous.occupied[storedSlot] then previous.ids[storedSlot] else 0;
         next.generations[storedSlot] := candidate.generation;
@@ -374,39 +420,162 @@ package RGBDKeyframes
         next.bodyRotations[storedSlot,:,:] := candidate.bodyRotation;
         next.bodyPositions[storedSlot,:] := candidate.bodyPosition;
         next.poseCovariances[storedSlot,:,:] := candidate.poseCovariance;
+        next.filterSourceRevisions[storedSlot] := candidate.filterSourceRevision;
+        next.filterCorrectionRevisions[storedSlot] := candidate.filterCorrectionRevision;
         next.vocabularyVersions[storedSlot] := candidate.vocabularyVersion;
         next.histograms[storedSlot,:] := candidate.histogram;
         next.occupied[storedSlot] := true;
         next.nextId := previous.nextId+1;
-        next.nextSlot := mod(previous.nextSlot,keyframeCapacity)+1;
+        // Choose the next victim now, so retrieval, loop verification and the
+        // graph owners keep excluding exactly the slot the next Store reuses.
+        (next.nextSlot,evictable) := ChooseVictim(next,retention);
         next.lastEpoch := candidate.epoch;
         next.lastTime := candidate.imageTime;
       end if;
     end if;
   end Store;
 
-  function Lookup
+  function Lookup "Retained keyframe by generation and id"
     input Catalog state;
     input Integer generation;
     input Integer id;
     output Frame frame;
     output Boolean found;
     output Integer slot;
-  protected
-    Integer proposedSlot;
   algorithm
     frame := EmptyFrame();
     found := false;
     slot := 0;
     if generation == state.generation and id >= 1 and id < state.nextId and ValidHeader(state) then
-      proposedSlot := mod(id-1,keyframeCapacity)+1;
-      if state.occupied[proposedSlot] and state.ids[proposedSlot] == id then
-        frame := ReadSlot(state,proposedSlot);
+      slot := SlotOf(state,id);
+      if slot >= 1 then
+        frame := ReadSlot(state,slot);
         found := true;
-        slot := proposedSlot;
       end if;
     end if;
   end Lookup;
+
+  function SlotOf "Slot holding a retained id, or 0 when the id is not retained"
+    input Catalog state;
+    input Integer id;
+    output Integer slot;
+  algorithm
+    slot := 0;
+    for candidate in 1:keyframeCapacity loop
+      if slot == 0 and state.occupied[candidate] and state.ids[candidate] == id then
+        slot := candidate;
+      end if;
+    end for;
+  end SlotOf;
+
+  function NewestSlot "Slot of the newest keyframe (id nextId-1), or 0 when empty"
+    input Catalog state;
+    output Integer slot;
+  algorithm
+    slot := if state.nextId > 1 then SlotOf(state,state.nextId-1) else 0;
+  end NewestSlot;
+
+  function OldestId "Smallest retained id, or nextId when the catalog is empty"
+    input Catalog state;
+    output Integer id;
+  algorithm
+    id := state.nextId;
+    for slot in 1:keyframeCapacity loop
+      if state.occupied[slot] and state.ids[slot] < id then id := state.ids[slot]; end if;
+    end for;
+  end OldestId;
+
+  function IdOrder "Occupied slots in ascending id order"
+    input Catalog state;
+    output Integer order[keyframeCapacity] "order[rank] is the slot of the rank-th oldest retained id; 0 past count";
+    output Integer count;
+  protected
+    Integer rank;
+  algorithm
+    // Pairwise ranks: O(keyframeCapacity^2) integer comparisons, no state.
+    // Ids are unique in a valid header, so ranks form a permutation.
+    order := fill(0,keyframeCapacity); count := 0;
+    for slot in 1:keyframeCapacity loop
+      if state.occupied[slot] then
+        count := count+1; rank := 1;
+        for other in 1:keyframeCapacity loop
+          if state.occupied[other] and state.ids[other] < state.ids[slot] then rank := rank+1; end if;
+        end for;
+        if rank <= keyframeCapacity then order[rank] := slot; end if;
+      end if;
+    end for;
+  end IdOrder;
+
+  function ChooseVictim "Slot the next Store overwrites: a free slot, else the retained place whose loss leaves the shortest gap"
+    input Catalog state;
+    input Integer retention[keyframeCapacity];
+    output Integer slot;
+    output Boolean evictable "False when retention holds every candidate; the next Store then refuses";
+  protected
+    Integer order[keyframeCapacity]; Integer count; Integer node; Integer before; Integer tier;
+    Integer bestTier; Integer fallback; Real gap; Real bestGap; Real fallbackGap; Real nearest; Real distance;
+    Real midpoint[dimension]; Real nearestMidpoint; Real midpointDistance;
+  algorithm
+    slot := 0; evictable := true;
+    for candidate in 1:keyframeCapacity loop
+      if slot == 0 and not state.occupied[candidate] then slot := candidate; end if;
+    end for;
+    if slot == 0 then
+      // Candidates exclude id 1 and the newest retainedNewest ids. The key is
+      // (retention tier, spacing, id): the lower tier first, then the smallest
+      // spacing its eviction leaves, then the older id. That spacing is the
+      // cover metric: the larger of the distance from the keyframe to the
+      // nearest other retained keyframe (the place stays covered) and the
+      // distance from the midpoint of its retained id-order neighbours to the
+      // nearest other retained keyframe (the path hole stays covered). Measuring
+      // the hole by coverage, not by the neighbours' separation, keeps a folded
+      // path (out and back) from losing its far end. Ranks run in ascending id with strict
+      // comparisons, so equal keys keep the older id; ids are unique, so the
+      // final lower-slot rule never has to act. The oldest retained id (rank
+      // 1, only once id 1 is gone, e.g. a catalog restored from a ring-era
+      // store) has no older neighbour; its path term is the full spacing to
+      // the next retained id. Cost: IdOrder's 64^2 integer comparisons plus
+      // 2*64^2 squared distances.
+      (order,count) := IdOrder(state);
+      bestTier := 0; bestGap := 0.0; fallback := 0; fallbackGap := 0.0;
+      for rank in 1:keyframeCapacity-1 loop
+        if rank < count then
+          node := order[rank]; before := if rank > 1 then order[max(rank-1,1)] else node;
+          if state.ids[node] <> 1 and state.ids[node] < state.nextId-retainedNewest then
+            // Squared cover metric; rank 1 has no older neighbour, so its hole
+            // term is the keyframe itself.
+            for axis in 1:dimension loop
+              midpoint[axis] := if rank > 1 then 0.5*(state.bodyPositions[before,axis]+state.bodyPositions[order[rank+1],axis])
+                else state.bodyPositions[node,axis];
+            end for;
+            nearest := -1.0; nearestMidpoint := -1.0;
+            for other in 1:keyframeCapacity loop
+              if other <> node and state.occupied[other] then
+                distance := 0.0; midpointDistance := 0.0;
+                for axis in 1:dimension loop
+                  distance := distance+(state.bodyPositions[other,axis]-state.bodyPositions[node,axis])^2;
+                  midpointDistance := midpointDistance+(state.bodyPositions[other,axis]-midpoint[axis])^2;
+                end for;
+                if nearest < 0.0 or distance < nearest then nearest := distance; end if;
+                if nearestMidpoint < 0.0 or midpointDistance < nearestMidpoint then nearestMidpoint := midpointDistance; end if;
+              end if;
+            end for;
+            gap := max(nearest,nearestMidpoint);
+            tier := retention[node];
+            if (tier == retentionFirst or tier == retentionBridged)
+              and (bestTier == 0 or tier < bestTier or (tier == bestTier and gap < bestGap)) then
+              slot := node; bestTier := tier; bestGap := gap;
+            end if;
+            if fallback == 0 or gap < fallbackGap then fallback := node; fallbackGap := gap; end if;
+          end if;
+        end if;
+      end for;
+      if slot == 0 then
+        // Keep a valid header; Store refuses this slot while retention holds it.
+        slot := max(1,fallback); evictable := false;
+      end if;
+    end if;
+  end ChooseVictim;
 
   function Reset
     input Catalog previous;

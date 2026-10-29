@@ -87,6 +87,7 @@ package RGBDCatalogFrame
           poseAccepted,true,coordinateLimit,voxelWidth,mergeRadius,maximumDistance,tentativeLifetime,confirmedLifetime,
           confirmationObservations,maximumConfidence,maximumTentative,consistencyTolerance,nodePosition,nodeRotation,poseRevision);
       end if;
+      result.diagnostics.retiredLoopFactors := if result.accepted then visual.retiredLoopFactors else 0;
       result.diagnostics.keyframeRejectionReason := visual.rejectionReason;
       result.diagnostics.sequentialRejectionReason := visual.sequentialDiagnostics.rejectionReason;
       result.diagnostics.loopAttempted := true;

@@ -12,8 +12,9 @@ package RGBDCatalogGraphCapture
     RGBDKeyframes.Catalog catalog;
     RGBDGraphMeasurements.State graph;
     Boolean accepted;
-    Integer rejectionReason "1 idle; 2 retrieval; 3 store; 4 graph; 5 problem";
+    Integer rejectionReason "1 idle; 2 retrieval; 3 store; 4 graph; 5 problem; 6 retention holds the slot due for eviction";
     Integer storedSlot; Integer evictedId;
+    Integer retiredLoopFactors "Committed by this Capture only when accepted";
     RGBDCatalogLoopVerification.Batch loopDiagnostics;
     RGBDLoopVerification.Proposal sequentialDiagnostics;
     RGBDGraphMeasurements.Update graphDiagnostics;
@@ -53,13 +54,18 @@ package RGBDCatalogGraphCapture
     input Real loopPoseConsistencySquared = 9.0;
     input Boolean loopPoseConsistency = poseConsistentLoops;
   protected
-    RGBDKeyframes.Catalog captured;
+    RGBDKeyframes.Catalog captured; RGBDKeyframes.Catalog storageCatalog;
+    RGBDGraphMeasurements.State storageGraph;
+    Integer plannedSlot; Integer retired; Boolean planAccepted;
     RGBDKeyframes.Frame latest;
     Boolean stored; Integer slot; Integer evicted; Boolean poseConsistent; Real poseSquared;
+    Integer storeReason; Integer retention[RGBDKeyframes.keyframeCapacity];
+    Integer children[RGBDKeyframes.keyframeCapacity]; Boolean loopReferenced[RGBDKeyframes.keyframeCapacity];
   algorithm
     result.catalog := previousCatalog; result.graph := previousGraph;
     result.accepted := false; result.rejectionReason := 1;
-    result.storedSlot := 0; result.evictedId := 0;
+    result.storedSlot := 0; result.evictedId := 0; result.retiredLoopFactors := 0;
+    storageCatalog := previousCatalog; storageGraph := previousGraph; retired := 0;
     result.loopDiagnostics := RGBDCatalogLoopVerification.ProposeCapture(previousCatalog,measurement,vocabulary,vocabularyEnabled,
       requested,seeds,maximumWordDistanceSquared,minimumAssignments,loopMinimumSimilarity,loopMinimumAge,trials,refinements,
       loopMinimumInliers,loopMinimumFraction,loopInlierDistance,loopMaximumRms,descriptorRatio,maximumDescriptorDistance,
@@ -68,7 +74,7 @@ package RGBDCatalogGraphCapture
       poseConsistentLoops=loopPoseConsistency,maximumPoseInnovation=loopMaximumPoseInnovation,poseConsistencySquared=loopPoseConsistencySquared);
     result.sequentialDiagnostics := RGBDLoopVerification.EmptyProposal(sequentialSeed);
     if result.loopDiagnostics.retrievalAccepted and previousCatalog.nextId > 1 then
-      latest := RGBDKeyframes.ReadSlot(previousCatalog,mod(previousCatalog.nextId-2,RGBDKeyframes.keyframeCapacity)+1);
+      latest := RGBDKeyframes.ReadSlot(previousCatalog,max(1,RGBDKeyframes.NewestSlot(previousCatalog)));
       result.sequentialDiagnostics := RGBDLoopVerification.Verify(latest,result.loopDiagnostics.prepared,true,
         sequentialSeed,trials,refinements,minimumInliers,minimumFraction,inlierDistance,maximumRms,0.0,
         descriptorRatio,maximumDescriptorDistance,coordinateLimit,rankTolerance,localizationSigma,depthInflation,minimumPivot,
@@ -87,8 +93,25 @@ package RGBDCatalogGraphCapture
         end if;
       end if;
     end if;
-    (captured,stored,slot,evicted) := RGBDKeyframes.Store(previousCatalog,result.loopDiagnostics.prepared,result.loopDiagnostics.retrievalAccepted);
-    result.graphDiagnostics := RGBDGraphMeasurements.Capture(previousCatalog,captured,previousGraph,
+    // The graph grants eviction tiers before Store; the catalog never reads
+    // graph records. Pending proposals count, so this capture's references stay.
+    (retention,children,loopReferenced) := RGBDGraphMeasurements.RetentionTiers(previousCatalog,previousGraph,
+      result.sequentialDiagnostics,result.loopDiagnostics.proposals);
+    if requested and result.loopDiagnostics.retrievalAccepted
+        and previousCatalog.occupied[previousCatalog.nextSlot]
+        and retention[previousCatalog.nextSlot] == RGBDKeyframes.retentionHeld then
+      (plannedSlot,storageGraph,retired,planAccepted) := RGBDGraphMeasurements.PlanNodeCapacity(
+        previousCatalog,previousGraph,result.sequentialDiagnostics,result.loopDiagnostics.proposals);
+      if planAccepted then
+        storageCatalog.nextSlot := plannedSlot;
+        // The original admission tier for the actual victim is mandatory.
+        (retention,children,loopReferenced) := RGBDGraphMeasurements.RetentionTiers(storageCatalog,storageGraph,
+          result.sequentialDiagnostics,result.loopDiagnostics.proposals);
+      end if;
+    end if;
+    (captured,stored,slot,evicted,storeReason) := RGBDKeyframes.Store(storageCatalog,result.loopDiagnostics.prepared,
+      result.loopDiagnostics.retrievalAccepted,retention);
+    result.graphDiagnostics := RGBDGraphMeasurements.Capture(storageCatalog,captured,storageGraph,
       result.sequentialDiagnostics,result.loopDiagnostics.proposals,stored,false,inlierDistance,maximumRms,
       calibratedResiduals=calibratedResiduals,maximumNormalizedSquared=maximumNormalizedSquared,
       localizationSigma=localizationSigma,depthInflation=depthInflation,minimumPivot=minimumPivot,
@@ -98,11 +121,13 @@ package RGBDCatalogGraphCapture
       result.problem := RGBDGraphMeasurements.PrepareProblem(captured,result.graphDiagnostics.state,true);
     end if;
     if requested then
-      result.rejectionReason := if not result.loopDiagnostics.retrievalAccepted then 2 else if not stored then 3
+      result.rejectionReason := if not result.loopDiagnostics.retrievalAccepted then 2
+        else if not stored then (if storeReason == RGBDKeyframes.storeRetentionRefused then 6 else 3)
         else if not result.graphDiagnostics.accepted then 4 else if not result.problem.accepted then 5 else 0;
       if result.rejectionReason == 0 then
         result.catalog := captured; result.graph := result.graphDiagnostics.state;
         result.accepted := true; result.storedSlot := slot; result.evictedId := evicted;
+        result.retiredLoopFactors := retired;
       end if;
     end if;
   end Capture;

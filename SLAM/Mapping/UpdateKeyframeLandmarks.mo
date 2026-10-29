@@ -119,7 +119,7 @@ algorithm
           poseRevision := if resetRequested == 1.0 then 0 else previousPoseRevision+(if stored then 1 else 0);
           selectedId := 0; selectedSlot := 0;
           if proposedCatalog.nextId > 1 then
-            selectedSlot := mod(proposedCatalog.nextId-2,RGBDKeyframes.keyframeCapacity)+1;
+            selectedSlot := max(1,RGBDKeyframes.NewestSlot(proposedCatalog));
             selectedId := proposedCatalog.ids[selectedSlot];
           end if;
           (point,occupied,confidence,lastSeen,lastFrame,confirmed,accepted,catalogUpdateRejectionReason,nextTime,nextFrame,nextWorldFrame,

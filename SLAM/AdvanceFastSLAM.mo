@@ -94,6 +94,7 @@ function AdvanceFastSLAM
   output Integer loopCandidateInliers[RGBDKeyframeRetrieval.proposalCapacity];
   output Real loopCandidateRms[RGBDKeyframeRetrieval.proposalCapacity];
   output Boolean loopCandidateVerified[RGBDKeyframeRetrieval.proposalCapacity];
+  output Integer retiredLoopFactors;
   input Boolean depthQualifiedSelection = true;
   input Real depthUnits = 1.0 "Meters per depth sample; 1 for metric depth, SDK scale for Z16";
   input Real loopMinimumSimilarity = 0.35;
@@ -328,7 +329,9 @@ algorithm
     proposed.position,proposed.rotation,proposed.covariance,previous.estimator.localization.catalog.vocabularyVersion,
     if producerFrameValid > 0.5 and (producerObservationAccepted > 0.5
       or producerCaptureAccepted > 0.5) then 1.0 else 0.0,
-    imageOn and producerPredictionAccepted > 0.5);
+    imageOn and producerPredictionAccepted > 0.5,
+    filterSourceRevision=previous.estimator.localization.sourceRevision,
+    filterCorrectionRevision=previous.estimator.correctionRevision);
   publication := RGBDLocalizationProcessing.Publish(previous,proposed,measurement,
     producerPredictionAccepted,
     producerObservationAccepted,producerCaptureAccepted,imageOn,imageEpoch,intervalTime,h,
@@ -343,6 +346,7 @@ algorithm
   keyframeDecisionReason := publication.publication.decision.reason;
   keyframeRejectionReason := publication.publication.mapDiagnostics.keyframeRejectionReason;
   sequentialRejectionReason := publication.publication.mapDiagnostics.sequentialRejectionReason;
+  retiredLoopFactors := if publication.accepted then publication.publication.mapDiagnostics.retiredLoopFactors else 0;
   frameRejectionDiagnostic := publication.publication.frameRejectionReason;
   accepted := publication.accepted;
   imageCompleted := publication.publication.imageCompleted;

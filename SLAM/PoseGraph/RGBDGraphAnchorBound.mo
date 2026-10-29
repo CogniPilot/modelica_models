@@ -65,8 +65,9 @@ package RGBDGraphAnchorBound
         and provenance >= 1 and provenance <= identifierLimit;
       id := 1; slot := 1; unchanged := false;
       if valid then
-        id := max(1,catalog.nextId-capacity); slot := mod(id-1,capacity)+1;
-        if gaugeId > 0 then id := gaugeId; slot := mod(id-1,capacity)+1; end if;
+        id := RGBDKeyframes.OldestId(catalog);
+        if gaugeId > 0 then id := gaugeId; end if;
+        slot := max(1,RGBDKeyframes.SlotOf(catalog,id));
         valid := catalog.occupied[slot] and catalog.ids[slot] == id;
       end if;
       if valid then
