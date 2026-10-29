@@ -16,6 +16,21 @@ package MultiBodyLie "MSL MultiBody rewritten on articulated-body connectors (la
     parameter Real gravitySphereDiameter = 12742000 "Ignored: no animation";
     parameter Real axisLength = 1 "Ignored: no animation";
     parameter Real nominalLength = 1 "Ignored: no animation";
+    parameter Boolean animateWorld = true "Ignored: no animation";
+    // MSL World defaults that component animation inputs bind to (names and formulas as MSL; no animation here).
+    parameter Real defaultAxisLength = nominalLength / 5 "Ignored: no animation";
+    parameter Real defaultJointLength = nominalLength / 10 "Ignored: no animation";
+    parameter Real defaultJointWidth = nominalLength / 20 "Ignored: no animation";
+    parameter Real defaultForceLength = nominalLength / 10 "Ignored: no animation";
+    parameter Real defaultForceWidth = nominalLength / 20 "Ignored: no animation";
+    parameter Real defaultBodyDiameter = nominalLength / 9 "Ignored: no animation";
+    parameter Real defaultWidthFraction = 20 "Ignored: no animation";
+    parameter Real defaultArrowDiameter = nominalLength / 40 "Ignored: no animation";
+    parameter Real defaultFrameDiameterFraction = 40 "Ignored: no animation";
+    parameter Real defaultSpecularCoefficient(min = 0) = 0.7 "Ignored: no animation";
+    parameter Real defaultN_to_m(min = 0) = 1000 "Ignored: no animation";
+    parameter Real defaultNm_to_m(min = 0) = 1000 "Ignored: no animation";
+    parameter Boolean animateGravity = true "Ignored: no animation";
     // As MSL: every Body takes its gravity from this function at its centre of mass, so a redeclared field applies
     // whatever gravityType says.
     replaceable function gravityAcceleration = Forces.Internal.standardGravityAcceleration(gravityType = gravityType, g = g * n / sqrt(n * n), mu = mu)
@@ -476,5 +491,100 @@ package MultiBodyLie "MSL MultiBody rewritten on articulated-body connectors (la
       frame_b.IA = zeros(21);
       frame_b.dv = zeros(3);
     end WorldForceAndTorque;
+
+    model Spring "Linear translational spring with optional point mass on the connection line (MSL names)"
+      // MSL Forces.Spring = Translational.Components.Spring inside LineForceWithMass (LineForceBase), as one force element.
+      // Kinematics as LineForceBase: length = |r_rel_0|, s = max(length, s_small) only guards the direction e = r_rel_0/s,
+      // and length > s_small is asserted. Spring law on the actual length: f = c (length - s_unstretched).
+      // Point forces at both origins, no torques. MSL: frame_a.f = resolve2(R_a, m (1-h) ag_CM - e fa),
+      // frame_b.f = resolve2(R_b, m h ag_CM - e fb), where MSL's flange connection gives fa = f, fb = -f, and
+      // ag_CM = (1-h) a_a + h a_b - g(r_CM) (h = lengthFraction). For m = 0 MSL's massless branch applies: no CM kinematics
+      // and no gravity evaluation. Written in this library's form: each frame's cut wrench is IA a + pA, with the frame's
+      // own acceleration term as a point mass at its origin (IA) and the rest in pA.
+      outer MultiBodyLie.World world;
+      Interfaces.Frame_a frame_a;
+      Interfaces.Frame_b frame_b;
+      parameter Boolean animation = true "Ignored: no animation";
+      parameter Boolean showMass = true "Ignored: no animation";
+      parameter Real c(final min = 0) "Spring constant [N/m]";
+      parameter Real s_unstretched = 0 "Unstretched spring length [m]";
+      parameter Real m(min = 0) = 0 "Spring mass on the connection line [kg]";
+      parameter Real lengthFraction(min = 0, max = 1) = 0.5 "Mass location from frame_a as a fraction of the distance a -> b";
+      input Real width = world.defaultForceWidth "Ignored: no animation (width of spring)";
+      input Real coilWidth = width / 10 "Ignored: no animation (width of spring coil)";
+      parameter Integer numberOfWindings = 5 "Ignored: no animation";
+      input Integer color[3] = {0, 0, 255} "Ignored: no animation (MSL Types.Defaults.SpringColor)";
+      input Real specularCoefficient = world.defaultSpecularCoefficient "Ignored: no animation";
+      input Real massDiameter = max(0, (width - 2 * coilWidth) * 0.9) "Ignored: no animation (diameter of mass point sphere)";
+      input Integer massColor[3] = {0, 128, 255} "Ignored: no animation (MSL Types.Defaults.BodyColor)";
+      parameter Real s_small = 1e-10 "Prevent zero-division if distance between frame_a and frame_b is zero";
+      parameter Boolean fixedRotationAtFrame_a = false "Not supported: must be false";
+      parameter Boolean fixedRotationAtFrame_b = false "Not supported: must be false";
+      Real r_rel_a[3] "Position vector from origin of frame_a to origin of frame_b, resolved in frame_a";
+      Real e_a[3] "Unit vector from frame_a to frame_b, resolved in frame_a";
+      Real f "Line force (positive, if acting on frame_b and directed from frame_a to frame_b)";
+      Real length "Distance between the origin of frame_a and the origin of frame_b";
+      Real s "(Guarded) distance between the origins (>= s_small)";
+      Real r_rel_0[3] "Position vector from frame_a to frame_b, world";
+      Real e_rel_0[3] "Unit vector from frame_a to frame_b, world";
+    protected
+      final parameter Real ma = m * (1 - lengthFraction) "Line mass share carried by frame_a";
+      final parameter Real mb = m * lengthFraction "Line mass share carried by frame_b";
+      Real acc_a[3] "Origin acceleration of frame_a, world";
+      Real acc_b[3] "Origin acceleration of frame_b, world";
+      // Gravity in a binding, as in Body (an equation-section call read the World class default instead of the inner
+      // modifier under rumoca b3afe4cb). Not evaluated at m = 0, as MSL's massless branch.
+      Real g_CM[3] = if m > 0 then world.gravityAcceleration(frame_a.r_0 + lengthFraction * r_rel_0) else zeros(3) "Gravity at the line mass, world";
+    equation
+      assert(not fixedRotationAtFrame_a and not fixedRotationAtFrame_b, "Spring: fixedRotationAtFrame_a/b is not supported");
+      assert(noEvent(length > s_small), "
+The distance between the origin of frame_a and the origin of frame_b
+of a line force component became smaller as parameter s_small
+(= a small number, defined in the \"Advanced\" menu). The distance is
+set to s_small, although it is smaller, to avoid a division by zero
+when computing the direction of the line force. Possible reasons
+for this situation:
+- At initial time the distance may already be zero: Change the initial
+  positions of the bodies connected by this element.
+- Hardware stops are not modeled or are modeled not stiff enough.
+  Include stops, e.g., stiff springs, or increase the stiffness
+  if already present.
+- Another error in your model may lead to unrealistically large forces
+  and torques that would in reality destroy the stops.
+- The flange_b connector might be defined by a pre-defined motion,
+  e.g., with Modelica.Mechanics.Translational.Position and the
+  predefined flange_b.s is zero or negative.
+");
+      r_rel_0 = frame_b.r_0 - frame_a.r_0;
+      length = sqrt(r_rel_0 * r_rel_0);
+      s = noEvent(max(length, s_small));
+      e_rel_0 = r_rel_0 / s;
+      r_rel_a = Frames.resolve2(frame_a.R, r_rel_0);
+      e_a = r_rel_a / s;
+      f = c * (length - s_unstretched);
+      if m > 0 then
+        acc_a = transpose(frame_a.R.T) * (frame_a.a[4:6] + cross(frame_a.R.w, frame_a.v));
+        acc_b = transpose(frame_b.R.T) * (frame_b.a[4:6] + cross(frame_b.R.w, frame_b.v));
+        // frame_a: m(1-h)((1-h) a_a + h a_b - g) - e f; frame_b: m h((1-h) a_a + h a_b - g) + e f.
+        frame_a.IA = Math.packSym(Math.spatialInertia(ma * (1 - lengthFraction), zeros(3), zeros(3, 3)));
+        frame_a.pA = cat(1, zeros(3), ma * (1 - lengthFraction) * cross(frame_a.R.w, frame_a.v)
+          + frame_a.R.T * (ma * lengthFraction * acc_b - ma * g_CM - e_rel_0 * f));
+        frame_b.IA = Math.packSym(Math.spatialInertia(mb * lengthFraction, zeros(3), zeros(3, 3)));
+        frame_b.pA = cat(1, zeros(3), mb * lengthFraction * cross(frame_b.R.w, frame_b.v)
+          + frame_b.R.T * (mb * (1 - lengthFraction) * acc_a - mb * g_CM + e_rel_0 * f));
+      else
+        // MSL massless branch: frame_a.f = -resolve2(R_a, e fa), frame_b.f = -resolve2(R_b, e fb).
+        acc_a = zeros(3);
+        acc_b = zeros(3);
+        frame_a.IA = zeros(21);
+        frame_a.pA = cat(1, zeros(3), -(frame_a.R.T * (e_rel_0 * f)));
+        frame_b.IA = zeros(21);
+        frame_b.pA = cat(1, zeros(3), frame_b.R.T * (e_rel_0 * f));
+      end if;
+      cat(1, frame_a.t, frame_a.f) = Math.unpackSym(frame_a.IA) * frame_a.a + frame_a.pA;
+      cat(1, frame_b.t, frame_b.f) = Math.unpackSym(frame_b.IA) * frame_b.a + frame_b.pA;
+      frame_a.dv = zeros(3);
+      frame_b.dv = zeros(3);
+    end Spring;
   end Forces;
 end MultiBodyLie;
