@@ -44,7 +44,8 @@ algorithm
     1.0e-12) + max(processNoise_m2_s, 0.0) * max(dt, 0.0);
   observationVariance_m2 := cosTilt * cosTilt
       * measurement.groundDistanceVariance_m2
-    + terrainH * navigationCovarianceLocal * terrainH;
+    + terrainH * LinearAlgebra.SymmetricMatrix.mulDenseVector(
+      navigationCovarianceLocal, terrainH);
   innovationVariance_m2 := predictedVariance_m2 + observationVariance_m2;
   usable := measurement.valid and measurement.fresh
     and measurement.quality >= minimumQuality

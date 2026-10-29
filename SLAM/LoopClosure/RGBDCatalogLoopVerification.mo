@@ -22,8 +22,8 @@ package RGBDCatalogLoopVerification
     // Four times the marginal sum bounds arbitrary correlations among the
     // two positions, retained-reference angle and measured translation.
     covariance := 4.0*(referenceCovariance[1:3,1:3]+currentCovariance[1:3,1:3]
-      +referenceRotation*measuredCovariance*transpose(referenceRotation)
-      +arm*referenceCovariance[4:6,4:6]*transpose(arm));
+      +LinearAlgebra.transformCovariance(referenceRotation,measuredCovariance)
+      +LinearAlgebra.transformCovariance(arm,referenceCovariance[4:6,4:6]));
     (valid,squared) := RegistrationWhitenedResidual3(residual,covariance,minimumPivot);
     accepted := valid and maximumSquared > 0.0 and squared <= maximumSquared
       and maximumTranslationInnovation > 0.0

@@ -8,6 +8,5 @@ function josephUpdate "Dimension-generic Joseph-form covariance correction"
     "Measurement covariance";
   output Real covarianceNext[size(factor, 1), size(factor, 1)];
 algorithm
-  covarianceNext := transformCovariance(factor, covariance)
-    + transformCovariance(gain, measurementNoise);
+  covarianceNext := SymmetricMatrix.josephUpdateDense(factor, covariance, gain, measurementNoise);
 end josephUpdate;

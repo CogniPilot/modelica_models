@@ -10,7 +10,7 @@ function compressPose "Sufficient pose statistic at one common camera linearizat
 protected
   Real poseJacobian[size(residual, 1), 6];
   Real weighted[size(residual, 1), 7];
-  Real information[6, 6];
+  Real information[21];
   Real solution[6, 7];
   Real noiseRoot[size(residual, 1), size(residual, 1)];
   Boolean noiseValid;
@@ -21,8 +21,9 @@ algorithm
   (noiseRoot, noiseValid) := LinearAlgebra.factorPSD(measurementCovariance);
   (weighted, weightedValid) := LinearAlgebra.solveSPD(measurementCovariance,
     cat(2, poseJacobian, transpose({residual})));
-  information := LinearAlgebra.symmetrize(transpose(poseJacobian) * weighted[:, 1:6]);
-  (solution, informationValid) := LinearAlgebra.solveSPD(information,
+  information := LinearAlgebra.SymmetricMatrix.packSymmetrized(
+    transpose(poseJacobian) * weighted[:, 1:6]);
+  (solution, informationValid) := LinearAlgebra.SymmetricMatrix.solveMatrix(information,
     cat(2, 1.0 * identity(6), transpose({transpose(poseJacobian) * weighted[:, 7]})));
   poseCovariance := LinearAlgebra.symmetrize(solution[:, 1:6]);
   poseResidual := solution[:, 7];

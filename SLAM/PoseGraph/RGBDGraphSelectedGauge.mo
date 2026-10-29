@@ -224,7 +224,7 @@ package RGBDGraphSelectedGauge
           end for; end for;
         end for;
         // Rotate every position-position, position-angle and cross-pose cell.
-        relativeBound := D*selected.upper*transpose(D);
+        relativeBound := LinearAlgebra.transformCovariance(D,selected.upper);
         result.rejectionReason := 6;
         (transported,transportAccepted,result.transportReason) := GraphGaugeUncertainty.Transport(
           previous,binding,expected,anchorPosition,anchorRotation,anchorBound,

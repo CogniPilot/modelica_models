@@ -13,7 +13,7 @@ protected
 algorithm
   residual := rotation*source+translation-target;
   if useCovariance then
-    covariance := rotation*sourceCovariance*transpose(rotation)+targetCovariance;
+    covariance := LinearAlgebra.transformCovariance(rotation,sourceCovariance)+targetCovariance;
     (valid,squaredResidual) := RegistrationWhitenedResidual3(residual,covariance,minimumPivot);
   else
     squaredResidual := residual*residual;
