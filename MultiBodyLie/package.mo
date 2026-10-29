@@ -255,6 +255,12 @@ package MultiBodyLie "MSL MultiBody rewritten on articulated-body connectors (la
       Interfaces.Frame_a frame_a;
       parameter Boolean animation = true "Ignored: no animation";
       parameter Real r_CM[3] = zeros(3);
+      // MSL animation surface (names, variability and default bindings as MSL Parts.Body; values ignored).
+      parameter Real sphereDiameter = world.defaultBodyDiameter "Ignored: no animation";
+      input Integer sphereColor[3] = {0, 128, 255} "Ignored: no animation (MSL Types.Defaults.BodyColor)";
+      parameter Real cylinderDiameter = sphereDiameter / 3 "Ignored: no animation (MSL Types.Defaults.BodyCylinderDiameterFraction = 3)";
+      input Integer cylinderColor[3] = sphereColor "Ignored: no animation";
+      input Real specularCoefficient = world.defaultSpecularCoefficient "Ignored: no animation";
       parameter Real m = 1;
       parameter Real I_11 = 0.001, I_22 = 0.001, I_33 = 0.001, I_21 = 0, I_31 = 0, I_32 = 0;
       parameter Boolean angles_fixed = false "Root only: fix the start orientation (angles_start = 0 supported)";
@@ -449,6 +455,93 @@ package MultiBodyLie "MSL MultiBody rewritten on articulated-body connectors (la
       pa = pAc + Ia * c + U * (u / D);
       a = (u - U * (ap + c)) / D;
     end Revolute;
+
+    model Prismatic "Prismatic joint along n, optionally driven through its axis flange; either direction (MSL names)"
+      // MSL Joints.Prismatic: frame_b.r_0 = frame_a.r_0 + resolve1(frame_a.R, e s), frame_b.R = frame_a.R, f = -e frame_b.f.
+      // Articulated form as Revolute, with the motion subspace S = {0; e} and the pure translation X = motionTransform(I, e s)
+      // (X a = {a1, a2 - r x a1}, X' p = {p1 + r x p2, p2}, X' S X by Math.translateInertia, as FixedTranslation).
+      outer MultiBodyLie.World world;
+      Modelica.Mechanics.Translational.Interfaces.Flange_a axis "Always present; unconnected means f = 0 (useAxisFlange kept for MSL compatibility)";
+      Modelica.Mechanics.Translational.Interfaces.Flange_b support "Drive support, assumed fixed in the world frame (NOT in the joint), as MSL: s = 0; its reaction does not enter frame_a or frame_b";
+      Interfaces.Frame_a frame_a;
+      Interfaces.Frame_b frame_b;
+      parameter Boolean useAxisFlange = false;
+      parameter Boolean animation = true "Ignored: no animation";
+      parameter Real n[3] = {1, 0, 0} "Axis of translation resolved in frame_a (= same as in frame_b)";
+      parameter Real boxWidthDirection[3] = {0, 1, 0} "Ignored: no animation";
+      parameter Real boxWidth = world.defaultJointWidth "Ignored: no animation";
+      parameter Real boxHeight = boxWidth "Ignored: no animation";
+      input Integer boxColor[3] = {255, 0, 0} "Ignored: no animation (MSL Types.Defaults.JointColor)";
+      input Real specularCoefficient = world.defaultSpecularCoefficient "Ignored: no animation";
+      parameter StateSelect stateSelect = StateSelect.prefer;
+      final parameter Real e[3] = Modelica.Math.Vectors.normalizeWithAssert(n) "Unit vector in direction of prismatic axis n (MSL: asserts length(n) > 0)";
+      Real s(start = 0, final stateSelect = stateSelect) "Relative distance between frame_a and frame_b";
+      Real v(start = 0, final stateSelect = stateSelect) "First derivative of s (relative velocity)";
+      Real a(start = 0) "Second derivative of s (relative acceleration)";
+      Real f "Actuation force in direction of joint axis";
+    protected
+      Real r[3] "Translation from the parent frame's origin to the child's, parent (= child) coordinates";
+      Real S[6] "Motion subspace in child coordinates";
+      Real IAc[6, 6];
+      Real pAc[6];
+      Real Vc[6];
+      Real ap[6];
+      Real c[6];
+      Real U[6];
+      Real D;
+      Real u;
+      Real Ia[6, 6];
+      Real pa[6];
+    equation
+      Connections.branch(frame_a.R, frame_b.R);
+      axis.s = s;
+      support.s = 0;
+      f = axis.f;
+      v = der(s);
+      a = der(v);
+      if Connections.rooted(frame_a.R) then
+        S = cat(1, zeros(3), e);
+        r = e * s;
+        frame_b.r_0 = frame_a.r_0 + transpose(frame_a.R.T) * r;
+        frame_b.R.T = frame_a.R.T;
+        frame_b.R.w = frame_a.R.w;
+        frame_b.v = frame_a.v + cross(frame_a.R.w, r) + e * v;
+        Vc = cat(1, frame_b.R.w, frame_b.v);
+        IAc = -Math.unpackSym(frame_b.IA);
+        pAc = -frame_b.pA;
+        ap = cat(1, frame_a.a[1:3], frame_a.a[4:6] - cross(r, frame_a.a[1:3]));
+        frame_b.a = ap + c + S * a;
+        frame_b.dI = zeros(21);
+        frame_a.IA = Math.translateInertia(Math.packSym(Ia), r);
+        frame_a.pA = cat(1, pa[1:3] + cross(r, pa[4:6]), pa[4:6]);
+        cat(1, frame_a.t, frame_a.f) = Math.unpackSym(frame_a.IA) * frame_a.a + frame_a.pA;
+        frame_a.dv = zeros(3);
+      else
+        S = cat(1, zeros(3), -e);
+        r = -e * s;
+        frame_a.r_0 = frame_b.r_0 + transpose(frame_b.R.T) * r;
+        frame_a.R.T = frame_b.R.T;
+        frame_a.R.w = frame_b.R.w;
+        frame_a.v = frame_b.v + cross(frame_b.R.w, r) - e * v;
+        Vc = cat(1, frame_a.R.w, frame_a.v);
+        IAc = -Math.unpackSym(frame_a.IA);
+        pAc = -frame_a.pA;
+        ap = cat(1, frame_b.a[1:3], frame_b.a[4:6] - cross(r, frame_b.a[1:3]));
+        frame_a.a = ap + c + S * a;
+        frame_a.dI = zeros(21);
+        frame_b.IA = Math.translateInertia(Math.packSym(Ia), r);
+        frame_b.pA = cat(1, pa[1:3] + cross(r, pa[4:6]), pa[4:6]);
+        cat(1, frame_b.t, frame_b.f) = Math.unpackSym(frame_b.IA) * frame_b.a + frame_b.pA;
+        frame_b.dv = zeros(3);
+      end if;
+      c = cat(1, zeros(3), cross(Vc[1:3], S[4:6] * v)) "crm(Vc) (S v) with S = {0, +-e}";
+      U = IAc * S;
+      D = S * U;
+      u = f - S * pAc;
+      Ia = IAc - {{U[i] * U[j] for j in 1:6} for i in 1:6} / D;
+      pa = pAc + Ia * c + U * (u / D);
+      a = (u - U * (ap + c)) / D;
+    end Prismatic;
   end Joints;
 
   package Forces
