@@ -538,6 +538,59 @@ package MultiBodyLie "MSL MultiBody rewritten on articulated-body connectors (la
       connect(frame_b, frameTranslation.frame_b);
       connect(frame_a, body.frame_a);
     end BodyBox;
+
+    model BodyCylinder "Rigid body with cylinder shape; mass and inertia from cylinder data and density (MSL names)"
+      // MSL Parts.BodyCylinder: a FixedTranslation r from frame_a to frame_b plus a Body at frame_a, with
+      // m = density pi length (radius^2 - innerRadius^2), r_CM = r_shape + normalize(lengthDirection) length/2 and
+      // I = resolveDyade1(from_nxy(r, {0,1,0}), diag({(mo radius^2 - mi innerRadius^2)/2, I22, I22})), all with MSL's formulas.
+      outer MultiBodyLie.World world;
+      Interfaces.Frame_a frame_a;
+      Interfaces.Frame_b frame_b;
+      parameter Boolean animation = true "Ignored: no animation";
+      parameter Real r[3](start = {0.1, 0, 0}) "Vector from frame_a to frame_b resolved in frame_a";
+      parameter Real r_shape[3] = {0, 0, 0} "Vector from frame_a to cylinder origin, resolved in frame_a";
+      parameter Real lengthDirection[3] = Modelica.Units.Conversions.to_unit1(r - r_shape) "Vector in length direction of cylinder, resolved in frame_a";
+      parameter Real length = Modelica.Math.Vectors.length(r - r_shape) "Length of cylinder";
+      parameter Real diameter = length / world.defaultWidthFraction "Diameter of cylinder";
+      parameter Real innerDiameter = 0 "Inner diameter of cylinder (0 <= innerDiameter <= Diameter)";
+      parameter Real density = 7700 "Density of cylinder [kg/m3]";
+      input Integer color[3] = {0, 128, 255} "Ignored: no animation (MSL Types.Defaults.BodyColor)";
+      input Real specularCoefficient = world.defaultSpecularCoefficient "Ignored: no animation";
+      Real r_0[3](start = {0, 0, 0}) "Position vector from origin of world frame to origin of frame_a";
+      Real v_0[3](start = {0, 0, 0}) "Absolute velocity of frame_a, resolved in world frame (= der(r_0))";
+      Real a_0[3](start = {0, 0, 0}) "Absolute acceleration of frame_a resolved in world frame (= der(v_0))";
+      parameter Boolean angles_fixed = false "= true, if angles_start are used as initial values, else as guess values";
+      parameter Real angles_start[3] = {0, 0, 0} "Initial values of angles to rotate world frame around 'sequence_start' axes into frame_a (only {0,0,0} supported)";
+      parameter Integer sequence_start[3] = {1, 2, 3} "Sequence of rotations to rotate world frame into frame_a at initial time";
+      parameter Boolean w_0_fixed = false "= true, if w_0_start are used as initial values, else as guess values";
+      parameter Real w_0_start[3] = {0, 0, 0} "Initial or guess values of angular velocity of frame_a resolved in world frame";
+      parameter Boolean z_0_fixed = false "Not supported: must be false";
+      parameter Real z_0_start[3] = {0, 0, 0} "Initial values of angular acceleration z_0 = der(w_0) (unused: z_0_fixed unsupported)";
+      parameter Boolean enforceStates = false "State-selection hint; ignored (this library chooses its own states)";
+      parameter Boolean useQuaternions = true "State-selection hint; ignored (this library uses quaternions)";
+      parameter Integer sequence_angleStates[3] = {1, 2, 3} "State-selection hint; ignored";
+      final parameter Real radius = diameter / 2 "Radius of cylinder";
+      final parameter Real innerRadius = innerDiameter / 2 "Inner-Radius of cylinder";
+      final parameter Real mo(min = 0) = density * Modelica.Constants.pi * length * radius * radius "Mass of cylinder without hole";
+      final parameter Real mi(min = 0) = density * Modelica.Constants.pi * length * innerRadius * innerRadius "Mass of hole of cylinder";
+      final parameter Real I22 = (mo * (length * length + 3 * radius * radius) - mi * (length * length + 3 * innerRadius * innerRadius)) / 12 "Inertia with respect to axis through center of mass, perpendicular to cylinder axis";
+      final parameter Real m(min = 0) = mo - mi "Mass of cylinder";
+      final parameter Frames.Orientation R = Frames.Orientation(T = Frames.from_nxyT(r, {0, 1, 0}), w = zeros(3)) "Orientation object from frame_a to frame spanned by cylinder axis and axis perpendicular to cylinder axis";
+      final parameter Real r_CM[3] = r_shape + Modelica.Math.Vectors.normalizeWithAssert(lengthDirection) * length / 2 "Position vector from origin of frame_a to center of mass, resolved in frame_a";
+      final parameter Real I[3, 3] = transpose(R.T) * diagonal({(mo * radius * radius - mi * innerRadius * innerRadius) / 2, I22, I22}) * R.T "Inertia tensor of cylinder with respect to center of mass, resolved in frame parallel to frame_a (MSL Frames.resolveDyade1)";
+      Body body(animation = false, r_CM = r_CM, m = m, I_11 = I[1, 1], I_22 = I[2, 2], I_33 = I[3, 3], I_21 = I[2, 1], I_31 = I[3, 1], I_32 = I[3, 2], angles_fixed = angles_fixed, w_0_fixed = w_0_fixed, w_0_start = w_0_start);
+      FixedTranslation frameTranslation(r = r, animation = animation);
+    equation
+      assert(innerDiameter < diameter, "parameter innerDiameter is greater than parameter diameter");
+      assert(not angles_fixed or max(abs(angles_start)) == 0, "BodyCylinder: angles_start other than {0,0,0} is not supported yet");
+      assert(not z_0_fixed, "BodyCylinder: z_0_fixed = true is not supported");
+      r_0 = frame_a.r_0;
+      v_0 = body.v_0;
+      a_0 = body.a_0;
+      connect(frame_a, frameTranslation.frame_a);
+      connect(frame_b, frameTranslation.frame_b);
+      connect(frame_a, body.frame_a);
+    end BodyCylinder;
   end Parts;
 
   package Joints
