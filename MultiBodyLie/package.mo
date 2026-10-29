@@ -86,11 +86,55 @@ package MultiBodyLie "MSL MultiBody rewritten on articulated-body connectors (la
     algorithm
       v2 := R.T * v1;
     end resolve2;
+
+    // Fixed relative rotations with MSL's formulas (Frames.planarRotation, TransformationMatrices.from_nxy,
+    // Frames.axesRotations / TransformationMatrices.axisRotation); only T, since FixedRotation's R_rel is constant.
+    function planarRotationT "T of MSL Frames.planarRotation(e, angle): rotate frame 1 into frame 2 about the unit vector e"
+      input Real e[3] "Normalized axis of rotation (must have length = 1)";
+      input Real angle "Rotation angle [rad]";
+      output Real T[3, 3];
+    algorithm
+      T := outerProduct(e, e) + (identity(3) - outerProduct(e, e)) * Modelica.Math.cos(angle) - skew(e) * Modelica.Math.sin(angle);
+    end planarRotationT;
+
+    function axisRotationT "T of MSL TransformationMatrices.axisRotation(axis, angle)"
+      input Integer axis(min = 1, max = 3);
+      input Real angle "[rad]";
+      output Real T[3, 3];
+    algorithm
+      T := if axis == 1 then [1, 0, 0; 0, Modelica.Math.cos(angle), Modelica.Math.sin(angle); 0, -Modelica.Math.sin(angle), Modelica.Math.cos(angle)]
+           elseif axis == 2 then [Modelica.Math.cos(angle), 0, -Modelica.Math.sin(angle); 0, 1, 0; Modelica.Math.sin(angle), 0, Modelica.Math.cos(angle)]
+           else [Modelica.Math.cos(angle), Modelica.Math.sin(angle), 0; -Modelica.Math.sin(angle), Modelica.Math.cos(angle), 0; 0, 0, 1];
+    end axisRotationT;
+
+    function axesRotationsT "T of MSL Frames.axesRotations(sequence, angles)"
+      input Integer sequence[3](min = {1, 1, 1}, max = {3, 3, 3}) = {1, 2, 3};
+      input Real angles[3] "[rad]";
+      output Real T[3, 3];
+    algorithm
+      T := axisRotationT(sequence[3], angles[3]) * axisRotationT(sequence[2], angles[2]) * axisRotationT(sequence[1], angles[1]);
+    end axesRotationsT;
+
+    function from_nxyT "T of MSL TransformationMatrices.from_nxy(n_x, n_y), including its degenerate-input fallbacks"
+      input Real n_x[3] "Vector in direction of x-axis of frame 2, resolved in frame 1";
+      input Real n_y[3] "Vector in direction of y-axis of frame 2, resolved in frame 1";
+      output Real T[3, 3];
+    protected
+      Real e_x[3] = if Modelica.Math.Vectors.length(n_x) < 1e-10 then {1, 0, 0} else Modelica.Math.Vectors.normalize(n_x);
+      Real e_y[3] = if Modelica.Math.Vectors.length(n_y) < 1e-10 then {0, 1, 0} else Modelica.Math.Vectors.normalize(n_y);
+      Real n_z_aux[3] = cross(e_x, e_y);
+      Real n_y_aux[3] = if n_z_aux * n_z_aux > 1.0e-6 then e_y else if abs(e_x[1]) > 1.0e-6 then {0, 1, 0} else {1, 0, 0};
+      Real e_z_aux[3] = cross(e_x, n_y_aux);
+      Real e_z[3] = Modelica.Math.Vectors.normalize(e_z_aux);
+    algorithm
+      T := {e_x, cross(e_z, e_x), e_z};
+    end from_nxyT;
   end Frames;
 
   package Types
     type GravityTypes = enumeration(NoGravity "No gravity field", UniformGravity "Uniform gravity field", PointGravity "Point gravity field");
     type ResolveInFrameB = enumeration(world "Resolve in world frame", frame_b "Resolve in frame_b", frame_resolve "Resolve in frame_resolve (unsupported)");
+    type RotationTypes = enumeration(RotationAxis "Rotating frame_a around an angle with a fixed axis", TwoAxesVectors "Resolve two vectors of frame_b in frame_a", PlanarRotationSequence "Planar rotation sequence") "MSL Types.RotationTypes";
   end Types;
 
   package Interfaces
@@ -354,6 +398,70 @@ package MultiBodyLie "MSL MultiBody rewritten on articulated-body connectors (la
         frame_b.dv = zeros(3);
       end if;
     end FixedTranslation;
+
+    model FixedRotation "Fixed translation r followed by a fixed rotation R_rel of frame_b with respect to frame_a; either direction (MSL names)"
+      // MSL Parts.FixedRotation: frame_b.r_0 = frame_a.r_0 + resolve1(frame_a.R, r), frame_b.R = absoluteRotation(frame_a.R, R_rel).
+      // Articulated form: X = diag(E, E) X_trans(r) with E = R_rel.T (frame_b <- frame_a), so
+      // X a = {E a1, E (a2 - r x a1)}, X' p = {E'p1 + r x E'p2, E'p2}, X' S X = translateInertia(rotateInertia(S, E), r).
+      // R_rel is built with MSL's own formulas (Frames.planarRotationT, from_nxyT, axesRotationsT below).
+      outer MultiBodyLie.World world;
+      Interfaces.Frame_a frame_a;
+      Interfaces.Frame_b frame_b;
+      parameter Boolean animation = true "Ignored: no animation";
+      parameter Real r[3] = {0, 0, 0} "Vector from frame_a to frame_b resolved in frame_a";
+      parameter Types.RotationTypes rotationType = Types.RotationTypes.RotationAxis "Type of rotation description";
+      parameter Real n[3] = {1, 0, 0} "Axis of rotation in frame_a (= same as in frame_b)";
+      parameter Real angle = 0 "Angle to rotate frame_a around axis n into frame_b [deg]";
+      parameter Real n_x[3] = {1, 0, 0} "Vector along x-axis of frame_b resolved in frame_a";
+      parameter Real n_y[3] = {0, 1, 0} "Vector along y-axis of frame_b resolved in frame_a";
+      parameter Integer sequence[3](min = {1, 1, 1}, max = {3, 3, 3}) = {1, 2, 3} "Sequence of rotations";
+      parameter Real angles[3] = {0, 0, 0} "Rotation angles around the axes defined in 'sequence' [deg]";
+      parameter String shapeType = "cylinder" "Ignored: no animation";
+      parameter Real r_shape[3] = {0, 0, 0} "Ignored: no animation";
+      parameter Real lengthDirection[3] = Modelica.Units.Conversions.to_unit1(r - r_shape) "Ignored: no animation";
+      parameter Real widthDirection[3] = {0, 1, 0} "Ignored: no animation";
+      parameter Real length = Modelica.Math.Vectors.length(r - r_shape) "Ignored: no animation";
+      parameter Real width = length / world.defaultWidthFraction "Ignored: no animation";
+      parameter Real height = width "Ignored: no animation";
+      parameter Real extra = 0.0 "Ignored: no animation";
+      input Integer color[3] = {155, 155, 155} "Ignored: no animation (MSL Types.Defaults.RodColor)";
+      input Real specularCoefficient = world.defaultSpecularCoefficient "Ignored: no animation";
+      final parameter Frames.Orientation R_rel = Frames.Orientation(
+        T = if rotationType == Types.RotationTypes.RotationAxis then
+              Frames.planarRotationT(Modelica.Math.Vectors.normalizeWithAssert(n), Modelica.Units.Conversions.from_deg(angle))
+            elseif rotationType == Types.RotationTypes.TwoAxesVectors then Frames.from_nxyT(n_x, n_y)
+            else Frames.axesRotationsT(sequence, Modelica.Units.Conversions.from_deg(angles)),
+        w = zeros(3)) "Fixed rotation object from frame_a to frame_b";
+    protected
+      final parameter Real E[3, 3] = R_rel.T "frame_b <- frame_a";
+      final parameter Real r_b[3] = -E * r "Origin of frame_a seen from frame_b, frame_b coordinates";
+    equation
+      Connections.branch(frame_a.R, frame_b.R);
+      assert(cardinality(frame_a) > 0 or cardinality(frame_b) > 0, "Neither connector frame_a nor frame_b of FixedRotation object is connected");
+      if Connections.rooted(frame_a.R) then
+        frame_b.r_0 = frame_a.r_0 + transpose(frame_a.R.T) * r;
+        frame_b.R.T = E * frame_a.R.T;
+        frame_b.R.w = E * frame_a.R.w;
+        frame_b.v = E * (frame_a.v + cross(frame_a.R.w, r));
+        frame_b.a = cat(1, E * frame_a.a[1:3], E * (frame_a.a[4:6] - cross(r, frame_a.a[1:3])));
+        frame_b.dI = zeros(21);
+        frame_a.IA = -Math.translateInertia(Math.rotateInertia(frame_b.IA, E), r);
+        frame_a.pA = -cat(1, transpose(E) * frame_b.pA[1:3] + cross(r, transpose(E) * frame_b.pA[4:6]), transpose(E) * frame_b.pA[4:6]);
+        cat(1, frame_a.t, frame_a.f) = Math.unpackSym(frame_a.IA) * frame_a.a + frame_a.pA;
+        frame_a.dv = zeros(3);
+      else
+        frame_a.r_0 = frame_b.r_0 + transpose(frame_b.R.T) * r_b;
+        frame_a.R.T = transpose(E) * frame_b.R.T;
+        frame_a.R.w = transpose(E) * frame_b.R.w;
+        frame_a.v = transpose(E) * (frame_b.v + cross(frame_b.R.w, r_b));
+        frame_a.a = cat(1, transpose(E) * frame_b.a[1:3], transpose(E) * (frame_b.a[4:6] - cross(r_b, frame_b.a[1:3])));
+        frame_a.dI = zeros(21);
+        frame_b.IA = -Math.translateInertia(Math.rotateInertia(frame_a.IA, transpose(E)), r_b);
+        frame_b.pA = -cat(1, E * frame_a.pA[1:3] + cross(r_b, E * frame_a.pA[4:6]), E * frame_a.pA[4:6]);
+        cat(1, frame_b.t, frame_b.f) = Math.unpackSym(frame_b.IA) * frame_b.a + frame_b.pA;
+        frame_b.dv = zeros(3);
+      end if;
+    end FixedRotation;
 
     model BodyShape "Rigid body with frame_a and frame_b (r from a to b) and mass at r_CM (MSL names)"
       Interfaces.Frame_a frame_a;
