@@ -34,7 +34,8 @@ algorithm
     if initializedPrevious then variancePrevious_m2 else initialVariance_m2,
     1.0e-12) + max(processNoise_m2_s, 0.0) * max(dt, 0.0);
   observationVariance_m2 := measurement.variance_m2
-    + altitudeH * navigationCovarianceLocal * altitudeH;
+    + altitudeH * LinearAlgebra.SymmetricMatrix.mulDenseVector(
+      navigationCovarianceLocal, altitudeH);
   innovationVariance_m2 := predictedVariance_m2 + observationVariance_m2;
   innovation_m := measurement.altitudeWorldEnu_m - positionWorldEnu_m[3]
     - (if initializedPrevious then biasPrevious_m else initialBias_m);

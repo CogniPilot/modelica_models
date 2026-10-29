@@ -2,6 +2,7 @@ Assertions
 RuleChecks
 HorizonChecks
 LinearAlgebraTests
+PackedLinearAlgebraTests
 LieGroupsTests
 LieGroupTests
 JacobianRuleTests

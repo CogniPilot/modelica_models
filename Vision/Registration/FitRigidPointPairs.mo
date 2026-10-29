@@ -27,6 +27,7 @@ protected
   Boolean mask[size(pairEnabled,1)];
   Boolean domainValid;
   Real crossCovariance[3,3]; Real sourceCovariance[4,4];
+  Real sourceCovariancePacked[6];
   Real horn[4,4]; Real hornValues[4]; Real sourceValues[4];
   Real quaternion[4]; Real unusedVector[4];
   Real unusedGap; Real hornResidual; Real sourceResidual;
@@ -60,19 +61,25 @@ algorithm
   end for;
   sourceCentroid := sourceCentroid/max(validCount,1.0);
   targetCentroid := targetCentroid/max(validCount,1.0);
-  crossCovariance := zeros(3,3); sourceCovariance := zeros(4,4);
+  crossCovariance := zeros(3,3); sourceCovariancePacked := zeros(6);
   for i in 1:size(pairEnabled,1) loop
     if mask[i] then
       for a in 1:3 loop
         for b in 1:3 loop
           crossCovariance[a,b] := crossCovariance[a,b]+(sourcePoint[i,a]-sourceCentroid[a])*(targetPoint[i,b]-targetCentroid[b]);
-          sourceCovariance[a,b] := sourceCovariance[a,b]+(sourcePoint[i,a]-sourceCentroid[a])*(sourcePoint[i,b]-sourceCentroid[b]);
+          if a <= b then
+            sourceCovariancePacked[LinearAlgebra.SymmetricMatrix.index(a,b,3)] :=
+              sourceCovariancePacked[LinearAlgebra.SymmetricMatrix.index(a,b,3)]
+                +(sourcePoint[i,a]-sourceCentroid[a])*(sourcePoint[i,b]-sourceCentroid[b]);
+          end if;
         end for;
       end for;
     end if;
   end for;
   crossCovariance := crossCovariance/max(validCount,1.0);
-  sourceCovariance := sourceCovariance/max(validCount,1.0);
+  sourceCovariance := zeros(4,4);
+  sourceCovariance[1:3,1:3] := LinearAlgebra.SymmetricMatrix.unpack(3,
+    sourceCovariancePacked/max(validCount,1.0));
   horn := {{crossCovariance[1,1]+crossCovariance[2,2]+crossCovariance[3,3],crossCovariance[2,3]-crossCovariance[3,2],crossCovariance[3,1]-crossCovariance[1,3],crossCovariance[1,2]-crossCovariance[2,1]},
     {crossCovariance[2,3]-crossCovariance[3,2],crossCovariance[1,1]-crossCovariance[2,2]-crossCovariance[3,3],crossCovariance[1,2]+crossCovariance[2,1],crossCovariance[1,3]+crossCovariance[3,1]},
     {crossCovariance[3,1]-crossCovariance[1,3],crossCovariance[1,2]+crossCovariance[2,1],-crossCovariance[1,1]+crossCovariance[2,2]-crossCovariance[3,3],crossCovariance[2,3]+crossCovariance[3,2]},

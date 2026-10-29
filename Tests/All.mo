@@ -3,6 +3,7 @@ model All "Complete Modelica assertion suite"
   Tests.RegistrationWeightedTests registrationWeighted;
   Tests.RGBDLoopConsistencyTests loopConsistency;
   Tests.LinearAlgebraTests linearAlgebra;
+  Tests.PackedLinearAlgebraTests packedLinearAlgebra;
   Tests.CovarianceRootTests covarianceRoot;
   Tests.LieGroupsTests lieGroupsSmoke;
   Tests.LieGroupTests.Suite lieGroups;
