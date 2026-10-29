@@ -27,7 +27,7 @@ package RGBDGraphCaptureLedger
     input State ledger; input RGBDKeyframes.Catalog catalog;
     input Integer sourceRevision; input Integer step;
     output Boolean valid;
-  protected Integer oldest; Integer slot; Integer previousSequence;
+  protected Integer slot; Integer previousSequence; Integer order[capacity]; Integer count;
   algorithm
     valid := RGBDKeyframes.ValidHeader(catalog)
       and ledger.generation == catalog.generation
@@ -35,12 +35,13 @@ package RGBDGraphCaptureLedger
       and ledger.sourceRevision == sourceRevision
       and step >= 0 and step < identifierLimit and ledger.lastStep == step
       and ledger.catalogNextId == catalog.nextId;
-    oldest := 1; slot := 1; previousSequence := 0;
+    slot := 1; previousSequence := 0; order := fill(0,capacity); count := 0;
     if valid then
-      oldest := max(1,catalog.nextId-capacity);
+      // Retained ids need not be contiguous; walk them in ascending id order.
+      (order,count) := RGBDKeyframes.IdOrder(catalog);
       for node in 1:capacity loop
-        if node <= min(capacity,catalog.nextId-1) then
-          slot := mod(oldest+node-2,capacity)+1;
+        if node <= count then
+          slot := order[node];
           valid := valid and ledger.ids[slot] == catalog.ids[slot]
             and ledger.epochs[slot] == catalog.epochs[slot]
             and ledger.times[slot] == catalog.imageTimes[slot]
@@ -78,12 +79,15 @@ package RGBDGraphCaptureLedger
         valid := nextCatalog.nextId == previousCatalog.nextId
           or (previousCatalog.nextId < identifierLimit and nextCatalog.nextId == previousCatalog.nextId+1);
         captured := nextCatalog.nextId == previousCatalog.nextId+1;
-        storedSlot := previousCatalog.nextSlot;
+        // The committed new identity owns its slot; a capacity plan may
+        // select another slot after retrieval. Never infer it from a counter.
+        storedSlot := if captured then max(1,RGBDKeyframes.SlotOf(nextCatalog,previousCatalog.nextId)) else previousCatalog.nextSlot;
         if not captured then
           valid := valid and nextCatalog.lastEpoch == previousCatalog.lastEpoch
             and nextCatalog.lastTime == previousCatalog.lastTime;
         else
-          valid := valid and nextCatalog.ids[storedSlot] == previousCatalog.nextId
+          valid := valid and RGBDKeyframes.SlotOf(nextCatalog,previousCatalog.nextId) >= 1
+            and nextCatalog.ids[storedSlot] == previousCatalog.nextId
             and nextCatalog.epochs[storedSlot] > previousCatalog.lastEpoch
             and (previousCatalog.nextId == 1 or nextCatalog.imageTimes[storedSlot] > previousCatalog.lastTime);
         end if;

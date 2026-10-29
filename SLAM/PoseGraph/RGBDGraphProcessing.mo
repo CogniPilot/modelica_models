@@ -51,7 +51,7 @@ package RGBDGraphProcessing
   record Result
     State next;
     Boolean accepted;
-    Integer reason "0 accepted;1 idle;2 owner/chronology;3 graph problem;4 optimizer;5 anchor;6 selection;7 commit";
+    Integer reason "0 accepted;1 idle;2 owner/chronology;3 graph problem;4 optimizer;5 anchor;6 selection;7 commit;8 no visual path between current and reference;9 no fresh verified loop";
     Boolean attempted;
     Integer commitReason;
     Integer filterReason;
@@ -185,7 +185,10 @@ package RGBDGraphProcessing
         and state.anchor.binding.id == state.selected.binding.anchorId
         and state.anchor.binding.id <= identifierLimit
         and state.anchor.binding.slot >= 1 and state.anchor.binding.slot <= nodeCapacity
-        and state.anchor.binding.slot == mod(state.anchor.binding.id-1,nodeCapacity)+1
+        // Retention assigns slots: a retained anchor id must sit in its bound
+        // slot; an evicted one is refused later by the catalog Bound checks.
+        and (RGBDKeyframes.SlotOf(state.estimator.localization.catalog,state.anchor.binding.id) == 0
+          or RGBDKeyframes.SlotOf(state.estimator.localization.catalog,state.anchor.binding.id) == state.anchor.binding.slot)
         and state.anchor.binding.epoch == state.selected.binding.anchorEpoch
         and state.anchor.binding.sequence == state.selected.binding.anchorCaptureSequence
         and state.anchor.binding.imageTime == state.selected.binding.anchorTime
@@ -203,6 +206,7 @@ package RGBDGraphProcessing
     Boolean valid;
     Boolean anchorAccepted;
     Boolean contextAccepted;
+    Boolean freshLoop;
     Boolean changed;
     Integer oldest;
     Integer currentId;
@@ -258,12 +262,28 @@ package RGBDGraphProcessing
         and previous.estimator.localization.predictionTime == previous.estimator.localization.catalog.lastTime
         and previous.estimator.poses.revision < identifierLimit-1;
       if valid then
-        oldest := max(1,previous.estimator.localization.catalog.nextId-nodeCapacity);
+        // Sequential image motion has already updated localization. A new
+        // capture revision alone is not a new loop correction event. Require
+        // a measured loop whose current identity is this newly admitted node;
+        // retained historical loops and structural bridges do not qualify.
+        freshLoop := false;
+        for edge in 1:RGBDGraphMeasurements.edgeCapacity loop
+          freshLoop := freshLoop or (previous.estimator.localization.graph.edges[edge].enabled
+            and previous.estimator.localization.graph.edges[edge].kind == 2
+            and previous.estimator.localization.graph.edges[edge].currentId
+              == previous.estimator.localization.catalog.nextId-1);
+        end for;
+        result.reason := 9; valid := freshLoop;
+      end if;
+      if valid then
+        oldest := RGBDKeyframes.OldestId(previous.estimator.localization.catalog);
         currentId := previous.estimator.localization.catalog.nextId-1;
         referenceId := previous.estimator.localization.referenceBirth.catalogId;
-        anchorSlot := mod(oldest-1,nodeCapacity)+1;
-        currentSlot := mod(currentId-1,nodeCapacity)+1;
-        referenceSlot := mod(referenceId-1,nodeCapacity)+1;
+        // Slots come from the catalog; a missing id maps to slot 1 and the
+        // Bound check below refuses it.
+        anchorSlot := max(1,RGBDKeyframes.SlotOf(previous.estimator.localization.catalog,oldest));
+        currentSlot := max(1,RGBDKeyframes.NewestSlot(previous.estimator.localization.catalog));
+        referenceSlot := max(1,RGBDKeyframes.SlotOf(previous.estimator.localization.catalog,referenceId));
         valid := RGBDGraphMeasurements.Bound(previous.estimator.localization.catalog,referenceId,
             referenceSlot,previous.estimator.localization.referenceBirth.epoch)
           and previous.captures.sequences[currentSlot] == previous.estimator.localization.steps
@@ -354,11 +374,9 @@ package RGBDGraphProcessing
         valid := contextAccepted;
       end if;
       if valid then
-        currentNode := currentId-oldest+1;
-        referenceNode := referenceId-oldest+1;
-        // Loop-anchored rows skip detached nodes; a reference outside the
-        // solve stays 0 and selection refuses it. The search sits outside
-        // the flag branch: this exporter rejects a loop under a constant-false if.
+        // Rows follow ascending retained id, so ids no longer give rows by
+        // subtraction. Loop-anchored rows also skip detached nodes; a
+        // reference outside the solve stays 0 and selection refuses it.
         currentRow := 0; referenceRow := 0;
         for node in 1:nodeCapacity loop
           if node <= problem.nodeCount then
@@ -366,9 +384,10 @@ package RGBDGraphProcessing
             if problem.nodeId[node] == referenceId then referenceRow := node; end if;
           end if;
         end for;
-        if RGBDGraphMeasurements.loopAnchoredCapture then
-          currentNode := currentRow; referenceNode := referenceRow;
-        end if;
+        currentNode := currentRow; referenceNode := referenceRow;
+        // Odometry bridges never enter the solve, so a reference
+        // reachable only through one has no row and the filter is not corrected.
+        if referenceRow == 0 or currentRow == 0 then result.reason := 8; end if;
         binding.generation := context.generation;
         binding.sourceRevision := context.sourceRevision;
         binding.graphRevision := context.graphRevision;

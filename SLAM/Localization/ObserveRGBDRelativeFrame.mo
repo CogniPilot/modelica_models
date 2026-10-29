@@ -52,6 +52,7 @@ function ObserveRGBDRelativeFrame
   input Real depthUnits = 1.0 "Meters per depth sample; 1 for metric depth, SDK scale for Z16";
   input Boolean calibratedRegistration = true;
   input Real maximumNormalizedSquared = 9.0 "Squared whitened residual radius, not a metric RMS";
+  input Boolean pairRequested = true "False keeps current image extraction but skips ineligible matching and registration";
 protected
   constant Integer featureCapacity = 350;
   constant Integer descriptorWidth = 7; constant Integer descriptorSize = descriptorWidth*descriptorWidth;
@@ -67,64 +68,79 @@ algorithm
   (currentDescriptor,currentPoint,currentEnabled,descriptionInvalidCount) :=
     DescribeRGBDFrame(rgb,depth,pixels,activeCount,rgbCalibration,depthCalibration,
       disparityNoise,noiseReferenceFx,baseline,nearDepth,farDepth,minimumContrast,imageEnabled,depthUnits=depthUnits);
-  (currentIndex,candidatePairEnabled,sourcePoint,targetPoint,matchCount,matchingConfigurationValid,
-    invalidReference,invalidCurrent,nearestDistance,secondDistance) :=
-    MatchRGBDDescriptors(referenceDescriptor,currentDescriptor,referencePoint,currentPoint,
-      referenceEnabled,currentEnabled,referenceCount,activeCount,ratio,maximumDescriptorDistance,
-      usePrediction,predictedRotation,predictedTranslation,maximumGeometricDistance);
-  // Sparse masks span the complete reference domain, never the match prefix.
-  if robustRegistration then
-    sourceCovariance := zeros(featureCapacity,3,3); targetCovariance := zeros(featureCapacity,3,3);
-    noiseConfiguration := referenceRgbFocal[1] > 0 and referenceRgbFocal[2] > 0
-      and rgbCalibration[1] > 0 and rgbCalibration[2] > 0
-      and referenceNoiseReferenceFx > 0 and noiseReferenceFx > 0 and baseline > 0
-      and localizationSigma > 0 and disparityNoise > 0 and depthInflation >= 1;
-    if calibratedRegistration and noiseConfiguration then
+  if pairRequested then
+    (currentIndex,candidatePairEnabled,sourcePoint,targetPoint,matchCount,matchingConfigurationValid,
+      invalidReference,invalidCurrent,nearestDistance,secondDistance) :=
+      MatchRGBDDescriptors(referenceDescriptor,currentDescriptor,referencePoint,currentPoint,
+        referenceEnabled,currentEnabled,referenceCount,activeCount,ratio,maximumDescriptorDistance,
+        usePrediction,predictedRotation,predictedTranslation,maximumGeometricDistance);
+    // Sparse masks span the complete reference domain, never the match prefix.
+    if robustRegistration then
+      sourceCovariance := zeros(featureCapacity,3,3); targetCovariance := zeros(featureCapacity,3,3);
+      noiseConfiguration := referenceRgbFocal[1] > 0 and referenceRgbFocal[2] > 0
+        and rgbCalibration[1] > 0 and rgbCalibration[2] > 0
+        and referenceNoiseReferenceFx > 0 and noiseReferenceFx > 0 and baseline > 0
+        and localizationSigma > 0 and disparityNoise > 0 and depthInflation >= 1;
+      if calibratedRegistration and noiseConfiguration then
+        for pair in 1:featureCapacity loop
+          if candidatePairEnabled[pair] == 1 and sourcePoint[pair,3] > 0 and targetPoint[pair,3] > 0 then
+            sourceCovariance[pair,:,:] := RGBDOpticalPointCovariance(sourcePoint[pair,:],
+              referenceRgbFocal[1],referenceRgbFocal[2],localizationSigma,disparityNoise,
+              referenceNoiseReferenceFx,baseline,depthInflation);
+            targetCovariance[pair,:,:] := RGBDOpticalPointCovariance(targetPoint[pair,:],
+              rgbCalibration[1],rgbCalibration[2],localizationSigma,disparityNoise,
+              noiseReferenceFx,baseline,depthInflation);
+          end if;
+        end for;
+      end if;
+      (registrationAccepted,registrationRejectionReason,currentFromReference,currentFromReferenceTranslation,
+        registrationValidCount,registrationInvalidCount,registrationRank,registrationCost,registrationRms,
+        eigenGap,sourceCentroid,targetCentroid,registrationInlierMask,registrationRejectedCount) :=
+        FitRigidPointPairsRobust(sourcePoint,targetPoint,candidatePairEnabled,
+          featureCapacity,registrationCoordinateLimit,rankTolerance,maximumRms,
+          maximumRegistrationHypotheses,minimumRegistrationConsensusFraction,
+          useCovariance=calibratedRegistration,sourceCovariance=sourceCovariance,targetCovariance=targetCovariance,
+          maximumNormalizedSquared=maximumNormalizedSquared,covarianceMinimumPivot=uncertaintyMinimumPivot);
+    else
+      (registrationAccepted,registrationRejectionReason,currentFromReference,currentFromReferenceTranslation,
+        registrationValidCount,registrationInvalidCount,registrationRank,registrationCost,registrationRms,
+        eigenGap,sourceCentroid,targetCentroid) := FitRigidPointPairs(sourcePoint,targetPoint,candidatePairEnabled,
+          featureCapacity,registrationCoordinateLimit,rankTolerance,maximumRms);
+      registrationInlierMask := candidatePairEnabled; registrationRejectedCount := 0.0;
+    end if;
+    // Descriptor candidates remain observable in matchCount. Accepted registration,
+    // uncertainty and tracking consume the same certified sparse inlier inventory.
+    // On refusal retain candidate diagnostics; valid=0 prevents a filter update.
+    pairEnabled := if registrationAccepted > 0.5 then registrationInlierMask else candidatePairEnabled;
+    if registrationAccepted > 0.5 then
       for pair in 1:featureCapacity loop
-        if candidatePairEnabled[pair] == 1 and sourcePoint[pair,3] > 0 and targetPoint[pair,3] > 0 then
-          sourceCovariance[pair,:,:] := RGBDOpticalPointCovariance(sourcePoint[pair,:],
-            referenceRgbFocal[1],referenceRgbFocal[2],localizationSigma,disparityNoise,
-            referenceNoiseReferenceFx,baseline,depthInflation);
-          targetCovariance[pair,:,:] := RGBDOpticalPointCovariance(targetPoint[pair,:],
-            rgbCalibration[1],rgbCalibration[2],localizationSigma,disparityNoise,
-            noiseReferenceFx,baseline,depthInflation);
-        end if;
+        if registrationInlierMask[pair] < 0.5 then currentIndex[pair] := 0.0; end if;
       end for;
     end if;
-    (registrationAccepted,registrationRejectionReason,currentFromReference,currentFromReferenceTranslation,
-      registrationValidCount,registrationInvalidCount,registrationRank,registrationCost,registrationRms,
-      eigenGap,sourceCentroid,targetCentroid,registrationInlierMask,registrationRejectedCount) :=
-      FitRigidPointPairsRobust(sourcePoint,targetPoint,candidatePairEnabled,
-        featureCapacity,registrationCoordinateLimit,rankTolerance,maximumRms,
-        maximumRegistrationHypotheses,minimumRegistrationConsensusFraction,
-        useCovariance=calibratedRegistration,sourceCovariance=sourceCovariance,targetCovariance=targetCovariance,
-        maximumNormalizedSquared=maximumNormalizedSquared,covarianceMinimumPivot=uncertaintyMinimumPivot);
+    (poseValid,observedBodyRotation,observedBodyPosition) := RGBDRelativeBodyPose(referenceBodyRotation,
+      referenceBodyPosition,currentFromReference,currentFromReferenceTranslation,opticalToBody,
+      cameraOriginBody,registrationAccepted);
+    valid := if matchingConfigurationValid > 0.5 then poseValid else 0.0;
+    (uncertaintyValid,uncertaintyRejectionReason,uncertaintyValidCount,uncertaintyInvalidCount,
+      relativeCovariance,conditionalObservationCovariance,normalMatrix,noiseMatrix,observationJacobian,minimumScaledPivot) :=
+      RGBDRegistrationSandwich(sourcePoint,targetPoint,pairEnabled,featureCapacity,valid,currentFromReference,
+        currentFromReferenceTranslation,referenceBodyRotation,opticalToBody,cameraOriginBody,
+        referenceRgbFocal,{rgbCalibration[1],rgbCalibration[2]},referenceNoiseReferenceFx,noiseReferenceFx,
+        baseline,localizationSigma,disparityNoise,depthInflation,uncertaintyCoordinateLimit,uncertaintyMinimumPivot,
+        weighted=robustRegistration and calibratedRegistration);
+    relativeValid := if valid > 0.5 and uncertaintyValid > 0.5 then 1.0 else 0.0;
   else
-    (registrationAccepted,registrationRejectionReason,currentFromReference,currentFromReferenceTranslation,
-      registrationValidCount,registrationInvalidCount,registrationRank,registrationCost,registrationRms,
-      eigenGap,sourceCentroid,targetCentroid) := FitRigidPointPairs(sourcePoint,targetPoint,candidatePairEnabled,
-        featureCapacity,registrationCoordinateLimit,rankTolerance,maximumRms);
-    registrationInlierMask := candidatePairEnabled; registrationRejectedCount := 0.0;
+    // The image owner has already ruled out a visual update. Extraction above
+    // is still required for a fresh reference and catalog/map observation.
+    observedBodyRotation := identity(3); observedBodyPosition := zeros(3);
+    valid := 0.0; matchCount := 0.0; registrationRms := 0.0; registrationRejectionReason := 1.0;
+    currentIndex := zeros(featureCapacity); pairEnabled := zeros(featureCapacity);
+    currentFromReference := identity(3); currentFromReferenceTranslation := zeros(3);
+    relativeCovariance := zeros(6,6); conditionalObservationCovariance := zeros(6,6);
+    relativeValid := 0.0; uncertaintyRejectionReason := 1.0;
+    uncertaintyValidCount := 0.0; uncertaintyInvalidCount := 0.0;
+    matchingConfigurationValid := 0.0; invalidReference := 0.0; invalidCurrent := 0.0;
+    registrationAccepted := 0.0; registrationValidCount := 0.0; registrationInvalidCount := 0.0;
+    registrationRank := 0.0; uncertaintyValid := 0.0;
   end if;
-  // Descriptor candidates remain observable in matchCount. Accepted registration,
-  // uncertainty and tracking consume the same certified sparse inlier inventory.
-  // On refusal retain candidate diagnostics; valid=0 prevents a filter update.
-  pairEnabled := if registrationAccepted > 0.5 then registrationInlierMask else candidatePairEnabled;
-  if registrationAccepted > 0.5 then
-    for pair in 1:featureCapacity loop
-      if registrationInlierMask[pair] < 0.5 then currentIndex[pair] := 0.0; end if;
-    end for;
-  end if;
-  (poseValid,observedBodyRotation,observedBodyPosition) := RGBDRelativeBodyPose(referenceBodyRotation,
-    referenceBodyPosition,currentFromReference,currentFromReferenceTranslation,opticalToBody,
-    cameraOriginBody,registrationAccepted);
-  valid := if matchingConfigurationValid > 0.5 then poseValid else 0.0;
-  (uncertaintyValid,uncertaintyRejectionReason,uncertaintyValidCount,uncertaintyInvalidCount,
-    relativeCovariance,conditionalObservationCovariance,normalMatrix,noiseMatrix,observationJacobian,minimumScaledPivot) :=
-    RGBDRegistrationSandwich(sourcePoint,targetPoint,pairEnabled,featureCapacity,valid,currentFromReference,
-      currentFromReferenceTranslation,referenceBodyRotation,opticalToBody,cameraOriginBody,
-      referenceRgbFocal,{rgbCalibration[1],rgbCalibration[2]},referenceNoiseReferenceFx,noiseReferenceFx,
-      baseline,localizationSigma,disparityNoise,depthInflation,uncertaintyCoordinateLimit,uncertaintyMinimumPivot,
-      weighted=robustRegistration and calibratedRegistration);
-  relativeValid := if valid > 0.5 and uncertaintyValid > 0.5 then 1.0 else 0.0;
 end ObserveRGBDRelativeFrame;

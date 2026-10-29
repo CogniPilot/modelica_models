@@ -221,7 +221,8 @@ algorithm
     referenceCount=usableReferenceCount,referenceRgbFocal={referenceRgbCalibration[1],referenceRgbCalibration[2]},
     referenceNoiseReferenceFx=referenceNoiseReferenceFx,imageEnabled=imageOn,disparityNoise=disparityNoise,baseline=baseline,
     referenceBodyPosition=referencePosition,referenceBodyRotation=referenceRotation,
-    opticalToBody=opticalToBody,cameraOriginBody=cameraOriginBody,depthUnits=depthUnits);
+    opticalToBody=opticalToBody,cameraOriginBody=cameraOriginBody,depthUnits=depthUnits,
+    pairRequested=imageOn and pairEligible > 0.5);
   frameValid := if imageOn and activeCount >= 0.0 and activeCount <= featureCapacity
     and SLAMExactRealEqual(activeCount,floor(activeCount)) and sum(currentEnabled) >= 3.0
     and disparityNoise > 0.0 and disparityNoise <= 1.0 and noiseReferenceFx >= 1e-6 and noiseReferenceFx <= 1e6

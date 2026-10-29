@@ -72,7 +72,7 @@ package RGBDKeyframePolicy
             end if;
           end for;
           if catalog.nextId > 1 then
-            latestSlot := mod(catalog.nextId-2,RGBDKeyframes.keyframeCapacity)+1;
+            latestSlot := max(1,RGBDKeyframes.NewestSlot(catalog));
             valid := valid and RGBDMapAnchors.ProperRotation(catalog.bodyRotations[latestSlot,:,:]);
             for axis in 1:RGBDKeyframes.dimension loop
               valid := valid and abs(catalog.bodyPositions[latestSlot,axis]) <= coordinateLimit;

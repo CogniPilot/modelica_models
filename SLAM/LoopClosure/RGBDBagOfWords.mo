@@ -28,6 +28,7 @@ model RGBDBagOfWords
   input Real timeNow = 0.0;
   input Real storeKeyframe = 0.0;
   input Real resetRequested = 0.0;
+  input Real catalogSlot = 0.0 "Keyframe catalog stored slot to follow; 0 keeps the standalone ring";
   output Real wordIndex[featureCapacity];
   output Real histogram[vocabularyCapacity];
   output Real candidateId[candidateCapacity];
@@ -52,5 +53,5 @@ equation
     nextVersion,nextSlot,nextTime,configurationValid,vocabularyCount,assignmentCount,retrievalValid,candidateCount,stored,invalidHistoryCount) =
     RetrieveVisualWords(descriptor,descriptorEnabled,descriptorCount,vocabulary,vocabularyEnabled,vocabularyVersion,
       previousHistogram,previousEnabled,previousKeyframeId,previousKeyframeTime,previousVersion,previousNextSlot,previousTime,
-      queryKeyframeId,timeNow,storeKeyframe,resetRequested,maximumWordDistanceSquared,minimumAssignments,minimumSimilarity,minimumAge);
+      queryKeyframeId,timeNow,storeKeyframe,resetRequested,maximumWordDistanceSquared,minimumAssignments,minimumSimilarity,minimumAge,catalogSlot);
 end RGBDBagOfWords;

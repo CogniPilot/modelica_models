@@ -42,6 +42,8 @@ package RGBDLocalizationFrame
     output RGBDKeyframes.Frame frame;
     output Boolean accepted;
     output Integer rejectionReason "0 accepted; 1 idle; 2 metadata; 3 domain/mask; 4 calibration; 5 pose; 6 pose covariance; 7 feature payload";
+    input Integer filterSourceRevision = 0 "Estimator source revision this pose belongs to";
+    input Integer filterCorrectionRevision = 0 "Accepted graph-to-filter commits before this pose";
   protected
     RGBDKeyframes.Frame candidate;
     Boolean valid;
@@ -150,6 +152,8 @@ package RGBDLocalizationFrame
               candidate.disparityNoise := disparityNoise;
               candidate.noiseReferenceFx := noiseReferenceFx; candidate.baseline := baseline;
               candidate.bodyPosition := bodyPosition; candidate.bodyRotation := bodyRotation;
+              candidate.filterSourceRevision := filterSourceRevision;
+              candidate.filterCorrectionRevision := filterCorrectionRevision;
               candidate.vocabularyVersion := vocabularyVersion;
               // Histogram stays canonical zero; PrepareCapture alone owns BoW.
               for feature in 1:RGBDKeyframes.featureCapacity loop
