@@ -96,6 +96,7 @@ def run_openmodelica_tests(repository: Path) -> None:
     run_omc_script(repository, "Tests/run-loglinear.mos")
     run_omc_script(repository, "Tests/run-position-loop.mos")
     run_omc_script(repository, "Tests/run-manual-guidance.mos")
+    run_omc_script(repository, "Tests/run-rate-feedforward.mos")
     run_omc_script(repository, "Tests/run-horizon.mos")
     run_omc_script(repository, "Tests/run-observability-constraint.mos")
     run_omc_script(repository, "Tests/check-vehicle-boundaries.mos")
