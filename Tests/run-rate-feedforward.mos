@@ -1,0 +1,29 @@
+// Run this constant-input assertion model at top level: placing it inside
+// Tests.All can let translation fold away its runtime assertions.
+setCommandLineOptions("--std=3.6");
+if not loadModel(LieGroups) then
+  print(getErrorString());
+  exit(1);
+end if;
+if not loadModel(Vehicles) then
+  print(getErrorString());
+  exit(1);
+end if;
+cd(getTempDirectoryPath());
+print(checkModel(Vehicles.Rdd2.Test.Rdd2RateFeedforwardChecks));
+print(getErrorString());
+result := simulate(
+  Vehicles.Rdd2.Test.Rdd2RateFeedforwardChecks,
+  startTime=0.0,
+  stopTime=0.02,
+  numberOfIntervals=4,
+  tolerance=1.0e-10,
+  outputFormat="mat",
+  fileNamePrefix="modelica_models_Rdd2RateFeedforwardChecks");
+print(getErrorString());
+resultFile := result.resultFile;
+if resultFile == "" then
+  print("RDD2 trajectory rate feed-forward regression failed\n");
+  exit(1);
+end if;
+exit(0);

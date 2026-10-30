@@ -38,7 +38,9 @@ equation
   guidanceTask.reference.velocityWorld_m_s = reference.velocityWorld_m_s;
   guidanceTask.reference.accelerationWorld_m_s2 =
     reference.accelerationWorld_m_s2;
+  guidanceTask.reference.jerkWorld_m_s3 = reference.jerkWorld_m_s3;
   guidanceTask.reference.yaw_rad = reference.yaw_rad;
+  guidanceTask.reference.yawRate_rad_s = reference.yawRate_rad_s;
   pilotCommands.throttleInput =
     guidanceTask.pilotCommands.throttleInput;
   pilotCommands.acroRateDesired_rad_s =
