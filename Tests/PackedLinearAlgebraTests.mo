@@ -54,7 +54,8 @@ model PackedLinearAlgebraTests "Packed symmetric and triangular storage, solves 
     passed := true;
   end runSizeCase;
   model SizeCase
-    parameter Integer n=3;
+    parameter Integer n=3 "Matrix size fixed when this test case is translated"
+      annotation(Evaluate=true);
     Boolean passed(start=true,fixed=true);
   algorithm
     when sample(0.0,0.01) then
