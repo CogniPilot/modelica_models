@@ -28,7 +28,7 @@ model Charts "Swappable SO(3) charts: contract for each chart plus independent r
   Tests.LieGroupTests.ChartContract expLarge(redeclare package Chart = LieGroups.SO3.Charts.Exp, delta = {1.5, -1.6, 1.3});
   Tests.LieGroupTests.ChartContract cayleyLarge(redeclare package Chart = LieGroups.SO3.Charts.Cayley, delta = {1.5, -1.6, 1.3});
   Tests.LieGroupTests.ChartContract mrpLarge(redeclare package Chart = LieGroups.SO3.Charts.Mrp, delta = {1.5, -1.6, 1.3});
-  Tests.LieGroupTests.ChartContract eulerNearSingular(redeclare package Chart = LieGroups.SO3.Charts.EulerB321, delta = {0.2, 1.565, -0.4});
+  Tests.LieGroupTests.ChartContract eulerNearSingular(redeclare package Chart = LieGroups.SO3.Charts.EulerB321, delta = {0.2, 1.55, -0.4});
 equation
   assert(abs(abs(exp.q * expQ) - 1.0) < tolerance and Tests.Assertions.maxAbsMatrix(exp.J - expJ) < tolerance,
     "Exp chart disagrees with reference values");
@@ -46,6 +46,9 @@ equation
   assert(not LieGroups.SO3.Charts.EulerB321.inDomain({0.0, 2.0, 0.0}) and
          not LieGroups.SO3.Charts.EulerB321.inDomain({0.0, 6.0, 0.0}),
     "EulerB321 domain must exclude |pitch| > pi/2, including periodic cos(pitch) > 0 cases such as pitch = 6");
+  assert(not LieGroups.SO3.Charts.EulerB321.inDomain({0.2, 1.565, -0.4}) and
+         LieGroups.SO3.Charts.EulerB321.inDomain({0.2, 1.55, -0.4}),
+    "EulerB321 domain must stop where EulerB321.from_Quat enters its gimbal-lock branch, |sin(pitch)| > 0.9999");
   assert(not LieGroups.SO3.Charts.Mrp.inDomain({5.0, 0.0, 0.0}) and
          not LieGroups.SO3.Charts.Mrp.inDomain({4.0, 0.0, 0.0}) and
          LieGroups.SO3.Charts.Mrp.inDomain({3.9, 0.0, 0.0}),

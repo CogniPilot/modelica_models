@@ -48,7 +48,8 @@ package EulerB321
     output Boolean valid;
   algorithm
     // Principal angles, so local(retract(delta)) = delta. cos(pitch) is periodic, so bound the pitch interval
-    // explicitly: |pitch| < acos(1e-3) < pi/2 (cond(J) below about 1e3), and |roll|, |yaw| < pi.
-    valid := abs(delta[2]) < acos(1e-3) and abs(delta[1]) < 2.0 * asin(1.0) and abs(delta[3]) < 2.0 * asin(1.0);
+    // explicitly, and |roll|, |yaw| < pi. LieGroups.SO3.EulerB321.from_Quat switches to its gimbal-lock branch,
+    // which sets roll to zero, once |sin(pitch)| > 0.9999, so the pitch bound is asin(0.9999) (cond(J) about 71).
+    valid := abs(delta[2]) < asin(0.9999) and abs(delta[1]) < 2.0 * asin(1.0) and abs(delta[3]) < 2.0 * asin(1.0);
   end inDomain;
 end EulerB321;
