@@ -33,7 +33,7 @@ package MultiBodyLie "MSL MultiBody rewritten on articulated-body connectors (la
     parameter Boolean animateGravity = true "Ignored: no animation";
     // As MSL: every Body takes its gravity from this function at its centre of mass, so a redeclared field applies
     // whatever gravityType says.
-    replaceable function gravityAcceleration = Forces.Internal.standardGravityAcceleration(gravityType = gravityType, g = g * n / sqrt(n * n), mu = mu)
+    replaceable function gravityAcceleration = Forces.Internal.standardGravityAcceleration(gravityType = gravityType, g = g * Modelica.Math.Vectors.normalizeWithAssert(n), mu = mu)
       constrainedby Interfaces.partialGravityAcceleration;
     Interfaces.Frame_b frame_b;
   equation
