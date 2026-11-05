@@ -5,6 +5,7 @@ model ChartContract "Contract checks every SO(3) chart must pass; instantiate wi
   constant Real tolerance = 1.0e-12;
   constant Real fdTolerance = 1.0e-7 "Central difference with step 1e-5";
   constant Real fdStep = 1.0e-5;
+  constant Real basis[3, 3] = identity(3) "Columns are the unit vectors e_k";
   parameter Real delta[3] = {0.3, -0.2, 0.25} "Test point; must satisfy Chart.inDomain";
   constant Real omega[3] = {0.7, -1.1, 0.4};
   constant Real q0[4] = {0.8775825618903728, 0.0, 0.479425538604203, 0.0} "Base: 1 rad about y";
@@ -29,16 +30,16 @@ equation
   JInv = Chart.to_Quat_jacobian_inv(delta);
   for k in 1:3 loop
     JFd[:, k] = (LieGroups.SO3.Quat.log_map(LieGroups.SO3.Quat.product(
-                   LieGroups.SO3.Quat.inverse(q), Chart.to_Quat(delta + fdStep * identity(3)[:, k])))
+                   LieGroups.SO3.Quat.inverse(q), Chart.to_Quat(delta + fdStep * basis[:, k])))
                - LieGroups.SO3.Quat.log_map(LieGroups.SO3.Quat.product(
-                   LieGroups.SO3.Quat.inverse(q), Chart.to_Quat(delta - fdStep * identity(3)[:, k]))))
+                   LieGroups.SO3.Quat.inverse(q), Chart.to_Quat(delta - fdStep * basis[:, k]))))
                / (2.0 * fdStep);
   end for;
   deltaDot = Chart.rate(delta, omega);
   qMinus = Chart.to_Quat(-delta);
   for k in 1:3 loop
-    ADelta[:, k] = (Chart.rate(fdStep * identity(3)[:, k], omega)
-                  - Chart.rate(-fdStep * identity(3)[:, k], omega)) / (2.0 * fdStep);
+    ADelta[:, k] = (Chart.rate(fdStep * basis[:, k], omega)
+                  - Chart.rate(-fdStep * basis[:, k], omega)) / (2.0 * fdStep);
   end for;
 
   assert(abs(abs(qZero[1]) - 1.0) < tolerance and Tests.Assertions.maxAbsVector(qZero[2:4]) < tolerance,
