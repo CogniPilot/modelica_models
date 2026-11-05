@@ -27,8 +27,8 @@ algorithm
     if covariancePositive then
       rotationWorldBody := LieGroups.SO3.Quat.to_DCM(
         LieGroups.SO3.Quat.normalize(quaternionWorldBody));
-      covarianceBody_m2 := transpose(rotationWorldBody)
-        * LinearAlgebra.symmetrize(covarianceWorld_m2) * rotationWorldBody;
+      covarianceBody_m2 := LinearAlgebra.transformCovariance(transpose(rotationWorldBody),
+        LinearAlgebra.symmetrize(covarianceWorld_m2));
       for row in 1:3 loop
         // The initializer stores diagonal tangent variances. Absolute row
         // sums give a diagonal majorant of the full rotated covariance,

@@ -72,7 +72,7 @@ algorithm
           J[4:6,4:6] := currentOpticalToBody;
           // Only roundoff asymmetry within the SPD helper's tolerance is
           // averaged. No damping or covariance floor invents an accepted edge.
-          covarianceCandidate := J*((opticalCovariance+transpose(opticalCovariance))/2.0)*transpose(J);
+          covarianceCandidate := LinearAlgebra.transformCovariance(J,LinearAlgebra.symmetrize(opticalCovariance));
           covarianceCandidate := (covarianceCandidate+transpose(covarianceCandidate))/2.0;
           (inverseCandidate,edgeValid,minimumScaledPivot) :=
             RGBDUncertaintyInverse6(covarianceCandidate,minimumPivot);

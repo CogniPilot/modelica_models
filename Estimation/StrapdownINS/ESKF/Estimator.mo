@@ -198,6 +198,10 @@ protected
     start = {1.0, 0.0, 0.0, 0.0}, each fixed = true);
   discrete Real stateGyroscopeBias[3](each start = 0.0, each fixed = true);
   discrete Real stateAccelerometerBias[3](each start = 0.0, each fixed = true);
+  discrete Real stateCovariancePacked[div(15 * (15 + 1), 2)](each start=0.0, each fixed=true)
+    "Authoritative held covariance, symmetric upper triangle";
+  discrete Real stateCovarianceRootPacked[div(15 * (15 + 1), 2)](each start=0.0, each fixed=true)
+    "Authoritative held lower-triangular covariance root";
   discrete Real stateCovarianceRoot[15, 15](each start=0, each fixed=true);
   discrete Real stateCovariance[15, 15](each start = 0.0, each fixed = true);
   Real barometerObservationBiasVariance_m2;
@@ -390,10 +394,10 @@ algorithm
       - opticalFlow.groundDistance_m * auxiliaryCosTilt;
     auxiliaryObservationVariance_m2 := auxiliaryCosTilt * auxiliaryCosTilt
         * opticalFlow.groundDistanceVariance_m2
-      + pre(stateCovariance[1, 1]) + pre(stateCovariance[2, 2])
-      + pre(stateCovariance[3, 3])
+      + pre(stateCovariancePacked[LinearAlgebra.SymmetricMatrix.index(1, 1, 15)]) + pre(stateCovariancePacked[LinearAlgebra.SymmetricMatrix.index(2, 2, 15)])
+      + pre(stateCovariancePacked[LinearAlgebra.SymmetricMatrix.index(3, 3, 15)])
       + opticalFlow.groundDistance_m * opticalFlow.groundDistance_m
-        * (pre(stateCovariance[7, 7]) + pre(stateCovariance[8, 8]));
+        * (pre(stateCovariancePacked[LinearAlgebra.SymmetricMatrix.index(7, 7, 15)]) + pre(stateCovariancePacked[LinearAlgebra.SymmetricMatrix.index(8, 8, 15)]));
     auxiliaryInnovationVariance_m2 := auxiliaryPredictedVariance_m2
       + auxiliaryObservationVariance_m2;
     if not reset and opticalFlow.valid
@@ -484,8 +488,8 @@ algorithm
           quaternionWorldBody=pre(stateQuaternion),
           gyroscopeBiasBodyFlu_rad_s=pre(stateGyroscopeBias),
           accelerometerBiasBodyFlu_m_s2=pre(stateAccelerometerBias),
-          covariance=pre(stateCovariance),
-          covarianceRoot=pre(stateCovarianceRoot),
+          covariance=LinearAlgebra.SymmetricMatrix.unpack(15, pre(stateCovariancePacked)),
+          covarianceRoot=LinearAlgebra.LowerTriangular.unpack(15, pre(stateCovarianceRootPacked)),
           barometerBiasCrossCovariance=pre(barometerBiasCrossCovariance),
           barometerBias_m=stateBarometerBias_m,
           barometerBiasVariance_m2=stateBarometerBiasVariance_m2,
@@ -572,6 +576,8 @@ algorithm
         pre(alignmentSpecificForce_m_s2),
         pre(quietAngularRate_rad_s),
         vehicleAtRest);
+    stateCovariancePacked := LinearAlgebra.SymmetricMatrix.packSymmetrized(stateCovariance);
+    stateCovarianceRootPacked := LinearAlgebra.LowerTriangular.pack(stateCovarianceRoot);
     (estimate.valid,
      estimate.timestamp_s,
      estimate.positionWorldEnu_m,

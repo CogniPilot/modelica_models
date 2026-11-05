@@ -383,7 +383,7 @@ modelica-models test plots
 ```
 
 CI uses the same Python commands. The optional Nix layer uses released Rumoca
-0.10.2 for both the CLI and Python bindings. Its Python dependency override
+0.10.4 for both the CLI and Python bindings. Its Python dependency override
 corrects the release's stale Cargo vendor hash without patching compiler code.
 The Rumoca checks compile and execute a C99 UKF prediction regression. Native
 use requires `cc` or `MODELICA_MODELS_CC`; the Nix application supplies its compiler.

@@ -16,7 +16,7 @@ protected
   Real sigma[TangentLength, SigmaCount];
   Real meanCorrection[TangentLength];
   Real deviation[TangentLength];
-  Real covariance[TangentLength, TangentLength];
+  Real covariancePacked[div(TangentLength * (TangentLength + 1), 2)];
   Real deltaPositionBodyFlu_m[3];
   Real deltaVelocityBodyFlu_m_s[3];
   Real deltaQuaternionBodyFlu[4];
@@ -50,12 +50,11 @@ algorithm
   end for;
 
   deviation := localErrorVector(predictedMean, propagated[:, 1]);
-  covariance := transpose({CentralCovarianceWeight * deviation})
-    * {deviation};
+  covariancePacked := LinearAlgebra.SymmetricMatrix.weightedOuterProduct(deviation, CentralCovarianceWeight);
   for sigmaIndex in 2:SigmaCount loop
     deviation := localErrorVector(predictedMean, propagated[:, sigmaIndex]);
-    covariance := covariance
-      + transpose({SigmaWeight * deviation}) * {deviation};
+    covariancePacked := covariancePacked
+      + LinearAlgebra.SymmetricMatrix.weightedOuterProduct(deviation, SigmaWeight);
   end for;
 
   (deltaPositionBodyFlu_m,
@@ -83,5 +82,6 @@ algorithm
     quaternionWorldBody=predictedMean[7:10],
     gyroscopeBiasBodyFlu_rad_s=predictedMean[11:13],
     accelerometerBiasBodyFlu_m_s2=predictedMean[14:16],
-    covariance=LinearAlgebra.symmetrize(covariance + discreteNoise));
+    covariance=LinearAlgebra.SymmetricMatrix.unpack(TangentLength, covariancePacked
+      + LinearAlgebra.SymmetricMatrix.packSymmetrized(discreteNoise)));
 end predictPreintegrated;

@@ -16,7 +16,7 @@ protected
   Real diagonalScale;
   Real diagonalSum;
   Real offDiagonalSum;
-  Real lower[size(covariance,1),size(covariance,1)];
+  Real lower[div(size(covariance,1)*(size(covariance,1)+1),2)];
 algorithm
   diagonalScale := 0.0;
   diagonalSum := 0.0;
@@ -25,7 +25,7 @@ algorithm
     diagonalScale := diagonalScale+abs(covariance[i,i]);
   end for;
   scale := max(1.0,diagonalScale);
-  lower := zeros(size(covariance,1),size(covariance,1));
+  lower := zeros(div(size(covariance,1)*(size(covariance,1)+1),2));
   pivot := 0.0;
   valid := if size(covariance,1) == size(covariance,2) then 1.0 else 0.0;
   for i in 1:size(covariance,1) loop
@@ -34,21 +34,21 @@ algorithm
       diagonalSum := 0.0;
       // Ordered finite accumulation; no array-valued comprehension temporary.
       for k in 1:size(covariance,1) loop
-        offDiagonalSum := offDiagonalSum+(if k < j then lower[i,k]*lower[j,k] else 0.0);
-        diagonalSum := diagonalSum+(if k < i then lower[i,k]^2 else 0.0);
+        offDiagonalSum := offDiagonalSum+(if k < j and k <= i then lower[LinearAlgebra.LowerTriangular.index(i, k)]*lower[LinearAlgebra.LowerTriangular.index(j, k)] else 0.0);
+        diagonalSum := diagonalSum+(if k < i then lower[LinearAlgebra.LowerTriangular.index(i, k)]^2 else 0.0);
       end for;
       if not (abs(covariance[i,j]) <= 1e12 and
           abs(covariance[i,j]-covariance[j,i]) <= relativeTolerance*scale) then
         valid := 0.0;
       end if;
       if j < i then
-        lower[i,j] := (covariance[i,j]-offDiagonalSum)
-          /max(lower[j,j],1e-150);
+        lower[LinearAlgebra.LowerTriangular.index(i, j)] := (covariance[i,j]-offDiagonalSum)
+          /max(lower[LinearAlgebra.LowerTriangular.index(j, j)],1e-150);
       elseif j == i then
         pivot := covariance[i,i]+relativeTolerance*scale
           -diagonalSum;
         if not (pivot > 0.0 and pivot <= 1e12) then valid := 0.0; end if;
-        lower[i,j] := sqrt(if pivot > 0.0 then pivot else 1.0);
+        lower[LinearAlgebra.LowerTriangular.index(i, j)] := sqrt(if pivot > 0.0 then pivot else 1.0);
       end if;
     end for;
   end for;

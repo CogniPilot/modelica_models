@@ -1,3 +1,6 @@
+SymmetricMatrix
+LowerTriangular
+UpperTriangular
 symmetrize
 quadraticForm
 quadraticFormDerivative

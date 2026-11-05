@@ -7,9 +7,9 @@ function quadraticFormDerivative
   input Real PDerivative[size(x, 1), size(x, 1)] = zeros(size(x, 1), size(x, 1));
   output Real valueDerivative;
 protected
-  Real symmetricP[size(x, 1), size(x, 1)];
+  Real symmetricP[div(size(x, 1) * (size(x, 1) + 1), 2)];
 algorithm
-  symmetricP := LinearAlgebra.symmetrize(P);
-  valueDerivative := 2.0 * xDerivative * (symmetricP * x)
-    + x * (LinearAlgebra.symmetrize(PDerivative) * x);
+  symmetricP := SymmetricMatrix.packSymmetrized(P);
+  valueDerivative := 2.0 * xDerivative * (SymmetricMatrix.mulVec(symmetricP, x))
+    + x * (SymmetricMatrix.mulVec(SymmetricMatrix.packSymmetrized(PDerivative), x));
 end quadraticFormDerivative;

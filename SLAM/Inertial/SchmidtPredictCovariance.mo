@@ -21,8 +21,8 @@ protected
   Real priorJointValid; Real proposedJointValid;
   Real finiteTransition[15,15];
 algorithm
-  raw := transition*covariance*transpose(transition)+processCovariance;
-  proposed := 0.5*(raw+transpose(raw));
+  raw := LinearAlgebra.transformCovariance(transition,covariance)+processCovariance;
+  proposed := LinearAlgebra.symmetrize(raw);
   proposedCross := transition*crossCovariance;
   priorJoint := cat(1,cat(2,covariance,crossCovariance),
     cat(2,transpose(crossCovariance),referenceCovariance));
