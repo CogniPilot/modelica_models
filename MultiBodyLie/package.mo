@@ -603,7 +603,7 @@ package MultiBodyLie "MSL MultiBody rewritten on articulated-body connectors (la
       parameter Boolean animation = true "Ignored: no animation";
       parameter Real n[3] = {0, 0, 1};
       parameter StateSelect stateSelect = StateSelect.prefer;
-      final parameter Real e[3] = n / sqrt(n * n);
+      final parameter Real e[3] = Modelica.Math.Vectors.normalizeWithAssert(n) "Unit vector in direction of rotation axis, resolved in frame_a (MSL: asserts length(n) > 0)";
       Real phi(start = 0, stateSelect = stateSelect) "Rotation of frame_b relative to frame_a about e";
       Real w(start = 0, stateSelect = stateSelect);
       Real a "= der(w)";
