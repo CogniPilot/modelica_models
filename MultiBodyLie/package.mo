@@ -19,7 +19,7 @@ package MultiBodyLie "MSL MultiBody rewritten on articulated-body connectors (la
   // generalized-force balance S' f = tau; the other wrench components carry constraint reactions. That fixes the
   // joint's acceleration and removes it from what the parent sees, a rank-one Schur complement (Joints.Revolute, with
   // IAc and pAc the child subtree's IA and pA):
-  //   U = IAc * S,  D = S * U,  u = tau - S * pAc,  a = (u - U * (ap + c)) / D
+  //   U = IAc * S,  D = S * U + armature,  u = axis.tau - S * pAc,  a = (u - U * (ap + c)) / D
   //   Ia = IAc - U * U' / D,  pa = pAc + Ia * c + U * u / D   (passed to the parent)
   // Nothing pushes back on a free-flight root, so its acceleration is one 6x6 symmetric positive definite solve
   // (Parts.Body), and joint accelerations then follow outward. Equation sorting turns these local equations into one
@@ -385,6 +385,8 @@ package MultiBodyLie "MSL MultiBody rewritten on articulated-body connectors (la
       Interfaces.Frame_a frame_a;
       Interfaces.Frame_b frame_b;
       parameter Boolean useAxisFlange = false;
+      parameter Real armature(min = 0, unit = "kg.m2") = 0
+        "Reflected rotor inertia about the relative joint coordinate";
       parameter Boolean animation = true "Ignored: no animation";
       parameter Real n[3] = {0, 0, 1};
       parameter StateSelect stateSelect = StateSelect.prefer;
@@ -392,7 +394,7 @@ package MultiBodyLie "MSL MultiBody rewritten on articulated-body connectors (la
       Real phi(start = 0, stateSelect = stateSelect) "Rotation of frame_b relative to frame_a about e";
       Real w(start = 0, stateSelect = stateSelect);
       Real a "= der(w)";
-      Real tau "Driving torque";
+      Real tau "Net shaft torque delivered to the bodies, excluding rotor acceleration";
     protected
       // Pure rotation: X = diag(E, E) (frame_b <- frame_a), applied blockwise; X' S X by Math.rotateInertia.
       Real E[3, 3] = transpose(Math.axisRotation(e, phi)) "frame_b <- frame_a";
@@ -407,11 +409,13 @@ package MultiBodyLie "MSL MultiBody rewritten on articulated-body connectors (la
       Real u;
       Real Ia[6, 6];
       Real pa[6];
+    initial equation
+      assert(armature >= 0, "Revolute armature must be nonnegative");
     equation
       Connections.branch(frame_a.R, frame_b.R);
       axis.phi = phi;
       support.phi = 0;
-      tau = axis.tau;
+      tau = axis.tau - armature * a;
       w = der(phi);
       a = der(w);
       if Connections.rooted(frame_a.R) then
@@ -450,11 +454,26 @@ package MultiBodyLie "MSL MultiBody rewritten on articulated-body connectors (la
       c = cat(1, cross(Vc[1:3], S[1:3] * w), cross(Vc[4:6], S[1:3] * w)) "crm(Vc) (S w) with S = {+-e, 0}";
       // Articulated-body step (package header): solve this joint's acceleration and eliminate it from the parent's view.
       U = IAc * S;
-      D = S * U;
-      u = tau - S * pAc;
+      D = S * U + armature;
+      u = axis.tau - S * pAc;
       Ia = IAc - {{U[i] * U[j] for j in 1:6} for i in 1:6} / D;
       pa = pAc + Ia * c + U * (u / D);
       a = (u - U * (ap + c)) / D;
+      annotation(Documentation(info = "<html>
+<p>The axis flange supplies commanded generalized torque. The reported
+<code>tau</code> is the net shaft torque transferred to the bodies after the
+relative rotor inertia has been accelerated. With zero armature this is the
+original joint.</p>
+<p>A nonnegative armature J stores J*w*w/2. Its torque is J*a, so axis torque
+minus shaft torque, multiplied by w, equals the rotor energy derivative.
+The articulated-body elimination includes J directly in S*IA*S+J; it does
+not close an acceleration-feedback loop through an external rotor.</p>
+<p>When migrating an external reflected-inertia drive, move its J to this
+parameter and supply the same command torque at axis. Remove the external
+inertia to avoid counting it twice. Frame wrenches and net shaft torque retain
+their meaning; the actuator-side flange is now on the command side of the
+rotor. Both connection-root directions use the same relative coordinate.</p>
+</html>"));
     end Revolute;
   end Joints;
 

@@ -1,6 +1,8 @@
 within;
 package Tests "Assertion-based tests for the reusable Modelica libraries"
   annotation(uses(
+    Modelica(version="4.1.0"),
+    MultiBodyLie,
     Avionics,
     Control,
     Estimation,
