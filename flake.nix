@@ -75,6 +75,20 @@
           };
           openModelicaCli = openmodelica.packages.${system}.default;
 
+          # Supply MSL 4.1.0 independently of image or per-user library caches.
+          # Both runners use the same checksum-pinned, readable release.
+          mslArchive = pkgs.fetchurl {
+            url = "https://github.com/modelica/ModelicaStandardLibrary/releases/download/v4.1.0/ModelicaStandardLibrary_v4.1.0.zip";
+            hash = "sha256-VAnPoXeXxS2GbcnSZ1utwTeLS7+IBm5giZpInLHLii0=";
+          };
+          mslSource = pkgs.runCommand "modelica-standard-library-4.1.0"
+            { nativeBuildInputs = [ pkgs.unzip ]; }
+            ''
+              mkdir -p "$out"
+              unzip -q ${mslArchive} -d "$out"
+              chmod -R a+rX "$out"
+            '';
+
           # Python is the orchestration source of truth. Nix only installs that
           # command with pinned compiler paths and its Python dependencies.
           modelicaModelsTools = python.pkgs.buildPythonApplication {
@@ -89,6 +103,9 @@
             ];
             doCheck = false;
             makeWrapperArgs = [
+              "--set-default"
+              "MODELICA_MODELS_MSL"
+              "${mslSource}"
               "--set-default"
               "MODELICA_MODELS_CC"
               "${pkgs.stdenv.cc}/bin/cc"
@@ -118,6 +135,7 @@
               MODELICA_MODELS_RUMOCA = "${rumocaCli}/bin/rumoca";
               MODELICA_MODELS_DOCKER = "${pkgs.docker-client}/bin/docker";
               MODELICA_MODELS_PYTHON = "${pythonEnvironment}/bin/python3";
+              MODELICA_MODELS_MSL = "${mslSource}";
               PYTHONPATH = "${rumocaPythonRuntime}/lib/python3.12/site-packages";
             }
             // pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
@@ -127,6 +145,7 @@
         in
         {
           packages.default = modelicaModelsTools;
+          packages.msl = mslSource;
           packages.rumoca-cli = rumocaCli;
           packages.rumoca-python-runtime = rumocaPythonRuntime;
           packages.rumoca-runtime = rumocaRuntime;
