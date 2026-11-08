@@ -51,9 +51,10 @@ def main(arguments: Sequence[str] | None = None) -> int:
                     "unittest",
                     "Vehicles.Rdd2.Test.test_waypoint_qualification",
                     "tools.tests.test_eskf_throughput",
+                    "tools.tests.test_openmodelica",
                 ],
                 repository,
-                "Waypoint qualification negative controls",
+                "Repository tool regression controls",
             )
         if options.command in ("test", "ci", "omc"):
             run_openmodelica_tests(repository)
@@ -832,7 +833,27 @@ def run_planning_plots(repository: Path) -> None:
     remove_build_products(artifact_directory)
 
 
+def modelica_library_root() -> Path:
+    configured = os.environ.get("MODELICA_MODELS_MSL")
+    if not configured:
+        raise TaskError(
+            "MSL 4.1.0 is required: use 'nix run . -- test' or set "
+            "MODELICA_MODELS_MSL to the extracted pinned release"
+        )
+    root = Path(configured).resolve()
+    for relative in ("Modelica 4.1.0/package.mo",
+                     "ModelicaServices 4.1.0/package.mo", "Complex.mo"):
+        try:
+            with (root / relative).open("rb") as stream:
+                if not stream.read(1):
+                    raise TaskError(f"MSL 4.1.0 file is empty: {root / relative}")
+        except OSError as error:
+            raise TaskError(f"MSL 4.1.0 file is not readable: {root / relative}") from error
+    return root
+
+
 def run_omc_script(repository: Path, script: str) -> None:
+    msl = modelica_library_root()
     docker = program("MODELICA_MODELS_DOCKER", DEFAULT_DOCKER, "docker")
     if docker_daemon_is_available(docker):
         command = [docker, "run", "--rm"]
@@ -842,10 +863,12 @@ def run_omc_script(repository: Path, script: str) -> None:
             (
                 "--volume",
                 f"{repository}:/workspace",
+                "--volume",
+                f"{msl}:/msl:ro",
                 "--workdir",
                 "/workspace",
                 "--env",
-                "OPENMODELICALIBRARY=/workspace:/root/.openmodelica/libraries",
+                "OPENMODELICALIBRARY=/msl:/workspace",
                 OPENMODELICA_IMAGE,
                 "omc",
                 script,
@@ -857,10 +880,9 @@ def run_omc_script(repository: Path, script: str) -> None:
     omc = program("MODELICA_MODELS_OMC", DEFAULT_OMC, "omc")
     if executable_exists(omc):
         environment = os.environ.copy()
-        default_library = Path.home() / ".openmodelica" / "libraries"
-        inherited_library = environment.get("OPENMODELICALIBRARY", str(default_library))
+        inherited_library = environment.get("OPENMODELICALIBRARY", "")
         environment["OPENMODELICALIBRARY"] = os.pathsep.join(
-            (str(repository), inherited_library)
+            path for path in (str(msl), str(repository), inherited_library) if path
         )
         run_command(
             (omc, script),

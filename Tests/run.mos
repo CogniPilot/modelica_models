@@ -1,5 +1,16 @@
 setCommandLineOptions("--std=3.6");
 
+if not loadModel(Modelica, {"4.1.0"}) then
+  print(getErrorString());
+  exit(1);
+end if;
+mslVersion := getVersion(Modelica);
+if mslVersion <> "4.1.0" then
+  print("Expected MSL 4.1.0, got " + mslVersion + "\n");
+  exit(1);
+end if;
+print("MSL_VERSION=" + mslVersion + "\n");
+
 if not loadModel(Tests) then
   print(getErrorString());
   exit(1);
@@ -7,6 +18,22 @@ end if;
 
 testOutputDirectory := getTempDirectoryPath();
 cd(testOutputDirectory);
+
+smoke := simulate(
+  Tests.MslRotationalSmoke,
+  startTime=0.0,
+  stopTime=0.1,
+  numberOfIntervals=10,
+  tolerance=1.0e-8,
+  method="dassl",
+  outputFormat="csv",
+  fileNamePrefix="modelica_models_MslRotationalSmoke"); getErrorString();
+smokeResultFile := smoke.resultFile;
+if smokeResultFile == "" then
+  print("MSL Rotational smoke failed\n");
+  exit(1);
+end if;
+print("MSL_ROTATIONAL_SMOKE_OK\n");
 
 check := checkModel(Tests.All);
 print(check);
