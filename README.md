@@ -38,6 +38,11 @@ artifacts; they do not own alternate copies of these models.
   the East-North-Up projection and its inverse about a `GeodeticOrigin` used to
   turn global lat/lon/alt waypoints into local-frame references.
 - `RigidBody/`: reusable six-degree-of-freedom rigid-body dynamics.
+- `MultiBodyLie/`: articulated-body connector library used by Rumoca's
+  humanoid benchmark. It carries subtree inertia and bias wrench through
+  connectors; the elimination structure, rather than Lie-group integration,
+  is its distinguishing feature. This compact tree-dynamics package is
+  experimental; extended mounts, sensors and general contact are separate.
 - `MathUtilities/`: shared clipping, filtering, angle, rate, and norm helpers.
 - `Control/`: reusable control laws and sampled controller building blocks,
   including the multirotor SE_2(3)/SO(3) log-linear controller and the
