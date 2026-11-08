@@ -108,13 +108,15 @@ algorithm
     verticalVariance_m2 := verticalRoot * verticalRoot;
   else
     verticalVariance_m2 := verticalDirectionLocal
-      * candidate.covariance[1:3, 1:3] * verticalDirectionLocal;
+      * LinearAlgebra.SymmetricMatrix.mulDenseVector(
+        candidate.covariance[1:3, 1:3], verticalDirectionLocal);
   end if;
   floorIncrement_m2 := if candidateAccepted then
     max(barometerBiasVariance_m2 - verticalVariance_m2, 0.0) else 0.0;
   covarianceFloor := zeros(TangentLength, TangentLength);
-  covarianceFloor[1:3, 1:3] := floorIncrement_m2
-    * transpose({verticalDirectionLocal}) * {verticalDirectionLocal};
+  covarianceFloor[1:3, 1:3] := LinearAlgebra.SymmetricMatrix.unpack(3,
+    LinearAlgebra.SymmetricMatrix.weightedOuterProduct(
+      verticalDirectionLocal, floorIncrement_m2));
   if useBarometerBiasConsider or predicted.useJointBarometerBias then
     corrected := copyState(candidate);
   elseif candidate.useSquareRootCovariance then

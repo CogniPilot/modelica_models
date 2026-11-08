@@ -28,9 +28,10 @@ protected
   Real Hinv[6,6]; Real unusedInverse[6,6]; Real unusedPivot;
   Real cameraRotation[3,3]; Real arm[3]; Real skewArm[3,3]; Real rotationBlock[3,3];
   Real candidateRelative[6,6]; Real candidateObservation[6,6];
+  Real normalPacked[21]; Real noisePacked[21];
 algorithm
   valid := 0.0; validCount := 0.0; invalidCount := 0.0;
-  normalMatrix := zeros(6,6); noiseMatrix := zeros(6,6);
+  normalPacked := zeros(21); noisePacked := zeros(21);
   relativeCovariance := zeros(6,6); observationCovariance := zeros(6,6);
   observationJacobian := zeros(6,6); minimumScaledPivot := 0.0;
   configuration := activeCount >= 0.0 and activeCount <= size(pairEnabled,1)
@@ -65,20 +66,24 @@ algorithm
         localizationSigma,disparitySigma,referenceNoiseFx,baseline,depthInflation);
       Ccur := RGBDOpticalPointCovariance(currentPoint[i,:],currentRgbFocal[1],currentRgbFocal[2],
         localizationSigma,disparitySigma,currentNoiseFx,baseline,depthInflation);
-      Sigma := Ccur+currentFromReference*Cref*transpose(currentFromReference);
+      Sigma := Ccur+LinearAlgebra.transformCovariance(currentFromReference,Cref);
       if weighted then
         (whiteningValid,wr,wj) := RegistrationWeighted.WeightedWhiten(Sigma,zeros(3),J,minimumPivot);
         if not whiteningValid then invalidCount := invalidCount+1; end if;
-        normalMatrix := normalMatrix+transpose(wj)*wj;
-        noiseMatrix := normalMatrix;
+        normalPacked := normalPacked+LinearAlgebra.SymmetricMatrix.gram(wj);
+        noisePacked := normalPacked;
       else
-        normalMatrix := normalMatrix+transpose(J)*J;
-        noiseMatrix := noiseMatrix+transpose(J)*Sigma*J;
+        normalPacked := normalPacked+LinearAlgebra.SymmetricMatrix.gram(J);
+        // Sigma is constructed from symmetric point covariances above.
+        noisePacked := noisePacked+LinearAlgebra.SymmetricMatrix.transform(
+          transpose(J),LinearAlgebra.SymmetricMatrix.pack(Sigma));
       end if;
     end if;
   end for;
+  normalMatrix := LinearAlgebra.SymmetricMatrix.unpack(6,normalPacked);
+  noiseMatrix := LinearAlgebra.SymmetricMatrix.unpack(6,noisePacked);
   (Hinv,hValid,minimumScaledPivot) := RGBDUncertaintyInverse6(normalMatrix,minimumPivot);
-  candidateRelative := Hinv*noiseMatrix*transpose(Hinv);
+  candidateRelative := LinearAlgebra.transformCovariance(Hinv,noiseMatrix);
   cameraRotation := if pose then referenceBodyRotation*opticalToBody*transpose(currentFromReference) else identity(3);
   arm := if pose then translation+transpose(opticalToBody)*cameraOriginBody else zeros(3);
   skewArm := RGBDUncertaintySkew(arm); rotationBlock := -cameraRotation*skewArm;
@@ -89,7 +94,7 @@ algorithm
       observationJacobian[a+3,b+3] := if pose then -opticalToBody[a,b] else 0.0;
     end for;
   end for;
-  candidateObservation := observationJacobian*candidateRelative*transpose(observationJacobian);
+  candidateObservation := LinearAlgebra.transformCovariance(observationJacobian,candidateRelative);
   (unusedInverse,cValid,unusedPivot) := RGBDUncertaintyInverse6(candidateObservation,minimumPivot);
   rejectionReason := if not configuration then 1.0 else if not pose then 2.0 else if invalidCount > 0.0 then 3.0
     else if validCount < 3.0 then 4.0 else if not hValid then 5.0 else if not cValid then 6.0 else 0.0;

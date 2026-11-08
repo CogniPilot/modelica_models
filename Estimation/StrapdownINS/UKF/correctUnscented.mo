@@ -26,7 +26,7 @@ protected
   Real measurementDeviation[measurementLength];
   Real stateDeviation[TangentLength];
   Real residual[measurementLength];
-  Real innovationCovariance[measurementLength, measurementLength];
+  Real innovationPacked[div(measurementLength * (measurementLength + 1), 2)];
   Real crossCovariance[TangentLength, measurementLength];
   Real augmentedRhs[measurementLength, TangentLength + 1];
   Real augmentedSolution[measurementLength, TangentLength + 1];
@@ -34,7 +34,7 @@ protected
   Real correction[TangentLength];
   Real attitudeCorrection;
   Real trustScale;
-  Real posteriorCovariance[TangentLength, TangentLength];
+  Real posteriorPacked[div(TangentLength * (TangentLength + 1), 2)];
   Real correctedCovariance[TangentLength, TangentLength];
 algorithm
   nominal := stateVector(predicted);
@@ -51,24 +51,22 @@ algorithm
   end for;
   residual := measurement - measurementMean;
   measurementDeviation := sigmaMeasurement[:, 1] - measurementMean;
-  innovationCovariance := measurementCovariance
-    + transpose({CentralCovarianceWeight * measurementDeviation})
-      * {measurementDeviation};
+  innovationPacked := LinearAlgebra.SymmetricMatrix.packSymmetrized(measurementCovariance)
+    + LinearAlgebra.SymmetricMatrix.weightedOuterProduct(measurementDeviation, CentralCovarianceWeight);
   crossCovariance := zeros(TangentLength, measurementLength);
   for sigmaIndex in 2:SigmaCount loop
     stateDeviation := localErrorVector(nominal, sigmaState[:, sigmaIndex]);
     measurementDeviation := sigmaMeasurement[:, sigmaIndex] - measurementMean;
     crossCovariance := crossCovariance
       + transpose({SigmaWeight * stateDeviation}) * {measurementDeviation};
-    innovationCovariance := innovationCovariance
-      + transpose({SigmaWeight * measurementDeviation}) * {measurementDeviation};
+    innovationPacked := innovationPacked
+      + LinearAlgebra.SymmetricMatrix.weightedOuterProduct(measurementDeviation, SigmaWeight);
   end for;
-  innovationCovariance := LinearAlgebra.symmetrize(innovationCovariance);
   augmentedRhs := zeros(measurementLength, TangentLength + 1);
   augmentedRhs[:, 1:TangentLength] := transpose(crossCovariance);
   augmentedRhs[:, TangentLength + 1] := residual;
-  (augmentedSolution, innovationFactorized) := LinearAlgebra.solveSPD(
-    innovationCovariance, augmentedRhs);
+  (augmentedSolution, innovationFactorized) := LinearAlgebra.SymmetricMatrix.solveMatrix(
+    innovationPacked, augmentedRhs);
   normalizedInnovationSquared := residual
     * augmentedSolution[:, TangentLength + 1];
 
@@ -114,15 +112,13 @@ algorithm
     // modified it is an arbitrary gain, so P-K*S*K' is no longer the valid
     // covariance update. Use the general form driven by the same gain that
     // generated the applied state correction.
-    posteriorCovariance := LinearAlgebra.symmetrize(
-      predicted.covariance
-        - gain * transpose(crossCovariance)
-        - crossCovariance * transpose(gain)
-        + gain * innovationCovariance * transpose(gain));
+    posteriorPacked := LinearAlgebra.SymmetricMatrix.packSymmetrized(predicted.covariance)
+      - LinearAlgebra.SymmetricMatrix.crossSum(gain, crossCovariance)
+      + LinearAlgebra.SymmetricMatrix.transform(gain, innovationPacked);
     correctedCovariance := LinearAlgebra.symmetrize(
       Estimation.StrapdownINS.ESKF.conjugateReset(
         LieGroups.SE23.Quat.right_jacobian(correction[1:9]),
-        posteriorCovariance));
+        LinearAlgebra.SymmetricMatrix.unpack(TangentLength, posteriorPacked)));
   else
     correctedNominal := nominal;
     correctedCovariance := predicted.covariance;

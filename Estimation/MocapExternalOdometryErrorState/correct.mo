@@ -33,7 +33,7 @@ algorithm
   H := poseMeasurementMatrix();
   R := poseMeasurementCovariance(measurementNoise);
 
-  crossCovariance := predicted.covariance * transpose(H);
+  crossCovariance := LinearAlgebra.SymmetricMatrix.mulDense(predicted.covariance, transpose(H));
   innovationCovariance := LinearAlgebra.symmetrize(
     H * crossCovariance + R);
   (gainTranspose, accepted) := LinearAlgebra.solveSPD(
@@ -66,7 +66,7 @@ algorithm
     resetJacobian[1:3, 1:3] :=
       LieGroups.SO3.Quat.right_jacobian(correction[1:3]);
     corrected.covariance := LinearAlgebra.symmetrize(
-      resetJacobian * posteriorCovariance * transpose(resetJacobian));
+      LinearAlgebra.transformCovariance(resetJacobian, posteriorCovariance));
   else
     corrected := predicted;
   end if;

@@ -44,8 +44,8 @@ algorithm
     * (measurement.positionWorldEnu_m - delayedPosition);
   H := cat(2, identity(3), zeros(3, TangentLength - 3))
     * currentToDelayed;
-  measurementCovariance := transpose(rotationWorldBody)
-    * measurement.positionCovarianceWorld_m2 * rotationWorldBody;
+  measurementCovariance := LinearAlgebra.transformCovariance(
+    transpose(rotationWorldBody), measurement.positionCovarianceWorld_m2);
   corrected := copyState(predicted);
   accepted := false;
   normalizedInnovationSquared := 0.0;

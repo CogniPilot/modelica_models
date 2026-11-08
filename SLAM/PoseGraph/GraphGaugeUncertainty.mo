@@ -149,7 +149,7 @@ package GraphGaugeUncertainty
             C[offset+i,offset+j] := anchorRotation[i,j]; C[offset+i+3,offset+j+3] := if i == j then 1 else 0;
           end for; end for;
         end for;
-        candidate := B*anchorBound*transpose(B)/beta+C*relativeJointBound*transpose(C)/(1-beta);
+        candidate := LinearAlgebra.transformCovariance(B,anchorBound)/beta+LinearAlgebra.transformCovariance(C,relativeJointBound)/(1-beta);
         rejectionReason := 7;
         valid := SLAMCovariancePSDCheck(candidate,1e-12) == 1;
         if valid then

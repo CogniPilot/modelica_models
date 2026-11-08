@@ -153,7 +153,7 @@ algorithm
         - transpose(noiseStateRoot) * noiseStateRoot);
     measurementCovarianceUsable := measurementCovarianceUsable
       and crossFactorized and noiseFactorized;
-    crossCovariance := predicted.covariance * transpose(H)
+    crossCovariance := LinearAlgebra.SymmetricMatrix.mulDense(predicted.covariance, transpose(H))
       + measurementStateCrossCovariance;
     innovationCovariance := LinearAlgebra.symmetrize(
       H * crossCovariance
@@ -194,7 +194,8 @@ algorithm
       barometerGain := augmentedSolution[:, TangentLength + 2];
       barometerNavigationErrorMap := -transpose(H) * barometerGain;
       navigationBarometerCrossCovariance :=
-        predicted.covariance * barometerNavigationErrorMap
+        LinearAlgebra.SymmetricMatrix.mulDenseVector(predicted.covariance,
+          barometerNavigationErrorMap)
         + predicted.barometerBiasCrossCovariance
         - measurementStateCrossCovariance * barometerGain;
       noiseBarometerCrossCovariance :=
@@ -241,7 +242,7 @@ algorithm
       correctedBarometerCrossCovariance :=
         resetJacobian * correctedBarometerCrossCovariance;
       correctedCovariance := LinearAlgebra.symmetrize(
-        correctedRoot * transpose(correctedRoot));
+        LinearAlgebra.SymmetricMatrix.unpack(TangentLength, LinearAlgebra.SymmetricMatrix.gram(transpose(correctedRoot))));
     else
       josephFactor := identity(TangentLength) - gain * H;
       posteriorCovariance := LinearAlgebra.symmetrize(
@@ -255,9 +256,9 @@ algorithm
         // This generalized Joseph form remains valid for the effective gain
         // after the attitude trust limit and consider projection above.
         posteriorCovariance := LinearAlgebra.symmetrize(posteriorCovariance
-          - josephFactor * measurementStateCrossCovariance * transpose(gain)
-          - gain * transpose(measurementStateCrossCovariance)
-            * transpose(josephFactor));
+          - LinearAlgebra.SymmetricMatrix.unpack(TangentLength,
+            LinearAlgebra.SymmetricMatrix.crossSum(
+              josephFactor * measurementStateCrossCovariance, gain)));
       end if;
       if useSemiDirectBias then
         resetJacobian := SemiDirectBias.resetJacobian(correction);
@@ -269,9 +270,9 @@ algorithm
         // The reset Jacobian is the block diagonal diag(J, identity(6)) with
         // literal zeros off the diagonal, so the conjugation is done blockwise in
         // conjugateReset rather than by forming the 15x15 matrix and multiplying
-        // it through: 54,000 -> 2,431 multiplies per call, same products, same
-        // order. See conjugateReset for the exactness argument, the two
-        // exceptional-value changes, and why it has to be a separate function.
+        // it through: only the nonzero blocks are multiplied. The symmetric path computes
+        // only the independent output triangle; the dense compatibility path
+        // preserves nonsymmetric input behavior.
         resetRotationJacobian := LieGroups.SE23.Quat.right_jacobian(correction[1:9]);
         correctedCovariance := LinearAlgebra.symmetrize(
           conjugateReset(
