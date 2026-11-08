@@ -65,4 +65,5 @@ SyntheticLandmarkReplay
 RegistrationWeightedTests
 RGBDLoopConsistencyTests
 ObservabilityConstrainedPredictionTests
+MslRotationalSmoke
 RevoluteArmatureTests
