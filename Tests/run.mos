@@ -28,7 +28,8 @@ smoke := simulate(
   method="dassl",
   outputFormat="csv",
   fileNamePrefix="modelica_models_MslRotationalSmoke"); getErrorString();
-if smoke.resultFile == "" then
+smokeResultFile := smoke.resultFile;
+if smokeResultFile == "" then
   print("MSL Rotational smoke failed\n");
   exit(1);
 end if;
