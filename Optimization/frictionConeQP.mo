@@ -42,16 +42,19 @@ algorithm
   end for;
   residual := Optimization.Internal.frictionConeResidual(A, b, mu, lipschitz, f);
   iterations := 0;
-  while residual > settings.tolerance and iterations < settings.maxIterations loop
-    for c in 1:size(mu, 1) loop
-      step := Optimization.Internal.contactBlockStep(A, b, f, c, mu[c], lipschitz[c]);
-      f[3 * c - 2] := step[1];
-      f[3 * c - 1] := step[2];
-      f[3 * c] := step[3];
-    end for;
-    iterations := iterations + 1;
-    residual := Optimization.Internal.frictionConeResidual(A, b, mu, lipschitz, f);
-  end while;
+  // Bounded for loop with a convergence guard (no while loop), as in boxQP.
+  for sweep in 1:settings.maxIterations loop
+    if residual > settings.tolerance then
+      for c in 1:size(mu, 1) loop
+        step := Optimization.Internal.contactBlockStep(A, b, f, c, mu[c], lipschitz[c]);
+        f[3 * c - 2] := step[1];
+        f[3 * c - 1] := step[2];
+        f[3 * c] := step[3];
+      end for;
+      iterations := iterations + 1;
+      residual := Optimization.Internal.frictionConeResidual(A, b, mu, lipschitz, f);
+    end if;
+  end for;
   converged := residual <= settings.tolerance;
   for c in 1:size(mu, 1) loop
     slip := sqrt(f[3 * c - 1] ^ 2 + f[3 * c] ^ 2);

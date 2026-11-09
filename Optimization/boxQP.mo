@@ -21,17 +21,21 @@ algorithm
   end for;
   residual := Optimization.Internal.boxResidual(H, g, lower, upper, x);
   iterations := 0;
-  while residual > settings.tolerance and iterations < settings.maxIterations loop
-    for i in 1:size(H, 1) loop
-      gradient := g[i];
-      for j in 1:size(H, 1) loop
-        gradient := gradient + H[i, j] * x[j];
+  // A bounded for loop with a convergence guard instead of a while loop, so compilers that
+  // reject while loops in functions can lower it; sweeps stop changing x once converged.
+  for sweep in 1:settings.maxIterations loop
+    if residual > settings.tolerance then
+      for i in 1:size(H, 1) loop
+        gradient := g[i];
+        for j in 1:size(H, 1) loop
+          gradient := gradient + H[i, j] * x[j];
+        end for;
+        x[i] := min(max(x[i] - gradient / H[i, i], lower[i]), upper[i]);
       end for;
-      x[i] := min(max(x[i] - gradient / H[i, i], lower[i]), upper[i]);
-    end for;
-    iterations := iterations + 1;
-    residual := Optimization.Internal.boxResidual(H, g, lower, upper, x);
-  end while;
+      iterations := iterations + 1;
+      residual := Optimization.Internal.boxResidual(H, g, lower, upper, x);
+    end if;
+  end for;
   converged := residual <= settings.tolerance;
   for i in 1:size(H, 1) loop
     active[i] := if x[i] <= lower[i] then -1 elseif x[i] >= upper[i] then 1 else 0;
