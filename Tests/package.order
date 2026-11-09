@@ -66,3 +66,4 @@ RegistrationWeightedTests
 RGBDLoopConsistencyTests
 ObservabilityConstrainedPredictionTests
 MslRotationalSmoke
+OptimizationTests

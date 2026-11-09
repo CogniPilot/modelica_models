@@ -30,6 +30,10 @@ artifacts; they do not own alternate copies of these models.
   and control code.
 - `Polynomials/`: dimension-generic Hermite construction, derivative
   evaluation, and integrated derivative-cost matrices.
+- `Optimization/`: convex QP solvers in pure Modelica: box-constrained QPs
+  and friction-cone contact QPs by projected Gauss-Seidel. Each returns the
+  active set, a residual in the decision variable's units, the iteration count
+  and a converged flag.
 - `LieGroups/`: Lie groups including SO(2), SO(3), SE(2), SE(3), and SE_2(3),
   with replaceable quaternion, DCM, MRP, and Euler rotation representations.
   All 12 axis sequences are available in both body-fixed and space-fixed form,

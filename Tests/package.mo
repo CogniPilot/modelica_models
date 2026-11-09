@@ -7,6 +7,7 @@ package Tests "Assertion-based tests for the reusable Modelica libraries"
     Geodesy,
     LieGroups,
     LinearAlgebra,
+    Optimization,
     Planning,
     Polynomials,
     RigidBody,
