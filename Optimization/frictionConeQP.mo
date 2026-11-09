@@ -68,6 +68,7 @@ step converges for convex problems.</p>
 <code>f</code>. It is in the units of f (impulse or force) and is zero exactly at
 the optimum, whichever method produced f. <code>contactState</code> is the active
 set an exact sensitivity needs. A contact within a relative 1e-10 of the cone
-boundary is reported as sliding.</p>
+boundary is reported as sliding; with mu = 0 every pushing contact is on the
+(degenerate) cone boundary and is reported as sliding.</p>
 </html>"));
 end frictionConeQP;

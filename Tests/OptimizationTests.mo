@@ -47,6 +47,8 @@ model OptimizationTests "Box and friction-cone QPs against known optima"
   Real coneBoundary;
   Real coneTwo;
   Real coneCoupled;
+  Real frictionlessTensile;
+  Real frictionlessSliding;
 equation
   boxDiagonal = Tests.Assertions.boxQPCheck(Hdiag, gdiag, {-1.0, -1.0, -1.0}, {3.0, 3.0, 3.0},
     {1.0, -1.0, 3.0}, {0, -1, 1});
@@ -63,6 +65,9 @@ equation
   coneTwo = Tests.Assertions.frictionConeQPCheck({0.6, 0.6}, Atwo, {-4.0, -6.0, 0.0, -1.0, 0.2, 0.1},
     {9.5 / 3.4, 5.7 / 3.4, 0.0, 1.0, -0.2, -0.1}, {2, 1});
   coneCoupled = Tests.Assertions.frictionConeQPCheck({0.4, 0.7}, Acoupled, bcoupled, fcoupled, {2, 2});
+  // mu = 0: a pulling (negative) normal must give zero force; a pushing one keeps its normal and drops the tangents.
+  frictionlessTensile = Tests.Assertions.frictionConeQPCheck({0.0}, I3, {1.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0});
+  frictionlessSliding = Tests.Assertions.frictionConeQPCheck({0.0}, I3, {-2.0, 0.5, -0.3}, {2.0, 0.0, 0.0}, {2});
 
   assert(boxDiagonal < tolerance, "boxQP diagonal case does not match its closed-form optimum");
   assert(boxPair < tolerance, "boxQP coupled 2x2 case does not match its KKT solution");
@@ -74,5 +79,7 @@ equation
   assert(coneBoundary < tolerance, "frictionConeQP boundary case does not match the cone projection");
   assert(coneTwo < tolerance, "frictionConeQP two-contact case does not match the per-block optimum");
   assert(coneCoupled < tolerance, "frictionConeQP coupled case does not match the reference optimum");
+  assert(frictionlessTensile < tolerance, "frictionConeQP with mu = 0 must not return a tensile normal force");
+  assert(frictionlessSliding < tolerance, "frictionConeQP with mu = 0 must keep the normal and remove the tangents");
   annotation(experiment(StopTime = 1.0, Tolerance = 1.0e-8));
 end OptimizationTests;

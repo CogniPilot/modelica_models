@@ -12,7 +12,9 @@ protected
   Real scale;
 algorithm
   slip := sqrt(tangent1 * tangent1 + tangent2 * tangent2);
-  if slip <= mu * normal then
+  // The normal >= 0 test matters for mu = 0 with zero slip, where slip <= mu * normal also holds
+  // for a negative normal; such a point must fall through to the polar case and project to zero.
+  if normal >= 0.0 and slip <= mu * normal then
     projectedNormal := normal;
     projectedTangent1 := tangent1;
     projectedTangent2 := tangent2;
