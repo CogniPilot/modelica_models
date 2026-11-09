@@ -108,6 +108,14 @@ def run_rumoca_tests(repository: Path) -> None:
     rumoca = program("MODELICA_MODELS_RUMOCA", DEFAULT_RUMOCA, "rumoca")
     require_program(rumoca, "Rumoca")
 
+    # Rumoca resolves libraries on MODELICAPATH, so Tests.All models that use
+    # the Modelica Standard Library compile against the same pinned MSL as OMC.
+    # Loading the MSL costs memory on every compile, so only this lowering gets it.
+    msl_environment = os.environ.copy()
+    msl_environment["MODELICAPATH"] = os.pathsep.join(
+        filter(None, (str(modelica_library_root()), os.environ.get("MODELICAPATH")))
+    )
+
     with tempfile.TemporaryDirectory(prefix="modelica-models-rumoca-") as temporary:
         output = Path(temporary)
         run_command(
@@ -126,6 +134,7 @@ def run_rumoca_tests(repository: Path) -> None:
             ],
             repository,
             "Rumoca DAE lowering for Tests.All",
+            msl_environment,
         )
         check_eskf_throughput(repository, rumoca, output)
         # DAE and eFMI export can succeed even when the composed mission's
@@ -741,7 +750,7 @@ def check_ukf_native(repository: Path, rumoca: str, output: Path) -> None:
 # it says so plainly when the model starts lowering, which is the moment the
 # entry should be promoted into named_models above and this table shrink.
 #
-# The 0.10.2 pin reaches canonical DAE construction, where a fast sampled
+# The pinned compiler reaches canonical DAE construction, where a fast sampled
 # consumer cannot read a slower sampled producer. This ordinary discrete
 # model is incorrectly treated as a cross-clock read.
 # Diagnostic identities and source locations deliberately belong to this pin:

@@ -391,9 +391,9 @@ To regenerate only the planning artifacts:
 modelica-models test plots
 ```
 
-CI uses the same Python commands. The optional Nix layer uses released Rumoca
-0.10.2 for both the CLI and Python bindings. Its Python dependency override
-corrects the release's stale Cargo vendor hash without patching compiler code.
+CI uses the same Python commands. The optional Nix layer builds Rumoca main at
+the revision recorded in `flake.lock` for both the CLI and Python bindings.
+The Rumoca stage puts the pinned MSL on `MODELICAPATH`.
 The Rumoca checks compile and execute a C99 UKF prediction regression. Native
 use requires `cc` or `MODELICA_MODELS_CC`; the Nix application supplies its compiler.
 The layer pins compiler binaries
