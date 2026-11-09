@@ -17,12 +17,20 @@ function frictionConeQP
 protected
   Real lipschitz[size(mu, 1)];
   Real rowSum;
-  Real step[3];
   Real slip;
   Real normal;
   Real tangent1;
   Real tangent2;
 algorithm
+  // Every loop-assigned variable gets a value before the loops, for compilers that require it.
+  f := zeros(3 * size(mu, 1));
+  lipschitz := zeros(size(mu, 1));
+  contactState := fill(0, size(mu, 1));
+  rowSum := 0.0;
+  slip := 0.0;
+  normal := 0.0;
+  tangent1 := 0.0;
+  tangent2 := 0.0;
   for c in 1:size(mu, 1) loop
     assert(mu[c] >= 0.0, "frictionConeQP requires mu >= 0");
     lipschitz[c] := 0.0;
@@ -42,15 +50,10 @@ algorithm
   end for;
   residual := Optimization.Internal.frictionConeResidual(A, b, mu, lipschitz, f);
   iterations := 0;
-  // Bounded for loop with a convergence guard (no while loop), as in boxQP.
+  // Bounded for loop with a convergence guard (no while loop) and an assignment-only branch, as in boxQP.
   for sweep in 1:settings.maxIterations loop
     if residual > settings.tolerance then
-      for c in 1:size(mu, 1) loop
-        step := Optimization.Internal.contactBlockStep(A, b, f, c, mu[c], lipschitz[c]);
-        f[3 * c - 2] := step[1];
-        f[3 * c - 1] := step[2];
-        f[3 * c] := step[3];
-      end for;
+      f := Optimization.Internal.frictionConeSweep(A, b, mu, lipschitz, f);
       iterations := iterations + 1;
       residual := Optimization.Internal.frictionConeResidual(A, b, mu, lipschitz, f);
     end if;

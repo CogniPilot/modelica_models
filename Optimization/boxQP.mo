@@ -11,8 +11,6 @@ function boxQP "Box-constrained convex QP: minimize 1/2 x'Hx + g'x with lower <=
   output Real residual "Largest independent coordinate projected displacement at x, in the units of x";
   output Integer iterations "Full sweeps performed";
   output Boolean converged "True when residual <= settings.tolerance";
-protected
-  Real gradient;
 algorithm
   for i in 1:size(H, 1) loop
     assert(H[i, i] > 0.0, "boxQP requires positive diagonal entries in H");
@@ -23,15 +21,11 @@ algorithm
   iterations := 0;
   // A bounded for loop with a convergence guard instead of a while loop, so compilers that
   // reject while loops in functions can lower it; sweeps stop changing x once converged.
+  // The guarded branch holds only assignments (the sweep is a function call), because some
+  // compilers reject loops nested in a conditional branch of a function.
   for sweep in 1:settings.maxIterations loop
     if residual > settings.tolerance then
-      for i in 1:size(H, 1) loop
-        gradient := g[i];
-        for j in 1:size(H, 1) loop
-          gradient := gradient + H[i, j] * x[j];
-        end for;
-        x[i] := min(max(x[i] - gradient / H[i, i], lower[i]), upper[i]);
-      end for;
+      x := Optimization.Internal.boxSweep(H, g, lower, upper, x);
       iterations := iterations + 1;
       residual := Optimization.Internal.boxResidual(H, g, lower, upper, x);
     end if;
