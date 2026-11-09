@@ -5,3 +5,6 @@ isFiniteMatrix
 determinant3
 spdResidual
 spdAccepted
+boxQPCheck
+boxQPWarmStartIterations
+frictionConeQPCheck

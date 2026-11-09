@@ -25,6 +25,7 @@ model All "Complete Modelica assertion suite"
   Tests.VerificationTests verification;
   Tests.PlanningTests planning;
   Tests.BezierTests bezier;
+  Tests.OptimizationTests optimization;
   Tests.GeodesyTests geodesy;
   Tests.MultirotorInnerLoopTests multirotorInnerLoop;
   Tests.Cubs2EstimatorTests cubs2Estimator;
