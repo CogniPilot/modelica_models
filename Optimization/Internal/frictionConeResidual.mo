@@ -1,5 +1,5 @@
 within Optimization.Internal;
-function frictionConeResidual "Largest block step a projected sweep would take"
+function frictionConeResidual "Largest independent block projected displacement at f"
   input Real A[:, size(A, 1)];
   input Real b[size(A, 1)];
   input Real mu[:];

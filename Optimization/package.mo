@@ -9,11 +9,12 @@ external C and no Modelica Standard Library dependency.</p>
 <li><a href=\"modelica://Optimization.frictionConeQP\">frictionConeQP</a>: minimize
 1/2 f'Af + b'f with one elliptic friction cone per contact.</li>
 </ul>
-<p>Every solver returns its solution together with the active set (which bound or
-cone face is active), a method-independent optimality residual, the iteration
-count and a converged flag. The active set is what an exact sensitivity of the
-solution needs: differentiating the optimality conditions at that active set,
-instead of differentiating through the iterations. Solver settings are a record
+<p>Every solver returns its solution together with its active set (bound state per
+coordinate; geometric zero, interior or boundary class per contact), a
+method-independent optimality residual, the iteration count and a converged flag.
+At a nondegenerate active set, a sensitivity of the solution can be obtained by
+differentiating the optimality conditions at that active set instead of through
+the iterations; no global differentiability is claimed. Solver settings are a record
 with a method field, so further methods can be added without changing the
 function signatures.</p>
 <p>The residual is measured in the units of the decision variable (for example

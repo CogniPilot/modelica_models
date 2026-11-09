@@ -10,8 +10,8 @@ function frictionConeQP
   input Optimization.SolverSettings settings = Optimization.SolverSettings() "Iteration controls";
   output Real f[3 * size(mu, 1)] "Contact impulses or forces, (normal, tangent1, tangent2) per contact";
   output Integer contactState[size(mu, 1)]
-    "0 zero (separating), 1 sticking (cone interior), 2 sliding (cone boundary)";
-  output Real residual "Largest projected block step from f, in the units of f";
+    "Geometric class of f per contact: 0 zero force, 1 cone interior, 2 cone boundary";
+  output Real residual "Largest independent block projected displacement at f, in the units of f";
   output Integer iterations "Full sweeps performed";
   output Boolean converged "True when residual <= settings.tolerance";
 protected
@@ -64,11 +64,16 @@ on its three components with step 1/L (L is the largest absolute row sum of that
 contact's diagonal block, an upper bound on its largest eigenvalue), then project
 exactly onto the friction cone. Block coordinate projected gradient with this
 step converges for convex problems.</p>
-<p><code>residual</code> is the largest block step the next sweep would take from
-<code>f</code>. It is in the units of f (impulse or force) and is zero exactly at
-the optimum, whichever method produced f. <code>contactState</code> is the active
-set an exact sensitivity needs. A contact within a relative 1e-10 of the cone
-boundary is reported as sliding; with mu = 0 every pushing contact is on the
-(degenerate) cone boundary and is reported as sliding.</p>
+<p><code>residual</code> is the largest independent block projected displacement at
+the returned <code>f</code>: for each contact separately, one projected block step
+evaluated at the same f. It is not the displacement of the next sequential sweep.
+It is in the units of f (impulse or force) and is zero exactly at the optimum,
+whichever method produced f.</p>
+<p><code>contactState</code> classifies f geometrically: zero force, cone interior or
+cone boundary. It is not a velocity-based separation, stick or slip mode. A force
+within a relative 1e-10 of the cone boundary is reported as boundary; with mu = 0
+every nonzero force lies on the degenerate cone boundary. At a nondegenerate
+active set this classification is what a sensitivity of f needs; no global
+differentiability of the solution is claimed.</p>
 </html>"));
 end frictionConeQP;

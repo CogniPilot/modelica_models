@@ -1,5 +1,5 @@
 within Optimization.Internal;
-function boxResidual "Largest coordinate step a projected Gauss-Seidel sweep would take"
+function boxResidual "Largest independent coordinate projected displacement at x"
   input Real H[:, size(H, 1)];
   input Real g[size(H, 1)];
   input Real lower[size(H, 1)];

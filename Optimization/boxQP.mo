@@ -8,7 +8,7 @@ function boxQP "Box-constrained convex QP: minimize 1/2 x'Hx + g'x with lower <=
   input Optimization.SolverSettings settings = Optimization.SolverSettings() "Iteration controls";
   output Real x[size(H, 1)] "Solution";
   output Integer active[size(H, 1)] "-1 at the lower bound, 0 free, +1 at the upper bound";
-  output Real residual "Largest projected Gauss-Seidel step from x, in the units of x";
+  output Real residual "Largest independent coordinate projected displacement at x, in the units of x";
   output Integer iterations "Full sweeps performed";
   output Boolean converged "True when residual <= settings.tolerance";
 protected
@@ -41,10 +41,14 @@ algorithm
 coordinate at a time and clamps it to its bounds, so the objective never
 increases. For symmetric positive definite H the sweeps converge to the unique
 optimum.</p>
-<p><code>residual</code> is the largest step the next sweep would take from
-<code>x</code>, coordinate by coordinate (gradient divided by the diagonal of H,
-then clamped). It is in the units of x and is zero exactly at the optimum,
-whichever method produced x. <code>active</code> is the active set an exact
-sensitivity needs: a reduced solve on the free coordinates.</p>
+<p><code>residual</code> is the largest independent coordinate projected
+displacement at the returned <code>x</code>: for each coordinate separately, the
+gradient divided by the diagonal of H, then clamped, all evaluated at the same x.
+It is not the displacement of the next sequential sweep. It is in the units of x
+and is zero exactly at the optimum, whichever method produced x.
+<code>active</code> is the bound state of each coordinate. At a nondegenerate active
+set (no free coordinate exactly at a bound, and nonzero multipliers on the active
+bounds) a sensitivity can be obtained from a reduced solve on the free coordinates;
+no global differentiability of the solution is claimed.</p>
 </html>"));
 end boxQP;
