@@ -31,7 +31,7 @@ package RevoluteArmatureTests "Joint-owned armature versus the original external
     ExternalRotor rotor(J=J);
     CommandTorque actuator;
     Real command(unit="N.m")=0.03+0.02*sin(3*time);
-    Real rotorEnergy(unit="J", start=J*0.3*0.3/2, fixed=true);
+    Real rotorEnergy(unit="J")=J*folded.w*folded.w/2;
     Real rotorPower(unit="W")=folded.axis.tau*folded.w-folded.tau*folded.w;
   equation
     if reverse then
@@ -55,8 +55,9 @@ package RevoluteArmatureTests "Joint-owned armature versus the original external
     assert(abs(reference.tau-folded.tau)<1e-8,"net shaft torque mismatch");
     assert(abs(folded.a-command/(0.02+J))<1e-8,"armature analytic acceleration mismatch");
     assert(abs(rotor.flange.tau+folded.tau)<1e-8,"old shaft reaction mapping mismatch");
-    der(rotorEnergy)=rotorPower;
-    assert(abs(rotorEnergy-J*folded.w*folded.w/2)<1e-8,"rotor energy balance mismatch");
+    // Check the rotor law without adding an independent integrated observer
+    // whose global error is not bounded by the solver's local tolerance.
+    assert(abs(rotorPower-J*folded.w*folded.a)<1e-8,"rotor power balance mismatch");
     for i in 1:3 loop
       assert(abs(reference.frame_a.f[i]-folded.frame_a.f[i])<1e-8,"parent force mismatch");
       assert(abs(reference.frame_a.t[i]-folded.frame_a.t[i])<1e-8,"parent moment mismatch");
