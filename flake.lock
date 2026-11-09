@@ -196,16 +196,15 @@
         "openmodelica": "openmodelica_2"
       },
       "locked": {
-        "lastModified": 1791136578,
-        "narHash": "sha256-wbmiLIYFA78lctGkn2cMrnNrA+wywA1o8LKo2c2ca/U=",
+        "lastModified": 1794234478,
+        "narHash": "sha256-fcedekGQrvHxEzYD/BNb3vbWhDkF8nNm2I2CVVvQ+IY=",
         "owner": "CogniPilot",
         "repo": "rumoca",
-        "rev": "276e82bd0fd48960ac201e782918d28bf19cf7ce",
+        "rev": "cb0267c5f135e9bd0503f90d0529620e45d5b49d",
         "type": "github"
       },
       "original": {
         "owner": "CogniPilot",
-        "ref": "v0.10.2",
         "repo": "rumoca",
         "type": "github"
       }
