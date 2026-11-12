@@ -159,6 +159,84 @@ package CollisionTests "Collision scene tables, the plane-sphere pair and the sh
     end for;
   end FallingBodies;
 
+  model SpherePairs "A sphere against a sphere, a capsule and a box: analytic gaps, normals and witness points, and a balanced pair of wrenches"
+    import MultiBodyLie.Collision;
+    parameter Real originA[3](each unit="m")={1024,-2048,512} "Frame of the sphere, far from the world origin";
+    parameter Real offset[3](each unit="m")={0.25,0.125,-0.1875}
+      "From the sphere's frame to the other shape's frame; binary fractions, so originA+offset rounds nothing";
+    parameter Real centreA[3](each unit="m")={0.01,0.02,-0.01} "Sphere centre in its frame, world axes";
+    parameter Real radiusA(unit="m")=0.03;
+    parameter Real radiusB(unit="m")=0.02 "Radius of the other sphere and of the capsule";
+    parameter Real dir[3]={2,-1,2}/3 "Unit vector from the sphere towards the other sphere";
+    parameter Real axis[3]={1,2,2}/3 "Unit vector along the capsule";
+    parameter Real side[3]={2,1,-2}/3 "Unit vector across the capsule";
+    parameter Real halfLength(unit="m")=0.05 "Half length of the capsule";
+    parameter Real TB[3,3]=MultiBodyLie.Frames.axesRotationsT({1,2,3},{0.2,-0.3,0.5}) "World-to-box rotation";
+    parameter Real halfB[3](each unit="m")={0.05,0.03,0.02} "Half extents of the box";
+    parameter Real centreB[3](each unit="m")={0.02,-0.01,0.03} "Middle of the capsule, and centre of the box, in their frame";
+    parameter Collision.Material material(k=1e4,d=0.5,mu=0.8,eps=1e-4,v_eps=0.01);
+    parameter Real vA[3](each unit="m/s")={0.03,-0.04,-0.05};
+    parameter Real wA[3](each unit="rad/s")={0.7,-1.1,0.4};
+    parameter Real vB[3](each unit="m/s")={-0.02,0.01,0.06};
+    parameter Real wB[3](each unit="rad/s")={-0.3,0.9,0.2};
+    Real originB[3](each unit="m") "Frame of the other shape";
+    Real L(unit="m") "Distance that shrinks with time: separated, touching, then overlapping";
+    Collision.ContactPoint spheres "Sphere a against sphere b";
+    Collision.ContactPoint spheresFlipped "Sphere b against sphere a";
+    Collision.ContactPoint beside "Sphere beside the capsule's segment";
+    Collision.ContactPoint beyond "Sphere beyond the end of the capsule's segment";
+    Collision.ContactPoint onFace "Sphere over a face of the box";
+    Collision.ContactPoint onCorner "Sphere off a corner of the box";
+    Collision.ContactPoint inside "Sphere centre inside the box, nearest its +x face";
+    Real fA[3](each unit="N");
+    Real tauA[3](each unit="N.m");
+    Real fB[3](each unit="N");
+    Real tauB[3](each unit="N.m");
+    Real moment[3](each unit="N.m") "Total moment of the pair about the origin of a's frame";
+  equation
+    originB=originA+offset;
+    L=0.08-0.2*time;
+    spheres=Collision.sphereSphere(originA,centreA,radiusA,originB,centreA+L*dir-offset,radiusB);
+    spheresFlipped=Collision.sphereSphere(originB,centreA+L*dir-offset,radiusB,originA,centreA,radiusA);
+    // The capsule's middle is placed so that the sphere centre is at 0.02 m, then 0.09 m, along its axis and L across it.
+    beside=Collision.sphereCapsule(originA,centreA,radiusA,originB,centreA-0.02*axis-L*side-offset,axis,halfLength,radiusB);
+    beyond=Collision.sphereCapsule(originA,centreA,radiusA,originB,centreA-0.09*axis-L*side-offset,axis,halfLength,radiusB);
+    // The box's centre is placed so that the sphere centre is at the given point of the box frame.
+    onFace=Collision.sphereBox(originA,centreA,radiusA,originB,centreA-transpose(TB)*{halfB[1]+L,0.01,0.005}-offset,TB,halfB);
+    onCorner=Collision.sphereBox(originA,centreA,radiusA,originB,
+      centreA-transpose(TB)*{halfB[1]+L,halfB[2]+2*L,halfB[3]+2*L}-offset,TB,halfB);
+    inside=Collision.sphereBox(originA,centreA,radiusA,originB,centreA-transpose(TB)*{halfB[1]-0.004,0.001*time,0}-offset,TB,halfB);
+    (fA,tauA,fB,tauB)=Collision.pairWrenches(spheres,vA,wA,vB,wB,material);
+    moment=tauA+tauB+cross(originB-originA,fB);
+    assert(abs(spheres.gap-(L-radiusA-radiusB))<1e-12,"Two spheres are apart by the distance of their centres less their radii");
+    assert(abs(beside.gap-(L-radiusA-radiusB))<1e-12,"A sphere beside a capsule is apart by its distance from the axis less the radii");
+    assert(abs(beyond.gap-(sqrt(L^2+0.04^2)-radiusA-radiusB))<1e-12,"A sphere beyond a capsule's end is apart by its distance from the end less the radii");
+    assert(abs(onFace.gap-(L-radiusA))<1e-12,"A sphere over a box face is apart by its height over the face less its radius");
+    assert(abs(onCorner.gap-(3*L-radiusA))<1e-12,"A sphere off a box corner is apart by its distance from the corner less its radius");
+    assert(abs(inside.gap-(-0.004-radiusA))<1e-12,"A sphere centre inside a box overlaps by its depth under the nearest face and its radius");
+    assert(time<0.16 or fA*spheres.n>1,"The spheres must press on each other at the end of the run");
+    for i in 1:3 loop
+      assert(abs(spheres.n[i]+dir[i])<1e-12,"The normal of two spheres runs from b to a along their centres");
+      assert(abs(beside.n[i]-side[i])<1e-12,"The normal beside a capsule is across its axis");
+      assert(abs(onFace.n[i]-TB[1,i])<1e-12,"The normal over a box face is the face's axis");
+      assert(abs(onCorner.n[i]-(TB[1,i]+2*TB[2,i]+2*TB[3,i])/3)<1e-12,"The normal off a box corner runs from the corner to the sphere centre");
+      assert(abs(inside.n[i]-TB[1,i])<1e-12,"The normal of a centre inside a box is the nearest face's axis");
+      // The two witness points are apart by the gap along the normal, for every pair.
+      assert(abs(spheres.armA[i]-spheres.armB[i]-offset[i]-spheres.gap*spheres.n[i])<1e-12,"sphere-sphere witness points");
+      assert(abs(beside.armA[i]-beside.armB[i]-offset[i]-beside.gap*beside.n[i])<1e-12,"sphere-capsule witness points, beside");
+      assert(abs(beyond.armA[i]-beyond.armB[i]-offset[i]-beyond.gap*beyond.n[i])<1e-12,"sphere-capsule witness points, beyond the end");
+      assert(abs(onFace.armA[i]-onFace.armB[i]-offset[i]-onFace.gap*onFace.n[i])<1e-12,"sphere-box witness points, face");
+      assert(abs(onCorner.armA[i]-onCorner.armB[i]-offset[i]-onCorner.gap*onCorner.n[i])<1e-12,"sphere-box witness points, corner");
+      assert(abs(inside.armA[i]-inside.armB[i]-offset[i]-inside.gap*inside.n[i])<1e-12,"sphere-box witness points, inside");
+      // Exchanging the shapes exchanges the witness points and turns the normal.
+      assert(abs(spheresFlipped.n[i]+spheres.n[i])<1e-12 and abs(spheresFlipped.armA[i]-spheres.armB[i])<1e-12
+        and abs(spheresFlipped.armB[i]-spheres.armA[i])<1e-12,"The pair with its shapes exchanged is the flipped point");
+      assert(abs(fA[i]+fB[i])<=0,"The two forces of a pair are exactly opposite");
+      assert(abs(moment[i])<1e-9*max(1,abs(fA*spheres.n)),"The two wrenches of a pair have no total moment");
+    end for;
+    assert(abs(spheresFlipped.gap-spheres.gap)<1e-12,"The gap does not depend on the order of the shapes");
+  end SpherePairs;
+
   model SceneTables "A scene's default tables are the ground plane, one material and one group"
     import MultiBodyLie.Collision;
     Collision.Scene scene;
@@ -171,11 +249,12 @@ package CollisionTests "Collision scene tables, the plane-sphere pair and the sh
       "The pair table gives one point for plane-sphere, eight for plane-box and marks box-box as unsupported");
   end SceneTables;
 
-  model Suite "Plane pairs and the scene tables against the ground wrench; a falling body on both contact models"
+  model Suite "Plane pairs and the scene tables against the ground wrench; sphere pairs against analytic cases; a falling body on both contact models"
     PlaneSphereAgainstGroundWrench planeSphere;
     SoleAgainstGroundWrench sole;
     CapsuleAndBoxAgainstGroundWrench capsuleAndBox;
     FallingBodies falling;
+    SpherePairs spherePairs;
     SceneTables tables;
     annotation(experiment(StartTime=0,StopTime=0.2,Interval=0.002,Tolerance=1e-8));
   end Suite;

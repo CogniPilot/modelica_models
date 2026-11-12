@@ -14,7 +14,10 @@ package Collision "Collision shapes, the scene tables and contact points between
   // contact points; a pair the table marks with zero is outside the library. Of the seven pairs with a
   // positive entry, the three plane pairs (plane against sphere, capsule and box) have their geometry
   // here. The other four (sphere against sphere, capsule and box, and capsule against capsule) are
-  // planned and not written yet; sceneWrench refuses every pair it cannot compute by an assertion.
+  // not complete: sphereSphere, sphereCapsule and sphereBox give the geometry of three of them (flipped
+  // exchanges the two shapes), pairWrenches turns a point between two bodies into a balanced pair of
+  // wrenches, and capsule against capsule is not written yet. No model applies these to two bodies yet;
+  // sceneWrench refuses every pair it cannot compute by an assertion.
   //
   // The geometry functions are plain functions of the current poses. Branches inside a function create
   // no events, so geometry never stops the integrator. A contact becomes active through the clamp in
@@ -182,6 +185,121 @@ package Collision "Collision shapes, the scene tables and contact points between
       radius := 0;
     end if;
   end planeSpheres;
+
+  function flipped "The same contact point with the two shapes exchanged"
+    input ContactPoint point "A contact point of a shape a with a shape b";
+    output ContactPoint other "The point of b with a: same gap, opposite normal, witness points exchanged";
+  algorithm
+    other := ContactPoint(gap = point.gap, n = -point.n, armA = point.armB, armB = point.armA);
+  end flipped;
+
+  function sphereSphere "Contact point of a sphere (shape a) with a sphere (shape b): one point"
+    input Real originA[3](each unit = "m") "Origin of the frame that owns a, world frame";
+    input Real centreA[3](each unit = "m") "Centre of a relative to that origin, resolved in the world frame";
+    input Real radiusA(unit = "m") "Radius of a";
+    input Real originB[3](each unit = "m") "Origin of the frame that owns b, world frame";
+    input Real centreB[3](each unit = "m") "Centre of b relative to that origin, resolved in the world frame";
+    input Real radiusB(unit = "m") "Radius of b";
+    output ContactPoint point "The support points of the two spheres on the line of their centres";
+  protected
+    Real d[3](each unit = "m") "From the centre of b to the centre of a";
+    Real distance(unit = "m") "Distance between the centres";
+    Real n[3] "Unit normal from b towards a";
+  algorithm
+    // The origins are subtracted from each other first, so two bodies far from the world origin lose no digits.
+    d := (originA - originB) + (centreA - centreB);
+    distance := sqrt(d * d);
+    // Coincident centres have no line of centres; the normal is then the world z axis by convention.
+    n := if distance > 0 then d / distance else {0, 0, 1};
+    point := ContactPoint(gap = distance - radiusA - radiusB, n = n, armA = centreA - radiusA * n,
+      armB = centreB + radiusB * n);
+  end sphereSphere;
+
+  function sphereCapsule "Contact point of a sphere (shape a) with a capsule (shape b): one point"
+    input Real originA[3](each unit = "m") "Origin of the frame that owns a, world frame";
+    input Real centreA[3](each unit = "m") "Centre of a relative to that origin, resolved in the world frame";
+    input Real radiusA(unit = "m") "Radius of a";
+    input Real originB[3](each unit = "m") "Origin of the frame that owns b, world frame";
+    input Real centreB[3](each unit = "m") "Middle of the capsule's segment relative to that origin, resolved in the world frame";
+    input Real axisB[3] "Unit vector along the capsule's segment, world frame";
+    input Real halfLengthB(unit = "m") "Half length of the segment";
+    input Real radiusB(unit = "m") "Radius of the capsule";
+    output ContactPoint point "The sphere against the capsule's sphere nearest to it";
+  protected
+    Real s(unit = "m") "Position on the segment of its point nearest the centre of a";
+  algorithm
+    s := min(max(((originA - originB) + (centreA - centreB)) * axisB, -halfLengthB), halfLengthB);
+    point := sphereSphere(originA, centreA, radiusA, originB, centreB + s * axisB, radiusB);
+  end sphereCapsule;
+
+  function sphereBox "Contact point of a sphere (shape a) with a box (shape b): one point"
+    input Real originA[3](each unit = "m") "Origin of the frame that owns a, world frame";
+    input Real centreA[3](each unit = "m") "Centre of a relative to that origin, resolved in the world frame";
+    input Real radiusA(unit = "m") "Radius of a";
+    input Real originB[3](each unit = "m") "Origin of the frame that owns b, world frame";
+    input Real centreB[3](each unit = "m") "Centre of the box relative to that origin, resolved in the world frame";
+    input Real TB[3, 3] "Rotation from the world frame to the box frame";
+    input Real halfB[3](each unit = "m") "Half extents of the box along its axes";
+    output ContactPoint point "The sphere against the point of the box nearest its centre";
+  protected
+    Real p[3](each unit = "m") "Centre of a relative to the centre of the box, box frame";
+    Real q[3](each unit = "m") "The point of the box nearest the centre of a, box frame";
+    Real d[3](each unit = "m") "From that point to the centre of a, box frame";
+    Real distance(unit = "m") "Its length";
+    Real clear[3](each unit = "m") "Distance from the centre of a to the two faces across each axis, when it is inside";
+    Real face[3] "Outward unit normal, box frame, of the face an inside centre is nearest to";
+    Real n[3] "Unit normal from the box towards a, world frame";
+  algorithm
+    p := TB * ((originA - originB) + (centreA - centreB));
+    q := {min(max(p[i], -halfB[i]), halfB[i]) for i in 1:3};
+    d := p - q;
+    distance := sqrt(d * d);
+    if distance > 0 then
+      // The centre is outside the box.
+      n := transpose(TB) * (d / distance);
+      point := ContactPoint(gap = distance - radiusA, n = n, armA = centreA - radiusA * n,
+        armB = centreB + transpose(TB) * q);
+    else
+      // The centre is inside the box and leaves it through the nearest face; among equally near faces
+      // the lower axis wins. The normal jumps where the nearest face changes, deep inside the box.
+      clear := {halfB[i] - abs(p[i]) for i in 1:3};
+      if clear[1] <= clear[2] and clear[1] <= clear[3] then
+        face := {if p[1] < 0 then -1 else 1, 0, 0};
+      elseif clear[2] <= clear[3] then
+        face := {0, if p[2] < 0 then -1 else 1, 0};
+      else
+        face := {0, 0, if p[3] < 0 then -1 else 1};
+      end if;
+      n := transpose(TB) * face;
+      point := ContactPoint(gap = -(abs(face) * clear) - radiusA, n = n, armA = centreA - radiusA * n,
+        armB = centreB + transpose(TB) * (p + (abs(face) * clear) * face));
+    end if;
+  end sphereBox;
+
+  function pairWrenches "The balanced wrenches of one contact point on the two frames that own its shapes"
+    input ContactPoint point "A contact point of a shape a with a shape b";
+    input Real vA[3](each unit = "m/s") "Velocity of the origin of the frame that owns a, world frame";
+    input Real wA[3](each unit = "rad/s") "Angular velocity of that frame, resolved in the world frame";
+    input Real vB[3](each unit = "m/s") "Velocity of the origin of the frame that owns b, world frame";
+    input Real wB[3](each unit = "rad/s") "Angular velocity of that frame, resolved in the world frame";
+    input Material material "Material of the pair";
+    output Real fA[3](each unit = "N") "Force on a, world frame";
+    output Real tauA[3](each unit = "N.m") "Torque on a about the origin of its frame, world frame";
+    output Real fB[3](each unit = "N") "Force on b, world frame";
+    output Real tauB[3](each unit = "N.m") "Torque on b about the origin of its frame, world frame";
+  protected
+    Real pA[3](each unit = "m") "The point both forces act at, relative to the origin of a's frame";
+    Real pB[3](each unit = "m") "The same point relative to the origin of b's frame";
+  algorithm
+    // Both forces act at one point, midway between the witness points. Acting at the two witness
+    // points instead would leave the moment of a friction force over the gap between them unbalanced.
+    pA := point.armA - 0.5 * point.gap * point.n;
+    pB := point.armB + 0.5 * point.gap * point.n;
+    fA := contactForce(point, (vA + cross(wA, pA)) - (vB + cross(wB, pB)), material);
+    tauA := cross(pA, fA);
+    fB := -fA;
+    tauB := cross(pB, fB);
+  end pairWrenches;
 
   function sceneWrench "Force and torque on a body from its shapes against the static shapes of a scene"
     input Real r0[3](each unit = "m") "Origin of the body frame, world frame";
