@@ -70,3 +70,4 @@ OptimizationTests
 RevoluteArmatureTests
 MultiBodyLieTests
 MicroduckTests
+CollisionTests
