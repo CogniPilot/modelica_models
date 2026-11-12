@@ -30,6 +30,10 @@ artifacts; they do not own alternate copies of these models.
   and control code.
 - `Polynomials/`: dimension-generic Hermite construction, derivative
   evaluation, and integrated derivative-cost matrices.
+- `Optimization/`: convex QP solvers in pure Modelica: box-constrained QPs
+  and friction-cone contact QPs by projected Gauss-Seidel. Each returns the
+  active set, a residual in the decision variable's units, the iteration count
+  and a converged flag.
 - `LieGroups/`: Lie groups including SO(2), SO(3), SE(2), SE(3), and SE_2(3),
   with replaceable quaternion, DCM, MRP, and Euler rotation representations.
   All 12 axis sequences are available in both body-fixed and space-fixed form,
@@ -387,9 +391,9 @@ To regenerate only the planning artifacts:
 modelica-models test plots
 ```
 
-CI uses the same Python commands. The optional Nix layer uses released Rumoca
-0.10.2 for both the CLI and Python bindings. Its Python dependency override
-corrects the release's stale Cargo vendor hash without patching compiler code.
+CI uses the same Python commands. The optional Nix layer builds Rumoca main at
+the revision recorded in `flake.lock` for both the CLI and Python bindings.
+The Rumoca stage puts the pinned MSL on `MODELICAPATH`.
 The Rumoca checks compile and execute a C99 UKF prediction regression. Native
 use requires `cc` or `MODELICA_MODELS_CC`; the Nix application supplies its compiler.
 The layer pins compiler binaries
