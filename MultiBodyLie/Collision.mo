@@ -10,8 +10,11 @@ package Collision "Collision shapes, the scene tables and contact points between
   // material, group), not an array of records: the tables are plain tensors all the way to the
   // functions that read them.
   //
-  // Shapes come from a closed set of kinds. Every pair of kinds has one geometry function and a fixed
-  // largest number of contact points (maxPoints); a pair the table marks with zero is not supported.
+  // Shapes come from a closed set of kinds. maxPoints gives each pair of kinds its largest number of
+  // contact points; a pair the table marks with zero is outside the library. Of the seven pairs with a
+  // positive entry, the three plane pairs (plane against sphere, capsule and box) have their geometry
+  // here. The other four (sphere against sphere, capsule and box, and capsule against capsule) are
+  // planned and not written yet; sceneWrench refuses every pair it cannot compute by an assertion.
   //
   // The geometry functions are plain functions of the current poses. Branches inside a function create
   // no events, so geometry never stops the integrator. A contact becomes active through the clamp in
@@ -21,8 +24,11 @@ package Collision "Collision shapes, the scene tables and contact points between
   // MultiBodyLie.Contact.groundWrench written for an arbitrary unit normal. A contact point keeps its
   // witness points relative to the origins of the frames that own the two shapes, as groundWrench
   // does: that is what a wrench about the frame origin needs, and it does not lose digits far from
-  // the world origin. With the ground plane (point {0, 0, 0}, normal {0, 0, 1}) planeSphere and
-  // contactForce evaluate the same products and sums as groundWrench, in the same order.
+  // the world origin. With the ground plane (point {0, 0, 0}, normal {0, 0, 1}) the tests compare
+  // planeSphere and contactForce with groundWrench bit for bit on fixed poses and velocities. That is
+  // a result for those inputs, not a promise for every input: the gap is summed here as
+  // origin + (arm - radius) and in groundWrench's clear test as (origin + arm) - radius, so a point
+  // within rounding of the clear margin can be cut off by one and not by the other.
   //
   // Against a plane every shape of the closed set reduces exactly to spheres: a sphere is itself, a
   // capsule is the two spheres at the ends of its segment (the point of a segment nearest a plane is
@@ -131,9 +137,9 @@ package Collision "Collision shapes, the scene tables and contact points between
     input Real origin[3](each unit = "m") "Origin of the frame that owns the sphere, world frame";
     input Real arm[3](each unit = "m") "Sphere centre relative to that origin, resolved in the world frame";
     input Real radius(unit = "m") "Sphere radius";
-    output ContactPoint point "The point of the sphere nearest the plane and its foot on the plane";
+    output ContactPoint point "The sphere's support point against the plane normal and its foot on the plane";
   protected
-    Real armA[3](each unit = "m") "The sphere's point nearest the plane, relative to the origin";
+    Real armA[3](each unit = "m") "The sphere's support point (centre minus radius times the normal), relative to the origin";
     Real gap(unit = "m") "Its distance from the plane";
   algorithm
     armA := arm - radius * planeNormal;
