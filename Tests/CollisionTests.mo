@@ -38,8 +38,8 @@ package CollisionTests "Collision scene tables, the plane-sphere pair and the sh
       material.k,material.d,material.mu,material.eps,material.v_eps);
     assert(point.gap<0 and fGround[3]>1,"The fixture must press the sphere into the ground");
     for i in 1:3 loop
-      assert(abs(f[i]-fGround[i])<=0,"The shared force law must give the ground wrench's force bit for bit");
-      assert(abs(tau[i]-tauGround[i])<=0,"The moment of the shared law's force must be the ground wrench's torque bit for bit");
+      assert(abs(f[i]-fGround[i])<=0,"The shared force law must give exactly the ground wrench's force on this fixture");
+      assert(abs(tau[i]-tauGround[i])<=0,"The moment of the shared law's force must be exactly the ground wrench's torque on this fixture");
       assert(abs(fClear[i])<=0 and abs(fGroundClear[i])<=0 and abs(tauGroundClear[i])<=0,
         "A sphere clear of the ground carries exactly no force on either path");
       assert(abs(point.armB[i]+point.gap*point.n[i]-(r0[i]+point.armA[i]))<1e-15,
@@ -76,8 +76,8 @@ package CollisionTests "Collision scene tables, the plane-sphere pair and the sh
       material.k,material.d,material.mu,material.eps,material.v_eps);
     assert(fGround[3]>0.1,"The fixture must press part of the sole into the ground");
     for i in 1:3 loop
-      assert(abs(f[i]-fGround[i])<=0,"The scene tables must give the ground wrench's force bit for bit");
-      assert(abs(tau[i]-tauGround[i])<=0,"The scene tables must give the ground wrench's torque bit for bit");
+      assert(abs(f[i]-fGround[i])<=0,"The scene tables must give exactly the ground wrench's force on this fixture");
+      assert(abs(tau[i]-tauGround[i])<=0,"The scene tables must give exactly the ground wrench's torque on this fixture");
     end for;
   end SoleAgainstGroundWrench;
 

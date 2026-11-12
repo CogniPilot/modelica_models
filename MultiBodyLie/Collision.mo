@@ -25,15 +25,16 @@ package Collision "Collision shapes, the scene tables and contact points between
   // witness points relative to the origins of the frames that own the two shapes, as groundWrench
   // does: that is what a wrench about the frame origin needs, and it does not lose digits far from
   // the world origin. With the ground plane (point {0, 0, 0}, normal {0, 0, 1}) the tests compare
-  // planeSphere and contactForce with groundWrench bit for bit on fixed poses and velocities. That is
-  // a result for those inputs, not a promise for every input: the gap is summed here as
+  // planeSphere and contactForce with groundWrench for exact numerical equality on fixed poses and
+  // velocities. That is a result for those inputs, not a promise for every input: the gap is summed here as
   // origin + (arm - radius) and in groundWrench's clear test as (origin + arm) - radius, so a point
   // within rounding of the clear margin can be cut off by one and not by the other.
   //
-  // Against a plane every shape of the closed set reduces exactly to spheres: a sphere is itself, a
-  // capsule is the two spheres at the ends of its segment (the point of a segment nearest a plane is
-  // always an end), and a box is its eight corners with radius zero. planeSpheres owns that reduction
-  // and planeSphere is the one geometry function of all the plane pairs.
+  // For plane contacts a shape is sampled by spheres: a sphere by itself, a capsule by the two spheres
+  // at the ends of its segment, and a box by eight corner points of radius zero. The smallest signed
+  // gap of the shape to the plane is the smallest gap of its samples, and each sample receives the full
+  // point law independently. For a box this is corner sampling, not a model of pressure over a face.
+  // planeSpheres owns the samples and planeSphere is the one geometry function of all the plane pairs.
   //
   // The material of a contact is the material of the moving body's shape. sceneWrench is the first
   // consumer: the shapes of a body against the planes of the world.
@@ -147,7 +148,7 @@ package Collision "Collision shapes, the scene tables and contact points between
     point := ContactPoint(gap = gap, n = planeNormal, armA = armA, armB = origin + armA - gap * planeNormal);
   end planeSphere;
 
-  function planeSpheres "The spheres that stand for a shape against a plane: their contacts with a plane are exactly the shape's"
+  function planeSpheres "The sphere samples of a shape for the point-force model against a plane"
     input ShapeKind kind "Kind of the shape";
     input Real r[3](each unit = "m") "Shape origin, resolved in the owning frame";
     input Real T[3, 3] "Rotation from the owning frame to the shape frame";
