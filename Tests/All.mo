@@ -31,5 +31,6 @@ model All "Complete Modelica assertion suite"
   Tests.Cubs2EstimatorTests cubs2Estimator;
   Tests.DynamicsTests.Suite dynamics;
   Tests.RevoluteArmatureTests.Suite revoluteArmature;
+  Tests.MultiBodyLieTests.Suite multiBodyLie;
   annotation(experiment(StartTime=0.0, StopTime=1.0, Tolerance=1.0e-8, Interval=0.001));
 end All;

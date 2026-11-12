@@ -43,10 +43,12 @@ artifacts; they do not own alternate copies of these models.
   turn global lat/lon/alt waypoints into local-frame references.
 - `RigidBody/`: reusable six-degree-of-freedom rigid-body dynamics.
 - `MultiBodyLie/`: articulated-body connector library used by Rumoca's
-  humanoid benchmark. It carries subtree inertia and bias wrench through
-  connectors; the elimination structure, rather than Lie-group integration,
-  is its distinguishing feature. This compact tree-dynamics package is
-  experimental; extended mounts, sensors and general contact are separate.
+  humanoid benchmark and the Microduck robot. It carries subtree inertia and
+  bias wrench through connectors; the elimination structure, rather than
+  Lie-group integration, is its distinguishing feature. Bodies feel MSL's
+  gravity field at their centre of mass; revolute joints carry reflected rotor
+  inertia (`armature`). `MultiBodyLie.Contact` is a smooth sphere-against-ground
+  contact law; sensors and general collision geometry are separate.
 - `MathUtilities/`: shared clipping, filtering, angle, rate, and norm helpers.
 - `Control/`: reusable control laws and sampled controller building blocks,
   including the multirotor SE_2(3)/SO(3) log-linear controller and the

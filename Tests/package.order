@@ -68,3 +68,4 @@ ObservabilityConstrainedPredictionTests
 MslRotationalSmoke
 OptimizationTests
 RevoluteArmatureTests
+MultiBodyLieTests
