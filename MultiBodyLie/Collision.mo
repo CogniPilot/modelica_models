@@ -24,8 +24,13 @@ package Collision "Collision shapes, the scene tables and contact points between
   // the world origin. With the ground plane (point {0, 0, 0}, normal {0, 0, 1}) planeSphere and
   // contactForce evaluate the same products and sums as groundWrench, in the same order.
   //
+  // Against a plane every shape of the closed set reduces exactly to spheres: a sphere is itself, a
+  // capsule is the two spheres at the ends of its segment (the point of a segment nearest a plane is
+  // always an end), and a box is its eight corners with radius zero. planeSpheres owns that reduction
+  // and planeSphere is the one geometry function of all the plane pairs.
+  //
   // The material of a contact is the material of the moving body's shape. sceneWrench is the first
-  // consumer: the spheres of a body against the planes of the world.
+  // consumer: the shapes of a body against the planes of the world.
 
   type ShapeKind = enumeration(
     Plane "Half-space below the plane through the shape origin with normal along the shape z axis",
@@ -35,10 +40,10 @@ package Collision "Collision shapes, the scene tables and contact points between
     "Closed set of collision shape kinds";
 
   constant Integer maxPoints[ShapeKind, ShapeKind] = {
-    {0, 1, 2, 4},
+    {0, 1, 2, 8},
     {1, 1, 1, 1},
     {2, 1, 2, 0},
-    {4, 1, 0, 0}}
+    {8, 1, 0, 0}}
     "Largest number of contact points of each pair of kinds; 0 marks a pair that is not supported";
 
   constant Real dampingSmoothing = 0.05
@@ -136,6 +141,42 @@ package Collision "Collision shapes, the scene tables and contact points between
     point := ContactPoint(gap = gap, n = planeNormal, armA = armA, armB = origin + armA - gap * planeNormal);
   end planeSphere;
 
+  function planeSpheres "The spheres that stand for a shape against a plane: their contacts with a plane are exactly the shape's"
+    input ShapeKind kind "Kind of the shape";
+    input Real r[3](each unit = "m") "Shape origin, resolved in the owning frame";
+    input Real T[3, 3] "Rotation from the owning frame to the shape frame";
+    input Real size[3](each unit = "m") "Dimensions of the shape";
+    output Integer count "Number of spheres: maxPoints[Plane, kind]";
+    output Real centre[8, 3](each unit = "m") "Sphere centres, resolved in the owning frame; rows after count are zero";
+    output Real radius(unit = "m") "Radius of every one of the spheres";
+  algorithm
+    centre := zeros(8, 3);
+    if kind == ShapeKind.Sphere then
+      count := 1;
+      centre[1, :] := r;
+      radius := size[1];
+    elseif kind == ShapeKind.Capsule then
+      count := 2;
+      centre[1, :] := r - size[2] * T[1, :];
+      centre[2, :] := r + size[2] * T[1, :];
+      radius := size[1];
+    elseif kind == ShapeKind.Box then
+      count := 8;
+      for x in 0:1 loop
+        for y in 0:1 loop
+          for z in 0:1 loop
+            centre[1 + 4 * x + 2 * y + z, :] := r + transpose(T) * {(2 * x - 1) * size[1], (2 * y - 1) * size[2],
+              (2 * z - 1) * size[3]};
+          end for;
+        end for;
+      end for;
+      radius := 0;
+    else
+      count := 0;
+      radius := 0;
+    end if;
+  end planeSpheres;
+
   function sceneWrench "Force and torque on a body from its shapes against the static shapes of a scene"
     input Real r0[3](each unit = "m") "Origin of the body frame, world frame";
     input Real T[3, 3] "World-to-body-frame rotation";
@@ -143,6 +184,7 @@ package Collision "Collision shapes, the scene tables and contact points between
     input Real v0[3](each unit = "m/s") "Velocity of the body frame origin, world frame";
     input ShapeKind kind[:] "Kind of each shape of the body";
     input Real r[size(kind, 1), 3](each unit = "m") "Origin of each shape, body frame";
+    input Real shapeT[size(kind, 1), 3, 3] "Rotation from the body frame to each shape's frame";
     input Real size[size(kind, 1), 3](each unit = "m") "Dimensions of each shape";
     input Integer material[size(kind, 1)] "Material row of each shape";
     input Integer group[size(kind, 1)] "Collision group of each shape";
@@ -161,26 +203,35 @@ package Collision "Collision shapes, the scene tables and contact points between
   protected
     ContactPoint point "One contact point of the pair at hand";
     Material pair "Material of the pair at hand";
-    Real arm[3](each unit = "m") "Shape origin relative to r0, resolved in the world frame";
+    Integer count "Number of spheres that stand for the shape at hand";
+    Real centre[8, 3](each unit = "m") "Their centres, body frame";
+    Real radius(unit = "m") "Their radius";
+    Real arm[3](each unit = "m") "A sphere centre relative to r0, resolved in the world frame";
     Real v[3](each unit = "m/s") "Velocity of the body's witness point, world frame";
     Real fi[3](each unit = "N") "Force of one contact point";
   algorithm
     f := zeros(3);
     tau := zeros(3);
     for i in 1:size(kind, 1) loop
-      arm := transpose(T) * r[i, :];
+      (count, centre, radius) := planeSpheres(kind[i], r[i, :], shapeT[i, :, :], size[i, :]);
       pair := Material(k = k[material[i]], d = d[material[i]], mu = mu[material[i]], eps = eps[material[i]],
         v_eps = v_eps[material[i]]);
       for j in 1:size(staticKind, 1) loop
         if collides[group[i], staticGroup[j]] then
-          assert(kind[i] == ShapeKind.Sphere and staticKind[j] == ShapeKind.Plane,
-            "Collision.sceneWrench supports a sphere of a body against a plane of the world; other pairs are not implemented yet");
-          // The plane's normal is the z axis of its shape frame: the third row of its rotation.
-          point := planeSphere(staticR[j, :], staticT[j, 3, :], r0, arm, size[i, 1]);
-          v := v0 + cross(transpose(T) * w, point.armA);
-          fi := contactForce(point, v, pair);
-          f := f + fi;
-          tau := tau + cross(point.armA, fi);
+          assert(count > 0 and staticKind[j] == ShapeKind.Plane,
+            "Collision.sceneWrench supports a sphere, capsule or box of a body against a plane of the world; other pairs are not implemented yet");
+          // Every shape has at most eight spheres; the rows after count are not contacts.
+          for p in 1:8 loop
+            if p <= count then
+              arm := transpose(T) * centre[p, :];
+              // The plane's normal is the z axis of its shape frame: the third row of its rotation.
+              point := planeSphere(staticR[j, :], staticT[j, 3, :], r0, arm, radius);
+              v := v0 + cross(transpose(T) * w, point.armA);
+              fi := contactForce(point, v, pair);
+              f := f + fi;
+              tau := tau + cross(point.armA, fi);
+            end if;
+          end for;
         end if;
       end for;
     end for;
@@ -190,6 +241,7 @@ package Collision "Collision shapes, the scene tables and contact points between
     parameter Integer n(min = 0) "Number of shapes";
     parameter ShapeKind kind[n] = fill(ShapeKind.Sphere, n) "Kind of each shape";
     parameter Real r[n, 3](each unit = "m") = zeros(n, 3) "Origin of each shape, resolved in frame_a";
+    parameter Real T[n, 3, 3] = {identity(3) for i in 1:n} "Rotation from frame_a to each shape's frame";
     parameter Real size[n, 3](each unit = "m") = zeros(n, 3) "Dimensions of each shape; their meaning is given by the kind";
     parameter Integer material[n](each min = 1) = ones(n) "Material row of each shape in the scene's table";
     parameter Integer group[n](each min = 1) = ones(n) "Collision group of each shape";
@@ -206,7 +258,7 @@ package Collision "Collision shapes, the scene tables and contact points between
     end for;
   equation
     connect(frame_a, wrench.frame_b);
-    (f, tau) = sceneWrench(frame_a.r_0, frame_a.R.T, frame_a.R.w, v0, kind, r, size, material, group,
+    (f, tau) = sceneWrench(frame_a.r_0, frame_a.R.T, frame_a.R.w, v0, kind, r, T, size, material, group,
       scene.staticKind, scene.staticR, scene.staticT, scene.staticGroup,
       scene.k, scene.d, scene.mu, scene.eps, scene.v_eps, scene.collides);
     wrench.force = f;

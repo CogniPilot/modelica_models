@@ -70,7 +70,7 @@ package CollisionTests "Collision scene tables, the plane-sphere pair and the sh
     Real fGround[3](each unit="N");
     Real tauGround[3](each unit="N.m");
   equation
-    (f,tau)=Collision.sceneWrench(r0,T,w,v0,kind,centre,size,ones(4),ones(4),groundKind,groundR,groundT,{1},
+    (f,tau)=Collision.sceneWrench(r0,T,w,v0,kind,centre,{identity(3) for i in 1:4},size,ones(4),ones(4),groundKind,groundR,groundT,{1},
       {material.k},{material.d},{material.mu},{material.eps},{material.v_eps},collides);
     (fGround,tauGround)=MultiBodyLie.Contact.groundWrench(r0,T,w,v0,centre,fill(radius,4),
       material.k,material.d,material.mu,material.eps,material.v_eps);
@@ -80,6 +80,59 @@ package CollisionTests "Collision scene tables, the plane-sphere pair and the sh
       assert(abs(tau[i]-tauGround[i])<=0,"The scene tables must give the ground wrench's torque bit for bit");
     end for;
   end SoleAgainstGroundWrench;
+
+  model CapsuleAndBoxAgainstGroundWrench "A capsule and a box through the scene tables give the ground wrench of their end spheres and corners, to rounding"
+    import MultiBodyLie.Collision;
+    parameter Collision.Material material(k=1e4,d=0.5,mu=0.8,eps=1e-4,v_eps=0.01);
+    parameter Real capsuleR[3](each unit="m")={0.03,-0.01,0.002} "Capsule centre in the body frame";
+    parameter Real capsuleT[3,3]=MultiBodyLie.Frames.axesRotationsT({3,2,1},{0.6,0.15,0}) "Body-to-capsule rotation";
+    parameter Real capsuleRadius(unit="m")=0.004;
+    parameter Real capsuleHalf(unit="m")=0.02;
+    parameter Real boxR[3](each unit="m")={-0.02,0.015,0.004} "Box centre in the body frame";
+    parameter Real boxT[3,3]=MultiBodyLie.Frames.axesRotationsT({1,2,3},{0.1,-0.2,0.7}) "Body-to-box rotation";
+    parameter Real boxHalf[3](each unit="m")={0.012,0.008,0.005};
+    parameter Real r0[3](each unit="m")={0.1,0.2,-0.004} "Body frame origin, world";
+    parameter Real T[3,3]=MultiBodyLie.Frames.axesRotationsT({1,2,3},{0.04,-0.07,0.9}) "World-to-body rotation";
+    parameter Real w[3](each unit="rad/s")={0.4,0.6,-0.3};
+    parameter Real v0[3](each unit="m/s")={-0.02,0.05,-0.04};
+    parameter Real spheres[10,3](each unit="m")={
+      capsuleR-capsuleHalf*capsuleT[1,:],
+      capsuleR+capsuleHalf*capsuleT[1,:],
+      boxR+transpose(boxT)*{-boxHalf[1],-boxHalf[2],-boxHalf[3]},
+      boxR+transpose(boxT)*{-boxHalf[1],-boxHalf[2],boxHalf[3]},
+      boxR+transpose(boxT)*{-boxHalf[1],boxHalf[2],-boxHalf[3]},
+      boxR+transpose(boxT)*{-boxHalf[1],boxHalf[2],boxHalf[3]},
+      boxR+transpose(boxT)*{boxHalf[1],-boxHalf[2],-boxHalf[3]},
+      boxR+transpose(boxT)*{boxHalf[1],-boxHalf[2],boxHalf[3]},
+      boxR+transpose(boxT)*{boxHalf[1],boxHalf[2],-boxHalf[3]},
+      boxR+transpose(boxT)*{boxHalf[1],boxHalf[2],boxHalf[3]}}
+      "The two capsule ends, then the eight box corners, in the body frame, written out independently";
+    Real f[3](each unit="N");
+    Real tau[3](each unit="N.m");
+    Real fGround[3](each unit="N");
+    Real tauGround[3](each unit="N.m");
+    Real fCapsule[3](each unit="N") "The capsule's two end spheres alone";
+    Real tauCapsule[3](each unit="N.m");
+    Real fBox[3](each unit="N") "The box's eight corners alone";
+    Real tauBox[3](each unit="N.m");
+  equation
+    (f,tau)=Collision.sceneWrench(r0,T,w,v0,{Collision.ShapeKind.Capsule,Collision.ShapeKind.Box},{capsuleR,boxR},
+      {capsuleT,boxT},{{capsuleRadius,capsuleHalf,0},boxHalf},{1,1},{1,1},{Collision.ShapeKind.Plane},zeros(1,3),
+      {identity(3)},{1},{material.k},{material.d},{material.mu},{material.eps},{material.v_eps},{{true}});
+    (fGround,tauGround)=MultiBodyLie.Contact.groundWrench(r0,T,w,v0,spheres,cat(1,fill(capsuleRadius,2),zeros(8)),
+      material.k,material.d,material.mu,material.eps,material.v_eps);
+    (fCapsule,tauCapsule)=MultiBodyLie.Contact.groundWrench(r0,T,w,v0,spheres[1:2,:],fill(capsuleRadius,2),
+      material.k,material.d,material.mu,material.eps,material.v_eps);
+    (fBox,tauBox)=MultiBodyLie.Contact.groundWrench(r0,T,w,v0,spheres[3:10,:],zeros(8),
+      material.k,material.d,material.mu,material.eps,material.v_eps);
+    assert(fCapsule[3]>0.1 and fBox[3]>0.1,"The fixture must press both shapes into the ground");
+    for i in 1:3 loop
+      // The sphere centres are computed twice, here and in the library, so the comparison is to rounding.
+      assert(abs(f[i]-fGround[i])<1e-12*max(1,abs(fGround[i])),"The capsule and box must give the ground wrench's force of their end spheres and corners");
+      assert(abs(tau[i]-tauGround[i])<1e-12*max(1,abs(tauGround[i])),"The capsule and box must give the ground wrench's torque of their end spheres and corners");
+      assert(abs(fCapsule[i]+fBox[i]-fGround[i])<1e-12*max(1,abs(fGround[i])),"The two shapes' forces add up");
+    end for;
+  end CapsuleAndBoxAgainstGroundWrench;
 
   model FallingBodies "A body with a BodyShapes table moves as the same body with a GroundContactBody"
     import MultiBodyLie.Collision;
@@ -113,13 +166,15 @@ package CollisionTests "Collision scene tables, the plane-sphere pair and the sh
     assert(scene.nStatic==1 and scene.staticKind[1]==Collision.ShapeKind.Plane,
       "The default scene is the ground plane");
     assert(Collision.maxPoints[Collision.ShapeKind.Plane,Collision.ShapeKind.Sphere]==1
+      and Collision.maxPoints[Collision.ShapeKind.Plane,Collision.ShapeKind.Box]==8
       and Collision.maxPoints[Collision.ShapeKind.Box,Collision.ShapeKind.Box]==0,
-      "The pair table gives one point for plane-sphere and marks box-box as unsupported");
+      "The pair table gives one point for plane-sphere, eight for plane-box and marks box-box as unsupported");
   end SceneTables;
 
-  model Suite "Plane-sphere pair and the scene tables against the ground wrench; a falling body on both contact models"
+  model Suite "Plane pairs and the scene tables against the ground wrench; a falling body on both contact models"
     PlaneSphereAgainstGroundWrench planeSphere;
     SoleAgainstGroundWrench sole;
+    CapsuleAndBoxAgainstGroundWrench capsuleAndBox;
     FallingBodies falling;
     SceneTables tables;
     annotation(experiment(StartTime=0,StopTime=0.2,Interval=0.002,Tolerance=1e-8));
