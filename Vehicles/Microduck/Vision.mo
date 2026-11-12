@@ -1,6 +1,6 @@
 within Vehicles.Microduck;
 package Vision "Image processing of Three.js sensor pixels"
-  function redCentroid
+  function redCentroid "Centroid of the red-dominant pixels in normalised image coordinates, and whether any is visible"
     input Real rgb[:,:,3];
     output Real centroid[2];
     output Boolean visible;
