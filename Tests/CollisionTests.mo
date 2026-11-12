@@ -290,6 +290,76 @@ package CollisionTests "Collision scene tables, the plane-sphere pair and the sh
     end for;
   end CapsulePairs;
 
+  function offSurface "How far a contact point on a capsule b is from having a unit normal across the capsule's axis and its witness point on the capsule's surface there"
+    input MultiBodyLie.Collision.ContactPoint point "A contact point whose shape b is the capsule";
+    input Real onSegment[3](each unit="m") "The point of the capsule's segment the contact is at, as armB is given";
+    input Real axis[3] "Unit vector along the capsule";
+    input Real radius(unit="m") "Radius of the capsule";
+    output Real error "Largest of: the normal's deviation from unit length, its component along the axis, and the distance of armB from onSegment + radius * n";
+  protected
+    Real w[3](each unit="m") "From the point on the segment to the witness point";
+  algorithm
+    w:=point.armB-onSegment;
+    error:=max({abs(point.n*point.n-1),abs(point.n*axis),abs(w[1]-radius*point.n[1]),abs(w[2]-radius*point.n[2]),
+      abs(w[3]-radius*point.n[3])});
+  end offSurface;
+
+  model CapsuleEdgeCases "Capsules at a very small angle keep their nearest points, and a centreline that is met gives a normal across the capsule with witness points on the surfaces"
+    import MultiBodyLie.Collision;
+    parameter Real origin[3](each unit="m")={1024,-2048,512} "Frame of both shapes, far from the world origin";
+    parameter Real centre[3](each unit="m")={0.01,0.02,-0.01} "A point in that frame";
+    parameter Real x[3]={1,0,0};
+    parameter Real z[3]={0,0,1};
+    parameter Real slant[3]={0.6,0.8,0} "A unit vector that is least along z";
+    parameter Real tilted[3]={1,2,2}/3 "A unit vector that is least along x";
+    parameter Real e=5e-7 "Sine of the small angle between two capsules";
+    parameter Real d(unit="m")=1e-8 "Distance of their centrelines";
+    // a along x and b at the angle asin(e) to it in the horizontal plane, b's middle placed so that the
+    // nearest points are strictly inside both segments: at sqrt(1 - e^2) / 2 on a and at 1 / 2 on b, d apart
+    // along z. Taken as parallel, the pair would be returned about 2.5e-7 m apart with a normal along y.
+    Collision.ContactPoint nearlyParallel "Two capsules of half length 1 and radius 0.02 at that angle";
+    // A sphere of radius 0.1 centred on the segment of a capsule of half length 1 and radius 0.2.
+    Collision.ContactPoint onAxisZ "At the middle of a capsule along z";
+    Collision.ContactPoint onAxisX "At the middle of a capsule along x";
+    Collision.ContactPoint onAxisSlant "At the middle of a capsule along the slant";
+    Collision.ContactPoint onAxisTilted "At the middle of a tilted capsule";
+    Collision.ContactPoint atEnd "At the end of a capsule along z";
+    // Two capsules of half length 1 and radii 0.02 and 0.03 whose centrelines meet at their middles.
+    Collision.ContactPoint meeting "a along x through b along the slant";
+    Collision.ContactPoint collinear "a and b both along z";
+  equation
+    nearlyParallel=Collision.capsuleCapsule(origin,zeros(3),x,1,0.02,origin,{0,-e/2,d},{sqrt(1-e^2),e,0},1,0.02);
+    onAxisZ=Collision.sphereCapsule(origin,centre,0.1,origin,centre,z,1,0.2);
+    onAxisX=Collision.sphereCapsule(origin,centre,0.1,origin,centre,x,1,0.2);
+    onAxisSlant=Collision.sphereCapsule(origin,centre,0.1,origin,centre,slant,1,0.2);
+    onAxisTilted=Collision.sphereCapsule(origin,centre,0.1,origin,centre,tilted,1,0.2);
+    atEnd=Collision.sphereCapsule(origin,centre+z,0.1,origin,centre,z,1,0.2);
+    meeting=Collision.capsuleCapsule(origin,centre,x,1,0.02,origin,centre,slant,1,0.03);
+    collinear=Collision.capsuleCapsule(origin,centre,z,1,0.02,origin,centre,z,1,0.03);
+    assert(abs(nearlyParallel.gap-(d-0.04))<1e-12,"Capsules at a very small angle are apart by the distance of their centrelines less the radii");
+    assert(abs(nearlyParallel.n[1])<1e-6 and abs(nearlyParallel.n[2])<1e-6 and abs(nearlyParallel.n[3]+1)<1e-6,
+      "Their normal runs between the nearest points of the centrelines, here down from b to a");
+    assert(abs(nearlyParallel.armA[1]-sqrt(1-e^2)/2)<1e-9 and abs(nearlyParallel.armA[2])<1e-9 and abs(nearlyParallel.armA[3]-0.02)<1e-9,
+      "Their witness point on a is over the nearest point of a's centreline");
+    assert(abs(onAxisZ.gap+0.3)<1e-12 and abs(onAxisX.gap+0.3)<1e-12 and abs(onAxisSlant.gap+0.3)<1e-12
+      and abs(onAxisTilted.gap+0.3)<1e-12 and abs(atEnd.gap+0.3)<1e-12,
+      "A sphere centred on a capsule's segment overlaps by the sum of the radii");
+    assert(Tests.CollisionTests.offSurface(onAxisZ,centre,z,0.2)<1e-12 and Tests.CollisionTests.offSurface(onAxisX,centre,x,0.2)<1e-12
+      and Tests.CollisionTests.offSurface(onAxisSlant,centre,slant,0.2)<1e-12
+      and Tests.CollisionTests.offSurface(onAxisTilted,centre,tilted,0.2)<1e-12
+      and Tests.CollisionTests.offSurface(atEnd,centre+z,z,0.2)<1e-12,
+      "A sphere centred on a capsule's segment gets a unit normal across the capsule and a witness point on the capsule's surface");
+    assert(abs(meeting.gap+0.05)<1e-12 and abs(collinear.gap+0.05)<1e-12,"Capsules whose centrelines meet overlap by the sum of the radii");
+    assert(Tests.CollisionTests.offSurface(meeting,centre,slant,0.03)<1e-12 and abs(meeting.n*x)<1e-12
+      and Tests.CollisionTests.offSurface(collinear,centre,z,0.03)<1e-12,
+      "Capsules whose centrelines meet get a unit normal across both and witness points on their surfaces");
+    for i in 1:3 loop
+      assert(abs(onAxisZ.armA[i]-(centre[i]-0.1*onAxisZ.n[i]))<1e-12 and abs(meeting.armA[i]-(centre[i]-0.02*meeting.n[i]))<1e-12
+        and abs(collinear.armA[i]-(centre[i]-0.02*collinear.n[i]))<1e-12,
+        "The witness point on a is opposite, at a's own radius");
+    end for;
+  end CapsuleEdgeCases;
+
   model BodiesAgainstPairs "The shape tables of two bodies give the sum of their pairs' wrenches: balanced, the same in either order, mixed materials, and only for groups that may touch"
     import MultiBodyLie.Collision;
     import Kind=MultiBodyLie.Collision.ShapeKind;
@@ -464,13 +534,14 @@ package CollisionTests "Collision scene tables, the plane-sphere pair and the sh
       "The pair table gives one point for plane-sphere, eight for plane-box and marks box-box as unsupported");
   end SceneTables;
 
-  model Suite "Plane pairs and the scene tables against the ground wrench; sphere and capsule pairs against analytic cases; two bodies against their pairs; a falling body on both contact models and two colliding bodies"
+  model Suite "Plane pairs and the scene tables against the ground wrench; sphere and capsule pairs against analytic cases and at their degenerate poses; two bodies against their pairs; a falling body on both contact models and two colliding bodies"
     PlaneSphereAgainstGroundWrench planeSphere;
     SoleAgainstGroundWrench sole;
     CapsuleAndBoxAgainstGroundWrench capsuleAndBox;
     FallingBodies falling;
     SpherePairs spherePairs;
     CapsulePairs capsulePairs;
+    CapsuleEdgeCases capsuleEdges;
     BodiesAgainstPairs bodies;
     CollidingBodies colliding;
     SceneTables tables;

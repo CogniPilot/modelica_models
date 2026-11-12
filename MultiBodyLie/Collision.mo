@@ -21,6 +21,11 @@ package Collision "Collision shapes, the scene tables and contact points between
   // table allows, for capsules lying along each other, is not written. A pair without geometry is
   // refused by an assertion (in sceneWrench and in shapePair), never skipped.
   //
+  // Where two centres coincide the line between them gives no normal. Two spheres then take the
+  // world z axis by convention. A capsule has an axis, so a point on its centreline takes a normal
+  // across that axis (perpendicular), and two capsules whose centrelines meet take the normal across
+  // both; the witness points then lie on the surfaces, as everywhere else.
+  //
   // The geometry functions are plain functions of the current poses. Branches inside a function create
   // no events, so geometry never stops the integrator. A contact becomes active through the clamp in
   // the force law, not through a discrete decision.
@@ -226,6 +231,46 @@ package Collision "Collision shapes, the scene tables and contact points between
     other := ContactPoint(gap = point.gap, n = -point.n, armA = point.armB, armB = point.armA);
   end flipped;
 
+  function perpendicular "A unit vector perpendicular to a unit vector"
+    input Real axis[3] "A unit vector";
+    output Real n[3] "A unit vector perpendicular to it";
+  protected
+    Real across[3] "The input crossed with the world axis it is least along";
+  algorithm
+    // Among equal components the lower world axis is taken. The cross product is at least sqrt(2 / 3) long.
+    if abs(axis[1]) <= abs(axis[2]) and abs(axis[1]) <= abs(axis[3]) then
+      across := cross(axis, {1, 0, 0});
+    elseif abs(axis[2]) <= abs(axis[3]) then
+      across := cross(axis, {0, 1, 0});
+    else
+      across := cross(axis, {0, 0, 1});
+    end if;
+    n := across / sqrt(across * across);
+  end perpendicular;
+
+  function centredSpheres "Contact point of two spheres, given the normal to use when their centres coincide"
+    input Real originA[3](each unit = "m") "Origin of the frame that owns a, world frame";
+    input Real centreA[3](each unit = "m") "Centre of a relative to that origin, resolved in the world frame";
+    input Real radiusA(unit = "m") "Radius of a";
+    input Real originB[3](each unit = "m") "Origin of the frame that owns b, world frame";
+    input Real centreB[3](each unit = "m") "Centre of b relative to that origin, resolved in the world frame";
+    input Real radiusB(unit = "m") "Radius of b";
+    input Real coincident[3] "Unit normal from b towards a to use when the centres coincide";
+    output ContactPoint point "The support points of the two spheres along the normal";
+  protected
+    Real d[3](each unit = "m") "From the centre of b to the centre of a";
+    Real distance(unit = "m") "Distance between the centres";
+    Real n[3] "Unit normal from b towards a";
+  algorithm
+    // The origins are subtracted from each other first, so the small offsets between two bodies are not
+    // added to large positions. Digits the caller's inputs have already lost are not recovered.
+    d := (originA - originB) + (centreA - centreB);
+    distance := sqrt(d * d);
+    n := if distance > 0 then d / distance else coincident;
+    point := ContactPoint(gap = distance - radiusA - radiusB, n = n, armA = centreA - radiusA * n,
+      armB = centreB + radiusB * n);
+  end centredSpheres;
+
   function sphereSphere "Contact point of a sphere (shape a) with a sphere (shape b): one point"
     input Real originA[3](each unit = "m") "Origin of the frame that owns a, world frame";
     input Real centreA[3](each unit = "m") "Centre of a relative to that origin, resolved in the world frame";
@@ -234,18 +279,9 @@ package Collision "Collision shapes, the scene tables and contact points between
     input Real centreB[3](each unit = "m") "Centre of b relative to that origin, resolved in the world frame";
     input Real radiusB(unit = "m") "Radius of b";
     output ContactPoint point "The support points of the two spheres on the line of their centres";
-  protected
-    Real d[3](each unit = "m") "From the centre of b to the centre of a";
-    Real distance(unit = "m") "Distance between the centres";
-    Real n[3] "Unit normal from b towards a";
   algorithm
-    // The origins are subtracted from each other first, so two bodies far from the world origin lose no digits.
-    d := (originA - originB) + (centreA - centreB);
-    distance := sqrt(d * d);
     // Coincident centres have no line of centres; the normal is then the world z axis by convention.
-    n := if distance > 0 then d / distance else {0, 0, 1};
-    point := ContactPoint(gap = distance - radiusA - radiusB, n = n, armA = centreA - radiusA * n,
-      armB = centreB + radiusB * n);
+    point := centredSpheres(originA, centreA, radiusA, originB, centreB, radiusB, {0, 0, 1});
   end sphereSphere;
 
   function sphereCapsule "Contact point of a sphere (shape a) with a capsule (shape b): one point"
@@ -262,7 +298,9 @@ package Collision "Collision shapes, the scene tables and contact points between
     Real s(unit = "m") "Position on the segment of its point nearest the centre of a";
   algorithm
     s := min(max(((originA - originB) + (centreA - centreB)) * axisB, -halfLengthB), halfLengthB);
-    point := sphereSphere(originA, centreA, radiusA, originB, centreB + s * axisB, radiusB);
+    // A sphere centred on the capsule's segment has no nearest side; the normal is then across the axis,
+    // which keeps the capsule's witness point on its surface.
+    point := centredSpheres(originA, centreA, radiusA, originB, centreB + s * axisB, radiusB, perpendicular(axisB));
   end sphereCapsule;
 
   function sphereBox "Contact point of a sphere (shape a) with a box (shape b): one point"
@@ -326,6 +364,8 @@ package Collision "Collision shapes, the scene tables and contact points between
     Real b "Cosine of the angle between the segments";
     Real c(unit = "m") "r along a's axis";
     Real f(unit = "m") "r along b's axis";
+    Real across[3] "a's axis crossed with b's: perpendicular to both, as long as the sine of their angle";
+    Real sine2 "Squared sine of the angle between the segments";
     Real s(unit = "m") "Position on a's segment of its nearest point";
     Real t(unit = "m") "Position on b's segment of its nearest point";
   algorithm
@@ -333,14 +373,21 @@ package Collision "Collision shapes, the scene tables and contact points between
     b := axisA * axisB;
     c := axisA * r;
     f := axisB * r;
+    across := cross(axisA, axisB);
+    sine2 := across * across;
     // The squared distance of the points at s and t is convex in (s, t) on the rectangle of the two
     // segments: take the free minimum along a, clamp it, take the best t for it, then the best s for
-    // that t. Parallel segments have no free minimum; they start from the middle of a, so of the
-    // nearest pairs they have in common the one nearest that middle is returned.
-    s := if 1 - b * b > 1e-12 then min(max((b * f - c) / (1 - b * b), -halfLengthA), halfLengthA) else 0;
+    // that t. The free minimum is (b f - c) / (1 - b b), written with cross products so that it keeps
+    // its digits for segments at a small angle. Only segments whose axes have no cross product at all
+    // are parallel: they have no free minimum and start from the middle of a, so of the nearest pairs
+    // they have in common the one nearest that middle is returned.
+    s := if sine2 > 0 then min(max(-(across * cross(r, axisB)) / sine2, -halfLengthA), halfLengthA) else 0;
     t := min(max(f + b * s, -halfLengthB), halfLengthB);
     s := min(max(b * t - c, -halfLengthA), halfLengthA);
-    point := sphereSphere(originA, centreA + s * axisA, radiusA, originB, centreB + t * axisB, radiusB);
+    // Centrelines that meet have no nearest side; the normal is then across both axes (across one, for
+    // parallel segments), which keeps both witness points on the surfaces.
+    point := centredSpheres(originA, centreA + s * axisA, radiusA, originB, centreB + t * axisB, radiusB,
+      if sine2 > 0 then across / sqrt(sine2) else perpendicular(axisA));
   end capsuleCapsule;
 
   function pairWrenches "The balanced wrenches of one contact point on the two frames that own its shapes"
