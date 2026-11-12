@@ -34,24 +34,24 @@ package MultiBodyLie "MSL MultiBody rewritten on articulated-body connectors (la
     parameter Types.GravityTypes gravityType = Types.GravityTypes.UniformGravity "Type of gravity field";
     parameter Real g = 9.80665 "Gravity constant [m/s2] (MSL default Modelica.Constants.g_n)";
     parameter Real n[3] = {0, -1, 0} "Direction of gravity (MSL default -y)";
-    parameter Real mu = 3.986004418e14 "Gravity field constant [m3/s2] (MSL default: the earth's)";
-    parameter Real gravitySphereDiameter = 12742000 "Ignored: no animation";
-    parameter Real axisLength = 1 "Ignored: no animation";
-    parameter Real nominalLength = 1 "Ignored: no animation";
+    parameter Real mu(unit = "m3/s2") = 3.986004418e14 "Gravity field constant [m3/s2] (MSL default: the earth's)";
+    parameter Real gravitySphereDiameter(unit = "m") = 12742000 "Ignored: no animation";
+    parameter Real axisLength(unit = "m") = 1 "Ignored: no animation";
+    parameter Real nominalLength(unit = "m") = 1 "Ignored: no animation";
     parameter Boolean animateWorld = true "Ignored: no animation";
     // MSL World defaults that component animation inputs bind to (names and formulas as MSL; no animation here).
-    parameter Real defaultAxisLength = nominalLength / 5 "Ignored: no animation";
-    parameter Real defaultJointLength = nominalLength / 10 "Ignored: no animation";
-    parameter Real defaultJointWidth = nominalLength / 20 "Ignored: no animation";
-    parameter Real defaultForceLength = nominalLength / 10 "Ignored: no animation";
-    parameter Real defaultForceWidth = nominalLength / 20 "Ignored: no animation";
-    parameter Real defaultBodyDiameter = nominalLength / 9 "Ignored: no animation";
+    parameter Real defaultAxisLength(unit = "m") = nominalLength / 5 "Ignored: no animation";
+    parameter Real defaultJointLength(unit = "m") = nominalLength / 10 "Ignored: no animation";
+    parameter Real defaultJointWidth(unit = "m") = nominalLength / 20 "Ignored: no animation";
+    parameter Real defaultForceLength(unit = "m") = nominalLength / 10 "Ignored: no animation";
+    parameter Real defaultForceWidth(unit = "m") = nominalLength / 20 "Ignored: no animation";
+    parameter Real defaultBodyDiameter(unit = "m") = nominalLength / 9 "Ignored: no animation";
     parameter Real defaultWidthFraction = 20 "Ignored: no animation";
-    parameter Real defaultArrowDiameter = nominalLength / 40 "Ignored: no animation";
+    parameter Real defaultArrowDiameter(unit = "m") = nominalLength / 40 "Ignored: no animation";
     parameter Real defaultFrameDiameterFraction = 40 "Ignored: no animation";
     parameter Real defaultSpecularCoefficient(min = 0) = 0.7 "Ignored: no animation";
-    parameter Real defaultN_to_m(min = 0) = 1000 "Ignored: no animation";
-    parameter Real defaultNm_to_m(min = 0) = 1000 "Ignored: no animation";
+    parameter Real defaultN_to_m(min = 0, unit = "N/m") = 1000 "Ignored: no animation";
+    parameter Real defaultNm_to_m(min = 0, unit = "N.m/m") = 1000 "Ignored: no animation";
     parameter Boolean animateGravity = true "Ignored: no animation";
     // As MSL: every Body takes its gravity from this function at its centre of mass, so a redeclared field applies
     // whatever gravityType says.
@@ -88,7 +88,7 @@ package MultiBodyLie "MSL MultiBody rewritten on articulated-body connectors (la
       // half-skew form 0.5 (Tr - Tr') was zero for every 180 degree rotation.
       input Real T1[3, 3];
       input Real T2[3, 3];
-      output Real residue[3];
+      output Real residue[3](each unit = "rad");
     algorithm
       residue := LieGroups.SO3.Quat.log_map(LieGroups.SO3.Quat.from_DCM(T1 * transpose(T2)));
     end orientationResidue;
@@ -113,7 +113,7 @@ package MultiBodyLie "MSL MultiBody rewritten on articulated-body connectors (la
     // Frames.axesRotations / TransformationMatrices.axisRotation); only T, since FixedRotation's R_rel is constant.
     function planarRotationT "T of MSL Frames.planarRotation(e, angle): rotate frame 1 into frame 2 about the unit vector e"
       input Real e[3] "Normalized axis of rotation (must have length = 1)";
-      input Real angle "Rotation angle [rad]";
+      input Real angle(unit = "rad") "Rotation angle [rad]";
       output Real T[3, 3];
     algorithm
       T := outerProduct(e, e) + (identity(3) - outerProduct(e, e)) * Modelica.Math.cos(angle) - skew(e) * Modelica.Math.sin(angle);
@@ -121,7 +121,7 @@ package MultiBodyLie "MSL MultiBody rewritten on articulated-body connectors (la
 
     function axisRotationT "T of MSL TransformationMatrices.axisRotation(axis, angle)"
       input Integer axis(min = 1, max = 3);
-      input Real angle "[rad]";
+      input Real angle(unit = "rad") "[rad]";
       output Real T[3, 3];
     algorithm
       T := if axis == 1 then [1, 0, 0; 0, Modelica.Math.cos(angle), Modelica.Math.sin(angle); 0, -Modelica.Math.sin(angle), Modelica.Math.cos(angle)]
@@ -131,7 +131,7 @@ package MultiBodyLie "MSL MultiBody rewritten on articulated-body connectors (la
 
     function axesRotationsT "T of MSL Frames.axesRotations(sequence, angles)"
       input Integer sequence[3](min = {1, 1, 1}, max = {3, 3, 3}) = {1, 2, 3};
-      input Real angles[3] "[rad]";
+      input Real angles[3](each unit = "rad") "[rad]";
       output Real T[3, 3];
     algorithm
       T := axisRotationT(sequence[3], angles[3]) * axisRotationT(sequence[2], angles[2]) * axisRotationT(sequence[1], angles[1]);
@@ -176,8 +176,8 @@ package MultiBodyLie "MSL MultiBody rewritten on articulated-body connectors (la
     connector Frame_b = Frame;
 
     partial function partialGravityAcceleration "Interface of world.gravityAcceleration (MSL name)"
-      input Real r[3] "Position from the world frame to the point, world";
-      output Real gravity[3] "Gravity acceleration at r, world";
+      input Real r[3](each unit = "m") "Position from the world frame to the point, world";
+      output Real gravity[3](each unit = "m/s2") "Gravity acceleration at r, world";
     end partialGravityAcceleration;
   end Interfaces;
 
@@ -335,7 +335,7 @@ package MultiBodyLie "MSL MultiBody rewritten on articulated-body connectors (la
 
     function floatingTreeDynamics "CRBA mass and RNEA bias for a free root and revolute tree"
       input Integer parent[:] "Root is body 1 with parent 0; every other parent precedes its child";
-      input Real offset[size(parent, 1) - 1, 3] "Parent-frame vector to each joint origin [m]";
+      input Real offset[size(parent, 1) - 1, 3](each unit = "m") "Parent-frame vector to each joint origin [m]";
       input Real fixedRotation[size(parent, 1) - 1, 3, 3] "Joint-mount frame -> parent-body rotation";
       input Real axis[size(parent, 1) - 1, 3] "Joint axis in its mount frame; normalized as in Revolute";
       input Real angle[size(parent, 1) - 1](each unit = "rad");
@@ -440,9 +440,9 @@ package MultiBodyLie "MSL MultiBody rewritten on articulated-body connectors (la
       parameter Boolean animation = true "Ignored: no animation";
       parameter Real r_CM[3] = zeros(3);
       // MSL animation surface (names, variability and default bindings as MSL Parts.Body; values ignored).
-      parameter Real sphereDiameter = world.defaultBodyDiameter "Ignored: no animation";
+      parameter Real sphereDiameter(unit = "m") = world.defaultBodyDiameter "Ignored: no animation";
       input Integer sphereColor[3] = {0, 128, 255} "Ignored: no animation (MSL Types.Defaults.BodyColor)";
-      parameter Real cylinderDiameter = sphereDiameter / 3 "Ignored: no animation (MSL Types.Defaults.BodyCylinderDiameterFraction = 3)";
+      parameter Real cylinderDiameter(unit = "m") = sphereDiameter / 3 "Ignored: no animation (MSL Types.Defaults.BodyCylinderDiameterFraction = 3)";
       input Integer cylinderColor[3] = sphereColor "Ignored: no animation";
       input Real specularCoefficient = world.defaultSpecularCoefficient "Ignored: no animation";
       parameter Real m = 1;
@@ -458,7 +458,7 @@ package MultiBodyLie "MSL MultiBody rewritten on articulated-body connectors (la
       Real Q[4](start = {1, 0, 0, 0}) "Root orientation, frame -> world quaternion";
       // Gravity in a binding: the same expression in the equation section read the World class default instead of the
       // inner modifier under rumoca b3afe4cb (reported, unminimised).
-      Real g_0[3] = world.gravityAcceleration(frame_a.r_0 + transpose(frame_a.R.T) * r_CM) "Gravity acceleration at the centre of mass, world (MSL name)";
+      Real g_0[3](each unit = "m/s2") = world.gravityAcceleration(frame_a.r_0 + transpose(frame_a.R.T) * r_CM) "Gravity acceleration at the centre of mass, world (MSL name)";
     protected
       Real V[6] = cat(1, frame_a.R.w, frame_a.v);
       Real h[6] = Is * V "Spatial momentum";
@@ -548,21 +548,21 @@ package MultiBodyLie "MSL MultiBody rewritten on articulated-body connectors (la
       Interfaces.Frame_a frame_a;
       Interfaces.Frame_b frame_b;
       parameter Boolean animation = true "Ignored: no animation";
-      parameter Real r[3] = {0, 0, 0} "Vector from frame_a to frame_b resolved in frame_a";
+      parameter Real r[3](each unit = "m") = {0, 0, 0} "Vector from frame_a to frame_b resolved in frame_a";
       parameter Types.RotationTypes rotationType = Types.RotationTypes.RotationAxis "Type of rotation description";
       parameter Real n[3] = {1, 0, 0} "Axis of rotation in frame_a (= same as in frame_b)";
-      parameter Real angle = 0 "Angle to rotate frame_a around axis n into frame_b [deg]";
+      parameter Real angle(unit = "deg") = 0 "Angle to rotate frame_a around axis n into frame_b [deg]";
       parameter Real n_x[3] = {1, 0, 0} "Vector along x-axis of frame_b resolved in frame_a";
       parameter Real n_y[3] = {0, 1, 0} "Vector along y-axis of frame_b resolved in frame_a";
       parameter Integer sequence[3](min = {1, 1, 1}, max = {3, 3, 3}) = {1, 2, 3} "Sequence of rotations";
-      parameter Real angles[3] = {0, 0, 0} "Rotation angles around the axes defined in 'sequence' [deg]";
+      parameter Real angles[3](each unit = "deg") = {0, 0, 0} "Rotation angles around the axes defined in 'sequence' [deg]";
       parameter String shapeType = "cylinder" "Ignored: no animation";
-      parameter Real r_shape[3] = {0, 0, 0} "Ignored: no animation";
+      parameter Real r_shape[3](each unit = "m") = {0, 0, 0} "Ignored: no animation";
       parameter Real lengthDirection[3] = Modelica.Units.Conversions.to_unit1(r - r_shape) "Ignored: no animation";
       parameter Real widthDirection[3] = {0, 1, 0} "Ignored: no animation";
-      parameter Real length = Modelica.Math.Vectors.length(r - r_shape) "Ignored: no animation";
-      parameter Real width = length / world.defaultWidthFraction "Ignored: no animation";
-      parameter Real height = width "Ignored: no animation";
+      parameter Real length(unit = "m") = Modelica.Math.Vectors.length(r - r_shape) "Ignored: no animation";
+      parameter Real width(unit = "m") = length / world.defaultWidthFraction "Ignored: no animation";
+      parameter Real height(unit = "m") = width "Ignored: no animation";
       parameter Real extra = 0.0 "Ignored: no animation";
       input Integer color[3] = {155, 155, 155} "Ignored: no animation (MSL Types.Defaults.RodColor)";
       input Real specularCoefficient = world.defaultSpecularCoefficient "Ignored: no animation";
@@ -633,37 +633,37 @@ package MultiBodyLie "MSL MultiBody rewritten on articulated-body connectors (la
       Interfaces.Frame_a frame_a;
       Interfaces.Frame_b frame_b;
       parameter Boolean animation = true "Ignored: no animation";
-      parameter Real r[3](start = {0.1, 0, 0}) "Vector from frame_a to frame_b resolved in frame_a";
-      parameter Real r_shape[3] = {0, 0, 0} "Vector from frame_a to box origin, resolved in frame_a";
+      parameter Real r[3](start = {0.1, 0, 0}, each unit = "m") "Vector from frame_a to frame_b resolved in frame_a";
+      parameter Real r_shape[3](each unit = "m") = {0, 0, 0} "Vector from frame_a to box origin, resolved in frame_a";
       parameter Real lengthDirection[3] = Modelica.Units.Conversions.to_unit1(r - r_shape) "Vector in length direction of box, resolved in frame_a";
       parameter Real widthDirection[3] = {0, 1, 0} "Vector in width direction of box, resolved in frame_a";
-      parameter Real length = Modelica.Math.Vectors.length(r - r_shape) "Length of box";
-      parameter Real width = length / world.defaultWidthFraction "Width of box";
-      parameter Real height = width "Height of box";
-      parameter Real innerWidth = 0 "Width of inner box surface (0 <= innerWidth <= width)";
-      parameter Real innerHeight = innerWidth "Height of inner box surface (0 <= innerHeight <= height)";
-      parameter Real density = 7700 "Density of box [kg/m3]";
+      parameter Real length(unit = "m") = Modelica.Math.Vectors.length(r - r_shape) "Length of box";
+      parameter Real width(unit = "m") = length / world.defaultWidthFraction "Width of box";
+      parameter Real height(unit = "m") = width "Height of box";
+      parameter Real innerWidth(unit = "m") = 0 "Width of inner box surface (0 <= innerWidth <= width)";
+      parameter Real innerHeight(unit = "m") = innerWidth "Height of inner box surface (0 <= innerHeight <= height)";
+      parameter Real density(unit = "kg/m3") = 7700 "Density of box [kg/m3]";
       input Integer color[3] = {0, 128, 255} "Ignored: no animation (MSL Types.Defaults.BodyColor)";
       input Real specularCoefficient = world.defaultSpecularCoefficient "Ignored: no animation";
-      Real r_0[3](start = {0, 0, 0}) "Position vector from origin of world frame to origin of frame_a";
-      Real v_0[3](start = {0, 0, 0}) "Absolute velocity of frame_a, resolved in world frame (= der(r_0))";
-      Real a_0[3](start = {0, 0, 0}) "Absolute acceleration of frame_a resolved in world frame (= der(v_0))";
+      Real r_0[3](start = {0, 0, 0}, each unit = "m") "Position vector from origin of world frame to origin of frame_a";
+      Real v_0[3](start = {0, 0, 0}, each unit = "m/s") "Absolute velocity of frame_a, resolved in world frame (= der(r_0))";
+      Real a_0[3](start = {0, 0, 0}, each unit = "m/s2") "Absolute acceleration of frame_a resolved in world frame (= der(v_0))";
       parameter Boolean angles_fixed = false "= true, if angles_start are used as initial values, else as guess values";
-      parameter Real angles_start[3] = {0, 0, 0} "Initial values of angles to rotate world frame around 'sequence_start' axes into frame_a (only {0,0,0} supported)";
+      parameter Real angles_start[3](each unit = "rad") = {0, 0, 0} "Initial values of angles to rotate world frame around 'sequence_start' axes into frame_a (only {0,0,0} supported)";
       parameter Integer sequence_start[3] = {1, 2, 3} "Sequence of rotations to rotate world frame into frame_a at initial time";
       parameter Boolean w_0_fixed = false "= true, if w_0_start are used as initial values, else as guess values";
-      parameter Real w_0_start[3] = {0, 0, 0} "Initial or guess values of angular velocity of frame_a resolved in world frame";
+      parameter Real w_0_start[3](each unit = "rad/s") = {0, 0, 0} "Initial or guess values of angular velocity of frame_a resolved in world frame";
       parameter Boolean z_0_fixed = false "Not supported: must be false";
-      parameter Real z_0_start[3] = {0, 0, 0} "Initial values of angular acceleration z_0 = der(w_0) (unused: z_0_fixed unsupported)";
+      parameter Real z_0_start[3](each unit = "rad/s2") = {0, 0, 0} "Initial values of angular acceleration z_0 = der(w_0) (unused: z_0_fixed unsupported)";
       parameter Boolean enforceStates = false "State-selection hint; ignored (this library chooses its own states)";
       parameter Boolean useQuaternions = true "State-selection hint; ignored (this library uses quaternions)";
       parameter Integer sequence_angleStates[3] = {1, 2, 3} "State-selection hint; ignored";
-      final parameter Real mo(min = 0) = density * length * width * height "Mass of box without hole";
-      final parameter Real mi(min = 0) = density * length * innerWidth * innerHeight "Mass of hole of box";
-      final parameter Real m(min = 0) = mo - mi "Mass of box";
+      final parameter Real mo(min = 0, unit = "kg") = density * length * width * height "Mass of box without hole";
+      final parameter Real mi(min = 0, unit = "kg") = density * length * innerWidth * innerHeight "Mass of hole of box";
+      final parameter Real m(min = 0, unit = "kg") = mo - mi "Mass of box";
       final parameter Frames.Orientation R = Frames.Orientation(T = Frames.from_nxyT(r, widthDirection), w = zeros(3)) "Orientation object from frame_a to coordinates system spanned by r and widthDirection";
-      final parameter Real r_CM[3] = r_shape + Modelica.Math.Vectors.normalizeWithAssert(lengthDirection) * length / 2 "Position vector from origin of frame_a to center of mass, resolved in frame_a";
-      final parameter Real I[3, 3] = transpose(R.T) * diagonal({mo * (width * width + height * height) - mi * (innerWidth * innerWidth + innerHeight * innerHeight), mo * (length * length + height * height) - mi * (length * length + innerHeight * innerHeight), mo * (length * length + width * width) - mi * (length * length + innerWidth * innerWidth)} / 12) * R.T "Inertia tensor of body box with respect to center of mass, parallel to frame_a (MSL Frames.resolveDyade1)";
+      final parameter Real r_CM[3](each unit = "m") = r_shape + Modelica.Math.Vectors.normalizeWithAssert(lengthDirection) * length / 2 "Position vector from origin of frame_a to center of mass, resolved in frame_a";
+      final parameter Real I[3, 3](each unit = "kg.m2") = transpose(R.T) * diagonal({mo * (width * width + height * height) - mi * (innerWidth * innerWidth + innerHeight * innerHeight), mo * (length * length + height * height) - mi * (length * length + innerHeight * innerHeight), mo * (length * length + width * width) - mi * (length * length + innerWidth * innerWidth)} / 12) * R.T "Inertia tensor of body box with respect to center of mass, parallel to frame_a (MSL Frames.resolveDyade1)";
       Body body(animation = false, r_CM = r_CM, m = m, I_11 = I[1, 1], I_22 = I[2, 2], I_33 = I[3, 3], I_21 = I[2, 1], I_31 = I[3, 1], I_32 = I[3, 2], angles_fixed = angles_fixed, w_0_fixed = w_0_fixed, w_0_start = w_0_start);
       FixedTranslation frameTranslation(r = r, animation = animation);
     equation
@@ -687,37 +687,37 @@ package MultiBodyLie "MSL MultiBody rewritten on articulated-body connectors (la
       Interfaces.Frame_a frame_a;
       Interfaces.Frame_b frame_b;
       parameter Boolean animation = true "Ignored: no animation";
-      parameter Real r[3](start = {0.1, 0, 0}) "Vector from frame_a to frame_b resolved in frame_a";
-      parameter Real r_shape[3] = {0, 0, 0} "Vector from frame_a to cylinder origin, resolved in frame_a";
+      parameter Real r[3](start = {0.1, 0, 0}, each unit = "m") "Vector from frame_a to frame_b resolved in frame_a";
+      parameter Real r_shape[3](each unit = "m") = {0, 0, 0} "Vector from frame_a to cylinder origin, resolved in frame_a";
       parameter Real lengthDirection[3] = Modelica.Units.Conversions.to_unit1(r - r_shape) "Vector in length direction of cylinder, resolved in frame_a";
-      parameter Real length = Modelica.Math.Vectors.length(r - r_shape) "Length of cylinder";
-      parameter Real diameter = length / world.defaultWidthFraction "Diameter of cylinder";
-      parameter Real innerDiameter = 0 "Inner diameter of cylinder (0 <= innerDiameter <= Diameter)";
-      parameter Real density = 7700 "Density of cylinder [kg/m3]";
+      parameter Real length(unit = "m") = Modelica.Math.Vectors.length(r - r_shape) "Length of cylinder";
+      parameter Real diameter(unit = "m") = length / world.defaultWidthFraction "Diameter of cylinder";
+      parameter Real innerDiameter(unit = "m") = 0 "Inner diameter of cylinder (0 <= innerDiameter <= Diameter)";
+      parameter Real density(unit = "kg/m3") = 7700 "Density of cylinder [kg/m3]";
       input Integer color[3] = {0, 128, 255} "Ignored: no animation (MSL Types.Defaults.BodyColor)";
       input Real specularCoefficient = world.defaultSpecularCoefficient "Ignored: no animation";
-      Real r_0[3](start = {0, 0, 0}) "Position vector from origin of world frame to origin of frame_a";
-      Real v_0[3](start = {0, 0, 0}) "Absolute velocity of frame_a, resolved in world frame (= der(r_0))";
-      Real a_0[3](start = {0, 0, 0}) "Absolute acceleration of frame_a resolved in world frame (= der(v_0))";
+      Real r_0[3](start = {0, 0, 0}, each unit = "m") "Position vector from origin of world frame to origin of frame_a";
+      Real v_0[3](start = {0, 0, 0}, each unit = "m/s") "Absolute velocity of frame_a, resolved in world frame (= der(r_0))";
+      Real a_0[3](start = {0, 0, 0}, each unit = "m/s2") "Absolute acceleration of frame_a resolved in world frame (= der(v_0))";
       parameter Boolean angles_fixed = false "= true, if angles_start are used as initial values, else as guess values";
-      parameter Real angles_start[3] = {0, 0, 0} "Initial values of angles to rotate world frame around 'sequence_start' axes into frame_a (only {0,0,0} supported)";
+      parameter Real angles_start[3](each unit = "rad") = {0, 0, 0} "Initial values of angles to rotate world frame around 'sequence_start' axes into frame_a (only {0,0,0} supported)";
       parameter Integer sequence_start[3] = {1, 2, 3} "Sequence of rotations to rotate world frame into frame_a at initial time";
       parameter Boolean w_0_fixed = false "= true, if w_0_start are used as initial values, else as guess values";
-      parameter Real w_0_start[3] = {0, 0, 0} "Initial or guess values of angular velocity of frame_a resolved in world frame";
+      parameter Real w_0_start[3](each unit = "rad/s") = {0, 0, 0} "Initial or guess values of angular velocity of frame_a resolved in world frame";
       parameter Boolean z_0_fixed = false "Not supported: must be false";
-      parameter Real z_0_start[3] = {0, 0, 0} "Initial values of angular acceleration z_0 = der(w_0) (unused: z_0_fixed unsupported)";
+      parameter Real z_0_start[3](each unit = "rad/s2") = {0, 0, 0} "Initial values of angular acceleration z_0 = der(w_0) (unused: z_0_fixed unsupported)";
       parameter Boolean enforceStates = false "State-selection hint; ignored (this library chooses its own states)";
       parameter Boolean useQuaternions = true "State-selection hint; ignored (this library uses quaternions)";
       parameter Integer sequence_angleStates[3] = {1, 2, 3} "State-selection hint; ignored";
-      final parameter Real radius = diameter / 2 "Radius of cylinder";
-      final parameter Real innerRadius = innerDiameter / 2 "Inner-Radius of cylinder";
-      final parameter Real mo(min = 0) = density * Modelica.Constants.pi * length * radius * radius "Mass of cylinder without hole";
-      final parameter Real mi(min = 0) = density * Modelica.Constants.pi * length * innerRadius * innerRadius "Mass of hole of cylinder";
-      final parameter Real I22 = (mo * (length * length + 3 * radius * radius) - mi * (length * length + 3 * innerRadius * innerRadius)) / 12 "Inertia with respect to axis through center of mass, perpendicular to cylinder axis";
-      final parameter Real m(min = 0) = mo - mi "Mass of cylinder";
+      final parameter Real radius(unit = "m") = diameter / 2 "Radius of cylinder";
+      final parameter Real innerRadius(unit = "m") = innerDiameter / 2 "Inner-Radius of cylinder";
+      final parameter Real mo(min = 0, unit = "kg") = density * Modelica.Constants.pi * length * radius * radius "Mass of cylinder without hole";
+      final parameter Real mi(min = 0, unit = "kg") = density * Modelica.Constants.pi * length * innerRadius * innerRadius "Mass of hole of cylinder";
+      final parameter Real I22(unit = "kg.m2") = (mo * (length * length + 3 * radius * radius) - mi * (length * length + 3 * innerRadius * innerRadius)) / 12 "Inertia with respect to axis through center of mass, perpendicular to cylinder axis";
+      final parameter Real m(min = 0, unit = "kg") = mo - mi "Mass of cylinder";
       final parameter Frames.Orientation R = Frames.Orientation(T = Frames.from_nxyT(r, {0, 1, 0}), w = zeros(3)) "Orientation object from frame_a to frame spanned by cylinder axis and axis perpendicular to cylinder axis";
-      final parameter Real r_CM[3] = r_shape + Modelica.Math.Vectors.normalizeWithAssert(lengthDirection) * length / 2 "Position vector from origin of frame_a to center of mass, resolved in frame_a";
-      final parameter Real I[3, 3] = transpose(R.T) * diagonal({(mo * radius * radius - mi * innerRadius * innerRadius) / 2, I22, I22}) * R.T "Inertia tensor of cylinder with respect to center of mass, resolved in frame parallel to frame_a (MSL Frames.resolveDyade1)";
+      final parameter Real r_CM[3](each unit = "m") = r_shape + Modelica.Math.Vectors.normalizeWithAssert(lengthDirection) * length / 2 "Position vector from origin of frame_a to center of mass, resolved in frame_a";
+      final parameter Real I[3, 3](each unit = "kg.m2") = transpose(R.T) * diagonal({(mo * radius * radius - mi * innerRadius * innerRadius) / 2, I22, I22}) * R.T "Inertia tensor of cylinder with respect to center of mass, resolved in frame parallel to frame_a (MSL Frames.resolveDyade1)";
       Body body(animation = false, r_CM = r_CM, m = m, I_11 = I[1, 1], I_22 = I[2, 2], I_33 = I[3, 3], I_21 = I[2, 1], I_31 = I[3, 1], I_32 = I[3, 2], angles_fixed = angles_fixed, w_0_fixed = w_0_fixed, w_0_start = w_0_start);
       FixedTranslation frameTranslation(r = r, animation = animation);
     equation
@@ -746,9 +746,9 @@ package MultiBodyLie "MSL MultiBody rewritten on articulated-body connectors (la
         "Reflected rotor inertia about the joint coordinate";
       parameter StateSelect stateSelect = StateSelect.prefer;
       final parameter Real e[3] = Modelica.Math.Vectors.normalizeWithAssert(n) "Unit vector in direction of rotation axis, resolved in frame_a (MSL: asserts length(n) > 0)";
-      Real phi(start = 0, stateSelect = stateSelect) "Rotation of frame_b relative to frame_a about e";
-      Real w(start = 0, stateSelect = stateSelect);
-      Real a "= der(w)";
+      Real phi(start = 0, stateSelect = stateSelect, unit = "rad") "Rotation of frame_b relative to frame_a about e";
+      Real w(start = 0, stateSelect = stateSelect, unit = "rad/s");
+      Real a(unit = "rad/s2") "= der(w)";
       Real tau(unit="N.m") "Net shaft torque after accelerating the reflected rotor";
     end PartialServoJoint;
 
@@ -848,16 +848,16 @@ rotor. Both connection-root directions use the same relative coordinate.</p>
       parameter Boolean animation = true "Ignored: no animation";
       parameter Real n[3] = {1, 0, 0} "Axis of translation resolved in frame_a (= same as in frame_b)";
       parameter Real boxWidthDirection[3] = {0, 1, 0} "Ignored: no animation";
-      parameter Real boxWidth = world.defaultJointWidth "Ignored: no animation";
-      parameter Real boxHeight = boxWidth "Ignored: no animation";
+      parameter Real boxWidth(unit = "m") = world.defaultJointWidth "Ignored: no animation";
+      parameter Real boxHeight(unit = "m") = boxWidth "Ignored: no animation";
       input Integer boxColor[3] = {255, 0, 0} "Ignored: no animation (MSL Types.Defaults.JointColor)";
       input Real specularCoefficient = world.defaultSpecularCoefficient "Ignored: no animation";
       parameter StateSelect stateSelect = StateSelect.prefer;
       final parameter Real e[3] = Modelica.Math.Vectors.normalizeWithAssert(n) "Unit vector in direction of prismatic axis n (MSL: asserts length(n) > 0)";
-      Real s(start = 0, final stateSelect = stateSelect) "Relative distance between frame_a and frame_b";
-      Real v(start = 0, final stateSelect = stateSelect) "First derivative of s (relative velocity)";
-      Real a(start = 0) "Second derivative of s (relative acceleration)";
-      Real f "Actuation force in direction of joint axis";
+      Real s(start = 0, final stateSelect = stateSelect, unit = "m") "Relative distance between frame_a and frame_b";
+      Real v(start = 0, final stateSelect = stateSelect, unit = "m/s") "First derivative of s (relative velocity)";
+      Real a(start = 0, unit = "m/s2") "Second derivative of s (relative acceleration)";
+      Real f(unit = "N") "Actuation force in direction of joint axis";
     protected
       Real r[3] "Translation from the parent frame's origin to the child's, parent (= child) coordinates";
       Real S[6] "Motion subspace in child coordinates";
@@ -924,12 +924,12 @@ rotor. Both connection-root directions use the same relative coordinate.</p>
   end Joints;
 
   package Forces
-    package Internal
+    package Internal "Functions used by the gravity field of World"
       function standardGravityAcceleration "Uniform or point gravity field (MSL name and formula)"
         extends Interfaces.partialGravityAcceleration;
         input Types.GravityTypes gravityType "Type of gravity field";
-        input Real g[3] "Constant gravity acceleration, world (UniformGravity)";
-        input Real mu "Field constant (PointGravity)";
+        input Real g[3](each unit = "m/s2") "Constant gravity acceleration, world (UniformGravity)";
+        input Real mu(unit = "m3/s2") "Field constant (PointGravity)";
       algorithm
         gravity := if gravityType == Types.GravityTypes.UniformGravity then g
                    else if gravityType == Types.GravityTypes.PointGravity then -(mu / (r * r)) * (r / sqrt(r * r))
@@ -978,26 +978,26 @@ rotor. Both connection-root directions use the same relative coordinate.</p>
       Interfaces.Frame_b frame_b;
       parameter Boolean animation = true "Ignored: no animation";
       parameter Boolean showMass = true "Ignored: no animation";
-      parameter Real c(final min = 0) "Spring constant [N/m]";
-      parameter Real s_unstretched = 0 "Unstretched spring length [m]";
-      parameter Real m(min = 0) = 0 "Spring mass on the connection line [kg]";
+      parameter Real c(final min = 0, unit = "N/m") "Spring constant [N/m]";
+      parameter Real s_unstretched(unit = "m") = 0 "Unstretched spring length [m]";
+      parameter Real m(min = 0, unit = "kg") = 0 "Spring mass on the connection line [kg]";
       parameter Real lengthFraction(min = 0, max = 1) = 0.5 "Mass location from frame_a as a fraction of the distance a -> b";
-      input Real width = world.defaultForceWidth "Ignored: no animation (width of spring)";
-      input Real coilWidth = width / 10 "Ignored: no animation (width of spring coil)";
+      input Real width(unit = "m") = world.defaultForceWidth "Ignored: no animation (width of spring)";
+      input Real coilWidth(unit = "m") = width / 10 "Ignored: no animation (width of spring coil)";
       parameter Integer numberOfWindings = 5 "Ignored: no animation";
       input Integer color[3] = {0, 0, 255} "Ignored: no animation (MSL Types.Defaults.SpringColor)";
       input Real specularCoefficient = world.defaultSpecularCoefficient "Ignored: no animation";
-      input Real massDiameter = max(0, (width - 2 * coilWidth) * 0.9) "Ignored: no animation (diameter of mass point sphere)";
+      input Real massDiameter(unit = "m") = max(0, (width - 2 * coilWidth) * 0.9) "Ignored: no animation (diameter of mass point sphere)";
       input Integer massColor[3] = {0, 128, 255} "Ignored: no animation (MSL Types.Defaults.BodyColor)";
-      parameter Real s_small = 1e-10 "Prevent zero-division if distance between frame_a and frame_b is zero";
+      parameter Real s_small(unit = "m") = 1e-10 "Prevent zero-division if distance between frame_a and frame_b is zero";
       parameter Boolean fixedRotationAtFrame_a = false "Not supported: must be false";
       parameter Boolean fixedRotationAtFrame_b = false "Not supported: must be false";
-      Real r_rel_a[3] "Position vector from origin of frame_a to origin of frame_b, resolved in frame_a";
+      Real r_rel_a[3](each unit = "m") "Position vector from origin of frame_a to origin of frame_b, resolved in frame_a";
       Real e_a[3] "Unit vector from frame_a to frame_b, resolved in frame_a";
-      Real f "Line force (positive, if acting on frame_b and directed from frame_a to frame_b)";
-      Real length "Distance between the origin of frame_a and the origin of frame_b";
-      Real s "(Guarded) distance between the origins (>= s_small)";
-      Real r_rel_0[3] "Position vector from frame_a to frame_b, world";
+      Real f(unit = "N") "Line force (positive, if acting on frame_b and directed from frame_a to frame_b)";
+      Real length(unit = "m") "Distance between the origin of frame_a and the origin of frame_b";
+      Real s(unit = "m") "(Guarded) distance between the origins (>= s_small)";
+      Real r_rel_0[3](each unit = "m") "Position vector from frame_a to frame_b, world";
       Real e_rel_0[3] "Unit vector from frame_a to frame_b, world";
     protected
       final parameter Real ma = m * (1 - lengthFraction) "Line mass share carried by frame_a";
