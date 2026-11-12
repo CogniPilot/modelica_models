@@ -33,10 +33,13 @@ package Collision "Collision shapes, the scene tables and contact points between
   // origin + (arm - radius) and in groundWrench's clear test as (origin + arm) - radius, so a point
   // within rounding of the clear margin can be cut off by one and not by the other.
   //
-  // Against a plane every shape of the closed set reduces exactly to spheres: a sphere is itself, a
-  // capsule is the two spheres at the ends of its segment (the point of a segment nearest a plane is
-  // always an end), and a box is its eight corners with radius zero. planeSpheres owns that reduction
-  // and planeSphere is the one geometry function of all the plane pairs.
+  // Against a plane every shape of the closed set is a set of spheres. A sphere is itself. A capsule is
+  // the two spheres at the ends of its segment: the lowest point of a segment over a plane is always an
+  // end, so these are the capsule's own contacts. A box is its eight corners with radius zero, each
+  // carrying the full point law: this samples the box by its corners. The gap and the deepest point are
+  // the box's, a face lying on the plane is carried by its four corners, and pressure over a face is
+  // not modelled. planeSpheres owns the set and planeSphere is the one geometry function of all the
+  // plane pairs.
   //
   // The material of a contact is the material of the moving body's shape. sceneWrench is the first
   // consumer: the shapes of a body against the planes of the world.
@@ -150,7 +153,7 @@ package Collision "Collision shapes, the scene tables and contact points between
     point := ContactPoint(gap = gap, n = planeNormal, armA = armA, armB = origin + armA - gap * planeNormal);
   end planeSphere;
 
-  function planeSpheres "The spheres that stand for a shape against a plane: their contacts with a plane are exactly the shape's"
+  function planeSpheres "The spheres that stand for a shape against a plane: a sphere itself, a capsule's two end spheres, a box's eight corners"
     input ShapeKind kind "Kind of the shape";
     input Real r[3](each unit = "m") "Shape origin, resolved in the owning frame";
     input Real T[3, 3] "Rotation from the owning frame to the shape frame";
