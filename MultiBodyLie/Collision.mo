@@ -26,6 +26,9 @@ package Collision "Collision shapes, the scene tables and contact points between
   // across that axis (perpendicular), and two capsules whose centrelines meet take the normal across
   // both; the witness points then lie on the surfaces, as everywhere else.
   //
+  // pairMaterial's rule (mean of the law's parameters, larger friction) is this library's choice. It is
+  // modelled on MuJoCo's default mixing, as an analogy: no matched physics follows from it.
+  //
   // The geometry functions are plain functions of the current poses. Branches inside a function create
   // no events, so geometry never stops the integrator. A contact becomes active through the clamp in
   // the force law, not through a discrete decision.
@@ -33,8 +36,8 @@ package Collision "Collision shapes, the scene tables and contact points between
   // One function, contactForce, owns the force law for every pair of kinds. It is the law of
   // MultiBodyLie.Contact.groundWrench written for an arbitrary unit normal. A contact point keeps its
   // witness points relative to the origins of the frames that own the two shapes, as groundWrench
-  // does: that is what a wrench about the frame origin needs, and it does not lose digits far from
-  // the world origin. With the ground plane (point {0, 0, 0}, normal {0, 0, 1}) the tests compare
+  // does: that is what a wrench about the frame origin needs, and small offsets are then not added to
+  // large positions (digits a caller's inputs have already lost are not recovered). With the ground plane (point {0, 0, 0}, normal {0, 0, 1}) the tests compare
   // planeSphere and contactForce with groundWrench for exact numerical equality on fixed poses and
   // velocities. That is a result for those inputs, not a promise for every input: the gap is summed here as
   // origin + (arm - radius) and in groundWrench's clear test as (origin + arm) - radius, so a point
@@ -175,9 +178,11 @@ package Collision "Collision shapes, the scene tables and contact points between
     input Material b "Material of the other shape";
     output Material pair "Mean of the law parameters, larger friction coefficient";
   algorithm
-    // The rule MuJoCo applies by default to two geometries of equal priority: parameters mixed with
-    // equal weights, friction the larger of the two. Two shapes of one material keep exactly that
-    // material, whatever its values (midpoint).
+    // A choice of this library: the mean of the law's parameters and the larger friction coefficient.
+    // It is modelled on MuJoCo's default for two geometries of equal priority, which mixes the fields of
+    // its own solver with equal weights and takes the larger friction; those are not this law's
+    // parameters, so this is an analogy and no matched physics is claimed. Two shapes of one material
+    // keep exactly that material, whatever its values (midpoint).
     pair := Material(k = midpoint(a.k, b.k), d = midpoint(a.d, b.d), mu = max(a.mu, b.mu), eps = midpoint(a.eps, b.eps),
       v_eps = midpoint(a.v_eps, b.v_eps));
   end pairMaterial;
@@ -387,10 +392,12 @@ package Collision "Collision shapes, the scene tables and contact points between
     sine2 := across * across;
     // The squared distance of the points at s and t is convex in (s, t) on the rectangle of the two
     // segments: take the free minimum along a, clamp it, take the best t for it, then the best s for
-    // that t. The free minimum is (b f - c) / (1 - b b), written with cross products so that it keeps
-    // its digits for segments at a small angle. Only segments whose axes have no cross product at all
-    // are parallel: they have no free minimum and start from the middle of a, so of the nearest pairs
-    // they have in common the one nearest that middle is returned.
+    // that t. The free minimum is (b f - c) / (1 - b b), written with cross products, which do not
+    // cancel at a small angle. Segments count as parallel only when the computed sine2 is zero: the
+    // axes are parallel, or their angle is so small (below about 1e-162) that its square underflows.
+    // Those have no free minimum and start from the middle of a, so of the nearest pairs they have in
+    // common the one nearest that middle is returned. No bound on the rounding error of the returned
+    // pair at very small angles is claimed.
     s := if sine2 > 0 then min(max(-(across * cross(r, axisB)) / sine2, -halfLengthA), halfLengthA) else 0;
     t := min(max(f + b * s, -halfLengthB), halfLengthB);
     s := min(max(b * t - c, -halfLengthA), halfLengthA);
