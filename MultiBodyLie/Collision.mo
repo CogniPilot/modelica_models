@@ -13,12 +13,13 @@ package Collision "Collision shapes, the scene tables and contact points between
   // Shapes come from a closed set of kinds. maxPoints gives each pair of kinds its largest number of
   // contact points; a pair the table marks with zero is outside the library. Of the seven pairs with a
   // positive entry, the three plane pairs (plane against sphere, capsule and box) have their geometry
-  // here. The other four (sphere against sphere, capsule and box, and capsule against capsule) are
-  // not complete: sphereSphere, sphereCapsule, sphereBox and capsuleCapsule give their geometry (flipped
-  // exchanges the two shapes) and pairWrenches turns a point between two bodies into a balanced pair of
-  // wrenches. capsuleCapsule returns one point, the nearest points of the two segments; the second
-  // point the table allows, for capsules lying along each other, is not written. No model applies
-  // these to two bodies yet; sceneWrench refuses every pair it cannot compute by an assertion.
+  // here, for a plane fixed in the world. The other four (sphere against sphere, capsule and box, and
+  // capsule against capsule) have one point each: sphereSphere, sphereCapsule, sphereBox and
+  // capsuleCapsule give their geometry (flipped exchanges the two shapes), shapePair chooses among
+  // them by the two kinds, and pairWrenches turns a point between two bodies into a balanced pair of
+  // wrenches. capsuleCapsule returns the nearest points of the two segments; the second point the
+  // table allows, for capsules lying along each other, is not written. A pair without geometry is
+  // refused by an assertion (in sceneWrench and in shapePair), never skipped.
   //
   // The geometry functions are plain functions of the current poses. Branches inside a function create
   // no events, so geometry never stops the integrator. A contact becomes active through the clamp in
@@ -40,8 +41,14 @@ package Collision "Collision shapes, the scene tables and contact points between
   // point law independently. For a box this is corner sampling, not a model of pressure over a face.
   // planeSpheres owns the samples and planeSphere is the one geometry function of all the plane pairs.
   //
-  // The material of a contact is the material of the moving body's shape. sceneWrench is the first
-  // consumer: the shapes of a body against the planes of the world.
+  // The material of a contact is pairMaterial of the materials of its two shapes: the mean of their
+  // law parameters and the larger friction coefficient, so two shapes of one material have exactly
+  // that material.
+  //
+  // There are two consumers. sceneWrench (model BodyShapes) is the shapes of a body against the planes
+  // of the world. bodiesWrench (model BodyPair) is the shapes of one body against the shapes of
+  // another; which pairs of bodies can touch is stated by the BodyPair instances of a model, one per
+  // pair, and nothing is searched for.
 
   type ShapeKind = enumeration(
     Plane "Half-space below the plane through the shape origin with normal along the shape z axis",
@@ -135,6 +142,30 @@ package Collision "Collision shapes, the scene tables and contact points between
       f := zeros(3);
     end if;
   end contactForce;
+
+  function materialRow "One row of a scene's material table as a Material"
+    input Integer row "The row";
+    input Real k[:](each unit = "N/m") "Contact stiffness of each material";
+    input Real d[size(k, 1)](each unit = "s/m") "Hunt-Crossley damping of each material";
+    input Real mu[size(k, 1)] "Friction coefficient of each material";
+    input Real eps[size(k, 1)](each unit = "m") "Penetration smoothing of each material";
+    input Real v_eps[size(k, 1)](each unit = "m/s") "Friction regularization speed of each material";
+    output Material material "The material of that row";
+  algorithm
+    material := Material(k = k[row], d = d[row], mu = mu[row], eps = eps[row], v_eps = v_eps[row]);
+  end materialRow;
+
+  function pairMaterial "Material of a contact between a shape of material a and a shape of material b"
+    input Material a "Material of one shape";
+    input Material b "Material of the other shape";
+    output Material pair "Mean of the law parameters, larger friction coefficient";
+  algorithm
+    // The rule MuJoCo applies by default to two geometries of equal priority: parameters mixed with
+    // equal weights, friction the larger of the two. (x + x) / 2 is x, so two shapes of one material
+    // keep exactly that material.
+    pair := Material(k = (a.k + b.k) / 2, d = (a.d + b.d) / 2, mu = max(a.mu, b.mu), eps = (a.eps + b.eps) / 2,
+      v_eps = (a.v_eps + b.v_eps) / 2);
+  end pairMaterial;
 
   function planeSphere "Contact point of a sphere (shape a) with a plane fixed in the world (shape b): one point"
     input Real planePoint[3](each unit = "m") "A point of the plane, world frame";
@@ -337,6 +368,103 @@ package Collision "Collision shapes, the scene tables and contact points between
     tauB := cross(pB, fB);
   end pairWrenches;
 
+  function shapePair "Contact point of a shape a with a shape b, each on its own frame, for the pairs of kinds that have one point"
+    input ShapeKind kindA "Kind of a";
+    input Real originA[3](each unit = "m") "Origin of the frame that owns a, world frame";
+    input Real centreA[3](each unit = "m") "Origin of a relative to originA, resolved in the world frame";
+    input Real TA[3, 3] "Rotation from the world frame to a's shape frame";
+    input Real sizeA[3](each unit = "m") "Dimensions of a";
+    input ShapeKind kindB "Kind of b";
+    input Real originB[3](each unit = "m") "Origin of the frame that owns b, world frame";
+    input Real centreB[3](each unit = "m") "Origin of b relative to originB, resolved in the world frame";
+    input Real TB[3, 3] "Rotation from the world frame to b's shape frame";
+    input Real sizeB[3](each unit = "m") "Dimensions of b";
+    output ContactPoint point "The pair's contact point";
+  algorithm
+    // A capsule's segment lies along its shape x axis: the first row of its rotation.
+    if kindA == ShapeKind.Sphere and kindB == ShapeKind.Sphere then
+      point := sphereSphere(originA, centreA, sizeA[1], originB, centreB, sizeB[1]);
+    elseif kindA == ShapeKind.Sphere and kindB == ShapeKind.Capsule then
+      point := sphereCapsule(originA, centreA, sizeA[1], originB, centreB, TB[1, :], sizeB[2], sizeB[1]);
+    elseif kindA == ShapeKind.Capsule and kindB == ShapeKind.Sphere then
+      point := flipped(sphereCapsule(originB, centreB, sizeB[1], originA, centreA, TA[1, :], sizeA[2], sizeA[1]));
+    elseif kindA == ShapeKind.Sphere and kindB == ShapeKind.Box then
+      point := sphereBox(originA, centreA, sizeA[1], originB, centreB, TB, sizeB);
+    elseif kindA == ShapeKind.Box and kindB == ShapeKind.Sphere then
+      point := flipped(sphereBox(originB, centreB, sizeB[1], originA, centreA, TA, sizeA));
+    elseif kindA == ShapeKind.Capsule and kindB == ShapeKind.Capsule then
+      point := capsuleCapsule(originA, centreA, TA[1, :], sizeA[2], sizeA[1], originB, centreB, TB[1, :], sizeB[2],
+        sizeB[1]);
+    else
+      assert(false,
+        "Collision.shapePair supports sphere-sphere, sphere-capsule, sphere-box and capsule-capsule; other pairs of kinds are not implemented yet");
+      // Not reached: the assertion above stops the evaluation. A function assigns its output on every path.
+      point := ContactPoint(gap = 0, n = zeros(3), armA = zeros(3), armB = zeros(3));
+    end if;
+  end shapePair;
+
+  function bodiesWrench "Balanced forces and torques on two bodies from the contacts between their shapes"
+    input Real r0A[3](each unit = "m") "Origin of body a's frame, world frame";
+    input Real TA[3, 3] "World-to-frame rotation of body a";
+    input Real wA[3](each unit = "rad/s") "Angular velocity of body a, resolved in its frame";
+    input Real v0A[3](each unit = "m/s") "Velocity of the origin of body a's frame, world frame";
+    input ShapeKind kindA[:] "Kind of each shape of body a";
+    input Real rA[size(kindA, 1), 3](each unit = "m") "Origin of each shape of a, body frame";
+    input Real shapeTA[size(kindA, 1), 3, 3] "Rotation from a's body frame to each shape's frame";
+    input Real sizeA[size(kindA, 1), 3](each unit = "m") "Dimensions of each shape of a";
+    input Integer materialA[size(kindA, 1)] "Material row of each shape of a";
+    input Integer groupA[size(kindA, 1)] "Collision group of each shape of a";
+    input Real r0B[3](each unit = "m") "Origin of body b's frame, world frame";
+    input Real TB[3, 3] "World-to-frame rotation of body b";
+    input Real wB[3](each unit = "rad/s") "Angular velocity of body b, resolved in its frame";
+    input Real v0B[3](each unit = "m/s") "Velocity of the origin of body b's frame, world frame";
+    input ShapeKind kindB[:] "Kind of each shape of body b";
+    input Real rB[size(kindB, 1), 3](each unit = "m") "Origin of each shape of b, body frame";
+    input Real shapeTB[size(kindB, 1), 3, 3] "Rotation from b's body frame to each shape's frame";
+    input Real sizeB[size(kindB, 1), 3](each unit = "m") "Dimensions of each shape of b";
+    input Integer materialB[size(kindB, 1)] "Material row of each shape of b";
+    input Integer groupB[size(kindB, 1)] "Collision group of each shape of b";
+    input Real k[:](each unit = "N/m") "Contact stiffness of each material";
+    input Real d[size(k, 1)](each unit = "s/m") "Hunt-Crossley damping of each material";
+    input Real mu[size(k, 1)] "Friction coefficient of each material";
+    input Real eps[size(k, 1)](each unit = "m") "Penetration smoothing of each material";
+    input Real v_eps[size(k, 1)](each unit = "m/s") "Friction regularization speed of each material";
+    input Boolean collides[:, :] "Groups that may touch";
+    output Real fA[3](each unit = "N") "Force on body a, world frame";
+    output Real tauA[3](each unit = "N.m") "Torque on body a about r0A, world frame";
+    output Real fB[3](each unit = "N") "Force on body b, world frame: the opposite of fA";
+    output Real tauB[3](each unit = "N.m") "Torque on body b about r0B, world frame";
+  protected
+    ContactPoint point "The contact point of the pair of shapes at hand";
+    Real wAWorld[3](each unit = "rad/s") "Angular velocity of body a, world frame";
+    Real wBWorld[3](each unit = "rad/s") "Angular velocity of body b, world frame";
+    Real fi[3](each unit = "N") "Force of one contact point on a";
+    Real taui[3](each unit = "N.m") "Its torque on a";
+    Real fj[3](each unit = "N") "Force of the same point on b";
+    Real tauj[3](each unit = "N.m") "Its torque on b";
+  algorithm
+    fA := zeros(3);
+    tauA := zeros(3);
+    fB := zeros(3);
+    tauB := zeros(3);
+    wAWorld := transpose(TA) * wA;
+    wBWorld := transpose(TB) * wB;
+    for i in 1:size(kindA, 1) loop
+      for j in 1:size(kindB, 1) loop
+        if collides[groupA[i], groupB[j]] then
+          point := shapePair(kindA[i], r0A, transpose(TA) * rA[i, :], shapeTA[i, :, :] * TA, sizeA[i, :],
+            kindB[j], r0B, transpose(TB) * rB[j, :], shapeTB[j, :, :] * TB, sizeB[j, :]);
+          (fi, taui, fj, tauj) := pairWrenches(point, v0A, wAWorld, v0B, wBWorld,
+            pairMaterial(materialRow(materialA[i], k, d, mu, eps, v_eps), materialRow(materialB[j], k, d, mu, eps, v_eps)));
+          fA := fA + fi;
+          tauA := tauA + taui;
+          fB := fB + fj;
+          tauB := tauB + tauj;
+        end if;
+      end for;
+    end for;
+  end bodiesWrench;
+
   function sceneWrench "Force and torque on a body from its shapes against the static shapes of a scene"
     input Real r0[3](each unit = "m") "Origin of the body frame, world frame";
     input Real T[3, 3] "World-to-body-frame rotation";
@@ -351,6 +479,7 @@ package Collision "Collision shapes, the scene tables and contact points between
     input ShapeKind staticKind[:] "Kind of each static shape";
     input Real staticR[size(staticKind, 1), 3](each unit = "m") "Origin of each static shape, world frame";
     input Real staticT[size(staticKind, 1), 3, 3] "Rotation from the world frame to each static shape's frame";
+    input Integer staticMaterial[size(staticKind, 1)] "Material row of each static shape";
     input Integer staticGroup[size(staticKind, 1)] "Collision group of each static shape";
     input Real k[:](each unit = "N/m") "Contact stiffness of each material";
     input Real d[size(k, 1)](each unit = "s/m") "Hunt-Crossley damping of each material";
@@ -362,7 +491,7 @@ package Collision "Collision shapes, the scene tables and contact points between
     output Real tau[3](each unit = "N.m") "Torque on the body about r0, world frame";
   protected
     ContactPoint point "One contact point of the pair at hand";
-    Material pair "Material of the pair at hand";
+    Material own "Material of the body's shape at hand";
     Integer count "Number of spheres that stand for the shape at hand";
     Real centre[8, 3](each unit = "m") "Their centres, body frame";
     Real radius(unit = "m") "Their radius";
@@ -374,8 +503,7 @@ package Collision "Collision shapes, the scene tables and contact points between
     tau := zeros(3);
     for i in 1:size(kind, 1) loop
       (count, centre, radius) := planeSpheres(kind[i], r[i, :], shapeT[i, :, :], size[i, :]);
-      pair := Material(k = k[material[i]], d = d[material[i]], mu = mu[material[i]], eps = eps[material[i]],
-        v_eps = v_eps[material[i]]);
+      own := materialRow(material[i], k, d, mu, eps, v_eps);
       for j in 1:size(staticKind, 1) loop
         if collides[group[i], staticGroup[j]] then
           assert(count > 0 and staticKind[j] == ShapeKind.Plane,
@@ -387,7 +515,7 @@ package Collision "Collision shapes, the scene tables and contact points between
               // The plane's normal is the z axis of its shape frame: the third row of its rotation.
               point := planeSphere(staticR[j, :], staticT[j, 3, :], r0, arm, radius);
               v := v0 + cross(transpose(T) * w, point.armA);
-              fi := contactForce(point, v, pair);
+              fi := contactForce(point, v, pairMaterial(own, materialRow(staticMaterial[j], k, d, mu, eps, v_eps)));
               f := f + fi;
               tau := tau + cross(point.armA, fi);
             end if;
@@ -419,9 +547,56 @@ package Collision "Collision shapes, the scene tables and contact points between
   equation
     connect(frame_a, wrench.frame_b);
     (f, tau) = sceneWrench(frame_a.r_0, frame_a.R.T, frame_a.R.w, v0, kind, r, T, size, material, group,
-      scene.staticKind, scene.staticR, scene.staticT, scene.staticGroup,
+      scene.staticKind, scene.staticR, scene.staticT, scene.staticMaterial, scene.staticGroup,
       scene.k, scene.d, scene.mu, scene.eps, scene.v_eps, scene.collides);
     wrench.force = f;
     wrench.torque = tau;
   end BodyShapes;
+
+  model BodyPair "Collision shapes of one rigid body against those of another: balanced forces and torques at frame_a and frame_b"
+    parameter Integer nA(min = 0) "Number of shapes of the body at frame_a";
+    parameter ShapeKind kindA[nA] = fill(ShapeKind.Sphere, nA) "Kind of each shape";
+    parameter Real rA[nA, 3](each unit = "m") = zeros(nA, 3) "Origin of each shape, resolved in frame_a";
+    parameter Real TA[nA, 3, 3] = {identity(3) for i in 1:nA} "Rotation from frame_a to each shape's frame";
+    parameter Real sizeA[nA, 3](each unit = "m") = zeros(nA, 3) "Dimensions of each shape; their meaning is given by the kind";
+    parameter Integer materialA[nA](each min = 1) = ones(nA) "Material row of each shape in the scene's table";
+    parameter Integer groupA[nA](each min = 1) = ones(nA) "Collision group of each shape";
+    parameter Integer nB(min = 0) "Number of shapes of the body at frame_b";
+    parameter ShapeKind kindB[nB] = fill(ShapeKind.Sphere, nB) "Kind of each shape";
+    parameter Real rB[nB, 3](each unit = "m") = zeros(nB, 3) "Origin of each shape, resolved in frame_b";
+    parameter Real TB[nB, 3, 3] = {identity(3) for i in 1:nB} "Rotation from frame_b to each shape's frame";
+    parameter Real sizeB[nB, 3](each unit = "m") = zeros(nB, 3) "Dimensions of each shape; their meaning is given by the kind";
+    parameter Integer materialB[nB](each min = 1) = ones(nB) "Material row of each shape in the scene's table";
+    parameter Integer groupB[nB](each min = 1) = ones(nB) "Collision group of each shape";
+    input Real v0A[3](each unit = "m/s") "Velocity of the frame_a origin, world frame";
+    input Real v0B[3](each unit = "m/s") "Velocity of the frame_b origin, world frame";
+    outer Scene scene "The scene whose materials and groups the two bodies use";
+    Interfaces.Frame_a frame_a;
+    Interfaces.Frame_b frame_b;
+    Forces.WorldForceAndTorque wrenchA(resolveInFrame = Types.ResolveInFrameB.world, animation = false);
+    Forces.WorldForceAndTorque wrenchB(resolveInFrame = Types.ResolveInFrameB.world, animation = false);
+    Real fA[3](each unit = "N") "Total contact force on the body at frame_a, world frame";
+    Real tauA[3](each unit = "N.m") "Total contact torque on it about the frame_a origin, world frame";
+    Real fB[3](each unit = "N") "Total contact force on the body at frame_b, world frame";
+    Real tauB[3](each unit = "N.m") "Total contact torque on it about the frame_b origin, world frame";
+  initial equation
+    for i in 1:nA loop
+      assert(materialA[i] <= scene.nMaterials, "A body shape names a material row the scene does not have");
+      assert(groupA[i] <= scene.nGroups, "A body shape names a collision group the scene does not have");
+    end for;
+    for i in 1:nB loop
+      assert(materialB[i] <= scene.nMaterials, "A body shape names a material row the scene does not have");
+      assert(groupB[i] <= scene.nGroups, "A body shape names a collision group the scene does not have");
+    end for;
+  equation
+    connect(frame_a, wrenchA.frame_b);
+    connect(frame_b, wrenchB.frame_b);
+    (fA, tauA, fB, tauB) = bodiesWrench(frame_a.r_0, frame_a.R.T, frame_a.R.w, v0A, kindA, rA, TA, sizeA, materialA, groupA,
+      frame_b.r_0, frame_b.R.T, frame_b.R.w, v0B, kindB, rB, TB, sizeB, materialB, groupB,
+      scene.k, scene.d, scene.mu, scene.eps, scene.v_eps, scene.collides);
+    wrenchA.force = fA;
+    wrenchA.torque = tauA;
+    wrenchB.force = fB;
+    wrenchB.torque = tauB;
+  end BodyPair;
 end Collision;
