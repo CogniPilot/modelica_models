@@ -67,3 +67,4 @@ RGBDLoopConsistencyTests
 ObservabilityConstrainedPredictionTests
 MslRotationalSmoke
 OptimizationTests
+RevoluteArmatureTests
