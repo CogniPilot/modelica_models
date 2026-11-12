@@ -136,6 +136,28 @@ def run_rumoca_tests(repository: Path) -> None:
             "Rumoca DAE lowering for Tests.All",
             msl_environment,
         )
+        # The Microduck assembly uses MSL rotational flanges, so its start-pose
+        # check gets the MSL as well.
+        run_command(
+            [
+                rumoca,
+                "sim",
+                "Tests/package.mo",
+                "--model",
+                "Tests.MicroduckTests.InitialPose",
+                "--source-root",
+                str(repository),
+                "--t-end",
+                "0.0",
+                "--solver",
+                "rk-like",
+                "--output",
+                str(output / "microduck-initial-pose.html"),
+            ],
+            repository,
+            "Rumoca simulation for Tests.MicroduckTests.InitialPose",
+            msl_environment,
+        )
         check_eskf_throughput(repository, rumoca, output)
         # DAE and eFMI export can succeed even when the composed mission's
         # simulation event plan is invalid. Initialize the UKF missions here

@@ -69,3 +69,4 @@ MslRotationalSmoke
 OptimizationTests
 RevoluteArmatureTests
 MultiBodyLieTests
+MicroduckTests

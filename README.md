@@ -65,6 +65,8 @@ artifacts; they do not own alternate copies of these models.
   flight-control models, avionics plant interfaces, and qualification missions.
   RDD2 includes both its cascaded sampled controller and a thin vehicle
   parameterization of the reusable log-linear controller.
+- `Vehicles/Microduck/`: a walking biped on `MultiBodyLie`: fifteen bodies,
+  revolute servos with reflected rotor inertia, and smooth ground contact.
 - [`tools/`](tools/README.md): non-library Python orchestration for validation, qualification,
   export, CI caching, and reports. Nothing under this directory is part of the
   Modelica package API.
