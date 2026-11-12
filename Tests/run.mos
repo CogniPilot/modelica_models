@@ -45,7 +45,8 @@ microduck := simulate(
   method="dassl",
   outputFormat="csv",
   fileNamePrefix="modelica_models_MicroduckInitialPose"); getErrorString();
-if microduck.resultFile == "" then
+microduckResultFile := microduck.resultFile;
+if microduckResultFile == "" then
   print("Microduck start pose check failed\n");
   exit(1);
 end if;
