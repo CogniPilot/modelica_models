@@ -1,18 +1,18 @@
 within Vehicles.Microduck;
 model PolicyInterface "Modelica signal interface for the external Pollen model_api=1 network"
-  input Real forwardVelocity=0 "m/s, robot forward";
-  input Real lateralVelocity=0 "m/s, robot left";
-  input Real steeringRate=0 "rad/s, positive turns left";
-  input Real trunkGyro[3]=zeros(3);
+  input Real forwardVelocity(unit = "m/s")=0 "m/s, robot forward";
+  input Real lateralVelocity(unit = "m/s")=0 "m/s, robot left";
+  input Real steeringRate(unit = "rad/s")=0 "rad/s, positive turns left";
+  input Real trunkGyro[3](each unit = "rad/s")=zeros(3);
   input Real gravityRow[3]={0,0,1} "Third row of world-from-body rotation";
-  input Real jointPosition[15]=zeros(15);
-  input Real jointVelocity[15]=zeros(15);
-  input Real policyHome[14]=zeros(14) "Issued by the robot's Modelica servo components";
-  input Real policyHalfRange[14]=ones(14) "Issued by the robot's Modelica servo components";
-  input Real policyAction[14]=zeros(14) "Raw network offsets, radians";
-  input Real previousPolicyAction[14]=zeros(14);
+  input Real jointPosition[15](each unit = "rad")=zeros(15);
+  input Real jointVelocity[15](each unit = "rad/s")=zeros(15);
+  input Real policyHome[14](each unit = "rad")=zeros(14) "Issued by the robot's Modelica servo components";
+  input Real policyHalfRange[14](each unit = "rad")=ones(14) "Issued by the robot's Modelica servo components";
+  input Real policyAction[14](each unit = "rad")=zeros(14) "Raw network offsets, radians";
+  input Real previousPolicyAction[14](each unit = "rad")=zeros(14);
   input Real previousCommand[3]=zeros(3) "Held Modelica output from the previous policy tick";
-  input Real previousPositionCommand[15]=zeros(15);
+  input Real previousPositionCommand[15](each unit = "rad")=zeros(15);
   input Boolean hasPreviousPositionCommand=false;
   parameter Real commandAlpha=0.2 "Native robotd Walk command EMA";
   parameter Real actionScale=0.9 "Native robotd Walk radians per raw action";
@@ -20,7 +20,7 @@ model PolicyInterface "Modelica signal interface for the external Pollen model_a
   parameter Real legsLowpass=0.7;
   output Real policyObservation[61];
   output Real filteredCommand[3];
-  output Real positionCommand[15] "Native proposed joint positions, before physical joint limits";
+  output Real positionCommand[15](each unit = "rad") "Native proposed joint positions, before physical joint limits";
   output Real action[15];
   output Real clippedPolicyActions;
 protected
