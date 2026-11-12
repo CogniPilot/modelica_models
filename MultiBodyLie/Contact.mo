@@ -16,19 +16,19 @@ package Contact "Smooth sphere contact against the ground plane z = 0 (world z u
 
   model GroundContactBody "Ground contact of one rigid body: all its spheres, one force and torque at frame_a"
     parameter Integer n "Number of contact spheres";
-    parameter Real centre[n, 3] "Sphere centres in frame_a [m]";
-    parameter Real radius[n] "Sphere radii [m]";
-    parameter Real k = 1e5 "Contact stiffness per sphere [N/m]";
-    parameter Real d = 0.5 "Hunt-Crossley damping [s/m]";
+    parameter Real centre[n, 3](each unit = "m") "Sphere centres in frame_a [m]";
+    parameter Real radius[n](each unit = "m") "Sphere radii [m]";
+    parameter Real k(unit = "N/m") = 1e5 "Contact stiffness per sphere [N/m]";
+    parameter Real d(unit = "s/m") = 0.5 "Hunt-Crossley damping [s/m]";
     parameter Real mu = 0.8 "Friction coefficient";
-    parameter Real eps = 1e-4 "Penetration smoothing [m]";
-    parameter Real v_eps = 0.01 "Friction regularization speed [m/s]";
-    input Real v0[3] "Velocity of the frame_a origin, world frame [m/s]";
+    parameter Real eps(unit = "m") = 1e-4 "Penetration smoothing [m]";
+    parameter Real v_eps(unit = "m/s") = 0.01 "Friction regularization speed [m/s]";
+    input Real v0[3](each unit = "m/s") "Velocity of the frame_a origin, world frame [m/s]";
     Interfaces.Frame_a frame_a;
     Forces.WorldForceAndTorque wrench(resolveInFrame = Types.ResolveInFrameB.world, animation = false);
-    Real f[3] "Total contact force, world frame [N]";
-    Real tau[3] "Total contact torque about the frame_a origin, world frame [N.m]";
-    Real fz "Total normal force [N]";
+    Real f[3](each unit = "N") "Total contact force, world frame [N]";
+    Real tau[3](each unit = "N.m") "Total contact torque about the frame_a origin, world frame [N.m]";
+    Real fz(unit = "N") "Total normal force [N]";
   equation
     connect(frame_a, wrench.frame_b);
     (f, tau) = groundWrench(frame_a.r_0, frame_a.R.T, frame_a.R.w, v0, centre, radius, k, d, mu, eps, v_eps);
@@ -38,19 +38,19 @@ package Contact "Smooth sphere contact against the ground plane z = 0 (world z u
   end GroundContactBody;
 
   function groundWrench "Contact force and torque of a body's spheres against the plane z = 0"
-    input Real r0[3] "frame_a origin, world [m]";
+    input Real r0[3](each unit = "m") "frame_a origin, world [m]";
     input Real T[3, 3] "World-to-frame_a rotation";
-    input Real w[3] "Angular velocity, resolved in frame_a [rad/s]";
-    input Real v0[3] "frame_a origin velocity, world [m/s]";
-    input Real centre[:, 3] "Sphere centres in frame_a [m]";
-    input Real radius[size(centre, 1)] "Sphere radii [m]";
-    input Real k;
-    input Real d;
+    input Real w[3](each unit = "rad/s") "Angular velocity, resolved in frame_a [rad/s]";
+    input Real v0[3](each unit = "m/s") "frame_a origin velocity, world [m/s]";
+    input Real centre[:, 3](each unit = "m") "Sphere centres in frame_a [m]";
+    input Real radius[size(centre, 1)](each unit = "m") "Sphere radii [m]";
+    input Real k(unit = "N/m");
+    input Real d(unit = "s/m");
     input Real mu;
-    input Real eps;
-    input Real v_eps;
-    output Real f[3] "Force, world [N]";
-    output Real tau[3] "Torque about r0, world [N.m]";
+    input Real eps(unit = "m");
+    input Real v_eps(unit = "m/s");
+    output Real f[3](each unit = "N") "Force, world [N]";
+    output Real tau[3](each unit = "N.m") "Torque about r0, world [N.m]";
   protected
     Real arm[3] "Sphere centre relative to r0, world [m]";
     Real lowest[3] "Lowest point of the sphere relative to r0, world [m]";

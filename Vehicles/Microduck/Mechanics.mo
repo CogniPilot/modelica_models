@@ -1,42 +1,42 @@
 within Vehicles.Microduck;
 package Mechanics "Drive, mass-property and rest-pose helpers for the Microduck assembly"
-  record MassProperties
-    Real m;
-    Real c[3];
-    Real I[3,3];
+  record MassProperties "Mass, centre of mass and inertia tensor of a body"
+    Real m(unit = "kg");
+    Real c[3](each unit = "m");
+    Real I[3,3](each unit = "kg.m2");
   end MassProperties;
   model Drive "Commanded shaft torque at a servo axis; the reflected rotor inertia is the joint armature"
     Modelica.Mechanics.Rotational.Interfaces.Flange_b flange;
-    input Real command;
-    Real velocity;
+    input Real command(unit = "N.m");
+    Real velocity(unit = "rad/s");
   equation
     velocity = der(flange.phi);
     flange.tau = -command;
   end Drive;
 
-  function tensor
-    input Real six[6] "xx,yy,zz,xy,xz,yz";
-    output Real value[3,3];
+  function tensor "Symmetric inertia tensor from its six components"
+    input Real six[6](each unit = "kg.m2") "xx,yy,zz,xy,xz,yz";
+    output Real value[3,3](each unit = "kg.m2");
   algorithm
     value := {{six[1],six[4],six[5]},{six[4],six[2],six[6]},{six[5],six[6],six[3]}};
   end tensor;
 
-  function parallelAxis
-    input Real mass;
-    input Real centre[3];
-    output Real value[3,3];
+  function parallelAxis "Inertia tensor of a point mass at an offset from the reference point (parallel-axis term)"
+    input Real mass(unit = "kg");
+    input Real centre[3](each unit = "m");
+    output Real value[3,3](each unit = "kg.m2");
   algorithm
     value := mass*((centre*centre)*identity(3)-{{centre[i]*centre[j] for j in 1:3} for i in 1:3});
   end parallelAxis;
 
   function splitHead "Remove the estimated closed jaw from the imported lumped head"
-    input Real totalMass;
-    input Real totalCentre[3];
-    input Real totalInertia[6];
-    input Real jawMass;
-    input Real jawCentreInHead[3];
+    input Real totalMass(unit = "kg");
+    input Real totalCentre[3](each unit = "m");
+    input Real totalInertia[6](each unit = "kg.m2");
+    input Real jawMass(unit = "kg");
+    input Real jawCentreInHead[3](each unit = "m");
     input Real jawToHead[3,3];
-    input Real jawInertia[3,3];
+    input Real jawInertia[3,3](each unit = "kg.m2");
     output MassProperties head;
   algorithm
     head.m := totalMass-jawMass;
@@ -54,9 +54,9 @@ package Mechanics "Drive, mass-property and rest-pose helpers for the Microduck 
   end splitHead;
 
   function scaleMass "Uniform segment scaling at fixed density"
-    input Real mass[:];
+    input Real mass[:](each unit = "kg");
     input Real scale[size(mass,1)];
-    output Real value[size(mass,1)];
+    output Real value[size(mass,1)](each unit = "kg");
   algorithm
     for i in 1:size(mass,1) loop
       assert(scale[i] > 0,"Physical scale must be positive");
@@ -64,10 +64,10 @@ package Mechanics "Drive, mass-property and rest-pose helpers for the Microduck 
     end for;
   end scaleMass;
 
-  function scaleInertia
-    input Real inertia[:,6];
+  function scaleInertia "Inertia components of each body scaled by the fifth power of its length scale"
+    input Real inertia[:,6](each unit = "kg.m2");
     input Real scale[size(inertia,1)];
-    output Real value[size(inertia,1),6];
+    output Real value[size(inertia,1),6](each unit = "kg.m2");
   algorithm
     for i in 1:size(inertia,1) loop
       for j in 1:6 loop
@@ -78,11 +78,11 @@ package Mechanics "Drive, mass-property and rest-pose helpers for the Microduck 
 
   function restTree "Parent-first FK; root origin and orientation are identity"
     input Integer parent[:];
-    input Real offset[size(parent,1),3];
+    input Real offset[size(parent,1),3](each unit = "m");
     input Real quaternion[size(parent,1),4];
     input Real axis[size(parent,1)-1,3];
-    input Real angle[size(parent,1)-1];
-    output Real position[size(parent,1),3];
+    input Real angle[size(parent,1)-1](each unit = "rad");
+    output Real position[size(parent,1),3](each unit = "m");
     output Real toWorld[size(parent,1),3,3];
   protected
     Integer p;
@@ -100,19 +100,19 @@ package Mechanics "Drive, mass-property and rest-pose helpers for the Microduck 
     end for;
   end restTree;
 
-  function initialHeight
+  function initialHeight "Root height at which the lowest sole corner sphere of the given pose is 1 mm above the ground"
     input Integer parent[:];
-    input Real offset[size(parent,1),3];
+    input Real offset[size(parent,1),3](each unit = "m");
     input Real quaternion[size(parent,1),4];
     input Real axis[size(parent,1)-1,3];
-    input Real angle[size(parent,1)-1];
+    input Real angle[size(parent,1)-1](each unit = "rad");
     input Integer footBodies[2];
-    input Real footOffsets[2,3];
+    input Real footOffsets[2,3](each unit = "m");
     input Real footQuaternions[2,4];
-    input Real halfLength;
-    input Real halfWidth;
-    input Real radius;
-    output Real height;
+    input Real halfLength(unit = "m");
+    input Real halfWidth(unit = "m");
+    input Real radius(unit = "m");
+    output Real height(unit = "m");
   protected
     Real p[size(parent,1),3];
     Real R[size(parent,1),3,3];

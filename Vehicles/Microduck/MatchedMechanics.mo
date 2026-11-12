@@ -20,7 +20,7 @@ package MatchedMechanics "Opt-in mechanical constraints for reference-model qual
     input Real parentInertia[6,6];
     input Real childInertia[6,6];
     input Real childFromParent[3,3] "Fixed parent-to-child rotation";
-    input Real childOffset[3] "Child origin in the parent frame";
+    input Real childOffset[3](each unit = "m") "Child origin in the parent frame";
     output Real combined[6,6];
   protected
     Real transform[6,6];
