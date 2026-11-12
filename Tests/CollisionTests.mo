@@ -422,6 +422,9 @@ package CollisionTests "Collision scene tables, the plane-sphere pair and the sh
     Collision.ContactPoint point4 "a's capsule against b's capsule";
     Collision.ContactPoint point5 "a's second sphere against b's capsule";
     parameter Collision.Material same=Collision.pairMaterial(mixed,mixed) "A material paired with itself";
+    parameter Collision.Material extreme(k=1e308,d=1e-310,mu=0.8,eps=1e-4,v_eps=0.01)
+      "A stiffness whose double is not a number of the machine, and a damping below the smallest normal number";
+    parameter Collision.Material extremeSame=Collision.pairMaterial(extreme,extreme) "That material paired with itself";
     Real f1[3](each unit="N"),f2[3](each unit="N"),f3[3](each unit="N"),f4[3](each unit="N"),f5[3](each unit="N")
       "Force of each pair on a";
     Real t1[3](each unit="N.m"),t2[3](each unit="N.m"),t3[3](each unit="N.m"),t4[3](each unit="N.m"),t5[3](each unit="N.m")
@@ -474,6 +477,12 @@ package CollisionTests "Collision scene tables, the plane-sphere pair and the sh
       r0A,TA,wA,v0A,kindA,rA,shapeTA,sizeA,ones(3),{1,2,3},k,d,mu,eps,v_eps,collides);
     assert(abs(same.k-mixed.k)<=0 and abs(same.d-mixed.d)<=0 and abs(same.mu-mixed.mu)<=0 and abs(same.eps-mixed.eps)<=0
       and abs(same.v_eps-mixed.v_eps)<=0,"Two shapes of one material have exactly that material");
+    assert(abs(extremeSame.k-extreme.k)<=0 and abs(extremeSame.d-extreme.d)<=0 and abs(extremeSame.eps-extreme.eps)<=0
+      and abs(extremeSame.v_eps-extreme.v_eps)<=0,"Two shapes of one material have exactly that material at the ends of the number range too");
+    assert(abs(Collision.midpoint(1e308,-1e308))<=0 and abs(Collision.midpoint(3e307,1e308)-6.5e307)<1e293
+      and abs(Collision.midpoint(1e308,3e307)-Collision.midpoint(3e307,1e308))<=0 and abs(Collision.midpoint(-2,-4)+3)<=0
+      and abs(Collision.midpoint(-1,3)-1)<=0,
+      "The mean of two numbers is finite for large numbers of either sign and the same in either order");
     scale=sqrt(f1*f1+f2*f2+f3*f3+f4*f4+f5*f5);
     for i in 1:3 loop
       assert(abs(fA[i]-f[i])<1e-9*scale and abs(tauA[i]-t[i])<1e-9*scale

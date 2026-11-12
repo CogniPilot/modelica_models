@@ -47,8 +47,8 @@ package Collision "Collision shapes, the scene tables and contact points between
   // planeSpheres owns the samples and planeSphere is the one geometry function of all the plane pairs.
   //
   // The material of a contact is pairMaterial of the materials of its two shapes: the mean of their
-  // law parameters and the larger friction coefficient, so two shapes of one material have exactly
-  // that material.
+  // law parameters and the larger friction coefficient. The mean is taken so that two shapes of one
+  // material have exactly that material, for every finite value.
   //
   // There are two consumers. sceneWrench (model BodyShapes) is the shapes of a body against the planes
   // of the world. bodiesWrench (model BodyPair) is the shapes of one body against the shapes of
@@ -160,16 +160,26 @@ package Collision "Collision shapes, the scene tables and contact points between
     material := Material(k = k[row], d = d[row], mu = mu[row], eps = eps[row], v_eps = v_eps[row]);
   end materialRow;
 
+  function midpoint "Mean of two numbers: exactly x for two equal numbers x, the same in either order, and finite for finite numbers"
+    input Real x "One number";
+    input Real y "The other number";
+    output Real m "Their mean";
+  algorithm
+    // Numbers of one sign: half their difference added to the smaller, which cannot overflow and adds
+    // exactly zero to equal numbers. Numbers of opposite signs: half their sum, which cannot overflow.
+    m := if (x < 0) == (y < 0) then min(x, y) + (max(x, y) - min(x, y)) / 2 else (x + y) / 2;
+  end midpoint;
+
   function pairMaterial "Material of a contact between a shape of material a and a shape of material b"
     input Material a "Material of one shape";
     input Material b "Material of the other shape";
     output Material pair "Mean of the law parameters, larger friction coefficient";
   algorithm
     // The rule MuJoCo applies by default to two geometries of equal priority: parameters mixed with
-    // equal weights, friction the larger of the two. (x + x) / 2 is x, so two shapes of one material
-    // keep exactly that material.
-    pair := Material(k = (a.k + b.k) / 2, d = (a.d + b.d) / 2, mu = max(a.mu, b.mu), eps = (a.eps + b.eps) / 2,
-      v_eps = (a.v_eps + b.v_eps) / 2);
+    // equal weights, friction the larger of the two. Two shapes of one material keep exactly that
+    // material, whatever its values (midpoint).
+    pair := Material(k = midpoint(a.k, b.k), d = midpoint(a.d, b.d), mu = max(a.mu, b.mu), eps = midpoint(a.eps, b.eps),
+      v_eps = midpoint(a.v_eps, b.v_eps));
   end pairMaterial;
 
   function planeSphere "Contact point of a sphere (shape a) with a plane fixed in the world (shape b): one point"
