@@ -237,6 +237,59 @@ package CollisionTests "Collision scene tables, the plane-sphere pair and the sh
     assert(abs(spheresFlipped.gap-spheres.gap)<1e-12,"The gap does not depend on the order of the shapes");
   end SpherePairs;
 
+  model CapsulePairs "Two capsules crossing, end to side, end to end and lying along each other: analytic gaps, normals and witness points"
+    import MultiBodyLie.Collision;
+    parameter Real originA[3](each unit="m")={1024,-2048,512} "Frame of capsule a, far from the world origin";
+    parameter Real offset[3](each unit="m")={0.25,0.125,-0.1875}
+      "From a's frame to b's frame; binary fractions, so originA+offset rounds nothing";
+    parameter Real centreA[3](each unit="m")={0.01,0.02,-0.01} "Middle of a's segment in its frame, world axes";
+    parameter Real halfA(unit="m")=0.1;
+    parameter Real radiusA(unit="m")=0.02;
+    parameter Real halfB(unit="m")=0.08;
+    parameter Real radiusB(unit="m")=0.03;
+    parameter Real x[3]={1,0,0};
+    parameter Real z[3]={0,0,1};
+    parameter Real slant[3]={0.6,0.8,0} "A unit vector in the horizontal plane, neither along nor across x";
+    Real originB[3](each unit="m");
+    Real L(unit="m") "Distance of the nearest points: separated, touching, then overlapping";
+    Collision.ContactPoint crossing "a along x over b along the slant: both nearest points inside the segments";
+    Collision.ContactPoint crossingFlipped "The same pair with the capsules exchanged";
+    Collision.ContactPoint endToSide "a upright over b: a's lower end against b's side";
+    Collision.ContactPoint endToEnd "a and b in one line: facing ends";
+    Collision.ContactPoint along "a over b, both along x, overlapping";
+  equation
+    originB=originA+offset;
+    L=0.08-0.2*time;
+    // b's middle is placed so that the nearest points are at 0.015 m on a and -0.025 m on b.
+    crossing=Collision.capsuleCapsule(originA,centreA,x,halfA,radiusA,originB,centreA+{0.03,0.02,-L}-offset,slant,halfB,radiusB);
+    crossingFlipped=Collision.capsuleCapsule(originB,centreA+{0.03,0.02,-L}-offset,slant,halfB,radiusB,originA,centreA,x,halfA,radiusA);
+    endToSide=Collision.capsuleCapsule(originA,centreA,z,halfA,radiusA,originB,centreA+{0,-0.01,-(halfA+L)}-offset,{0,1,0},halfB,radiusB);
+    endToEnd=Collision.capsuleCapsule(originA,centreA,x,halfA,radiusA,originB,centreA+{halfA+halfB+L,0,0}-offset,x,halfB,radiusB);
+    along=Collision.capsuleCapsule(originA,centreA,x,halfA,radiusA,originB,centreA+{0.05,0,-L}-offset,x,halfB,radiusB);
+    assert(abs(crossing.gap-(L-radiusA-radiusB))<1e-12,"Crossing capsules are apart by the distance of their axes less the radii");
+    assert(abs(endToSide.gap-(L-radiusA-radiusB))<1e-12,"A capsule end over another capsule's side is apart by its height less the radii");
+    assert(abs(endToEnd.gap-(L-radiusA-radiusB))<1e-12,"Capsules in one line are apart by the distance of their facing ends less the radii");
+    assert(abs(along.gap-(L-radiusA-radiusB))<1e-12,"Capsules lying along each other are apart by the distance of their axes less the radii");
+    assert(abs(crossingFlipped.gap-crossing.gap)<1e-12,"The gap does not depend on the order of the capsules");
+    for i in 1:3 loop
+      assert(abs(crossing.n[i]-z[i])<1e-12 and abs(endToSide.n[i]-z[i])<1e-12 and abs(along.n[i]-z[i])<1e-12,
+        "The normal of a capsule over another runs up from b to a");
+      assert(abs(endToEnd.n[i]+x[i])<1e-12,"The normal of capsules in one line runs along the line from b to a");
+      // The nearest points themselves: on a at 0.015 m along x, its lower end, its end towards b, and its middle.
+      assert(abs(crossing.armA[i]-(centreA[i]+0.015*x[i]-radiusA*z[i]))<1e-12,"crossing: witness point on a");
+      assert(abs(endToSide.armA[i]-(centreA[i]-(halfA+radiusA)*z[i]))<1e-12,"end to side: witness point on a");
+      assert(abs(endToEnd.armA[i]-(centreA[i]+(halfA+radiusA)*x[i]))<1e-12,"end to end: witness point on a");
+      assert(abs(along.armA[i]-(centreA[i]-radiusA*z[i]))<1e-12,"along: witness point on a is under its middle");
+      // The two witness points are apart by the gap along the normal.
+      assert(abs(crossing.armA[i]-crossing.armB[i]-offset[i]-crossing.gap*crossing.n[i])<1e-12,"crossing: witness points");
+      assert(abs(endToSide.armA[i]-endToSide.armB[i]-offset[i]-endToSide.gap*endToSide.n[i])<1e-12,"end to side: witness points");
+      assert(abs(endToEnd.armA[i]-endToEnd.armB[i]-offset[i]-endToEnd.gap*endToEnd.n[i])<1e-12,"end to end: witness points");
+      assert(abs(along.armA[i]-along.armB[i]-offset[i]-along.gap*along.n[i])<1e-12,"along: witness points");
+      assert(abs(crossingFlipped.n[i]+crossing.n[i])<1e-12 and abs(crossingFlipped.armA[i]-crossing.armB[i])<1e-12
+        and abs(crossingFlipped.armB[i]-crossing.armA[i])<1e-12,"The pair with its capsules exchanged is the flipped point");
+    end for;
+  end CapsulePairs;
+
   model SceneTables "A scene's default tables are the ground plane, one material and one group"
     import MultiBodyLie.Collision;
     Collision.Scene scene;
@@ -249,12 +302,13 @@ package CollisionTests "Collision scene tables, the plane-sphere pair and the sh
       "The pair table gives one point for plane-sphere, eight for plane-box and marks box-box as unsupported");
   end SceneTables;
 
-  model Suite "Plane pairs and the scene tables against the ground wrench; sphere pairs against analytic cases; a falling body on both contact models"
+  model Suite "Plane pairs and the scene tables against the ground wrench; sphere and capsule pairs against analytic cases; a falling body on both contact models"
     PlaneSphereAgainstGroundWrench planeSphere;
     SoleAgainstGroundWrench sole;
     CapsuleAndBoxAgainstGroundWrench capsuleAndBox;
     FallingBodies falling;
     SpherePairs spherePairs;
+    CapsulePairs capsulePairs;
     SceneTables tables;
     annotation(experiment(StartTime=0,StopTime=0.2,Interval=0.002,Tolerance=1e-8));
   end Suite;

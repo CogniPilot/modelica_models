@@ -14,10 +14,11 @@ package Collision "Collision shapes, the scene tables and contact points between
   // contact points; a pair the table marks with zero is outside the library. Of the seven pairs with a
   // positive entry, the three plane pairs (plane against sphere, capsule and box) have their geometry
   // here. The other four (sphere against sphere, capsule and box, and capsule against capsule) are
-  // not complete: sphereSphere, sphereCapsule and sphereBox give the geometry of three of them (flipped
-  // exchanges the two shapes), pairWrenches turns a point between two bodies into a balanced pair of
-  // wrenches, and capsule against capsule is not written yet. No model applies these to two bodies yet;
-  // sceneWrench refuses every pair it cannot compute by an assertion.
+  // not complete: sphereSphere, sphereCapsule, sphereBox and capsuleCapsule give their geometry (flipped
+  // exchanges the two shapes) and pairWrenches turns a point between two bodies into a balanced pair of
+  // wrenches. capsuleCapsule returns one point, the nearest points of the two segments; the second
+  // point the table allows, for capsules lying along each other, is not written. No model applies
+  // these to two bodies yet; sceneWrench refuses every pair it cannot compute by an assertion.
   //
   // The geometry functions are plain functions of the current poses. Branches inside a function create
   // no events, so geometry never stops the integrator. A contact becomes active through the clamp in
@@ -278,6 +279,40 @@ package Collision "Collision shapes, the scene tables and contact points between
         armB = centreB + transpose(TB) * (p + (abs(face) * clear) * face));
     end if;
   end sphereBox;
+
+  function capsuleCapsule "Contact point of a capsule (shape a) with a capsule (shape b): the nearest points of their segments"
+    input Real originA[3](each unit = "m") "Origin of the frame that owns a, world frame";
+    input Real centreA[3](each unit = "m") "Middle of a's segment relative to that origin, resolved in the world frame";
+    input Real axisA[3] "Unit vector along a's segment, world frame";
+    input Real halfLengthA(unit = "m") "Half length of a's segment";
+    input Real radiusA(unit = "m") "Radius of a";
+    input Real originB[3](each unit = "m") "Origin of the frame that owns b, world frame";
+    input Real centreB[3](each unit = "m") "Middle of b's segment relative to that origin, resolved in the world frame";
+    input Real axisB[3] "Unit vector along b's segment, world frame";
+    input Real halfLengthB(unit = "m") "Half length of b's segment";
+    input Real radiusB(unit = "m") "Radius of b";
+    output ContactPoint point "The spheres of the two capsules at the nearest points of their segments";
+  protected
+    Real r[3](each unit = "m") "From the middle of b's segment to the middle of a's";
+    Real b "Cosine of the angle between the segments";
+    Real c(unit = "m") "r along a's axis";
+    Real f(unit = "m") "r along b's axis";
+    Real s(unit = "m") "Position on a's segment of its nearest point";
+    Real t(unit = "m") "Position on b's segment of its nearest point";
+  algorithm
+    r := (originA - originB) + (centreA - centreB);
+    b := axisA * axisB;
+    c := axisA * r;
+    f := axisB * r;
+    // The squared distance of the points at s and t is convex in (s, t) on the rectangle of the two
+    // segments: take the free minimum along a, clamp it, take the best t for it, then the best s for
+    // that t. Parallel segments have no free minimum; they start from the middle of a, so of the
+    // nearest pairs they have in common the one nearest that middle is returned.
+    s := if 1 - b * b > 1e-12 then min(max((b * f - c) / (1 - b * b), -halfLengthA), halfLengthA) else 0;
+    t := min(max(f + b * s, -halfLengthB), halfLengthB);
+    s := min(max(b * t - c, -halfLengthA), halfLengthA);
+    point := sphereSphere(originA, centreA + s * axisA, radiusA, originB, centreB + t * axisB, radiusB);
+  end capsuleCapsule;
 
   function pairWrenches "The balanced wrenches of one contact point on the two frames that own its shapes"
     input ContactPoint point "A contact point of a shape a with a shape b";
