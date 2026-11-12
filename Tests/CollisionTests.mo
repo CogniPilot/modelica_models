@@ -180,7 +180,7 @@ package CollisionTests "Collision scene tables, the plane-sphere pair and the sh
     parameter Real vB[3](each unit="m/s")={-0.02,0.01,0.06};
     parameter Real wB[3](each unit="rad/s")={-0.3,0.9,0.2};
     Real originB[3](each unit="m") "Frame of the other shape";
-    Real L(unit="m") "Distance that shrinks with time: separated, touching, then overlapping";
+    Real L(unit="m") "Distance that shrinks with time and stays positive: separated, touching, then overlapping";
     Collision.ContactPoint spheres "Sphere a against sphere b";
     Collision.ContactPoint spheresFlipped "Sphere b against sphere a";
     Collision.ContactPoint beside "Sphere beside the capsule's segment";
@@ -195,7 +195,8 @@ package CollisionTests "Collision scene tables, the plane-sphere pair and the sh
     Real moment[3](each unit="N.m") "Total moment of the pair about the origin of a's frame";
   equation
     originB=originA+offset;
-    L=0.08-0.2*time;
+    // From 0.08 m towards 0.04 m: the gap L - 0.05 passes zero near 0.14 s, and L stays positive at every time.
+    L=0.04+0.04*exp(-10*time);
     spheres=Collision.sphereSphere(originA,centreA,radiusA,originB,centreA+L*dir-offset,radiusB);
     spheresFlipped=Collision.sphereSphere(originB,centreA+L*dir-offset,radiusB,originA,centreA,radiusA);
     // The capsule's middle is placed so that the sphere centre is at 0.02 m, then 0.09 m, along its axis and L across it.
@@ -259,7 +260,8 @@ package CollisionTests "Collision scene tables, the plane-sphere pair and the sh
     Collision.ContactPoint along "a over b, both along x, overlapping";
   equation
     originB=originA+offset;
-    L=0.08-0.2*time;
+    // From 0.08 m towards 0.04 m: the gap L - 0.05 passes zero near 0.14 s, and L stays positive at every time.
+    L=0.04+0.04*exp(-10*time);
     // b's middle is placed so that the nearest points are at 0.015 m on a and -0.025 m on b.
     crossing=Collision.capsuleCapsule(originA,centreA,x,halfA,radiusA,originB,centreA+{0.03,0.02,-L}-offset,slant,halfB,radiusB);
     crossingFlipped=Collision.capsuleCapsule(originB,centreA+{0.03,0.02,-L}-offset,slant,halfB,radiusB,originA,centreA,x,halfA,radiusA);
