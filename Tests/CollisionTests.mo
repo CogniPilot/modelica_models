@@ -187,6 +187,10 @@ package CollisionTests "Collision scene tables, the plane-sphere pair and the sh
     Collision.ContactPoint beyond "Sphere beyond the end of the capsule's segment";
     Collision.ContactPoint onFace "Sphere over a face of the box";
     Collision.ContactPoint onCorner "Sphere off a corner of the box";
+    Collision.ContactPoint edge "Centre outside the +x and -y faces";
+    Collision.ContactPoint tied "Centre on both +x and +y faces";
+    parameter Real tiny(unit="m")=1e-200 "Scale at which a squared offset underflows";
+    Collision.ContactPoint tinyEdge "The same edge normal at a very small scale";
     Collision.ContactPoint inside "Sphere centre inside the box, nearest its +x face";
     Real fA[3](each unit="N");
     Real tauA[3](each unit="N.m");
@@ -203,6 +207,17 @@ package CollisionTests "Collision scene tables, the plane-sphere pair and the sh
     beside=Collision.sphereCapsule(originA,centreA,radiusA,originB,centreA-0.02*axis-L*side-offset,axis,halfLength,radiusB);
     beyond=Collision.sphereCapsule(originA,centreA,radiusA,originB,centreA-0.09*axis-L*side-offset,axis,halfLength,radiusB);
     // The box's centre is placed so that the sphere centre is at the given point of the box frame.
+    edge=Collision.sphereBox({0.625,-0.75,0.25},zeros(3),radiusA,zeros(3),zeros(3),identity(3),fill(0.5,3));
+    tied=Collision.sphereBox({0.5,0.5,0.25},zeros(3),radiusA,zeros(3),zeros(3),identity(3),fill(0.5,3));
+    tinyEdge=Collision.sphereBox(tiny*{2,-3,0},zeros(3),tiny,zeros(3),zeros(3),identity(3),fill(tiny,3));
+    assert(abs(tinyEdge.gap/tiny+1-sqrt(5.0))<1e-12 and max(abs(tinyEdge.n-{1,-2,0}/sqrt(5.0)))<1e-12 and
+      max(abs(tinyEdge.armA/tiny+tinyEdge.n))<1e-12 and max(abs(tinyEdge.armB/tiny-{1,-1,0}))<1e-12,
+      "Scaling the box cannot erase an edge normal");
+    assert(abs(edge.gap + radiusA - sqrt(5.0)/8)<1e-12 and
+      max(abs(edge.n-{1,-2,0}/sqrt(5.0)))<1e-12 and max(abs(edge.armB-{0.5,-0.5,0.25}))<1e-12,
+      "Edge contact uses the nearest point on the edge");
+    assert(abs(tied.gap+radiusA)<1e-12 and max(abs(tied.n-{1,0,0}))<1e-12 and
+      max(abs(tied.armB-{0.5,0.5,0.25}))<1e-12,"At a tied surface point the lower face axis wins");
     onFace=Collision.sphereBox(originA,centreA,radiusA,originB,centreA-transpose(TB)*{halfB[1]+L,0.01,0.005}-offset,TB,halfB);
     onCorner=Collision.sphereBox(originA,centreA,radiusA,originB,
       centreA-transpose(TB)*{halfB[1]+L,halfB[2]+2*L,halfB[3]+2*L}-offset,TB,halfB);

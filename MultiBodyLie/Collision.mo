@@ -331,35 +331,46 @@ package Collision "Collision shapes, the scene tables and contact points between
     Real p[3](each unit = "m") "Centre of a relative to the centre of the box, box frame";
     Real q[3](each unit = "m") "The point of the box nearest the centre of a, box frame";
     Real d[3](each unit = "m") "From that point to the centre of a, box frame";
-    Real distance(unit = "m") "Its length";
-    Real clear[3](each unit = "m") "Distance from the centre of a to the two faces across each axis, when it is inside";
-    Real face[3] "Outward unit normal, box frame, of the face an inside centre is nearest to";
+    Real distance(unit = "m") "Signed distance from the sphere centre to the box surface";
+    Real clear[3](each unit = "m") "Signed inward clearance to the nearer face on each axis";
+    Real deltaScale(unit = "m") "Largest outside offset at an edge or corner";
+    Real scaled[3] "Outside offset scaled before taking its norm";
+    Real lengthScaled;
+    Integer axis "Nearest face axis; the lower index wins ties";
+    Real side "Sign of the selected outward face normal";
     Real n[3] "Unit normal from the box towards a, world frame";
   algorithm
     p := TB * ((originA - originB) + (centreA - centreB));
-    q := {min(max(p[i], -halfB[i]), halfB[i]) for i in 1:3};
-    d := p - q;
-    distance := sqrt(d * d);
-    if distance > 0 then
-      // The centre is outside the box.
-      n := transpose(TB) * (d / distance);
-      point := ContactPoint(gap = distance - radiusA, n = n, armA = centreA - radiusA * n,
-        armB = centreB + transpose(TB) * q);
-    else
-      // The centre is inside the box and leaves it through the nearest face; among equally near faces
-      // the lower axis wins. The normal jumps where the nearest face changes, deep inside the box.
-      clear := {halfB[i] - abs(p[i]) for i in 1:3};
-      if clear[1] <= clear[2] and clear[1] <= clear[3] then
-        face := {if p[1] < 0 then -1 else 1, 0, 0};
-      elseif clear[2] <= clear[3] then
-        face := {0, if p[2] < 0 then -1 else 1, 0};
+    clear := {halfB[i] - abs(p[i]) for i in 1:3};
+    if (clear[1] < 0 and clear[2] < 0) or (clear[1] < 0 and clear[3] < 0) or
+        (clear[2] < 0 and clear[3] < 0) then
+      // The nearest feature is an edge or corner.
+      q := {min(max(p[i], -halfB[i]), halfB[i]) for i in 1:3};
+      d := p - q;
+      deltaScale := max(abs(d));
+      if deltaScale > sqrt(Modelica.Constants.small) and deltaScale < sqrt(Modelica.Constants.inf/3) then
+        distance := sqrt(d * d);
+        n := transpose(TB) * (d / distance);
       else
-        face := {0, 0, if p[3] < 0 then -1 else 1};
+        // Rescale extremes so squaring a finite nonzero offset cannot lose the normal.
+        scaled := d / deltaScale;
+        lengthScaled := sqrt(scaled * scaled);
+        distance := deltaScale * lengthScaled;
+        n := transpose(TB) * (scaled / lengthScaled);
       end if;
-      n := transpose(TB) * face;
-      point := ContactPoint(gap = -(abs(face) * clear) - radiusA, n = n, armA = centreA - radiusA * n,
-        armB = centreB + transpose(TB) * (p + (abs(face) * clear) * face));
+    else
+      // Inside the box or outside a single face, the signed distance and normal
+      // follow directly from the face plane, including a centre on the surface.
+      axis := if clear[1] <= clear[2] and clear[1] <= clear[3] then 1
+        elseif clear[2] <= clear[3] then 2 else 3;
+      side := if p[axis] < 0 then -1 else 1;
+      distance := -clear[axis];
+      n := side * TB[axis, :];
+      q := p;
+      q[axis] := side * halfB[axis];
     end if;
+    point := ContactPoint(gap = distance - radiusA, n = n, armA = centreA - radiusA * n,
+      armB = centreB + transpose(TB) * q);
   end sphereBox;
 
   function capsuleCapsule "Contact point of a capsule (shape a) with a capsule (shape b): the nearest points of their segments"
