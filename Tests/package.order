@@ -71,3 +71,4 @@ RevoluteArmatureTests
 MultiBodyLieTests
 MicroduckTests
 CollisionTests
+MeshContactTests

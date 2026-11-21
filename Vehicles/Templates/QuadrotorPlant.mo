@@ -37,6 +37,11 @@ model QuadrotorPlant
   parameter Real Cm_q = -0.2 "Pitching moment coefficient per pitch rate";
   parameter Real Cn_r = -0.1 "Yawing moment coefficient per yaw rate";
   parameter Real S = 0.1 "Reference area [m^2]";
+  output Real drag_b[3] "Body drag force [N]";
+  Real exposedFraction=1;
+  Real contactMomentWorld[3]=zeros(3);
+  Real fluidForceWorld[3]=zeros(3);
+  Real windWorld[3] = zeros(3) "Ambient wind velocity ENU [m/s]";
   parameter Real CdA[3] = {0.06, 0.08, 0.12} "Body-axis drag area [m^2]";
   parameter Real linear_drag[3] = {0.12, 0.12, 0.18} "Low-speed body-axis drag [N/(m/s)]";
   parameter Real rho = 1.225 "Air density [kg/m^3]";
@@ -112,7 +117,7 @@ protected
   Real M_rotor[3] "Rotor moment in body FLU [N*m]";
   Real M_rate[3] "Rate damping moment in body FLU [N*m]";
   Real V "Airspeed magnitude [m/s]";
-  Real drag_b[3] "Body drag force [N]";
+  Real airVelocity_b[3] "Vehicle velocity relative to air in FLU [m/s]";
   Real leg_h_w[4] "Landing contact world Z positions [m]";
   parameter Real leg_r_b[3, 4] = [
     leg_x, -leg_x, leg_x, -leg_x;
@@ -132,8 +137,9 @@ equation
   F_m = motor.thrust;
   T = F_m[1] + F_m[2] + F_m[3] + F_m[4];
 
-  V = sqrt(v_b[1] * v_b[1] + v_b[2] * v_b[2] + v_b[3] * v_b[3] + 1e-12);
-  drag_b = -0.5 * rho * V * (CdA .* v_b) - linear_drag .* v_b;
+  airVelocity_b = v_b - transpose(R)*windWorld;
+  V = sqrt(airVelocity_b*airVelocity_b + 1e-12);
+  drag_b = -0.5*rho*V*(CdA .* airVelocity_b) - linear_drag .* airVelocity_b;
 
   M_rotor = motor_moment_map * F_m;
   M_rate = rate_damping .* omega;
@@ -156,8 +162,8 @@ equation
   F_ground_b = leg_f_b * {1, 1, 1, 1};
   M_ground_b = leg_m_b * {1, 1, 1, 1};
 
-  M_b = M_rotor + M_rate + M_ground_b;
-  F_b = F_ground_b + drag_b + {0, 0, T};
+  M_b = M_rotor + M_rate + M_ground_b + transpose(R)*contactMomentWorld;
+  F_b = F_ground_b + exposedFraction*drag_b + transpose(R)*fluidForceWorld + {0, 0, T};
 
   accel = a_b;
   gyro = omega;
