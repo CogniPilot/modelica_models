@@ -473,7 +473,6 @@ package SymmetricMatrix "Symmetric n x n matrices stored as their packed upper t
     Real TP[size(T, 1), size(T, 2)];
     Boolean denseRow[size(T, 1)];
     Real covariance[size(T, 2), size(T, 2)];
-    Integer outputIndex;
     Real value;
   algorithm
     q := zeros(div(size(T, 1) * (size(T, 1) + 1), 2));
@@ -496,7 +495,6 @@ package SymmetricMatrix "Symmetric n x n matrices stored as their packed upper t
         end for;
       end if;
     end for;
-    outputIndex := 0;
     for i in 1:size(T, 1) loop
       for j in i:size(T, 1) loop
         value := 0.0;
@@ -509,8 +507,7 @@ package SymmetricMatrix "Symmetric n x n matrices stored as their packed upper t
             end if;
           end for;
         end if;
-        outputIndex := outputIndex + 1;
-        q[outputIndex] := value;
+        q[index(i, j, size(T, 1))] := value;
       end for;
     end for;
   end transform;
