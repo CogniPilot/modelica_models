@@ -51,6 +51,7 @@ jobs:
             LieGroups \
             LinearAlgebra \
             MathUtilities \
+            Meshing \
             Planning \
             Polynomials \
             RigidBody \
@@ -90,6 +91,7 @@ jobs:
           - LieGroups
           - LinearAlgebra
           - MathUtilities
+          - Meshing
           - Planning
           - Polynomials
           - RigidBody

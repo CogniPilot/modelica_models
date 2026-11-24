@@ -74,3 +74,4 @@ MicroduckTests
 CollisionTests
 MeshContactTests
 MarinePhysicsTests
+MeshingTests

@@ -1,0 +1,81 @@
+within Tests;
+model MeshingTests "Verify conforming refinement, body patch extraction and wall-layer volume conservation"
+  function check
+    output Boolean passed;
+  protected
+    Real points[8,3]={{1,1,1},{2,1,1},{2,2,1},{1,2,1},{1,1,2},{2,1,2},{2,2,2},{1,2,2}};
+    Integer faces[12,3]={{1,3,2},{1,4,3},{5,6,7},{5,7,8},{1,2,6},{1,6,5},{2,3,7},{2,7,6},{3,4,8},{3,8,7},{4,1,5},{4,5,8}};
+    Real triangles[12,3,3],v[:];
+    Meshing.PolyMesh m,moved;
+    Real sections[3,3,4,3],angle;
+    Real swept[:],change[:],vEnd[:];
+    Integer walls=0,base;
+    Boolean crease[12];
+  algorithm
+    for i in 1:12 loop
+      for j in 1:3 loop
+        triangles[i,j,:]:=points[faces[i,j],:];
+      end for;
+    end for;
+    crease:=Meshing.surfaceFeatureFaces(triangles,Modelica.Constants.pi/4);
+    assert(sum(if value then 1 else 0 for value in crease)==12,"Each cube triangle borders a crease");
+    crease:=Meshing.surfaceFeatureFaces(triangles,0.51*Modelica.Constants.pi);
+    assert(sum(if value then 1 else 0 for value in crease)==0,"Coplanar and right-angle edges lie below this cutoff");
+    m:=Meshing.generate({0,0,0},{4,4,4},{8,8,8},1,triangles,0);
+    v:=Meshing.cellVolumes(m);
+    assert(abs(sum(v)-63)<1e-8 and min(v)>0,"Refinement changed the unit cube volume");
+    for f in 1:m.nFaces loop
+      if m.patch[f]==7 then
+        walls:=walls+1;
+      end if;
+    end for;
+    assert(walls==96 and max(v)>7.9*min(v),"Incorrect body patch or refinement");
+    base:=m.nCells;
+    m:=Meshing.addWallLayers(m,2,0.04,1.25);
+    v:=Meshing.cellVolumes(m);
+    assert(m.nCells==base+2*walls and abs(sum(v)-63)<1e-8,"Layer topology failed to conserve volume");
+    m:=Meshing.generate({0,0,0},{4,4,4},{4,4,4},1,fill(0.0,0,3,3),0,
+      {{{1.5,1.5,1.5},{2.5,2.5,2.5}}},{1});
+    v:=Meshing.cellVolumes(m);
+    assert(m.nCells>64 and m.nCells<512 and abs(sum(v)-64)<1e-8,
+      "Volume refinement should preserve volume and leave coarse cells outside the region");
+    // A nonuniform bending displacement warps the faces as well as translating them.
+    moved:=m;
+    for i in 1:m.nPoints loop
+      moved.points[i,1]:=m.points[i,1]+0.2;
+      moved.points[i,3]:=m.points[i,3]+0.02*m.points[i,1]*m.points[i,2]*(1+m.points[i,3]);
+    end for;
+    swept:=Meshing.faceSweptVolumes(m,moved.points);
+    change:=zeros(m.nCells);
+    for f in 1:m.nFaces loop
+      change[m.owner[f]]:=change[m.owner[f]]+swept[f];
+      if m.neighbour[f]>0 then
+        change[m.neighbour[f]]:=change[m.neighbour[f]]-swept[f];
+      end if;
+    end for;
+    vEnd:=Meshing.cellVolumes(moved);
+    assert(max(abs(vEnd-v-change))<1e-10 and max(abs(change))>0.001,
+      "Swept faces must recover each cell's volume change under bending");
+    for k in 1:4 loop
+      angle:=(k-1)*0.08;
+      for j in 1:3 loop
+        for i in 1:3 loop
+          sections[i,j,k,:]:={(i-1)*cos(angle)-(j-1)*sin(angle),
+            (i-1)*sin(angle)+(j-1)*cos(angle),0.5*(k-1)};
+        end for;
+      end for;
+    end for;
+    m:=Meshing.loftHexMesh(sections);
+    v:=Meshing.cellVolumes(m);
+    assert(m.nCells==12 and m.nPoints==36 and min(v)>0.49 and max(v)<0.51,
+      "Twisted section loft must keep the prescribed block topology and spacing");
+    m:=Meshing.fromTetrahedra({{0,0,0},{1,0,0},{0,1,0},{0,0,1},{0,0,-1}},
+      {{1,2,3,4},{1,2,3,5}},{{1,1,1,0},{2,2,2,0}});
+    v:=Meshing.cellVolumes(m);
+    assert(m.nFaces==7 and sum(m.neighbour)==2 and max(abs(v-fill(1/6,2)))<1e-12 and sum(m.patch)==9,
+      "Imported tetrahedra must share one face and retain external patch IDs and volumes");
+    passed:=true;
+  end check;
+initial algorithm
+  assert(check(),"Volume meshing regression");
+end MeshingTests;
