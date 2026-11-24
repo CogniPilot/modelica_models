@@ -51,6 +51,18 @@ model PackedLinearAlgebraTests "Packed symmetric and triangular storage, solves 
       LinearAlgebra.SymmetricMatrix.crossSum(B, 0.5 * B)) - B * transpose(B)) < tolerance, "Packed symmetric cross sum failed");
     assert(Tests.Assertions.maxAbsMatrix(LinearAlgebra.SymmetricMatrix.unpack(2,
       LinearAlgebra.SymmetricMatrix.gram(B)) - transpose(B) * B) < tolerance, "Packed Gram matrix failed");
+    // Zero, single-coordinate, and noncontiguous multi-coordinate observations.
+    // The small coefficient is real information and must survive sparse dispatch.
+    B := {{if j == 1 and mod(i, 2) == 1 then -0.75
+      elseif j == 2 and i == n and n > 1 then 1.0e-12 else 0.0
+      for j in 1:2} for i in 1:n};
+    assert(max(abs(LinearAlgebra.SymmetricMatrix.mulMatrix(p, B) - A * B)) < 1.0e-13,
+      "Sparse measurement cross covariance differs from dense P*H'");
+    transformed := LinearAlgebra.SymmetricMatrix.transform(transpose(B), p);
+    assert(max(abs(LinearAlgebra.SymmetricMatrix.unpack(2, transformed) - transpose(B) * A * B)) < tolerance,
+      "Sparse innovation covariance differs from dense H*P*H'");
+    assert(abs(transformed[3] - B[n, 2]^2 * A[n, n]) < 1.0e-30,
+      "Small observation coefficient lost in packed covariance transform");
     passed := true;
   end runSizeCase;
   model SizeCase

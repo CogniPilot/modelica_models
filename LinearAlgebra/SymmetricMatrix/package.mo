@@ -104,11 +104,14 @@ package SymmetricMatrix "Symmetric n x n matrices stored as their packed upper t
   algorithm
     assert(size(p, 1) == packedSize(size(B, 1)), "SymmetricMatrix: packed length does not match n");
     Y := zeros(size(B, 1), size(B, 2));
-    for i in 1:size(B, 1) loop
-      for j in 1:size(B, 2) loop
-        for k in 1:size(B, 1) loop
-          Y[i, j] := Y[i, j] + p[index(i, k, size(B, 1))] * B[k, j];
-        end for;
+    // A sparse observation row becomes a sparse right-hand column in P*H'.
+    for j in 1:size(B, 2) loop
+      for k in 1:size(B, 1) loop
+        if B[k, j] <> 0.0 then
+          for i in 1:size(B, 1) loop
+            Y[i, j] := Y[i, j] + p[index(i, k, size(B, 1))] * B[k, j];
+          end for;
+        end if;
       end for;
     end for;
   end mulMatrix;
@@ -468,24 +471,50 @@ package SymmetricMatrix "Symmetric n x n matrices stored as their packed upper t
     output Real q[div(size(T, 1) * (size(T, 1) + 1), 2)];
   protected
     Real TP[size(T, 1), size(T, 2)];
+    Integer active[size(T, 1), size(T, 2)] "Nonzero columns of each map row";
+    Integer count[size(T, 1)];
+    Real covariance[size(T, 2), size(T, 2)];
+    Integer k;
+    Integer outputIndex;
     Real value;
   algorithm
     q := zeros(div(size(T, 1) * (size(T, 1) + 1), 2));
     TP := zeros(size(T, 1), size(T, 2));
+    active := fill(0, size(T, 1), size(T, 2));
+    count := fill(0, size(T, 1));
+    covariance := unpack(size(T, 2), p);
     for i in 1:size(T, 1) loop
-      for j in 1:size(T, 2) loop
-        for k in 1:size(T, 2) loop
-          TP[i, j] := TP[i, j] + T[i, k] * p[index(k, j, size(T, 2))];
-        end for;
+      for col in 1:size(T, 2) loop
+        if T[i, col] <> 0.0 then
+          count[i] := count[i] + 1;
+          active[i, count[i]] := col;
+        end if;
       end for;
+      if count[i] == size(T, 2) then
+        TP[i, :] := T[i, :] * covariance;
+      else
+        for entry in 1:count[i] loop
+          k := active[i, entry];
+          for j in 1:size(T, 2) loop
+            TP[i, j] := TP[i, j] + T[i, k] * covariance[k, j];
+          end for;
+        end for;
+      end if;
     end for;
+    outputIndex := 0;
     for i in 1:size(T, 1) loop
       for j in i:size(T, 1) loop
         value := 0.0;
-        for k in 1:size(T, 2) loop
-          value := value + TP[i, k] * T[j, k];
-        end for;
-        q[index(i, j, size(T, 1))] := value;
+        if count[j] == size(T, 2) then
+          value := TP[i, :] * T[j, :];
+        else
+          for entry in 1:count[j] loop
+            k := active[j, entry];
+            value := value + TP[i, k] * T[j, k];
+          end for;
+        end if;
+        outputIndex := outputIndex + 1;
+        q[outputIndex] := value;
       end for;
     end for;
   end transform;
