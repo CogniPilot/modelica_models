@@ -398,22 +398,20 @@ package SymmetricMatrix "Symmetric n x n matrices stored as their packed upper t
     end for;
   end isSymmetric;
 
-  function mulDenseVector "Packed symmetric multiplication with raw nonsymmetric-input compatibility"
+  function mulDenseVector "Dense covariance-vector product preserving both input triangles"
     input Real covariance[:, size(covariance, 1)];
     input Real x[size(covariance, 1)];
     output Real y[size(x, 1)];
   algorithm
-    y := if isSymmetric(covariance) then mulVec(pack(covariance), x)
-      else covariance * x;
+    y := covariance * x;
   end mulDenseVector;
 
-  function mulDense "Dense compatibility multiply retaining nonsymmetric inputs for downstream validation"
+  function mulDense "Dense covariance product preserving both input triangles"
     input Real covariance[:, size(covariance, 1)];
     input Real B[size(covariance, 1), :];
     output Real result[size(B, 1), size(B, 2)];
   algorithm
-    result := if isSymmetric(covariance) then mulMatrix(pack(covariance), B)
-      else covariance * B;
+    result := covariance * B;
   end mulDense;
 
   function transformDense "Dense compatibility result without hiding a nonsymmetric input from downstream guards"
@@ -423,14 +421,11 @@ package SymmetricMatrix "Symmetric n x n matrices stored as their packed upper t
   protected
     Real product[size(T, 1), size(T, 2)];
   algorithm
-    if isSymmetric(covariance) then
-      result := unpack(size(T, 1), transform(T, pack(covariance)));
-    else
-      // Legacy callers can pass unvalidated matrices. Their antisymmetric
-      // part must reach the original downstream symmetry/refusal checks.
-      product := T * covariance;
-      result := product * transpose(T);
-    end if;
+    // The public estimator state already owns a dense covariance. Converting
+    // to packed storage and back for a single product is more expensive here.
+    product := T * covariance;
+    result := product * transpose(T);
+    annotation(Inline=false);
   end transformDense;
 
   function josephUpdateDense "Dense compatibility wrapper preserving nonsymmetric-input behavior"
@@ -440,11 +435,7 @@ package SymmetricMatrix "Symmetric n x n matrices stored as their packed upper t
     input Real noise[size(gain, 2), size(gain, 2)];
     output Real result[size(factor, 1), size(factor, 1)];
   algorithm
-    if isSymmetric(covariance) and isSymmetric(noise) then
-      result := unpack(size(factor, 1), josephUpdate(factor, pack(covariance), gain, pack(noise)));
-    else
-      result := transformDense(factor, covariance) + transformDense(gain, noise);
-    end if;
+    result := transformDense(factor, covariance) + transformDense(gain, noise);
   end josephUpdateDense;
 
   function gram "Packed A' A from dense rectangular columns"
@@ -527,9 +518,8 @@ package SymmetricMatrix "Symmetric n x n matrices stored as their packed upper t
 <code>index(i,j,n)</code> accepts either order of i and j; symmetry is structural.</p>
 <p><code>pack</code> assumes symmetry and copies the upper side;
 <code>packSymmetrized</code> explicitly averages the two original sides.
-Neither operation validates positive definiteness. Dense compatibility helpers
-check exact symmetry before selecting packed arithmetic; nonsymmetric inputs
-retain dense multiplication so downstream validators can see the original defect.</p>
+Neither operation validates positive definiteness. Dense compatibility products operate on the original matrix; nonsymmetric inputs
+retain both triangles so downstream validators can see the original defect.</p>
 <p><code>cholesky</code> and <code>solveMatrix</code> return an affirmative Boolean
 and retain a working-precision pivot floor n*epsilon*max(abs(diagonal)); an
 extra relative tolerance may only tighten it. The factor is not usable when
