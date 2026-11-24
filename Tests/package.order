@@ -51,6 +51,7 @@ GeodesyTests
 MultirotorInnerLoopTests
 Cubs2EstimatorTests
 DynamicsTests
+MicFusionCameraTests
 All
 AidingQueueTests
 SemiDirectBiasReplay

@@ -1,5 +1,6 @@
 within Tests;
 model All "Complete Modelica assertion suite"
+  Tests.MicFusionCameraTests micCamera;
   Tests.RegistrationWeightedTests registrationWeighted;
   Tests.RGBDLoopConsistencyTests loopConsistency;
   Tests.LinearAlgebraTests linearAlgebra;
