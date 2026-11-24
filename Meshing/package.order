@@ -2,13 +2,16 @@ PolyMesh
 readAsciiSTL
 surfaceFeatureFaces
 regularizeSurface
+markSurfaceCells
 classifyAndRefine
 buildTopology
 transitionCells
 limitHexSnap
 snapWall
 addWallLayers
+stretchFarField
 cellVolumes
+bodyComponentCount
 bodySurfaceMetrics
 faceSweptVolumes
 loftHexMesh

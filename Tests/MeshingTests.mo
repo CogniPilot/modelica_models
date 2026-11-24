@@ -5,7 +5,7 @@ model MeshingTests "Verify conforming refinement, body patch extraction and wall
   protected
     Real points[8,3]={{1,1,1},{2,1,1},{2,2,1},{1,2,1},{1,1,2},{2,1,2},{2,2,2},{1,2,2}};
     Integer faces[12,3]={{1,3,2},{1,4,3},{5,6,7},{5,7,8},{1,2,6},{1,6,5},{2,3,7},{2,7,6},{3,4,8},{3,8,7},{4,1,5},{4,5,8}};
-    Real triangles[12,3,3],v[:];
+    Real triangles[12,3,3],plate[12,3,3],pair[24,3,3],v[:];
     Meshing.PolyMesh m,moved;
     Real limited[:,:];
     Real sections[3,3,4,3],angle;
@@ -25,6 +25,22 @@ model MeshingTests "Verify conforming refinement, body patch extraction and wall
         triangles[i,j,:]:=points[faces[i,j],:];
       end for;
     end for;
+    // Both faces of this thin plate lie between adjacent cell centres.
+    plate:=triangles;
+    plate[:,:,1]:=1.08 .+ 0.08*(triangles[:,:,1] .- 1.0);
+    m:=Meshing.generate({0,0,0},{4,4,4},{8,8,8},0,plate,0,captureThinSolids=true);
+    v:=Meshing.cellVolumes(m,true);
+    assert(abs(sum(v)-63.5)<1e-8,"The intersected cell layer must capture the thin plate");
+    assert(Meshing.bodyComponentCount(m)==1,"The thin plate must remain one connected shell");
+    moved:=m;
+    moved.points:=Meshing.stretchFarField(m,{0.5,0.5,0.5},{3,3,3},{-1,-1,-1},{5,5,5});
+    v:=Meshing.cellVolumes(moved,true);
+    assert(abs(sum(v)-215.5)<1e-8,"Far-field expansion changed the near-body volume");
+    pair[1:12,:,:]:=plate;
+    pair[13:24,:,:]:=plate;
+    pair[13:24,:,1]:=pair[13:24,:,1] .+ 1.5;
+    m:=Meshing.generate({0,0,0},{4,4,4},{8,8,8},0,pair,0,captureThinSolids=true);
+    assert(Meshing.bodyComponentCount(m)==2,"Distinct thin plates must remain separate");
     crease:=Meshing.surfaceFeatureFaces(triangles,Modelica.Constants.pi/4);
     assert(sum(if value then 1 else 0 for value in crease)==12,"Each cube triangle borders a crease");
     crease:=Meshing.surfaceFeatureFaces(triangles,0.51*Modelica.Constants.pi);
@@ -50,6 +66,7 @@ model MeshingTests "Verify conforming refinement, body patch extraction and wall
     v:=Meshing.cellVolumes(m,checkFacePyramids=true);
     assert(m.nCells>64 and max(v)>8*min(v) and abs(sum(v)-64)<1e-8,
       "Volume refinement should preserve volume and leave coarse cells outside the region");
+    assert(Meshing.bodyComponentCount(m)==0,"The empty mesh should have no solid wall");
     // A nonuniform bending displacement warps the faces as well as translating them.
     moved:=m;
     for i in 1:m.nPoints loop

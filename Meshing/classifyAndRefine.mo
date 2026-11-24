@@ -11,6 +11,7 @@ function classifyAndRefine "Tag exterior fluid leaves on a locally refined Carte
     "Target refinement level inside each region";
   input Integer smoothSurfaceLevel(min=0)=levels "Refinement on faces away from sharp edges";
   input Real featureAngle(unit="rad")=Modelica.Constants.pi/4 "Dihedral threshold for finest surface refinement";
+  input Boolean captureThinSolids=false "Capture intersected cells where adjacent centres miss the solid";
   output Integer cellId[baseCells[1]*integer(2^levels),baseCells[2]*integer(2^levels),baseCells[3]*integer(2^levels)];
   output Integer stride[size(cellId,1),size(cellId,2),size(cellId,3)] "Finest-grid intervals per leaf edge";
   output Integer nCells;
@@ -103,6 +104,9 @@ algorithm
     end for;
   end for;
   if size(triangles,1)>0 then
+    if captureThinSolids then
+      cellId:=markSurfaceCells(cellId,triangles,lower,h);
+    end if;
     cellId:=regularizeSurface(cellId);
   end if;
   nCells:=0;

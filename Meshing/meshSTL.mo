@@ -3,7 +3,7 @@ impure function meshSTL "Generate and verify an exterior volume mesh, then expor
   input String surfacePath, meshDirectory;
   input Real lower[3](each unit="m"),upper[3](each unit="m");
   input Integer baseCells[3],levels(min=0)=1;
-  input Real metresPerUnit=1, snapFraction(min=0,max=0.45)=0.2;
+  input Real metresPerUnit=1, snapFraction(min=0,max=0.6)=0.2;
   input Integer layers(min=0)=0;
   input Real layerThickness(unit="m")=0 "Total layer thickness measured into the fluid";
   input Real growth(min=1)=1.2;
@@ -13,18 +13,23 @@ impure function meshSTL "Generate and verify an exterior volume mesh, then expor
     "Target refinement level inside each region";
   input Integer smoothSurfaceLevel(min=0)=levels "Refinement on faces away from sharp edges";
   input Real featureAngle(unit="rad")=Modelica.Constants.pi/4 "Dihedral threshold for finest surface refinement";
+  input Boolean captureThinSolids=false "Capture intersected cells where adjacent centres miss the solid";
+  input Integer expectedBodyComponents(min=0)=0 "Expected number of wall shells; zero skips this check";
   output Integer cells;
 protected
   Real triangles[:,3,3],volumes[:];
   PolyMesh mesh;
 algorithm
   triangles:=readAsciiSTL(surfacePath,metresPerUnit);
-  mesh:=generate(lower,upper,baseCells,levels,triangles,snapFraction,refinementBoxes,boxLevels,smoothSurfaceLevel,featureAngle);
+  mesh:=generate(lower,upper,baseCells,levels,triangles,snapFraction,refinementBoxes,boxLevels,smoothSurfaceLevel,featureAngle,captureThinSolids);
   if layers>0 then
     mesh:=addWallLayers(mesh,layers,layerThickness,growth);
   end if;
   volumes:=cellVolumes(mesh,checkFacePyramids=true);
   assert(min(volumes)>0,"Mesh quality check failed");
+  if expectedBodyComponents>0 then
+    assert(bodyComponentCount(mesh)==expectedBodyComponents,"Unexpected number of connected solid wall components");
+  end if;
   writePolyMesh(meshDirectory,mesh);
   cells:=mesh.nCells;
 end meshSTL;

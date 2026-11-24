@@ -3,7 +3,7 @@ function snapWall "Project castellated wall vertices toward the closest point on
   input PolyMesh mesh;
   input Real triangles[:,3,3](each unit="m"), lower[3](each unit="m"), spacing[3](each unit="m");
   input Integer n[3] "Finest background resolution";
-  input Real fraction(min=0,max=0.45) "Maximum displacement in units of finest cell width";
+  input Real fraction(min=0,max=0.6) "Maximum displacement in units of finest cell width";
   output Real points[mesh.nPoints,3](each unit="m");
 protected
   Integer wallPoint[n[1]+1,n[2]+1,n[3]+1]=fill(0,n[1]+1,n[2]+1,n[3]+1);
@@ -12,7 +12,7 @@ protected
   Real radius=2*sqrt(spacing*spacing);
   Integer index[3],lo[3],hi[3],id;
 algorithm
-  assert(fraction>=0 and fraction<=0.45,"Snap fraction must be between 0 and 0.45");
+  assert(fraction>=0 and fraction<=0.6,"Snap fraction must be between 0 and 0.6");
   points:=mesh.points;
   for f in 1:mesh.nFaces loop
     if mesh.patch[f]==7 then

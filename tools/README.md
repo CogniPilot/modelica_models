@@ -10,7 +10,6 @@ scoring. Keep temporary builds, downloads and caches in a task-specific director
 | Library structure, tests and vehicle qualification | `python -m tools.modelica_models_cli --help` |
 | ESKF, PX4 EKF2 and ArduPilot EKF3 comparison | [Estimator replay tools](estimator_comparison/README.md) |
 | Build the browsable Modelica reference | [Documentation publishing](../docs/publishing.md) |
-| Validate an exported volume mesh with OpenFOAM | [Meshing guide](../docs/meshing.md) and `python3 tools/check_mesh.py --help` |
 | Export SLAM snapshots for a browser consumer | [SLAM export](../docs/slam-export.md) |
 
 `ci.py` implements regression execution used by the CLI. `trajectory_compare.py`
