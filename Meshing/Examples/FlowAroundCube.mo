@@ -19,7 +19,7 @@ protected
     end for;
     mesh:=Meshing.generate({-1,-1,-1},{3,3,3},{8,8,8},1,triangles,0);
     mesh:=Meshing.addWallLayers(mesh,2,0.04);
-    volumes:=Meshing.cellVolumes(mesh);
+    volumes:=Meshing.cellVolumes(mesh,checkFacePyramids=true);
     assert(abs(sum(volumes)-63)<1e-8,"Incorrect volume around the cube");
     Meshing.writePolyMesh(directory,mesh);
     cells:=mesh.nCells;

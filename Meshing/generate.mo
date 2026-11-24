@@ -23,4 +23,5 @@ algorithm
   if snapFraction>0 and size(triangles,1)>0 then
     mesh.points:=snapWall(mesh,triangles,lower,(upper-lower)./n,n,snapFraction);
   end if;
+  mesh:=transitionCells(mesh);
 end generate;

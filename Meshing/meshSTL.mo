@@ -23,7 +23,7 @@ algorithm
   if layers>0 then
     mesh:=addWallLayers(mesh,layers,layerThickness,growth);
   end if;
-  volumes:=cellVolumes(mesh);
+  volumes:=cellVolumes(mesh,checkFacePyramids=true);
   assert(min(volumes)>0,"Mesh quality check failed");
   writePolyMesh(meshDirectory,mesh);
   cells:=mesh.nCells;

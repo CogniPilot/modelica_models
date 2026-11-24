@@ -62,13 +62,25 @@ Each refinement level halves the local edge length. The example gives 13.325 mm 
 
 For finer resolution specifically around creases, choose a `smoothSurfaceLevel` below `levels`. Triangles incident to edges exceeding `featureAngle` (radians) retain the finest level. This is a dihedral criterion on the supplied tessellation. The function also reports unmatched and nonmanifold edges. Independent edge-constrained snapping and automatic gap sizing remain future work.
 
-Select resolution from the smallest gap or blade thickness you need to resolve. Classification occurs at finest-grid cell centres. Topology repair can thicken a thin trailing edge or close a one-cell gap. Snapping limits vertex displacement to a fraction of the smallest cell edge. Inspect sections through the blade and run the quality checks after changing the snap or layer settings.
+Select resolution from the smallest gap or blade thickness you need to resolve. Classification occurs at finest-grid cell centres. Topology repair keeps manifold one-cell channels and may still thicken a thin edge to repair an ambiguous vertex or edge contact. The snap fraction bounds displacement in units of the finest edge. Snapping backs off locally where adjacent six-quad cells lose face-plane clearance. Pyramid and tetrahedral cells join coarse and fine regions. Inspect sections through the blade and run the quality checks after changing the snap or layer settings.
 
 ## Validation and scope
 
 The analytic cube test checks the exact external volume, number of wall faces, variation in cell size, and volume conservation after adding layers. A separate box refinement test exercises refinement away from a surface. Run the repository assertion suite or simulate `Tests.MeshingTests` directly.
 
-On the exterior surface extracted from the OpenFOAM ONRT propeller wall (2,866 triangles after removing six coincident pairs from the 2,878-triangle extraction), the dimensions above produced 86,009 fluid cells. OpenFOAM v2412 reported maximum non-orthogonality of 25.24° and maximum skewness of 0.549. The standard check passed. The extended face-plane check reported 1,189 concave cells. The original 84,266-cell OpenFOAM reference also triggered that check, with 878 concave cells. Matching a cell count establishes neither blade fidelity nor agreement in thrust or torque.
+The propeller example uses the wall surface extracted from the OpenFOAM ONRT case with six coincident triangle pairs removed, leaving 2,866 triangles. On the full domain above the previous 86,009-cell mesh had 1,189 coarse/fine cells flagged for concavity. The conforming transitions produce 123,824 cells. The following runs used identical geometry and refinement with zero wall layers. Errors are relative to the extracted surface.
+
+| Maximum snap displacement / finest edge | Wall area error | Solid volume error | Extended OpenFOAM v2412 checks |
+| ---: | ---: | ---: | --- |
+| 0.20 | +6.35% | +18.17% | Pass |
+| 0.35 | −1.61% | +7.66% | Pass |
+| 0.45 with local backtracking | −5.55% | +1.89% | Pass |
+
+At 0.45 the maximum non-orthogonality was 52.10°, maximum skewness 1.405 and minimum interpolation weight 0.0977. Without backtracking, eight cells failed the extended concavity check. The 84,266-cell OpenFOAM reference had 878 cells flagged for face-plane concavity. A comparison to the original CAD, near-wall resolution and a grid study of thrust, torque and wake profiles are still needed for solver qualification.
+
+Call `Meshing.bodySurfaceMetrics(mesh,triangles)` to obtain reference area, meshed area, reference enclosed volume and meshed enclosed volume. The volume comparison assumes a consistently oriented reference surface, including cavity shells, and a closed solid wall patch. Input and meshed volume use the same units.
+
+The bundled two-layer cube passes the extended checks. A separate two-layer propeller with a shorter domain, 0.328125 mm total layer thickness and 1.2 growth produces inverted face pyramids. The STL export now reports a face and cell number and stops before writing that mesh. Use `python3 tools/check_mesh.py CASE` to gate a generated case on the complete OpenFOAM check result, or add `--docker` for v2412. The native pre-export check covers volume, closure and face orientation. The independent extended check also tests skewness, interpolation weights and other finite-volume quality criteria.
 
 The native external-flow generator covers a serial Cartesian background, local refinement, bounded surface snapping and optional wall layers around closed solids. The finest-grid classification arrays occupy memory proportional to the entire finest grid. Feature-constrained snapping, independent named surface regions, local layer termination, sliding rotor interfaces and distributed meshing remain outside this implementation.
 

@@ -1,5 +1,5 @@
 within Meshing;
-function regularizeSurface "Resolve voxel contacts that would produce a nonmanifold wall or a one-cell fluid slit"
+function regularizeSurface "Resolve ambiguous edge and vertex contacts while retaining manifold fluid slits"
   input Integer labels[:,:,:] "Negative inside the solid, zero in fluid";
   output Integer repaired[size(labels,1),size(labels,2),size(labels,3)];
 protected
@@ -83,18 +83,6 @@ algorithm
               repaired[pos[1],pos[2],pos[3]]:=-1;
               changed:=true;
             end if;
-          end if;
-        end for;
-      end for;
-    end for;
-    for k in 2:n[3]-1 loop
-      for j in 2:n[2]-1 loop
-        for i in 2:n[1]-1 loop
-          if repaired[i,j,k]==0 and ((repaired[i-1,j,k]<0 and repaired[i+1,j,k]<0)
-              or (repaired[i,j-1,k]<0 and repaired[i,j+1,k]<0)
-              or (repaired[i,j,k-1]<0 and repaired[i,j,k+1]<0)) then
-            repaired[i,j,k]:=-1;
-            changed:=true;
           end if;
         end for;
       end for;

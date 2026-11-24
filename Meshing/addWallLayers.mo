@@ -68,12 +68,14 @@ algorithm
   mesh:=PolyMesh(core.nPoints+layers*np,core.nFaces+layers*(nf+ne),core.nCorners+layers*(nc+4*ne),core.nCells+layers*nf,
     zeros(core.nPoints+layers*np,3),fill(0,core.nFaces+layers*(nf+ne)+1),fill(0,core.nCorners+layers*(nc+4*ne)),
     fill(0,core.nFaces+layers*(nf+ne)),fill(0,core.nFaces+layers*(nf+ne)),fill(0,core.nFaces+layers*(nf+ne)));
-  mesh.points[1:core.nPoints,:]:=core.points;
-  mesh.first[1:core.nFaces+1]:=core.first;
-  mesh.corners[1:core.nCorners]:=core.corners;
-  mesh.owner[1:core.nFaces]:=core.owner;
-  mesh.neighbour[1:core.nFaces]:=core.neighbour;
-  mesh.patch[1:core.nFaces]:=core.patch;
+  for i in 1:core.nPoints loop mesh.points[i,:]:=core.points[i,:];end for;
+  for i in 1:core.nCorners loop mesh.corners[i]:=core.corners[i];end for;
+  for f in 1:core.nFaces loop
+    mesh.first[f]:=core.first[f];
+    mesh.owner[f]:=core.owner[f];
+    mesh.neighbour[f]:=core.neighbour[f];
+    mesh.patch[f]:=core.patch[f];
+  end for;
   for i in 1:core.nPoints loop
     if wallPoint[i]>0 then
       assert(inward[i,:]*inward[i,:]>0,"Cannot determine wall layer normal");

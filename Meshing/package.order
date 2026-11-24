@@ -4,9 +4,12 @@ surfaceFeatureFaces
 regularizeSurface
 classifyAndRefine
 buildTopology
+transitionCells
+limitHexSnap
 snapWall
 addWallLayers
 cellVolumes
+bodySurfaceMetrics
 faceSweptVolumes
 loftHexMesh
 fromTetrahedra

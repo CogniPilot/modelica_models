@@ -66,4 +66,5 @@ algorithm
       end for;
     end for;
   end for;
+  points:=limitHexSnap(mesh,points);
 end snapWall;
