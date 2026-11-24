@@ -83,6 +83,12 @@ package Geometry "Mesh contact and independent visual attachments on a rigid bod
   model VisualShapes "Massless visual instances attached to one frame, with individual poses, scales and asset URIs"
     parameter Integer n(min=0)=0;
     parameter String uri[n] "One mesh asset per instance";
+    parameter Integer color[n,3](each min=0,each max=255)=fill(155,n,3)
+      "Visible RGB per visual instance, in red, green, blue channel order";
+    input Real bodyTemperature(unit="K", min=0)=293.15
+      "Default surface temperature for shapes on this frame";
+    input Real temperature[n](each unit="K", each min=0)=fill(bodyTemperature,n)
+      "Surface temperature of each shape; may be bound to a thermal model";
     parameter Real offset[n,3](each unit="m")=zeros(n,3),scale[n,3]=ones(n,3);
     parameter Real bodyToVisual[n,3,3]={identity(3) for i in 1:n};
     Interfaces.Frame_a frame_a;
