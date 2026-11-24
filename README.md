@@ -30,6 +30,10 @@ artifacts; they do not own alternate copies of these models.
   and control code.
 - `Polynomials/`: dimension-generic Hermite construction, derivative
   evaluation, and integrated derivative-cost matrices.
+- `Optimization/`: convex QP solvers in pure Modelica: box-constrained QPs
+  and friction-cone contact QPs by projected Gauss-Seidel. Each returns the
+  active set, a residual in the decision variable's units, the iteration count
+  and a converged flag.
 - `LieGroups/`: Lie groups including SO(2), SO(3), SE(2), SE(3), and SE_2(3),
   with replaceable quaternion, DCM, MRP, and Euler rotation representations.
   All 12 axis sequences are available in both body-fixed and space-fixed form,
@@ -37,7 +41,15 @@ artifacts; they do not own alternate copies of these models.
 - `Geodesy/`: reusable local-frame and geodetic conversion helpers, including
   the East-North-Up projection and its inverse about a `GeodeticOrigin` used to
   turn global lat/lon/alt waypoints into local-frame references.
+- `Marine/`: displacement-based spectral wakes, wind and current models, sailcloth, automated monohull and catamaran sailing, and a submerged survey vehicle with wreck geometry and navigation. See [marine simulation](docs/marine.md).
 - `RigidBody/`: reusable six-degree-of-freedom rigid-body dynamics.
+- `MultiBodyLie/`: articulated-body connector library used by Rumoca's
+  humanoid benchmark and the Microduck robot. It carries subtree inertia and
+  bias wrench through connectors; the elimination structure, rather than
+  Lie-group integration, is its distinguishing feature. Bodies feel MSL's
+  gravity field at their centre of mass; revolute joints carry reflected rotor
+  inertia (`armature`). `MultiBodyLie.Contact` is a smooth sphere-against-ground
+  contact law; sensors and general collision geometry are separate.
 - `MathUtilities/`: shared clipping, filtering, angle, rate, and norm helpers.
 - `Control/`: reusable control laws and sampled controller building blocks,
   including the multirotor SE_2(3)/SO(3) log-linear controller and the
@@ -54,6 +66,8 @@ artifacts; they do not own alternate copies of these models.
   flight-control models, avionics plant interfaces, and qualification missions.
   RDD2 includes both its cascaded sampled controller and a thin vehicle
   parameterization of the reusable log-linear controller.
+- `Vehicles/Microduck/`: a walking biped on `MultiBodyLie`: fifteen bodies,
+  revolute servos with reflected rotor inertia, and smooth ground contact.
 - [`tools/`](tools/README.md): non-library Python orchestration for validation, qualification,
   export, CI caching, and reports. Nothing under this directory is part of the
   Modelica package API.
@@ -382,9 +396,9 @@ To regenerate only the planning artifacts:
 modelica-models test plots
 ```
 
-CI uses the same Python commands. The optional Nix layer uses released Rumoca
-0.10.4 for both the CLI and Python bindings. Its Python dependency override
-corrects the release's stale Cargo vendor hash without patching compiler code.
+CI uses the same Python commands. The optional Nix layer builds Rumoca main at
+the revision recorded in `flake.lock` for both the CLI and Python bindings.
+The Rumoca stage puts the pinned MSL on `MODELICAPATH`.
 The Rumoca checks compile and execute a C99 UKF prediction regression. Native
 use requires `cc` or `MODELICA_MODELS_CC`; the Nix application supplies its compiler.
 The layer pins compiler binaries

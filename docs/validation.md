@@ -18,7 +18,7 @@ under `Vehicles.Cubs2` and `Vehicles.Rdd2.Test`.
 
 ## Visual aiding
 
-Use Python with NumPy, Rumoca 0.10.2 and a C compiler:
+Use Python with NumPy, the Rumoca pinned in `flake.lock` and a C compiler:
 
 ```sh
 python tools/estimator_comparison/qualify_visual.py \

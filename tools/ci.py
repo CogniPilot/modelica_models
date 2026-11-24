@@ -51,9 +51,10 @@ def main(arguments: Sequence[str] | None = None) -> int:
                     "unittest",
                     "Vehicles.Rdd2.Test.test_waypoint_qualification",
                     "tools.tests.test_eskf_throughput",
+                    "tools.tests.test_openmodelica",
                 ],
                 repository,
-                "Waypoint qualification negative controls",
+                "Repository tool regression controls",
             )
         if options.command in ("test", "ci", "omc"):
             run_openmodelica_tests(repository)
@@ -96,6 +97,7 @@ def run_openmodelica_tests(repository: Path) -> None:
     run_omc_script(repository, "Tests/run-loglinear.mos")
     run_omc_script(repository, "Tests/run-position-loop.mos")
     run_omc_script(repository, "Tests/run-manual-guidance.mos")
+    run_omc_script(repository, "Tests/run-rate-feedforward.mos")
     run_omc_script(repository, "Tests/run-horizon.mos")
     run_omc_script(repository, "Tests/run-observability-constraint.mos")
     run_omc_script(repository, "Tests/check-vehicle-boundaries.mos")
@@ -105,6 +107,14 @@ def run_rumoca_tests(repository: Path) -> None:
     print("==> Rumoca compiler checks", flush=True)
     rumoca = program("MODELICA_MODELS_RUMOCA", DEFAULT_RUMOCA, "rumoca")
     require_program(rumoca, "Rumoca")
+
+    # Rumoca resolves libraries on MODELICAPATH, so Tests.All models that use
+    # the Modelica Standard Library compile against the same pinned MSL as OMC.
+    # Loading the MSL costs memory on every compile, so only this lowering gets it.
+    msl_environment = os.environ.copy()
+    msl_environment["MODELICAPATH"] = os.pathsep.join(
+        filter(None, (str(modelica_library_root()), os.environ.get("MODELICAPATH")))
+    )
 
     with tempfile.TemporaryDirectory(prefix="modelica-models-rumoca-") as temporary:
         output = Path(temporary)
@@ -124,6 +134,29 @@ def run_rumoca_tests(repository: Path) -> None:
             ],
             repository,
             "Rumoca DAE lowering for Tests.All",
+            msl_environment,
+        )
+        # The Microduck assembly uses MSL rotational flanges, so its start-pose
+        # check gets the MSL as well.
+        run_command(
+            [
+                rumoca,
+                "sim",
+                "Tests/package.mo",
+                "--model",
+                "Tests.MicroduckTests.InitialPose",
+                "--source-root",
+                str(repository),
+                "--t-end",
+                "0.0",
+                "--solver",
+                "rk-like",
+                "--output",
+                str(output / "microduck-initial-pose.html"),
+            ],
+            repository,
+            "Rumoca simulation for Tests.MicroduckTests.InitialPose",
+            msl_environment,
         )
         check_eskf_throughput(repository, rumoca, output)
         # DAE and eFMI export can succeed even when the composed mission's
@@ -739,7 +772,7 @@ def check_ukf_native(repository: Path, rumoca: str, output: Path) -> None:
 # it says so plainly when the model starts lowering, which is the moment the
 # entry should be promoted into named_models above and this table shrink.
 #
-# The 0.10.2 pin reaches canonical DAE construction, where a fast sampled
+# The pinned compiler reaches canonical DAE construction, where a fast sampled
 # consumer cannot read a slower sampled producer. This ordinary discrete
 # model is incorrectly treated as a cross-clock read.
 # Diagnostic identities and source locations deliberately belong to this pin:
@@ -831,7 +864,27 @@ def run_planning_plots(repository: Path) -> None:
     remove_build_products(artifact_directory)
 
 
+def modelica_library_root() -> Path:
+    configured = os.environ.get("MODELICA_MODELS_MSL")
+    if not configured:
+        raise TaskError(
+            "MSL 4.1.0 is required: use 'nix run . -- test' or set "
+            "MODELICA_MODELS_MSL to the extracted pinned release"
+        )
+    root = Path(configured).resolve()
+    for relative in ("Modelica 4.1.0/package.mo",
+                     "ModelicaServices 4.1.0/package.mo", "Complex.mo"):
+        try:
+            with (root / relative).open("rb") as stream:
+                if not stream.read(1):
+                    raise TaskError(f"MSL 4.1.0 file is empty: {root / relative}")
+        except OSError as error:
+            raise TaskError(f"MSL 4.1.0 file is not readable: {root / relative}") from error
+    return root
+
+
 def run_omc_script(repository: Path, script: str) -> None:
+    msl = modelica_library_root()
     docker = program("MODELICA_MODELS_DOCKER", DEFAULT_DOCKER, "docker")
     if docker_daemon_is_available(docker):
         command = [docker, "run", "--rm"]
@@ -841,10 +894,12 @@ def run_omc_script(repository: Path, script: str) -> None:
             (
                 "--volume",
                 f"{repository}:/workspace",
+                "--volume",
+                f"{msl}:/msl:ro",
                 "--workdir",
                 "/workspace",
                 "--env",
-                "OPENMODELICALIBRARY=/workspace:/root/.openmodelica/libraries",
+                "OPENMODELICALIBRARY=/msl:/workspace",
                 OPENMODELICA_IMAGE,
                 "omc",
                 script,
@@ -856,10 +911,9 @@ def run_omc_script(repository: Path, script: str) -> None:
     omc = program("MODELICA_MODELS_OMC", DEFAULT_OMC, "omc")
     if executable_exists(omc):
         environment = os.environ.copy()
-        default_library = Path.home() / ".openmodelica" / "libraries"
-        inherited_library = environment.get("OPENMODELICALIBRARY", str(default_library))
+        inherited_library = environment.get("OPENMODELICALIBRARY", "")
         environment["OPENMODELICALIBRARY"] = os.pathsep.join(
-            (str(repository), inherited_library)
+            path for path in (str(msl), str(repository), inherited_library) if path
         )
         run_command(
             (omc, script),

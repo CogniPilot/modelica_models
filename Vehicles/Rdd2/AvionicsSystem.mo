@@ -96,7 +96,9 @@ equation
   guidanceTask.reference.positionWorld_m = reference.position;
   guidanceTask.reference.velocityWorld_m_s = reference.velocity;
   guidanceTask.reference.accelerationWorld_m_s2 = reference.acceleration;
+  guidanceTask.reference.jerkWorld_m_s3 = reference.jerk;
   guidanceTask.reference.yaw_rad = reference.yaw;
+  guidanceTask.reference.yawRate_rad_s = reference.yawRate;
 
   // Rate control shares the fast device thread with IMU input and motor I/O.
   rateTask.inputSignal.armed = armed;

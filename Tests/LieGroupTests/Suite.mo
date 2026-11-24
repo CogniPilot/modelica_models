@@ -8,4 +8,5 @@ model Suite "Complete Lie-group test suite"
   Tests.LieGroupTests.SE23 se23;
   Tests.LieGroupTests.NumericalEdgeCases numericalEdgeCases;
   Tests.LieGroupTests.ModularRepresentations modularRepresentations;
+  Tests.LieGroupTests.Charts charts;
 end Suite;

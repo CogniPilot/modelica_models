@@ -31,7 +31,9 @@ connector TrajectoryReferenceInput
   input Real positionWorld_m[3];
   input Real velocityWorld_m_s[3];
   input Real accelerationWorld_m_s2[3];
+  input Real jerkWorld_m_s3[3];
   input Real yaw_rad;
+  input Real yawRate_rad_s;
 end TrajectoryReferenceInput;
 
 connector GuidanceStateInput

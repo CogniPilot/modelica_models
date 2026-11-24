@@ -5,7 +5,8 @@
     flake-utils.url = "github:numtide/flake-utils";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     openmodelica.url = "git+https://github.com/jgoppert/OpenModelica?submodules=1&rev=a96aa1a682c463b0fd2d285b486c09a8b7fe496d";
-    rumoca.url = "github:CogniPilot/rumoca/v0.10.4";
+    # Track Rumoca main; flake.lock records the exact revision.
+    rumoca.url = "github:CogniPilot/rumoca";
   };
 
   outputs =
@@ -32,18 +33,7 @@
             packages.numpy
           ]);
           rumocaCli = rumoca.packages.${system}.rumoca;
-          rumocaUpstreamPythonPackage = rumoca.packages.${system}.rumoca-python;
-          # v0.10.4 ships a stale Python cargo-vendor hash. Correct the fetch
-          # metadata only; both bindings and CLI use the unmodified release.
-          rumocaBuildPkgs = import rumoca.inputs.nixpkgs { inherit system; };
-          rumocaPythonPackage = rumocaUpstreamPythonPackage.overrideAttrs (_: {
-            cargoDeps = rumocaBuildPkgs.rustPlatform.fetchCargoVendor {
-              src = rumocaUpstreamPythonPackage.src;
-              cargoRoot = ".";
-              name = "rumoca-0.10.4-cargo-vendor";
-              hash = "sha256-alvaAG6DL2QbEYmgBMu2iYUDlYoILqYRkazgYSkvClY=";
-            };
-          });
+          rumocaPythonPackage = rumoca.packages.${system}.rumoca-python;
           rumocaRustToolchain =
             pkgs.lib.findFirst (input: pkgs.lib.hasPrefix "rust-nightly-" (input.name or ""))
               (throw "Rumoca Python package has no Rust toolchain build input")
@@ -75,6 +65,20 @@
           };
           openModelicaCli = openmodelica.packages.${system}.default;
 
+          # Supply MSL 4.1.0 independently of image or per-user library caches.
+          # Both runners use the same checksum-pinned, readable release.
+          mslArchive = pkgs.fetchurl {
+            url = "https://github.com/modelica/ModelicaStandardLibrary/releases/download/v4.1.0/ModelicaStandardLibrary_v4.1.0.zip";
+            hash = "sha256-VAnPoXeXxS2GbcnSZ1utwTeLS7+IBm5giZpInLHLii0=";
+          };
+          mslSource = pkgs.runCommand "modelica-standard-library-4.1.0"
+            { nativeBuildInputs = [ pkgs.unzip ]; }
+            ''
+              mkdir -p "$out"
+              unzip -q ${mslArchive} -d "$out"
+              chmod -R a+rX "$out"
+            '';
+
           # Python is the orchestration source of truth. Nix only installs that
           # command with pinned compiler paths and its Python dependencies.
           modelicaModelsTools = python.pkgs.buildPythonApplication {
@@ -89,6 +93,9 @@
             ];
             doCheck = false;
             makeWrapperArgs = [
+              "--set-default"
+              "MODELICA_MODELS_MSL"
+              "${mslSource}"
               "--set-default"
               "MODELICA_MODELS_CC"
               "${pkgs.stdenv.cc}/bin/cc"
@@ -118,6 +125,7 @@
               MODELICA_MODELS_RUMOCA = "${rumocaCli}/bin/rumoca";
               MODELICA_MODELS_DOCKER = "${pkgs.docker-client}/bin/docker";
               MODELICA_MODELS_PYTHON = "${pythonEnvironment}/bin/python3";
+              MODELICA_MODELS_MSL = "${mslSource}";
               PYTHONPATH = "${rumocaPythonRuntime}/lib/python3.12/site-packages";
             }
             // pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
@@ -127,6 +135,7 @@
         in
         {
           packages.default = modelicaModelsTools;
+          packages.msl = mslSource;
           packages.rumoca-cli = rumocaCli;
           packages.rumoca-python-runtime = rumocaPythonRuntime;
           packages.rumoca-runtime = rumocaRuntime;

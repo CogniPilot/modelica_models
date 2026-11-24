@@ -26,9 +26,13 @@ model All "Complete Modelica assertion suite"
   Tests.VerificationTests verification;
   Tests.PlanningTests planning;
   Tests.BezierTests bezier;
+  Tests.OptimizationTests optimization;
   Tests.GeodesyTests geodesy;
   Tests.MultirotorInnerLoopTests multirotorInnerLoop;
   Tests.Cubs2EstimatorTests cubs2Estimator;
   Tests.DynamicsTests.Suite dynamics;
+  Tests.RevoluteArmatureTests.Suite revoluteArmature;
+  Tests.MultiBodyLieTests.Suite multiBodyLie;
+  Tests.CollisionTests.Suite collision;
   annotation(experiment(StartTime=0.0, StopTime=1.0, Tolerance=1.0e-8, Interval=0.001));
 end All;

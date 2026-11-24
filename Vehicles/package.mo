@@ -6,6 +6,7 @@ package Vehicles "Reusable vehicle models and named vehicle configurations"
     Geodesy,
     LieGroups,
     MathUtilities,
+    MultiBodyLie,
     Planning,
     RigidBody),
     Documentation(info = "<html>
@@ -18,6 +19,8 @@ avionics boundaries and mission compositions:</p>
 control with an explicit onboard-stabilizer surrogate in simulation.</li>
 <li><a href=\"modelica://Vehicles.Rdd2\">Rdd2</a>: multirotor dynamics, control
 and aided-navigation missions.</li>
+<li><a href=\"modelica://Vehicles.Microduck\">Microduck</a>: a walking biped on
+the MultiBodyLie articulated-body library with smooth ground contact.</li>
 <li><a href=\"modelica://Vehicles.Interfaces\">Interfaces</a>: conversions
 between transport-independent avionics records and plant signals.</li>
 </ul>

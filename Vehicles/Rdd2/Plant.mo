@@ -54,6 +54,12 @@ model Plant "RDD2 quadrotor with native avionics-facing connectors"
   final parameter Real imuAntiAliasNatural_rad_s(unit = "rad/s") =
     2.0 * pi * imuAntiAliasBandwidth_Hz;
 
+  parameter Real groundAltitude=0;
+  Real exposedFraction=1;
+  Real contactMomentWorld[3]=zeros(3);
+  Real fluidForceWorld[3]=zeros(3);
+  Real windWorld[3] = zeros(3) "Wind velocity ENU [m/s]";
+  output Real aerodynamicDrag[3] = exposedFraction*dynamics.drag_b "Body FLU force [N]";
   Vehicles.Rdd2.ControllerInterfaces.MotorCommandInput commands;
   Avionics.ImuSampleOutput imu;
   Avionics.NavigationEstimateOutput truth;
@@ -66,6 +72,8 @@ model Plant "RDD2 quadrotor with native avionics-facing connectors"
 
 protected
   Vehicles.Templates.QuadrotorPlant dynamics(
+    contactMomentWorld=contactMomentWorld,ground_z=groundAltitude,exposedFraction=exposedFraction,fluidForceWorld=fluidForceWorld,
+    windWorld = windWorld,
     vehicle_mass = vehicleMass_kg,
     gravity = gravity_m_s2,
     vehicle_ixx = 0.02166666666666667,

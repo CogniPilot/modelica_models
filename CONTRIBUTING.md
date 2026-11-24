@@ -58,8 +58,9 @@ This library follows the conventions used by the Modelica Standard Library
 - Keep library explanations in that HTML documentation, with `modelica://`
   links between classes. Use `docs/` for concise user workflows, not a second
   library reference or a development diary.
-- Put temporary notes and reports in ignored `dev/`. Keep large generated
-  outputs, downloads and caches in owned directories under `$HOME/scratch`.
+- Put temporary notes and reports in ignored `dev/`. Keep temporary builds,
+  downloads and caches in a task-specific directory under `/tmp`. Preserve unique
+  source and needed results before scratch cleanup.
 - Add assertions for mathematical invariants and regression tests for compiler
   boundaries. A Rumoca-only rejection of valid Modelica that OpenModelica
   accepts should be minimized and fixed in Rumoca, not hidden by scalarizing a
