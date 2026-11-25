@@ -201,6 +201,53 @@ package Perception "Acoustic/optical acquisition and pressure- and gravity-aided
       end if;
     end for;
   end registration;
+  function dvlWorldPoints "Measured bottom-lock intercepts in world ENU, including the DVL mounting offset"
+    input Real position[3], roll, pitch, yaw, ranges[4], beams[4,3];
+    output Real points[4,3];
+  protected
+    Real cr=cos(roll),sr=sin(roll),cp=cos(pitch),sp=sin(pitch),cy=cos(yaw),sy=sin(yaw);
+    Real body[3],forwardLevel,portLevel;
+  algorithm
+    for beam in 1:4 loop
+      body:=dvlMount+ranges[beam]*beams[beam,:];
+      forwardLevel:=cp*body[1]+sp*(sr*body[2]+cr*body[3]);
+      portLevel:=cr*body[2]-sr*body[3];
+      points[beam,:]:=position+{cy*forwardLevel-sy*portLevel,sy*forwardLevel+cy*portLevel,
+        -sp*body[1]+cp*(sr*body[2]+cr*body[3])};
+    end for;
+  end dvlWorldPoints;
+
+  function dvlHeightCorrection "Vertical residual from overlapping four-beam footprints on one locally planar surface"
+    input Real observed[4,3],reference[4,3];
+    output Real correction;
+    output Boolean accepted;
+  protected
+    Real normal[3],center[3],residual[4],heightError,minimum,maximum,distance;
+    Integer count;
+  algorithm
+    normal:=cross(reference[1,:]-reference[2,:],reference[3,:]-reference[4,:]);
+    center:=(reference[1,:]+reference[2,:]+reference[3,:]+reference[4,:])/4;
+    // Reject vertical or degenerate patches, and hits on opposite sides of a discontinuity.
+    accepted:=normal[3]^2>.5*(normal*normal) and abs(normal[3])>1e-6;
+    correction:=0;count:=0;minimum:=1e9;maximum:=-1e9;
+    if accepted then
+      for k in 1:4 loop
+        residual[k]:=normal*(reference[k,:]-center)/normal[3];
+        if abs(residual[k])>.045 then accepted:=false;end if;
+      end for;
+      for k in 1:4 loop
+        distance:=min({(observed[k,1]-reference[j,1])^2+(observed[k,2]-reference[j,2])^2 for j in 1:4});
+        if distance<.30^2 then
+          heightError:=normal*(center-observed[k,:])/normal[3];
+          correction:=correction+heightError;count:=count+1;
+          minimum:=min(minimum,heightError);maximum:=max(maximum,heightError);
+        end if;
+      end for;
+      correction:=correction/max(1,count);
+      accepted:=accepted and count>=3 and maximum-minimum<.10 and abs(correction)<.20;
+    end if;
+  end dvlHeightCorrection;
+
   function estimate "Pressure/gravity aided sonar keyframe graph; temporal optical features constrain yaw and verify revisits"
     input Real t,raw[195],d[rays,3],image[864],previousImage[864],previous[21],history[keys,stride];
     input Boolean camera=true,mapping=true;
@@ -211,7 +258,9 @@ package Perception "Acoustic/optical acquisition and pressure- and gravity-aided
     Integer nf,nm,nk,beam,nearest,count,loopId,votes,idx,off,edgeIndex;
     Real dist,bestDist,dt,measVar,bodyHeave,levelSurge,levelSway,bearing,oldBearing,axialRange,rateSum,correctedRate;
     Integer rateCount;
-    Boolean lock,newKey;
+    Boolean lock,newKey,validHeight;
+    Real dvlFix,oldRoll,oldPitch;
+    Integer tiltCode,rollIndex,pitchIndex;
   algorithm
     s:=previous;graph:=history;sensor:=zeros(91);dt:=if t==0 then 0 else .2;
     if t==0 then s[1:3]:=initialPosition;s[9:12]:={.04,.04,.04,.000225};
@@ -259,6 +308,7 @@ package Perception "Acoustic/optical acquisition and pressure- and gravity-aided
     // uncertainty per ping after beam inversion, and .11 m/s during coast.
     s[9]:=s[9]+dt^2*(if lock then .02^2 else .11^2);
     s[10]:=s[10]+dt^2*(if lock then .02^2 else .11^2);
+    if lock then s[3]:=s[3]+dt*(-sp*s[5]+cp*(sr*s[6]+cr*bodyHeave));end if;
     s[11]:=s[11]+.0025;kg:=s[11]/(s[11]+.0036);s[3]:=s[3]+kg*(pressureDatum-raw[158]/(rho*g)-s[3]);s[11]:=(1-kg)*s[11];
     nk:=integer(s[13]);nearest:=0;count:=0;rms:=99;
     cloud:=zeros(48,3);
@@ -279,6 +329,17 @@ package Perception "Acoustic/optical acquisition and pressure- and gravity-aided
       if dist<bestDist and cos(s[4]-graph[i,4])>.85 then bestDist:=dist;nearest:=i;end if;
     end for;
     if nearest>0 and bestDist<4 then
+      if lock and graph[nearest,176]>0 then
+        tiltCode:=integer(graph[nearest,176])-1;
+        oldRoll:=(div(tiltCode,2048)-1800)*pi/1800;
+        oldPitch:=(mod(tiltCode,2048)-900)*pi/1800;
+        (dvlFix,validHeight):=dvlHeightCorrection(
+          dvlWorldPoints(s[1:3],roll,pitch,s[4],raw[1:4],d[1:4,:]),
+          dvlWorldPoints(graph[nearest,1:3],oldRoll,oldPitch,graph[nearest,4],graph[nearest,177:180],d[1:4,:]));
+        if validHeight then
+          kg:=s[11]/(s[11]+.15^2);s[3]:=s[3]+kg*dvlFix;s[11]:=(1-kg)*s[11];
+        end if;
+      end if;
       (fix,count,rms):=registration(cloud,graph[nearest,:],s[1:4]);
       if count>=10 and rms<.33 then
         // Slant beams intersect a different patch of wall after translation.
@@ -304,6 +365,17 @@ package Perception "Acoustic/optical acquisition and pressure- and gravity-aided
       if nk>1 then graph[nk,5:8]:=s[1:4]-graph[nk-1,1:4];end if;
       for i in 1:48 loop off:=8+3*(i-1);graph[nk,off+1:off+3]:=cloud[i,:];end for;
       graph[nk,153:170]:=ft[1:18,5];s[13]:=nk;
+      // Five unassigned fields in the existing 180-column format carry four measured slant
+      // ranges and the estimated tilt at acquisition, exact after Float32 transport.
+      // A zero code denotes a legacy frame or an observation without four-beam lock.
+      if lock then
+        rollIndex:=min(3600,max(0,integer(floor(roll*1800/pi+1800.5))));
+        pitchIndex:=min(1800,max(0,integer(floor(pitch*1800/pi+900.5))));
+        graph[nk,176]:=1+2048*rollIndex+pitchIndex;
+        graph[nk,177:180]:=raw[1:4];
+      else
+        graph[nk,176:180]:=zeros(5);
+      end if;
       if loopId>0 then
         graph[nk,171]:=loopId;graph[nk,172:175]:=s[1:4]-graph[loopId,1:4]+{fix[1],fix[2],0,fix[3]};
         s[14]:=s[14]+1;s[15]:=t;

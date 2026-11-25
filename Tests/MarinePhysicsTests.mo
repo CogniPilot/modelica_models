@@ -1,5 +1,30 @@
 within Tests;
 model MarinePhysicsTests "Check Fourier surface sampling, hydrostatic current and contact conventions"
+  function checkDvl
+    output Boolean passed;
+  protected
+    constant Real phi=Modelica.Constants.pi/8;
+    constant Real axes[4,3]=[sin(phi),0,-cos(phi);-sin(phi),0,-cos(phi);
+      0,sin(phi),-cos(phi);0,-sin(phi),-cos(phi)];
+    Real reference[4,3],observed[4,3],dz;
+    Boolean valid;
+  algorithm
+    reference:=Marine.Wreck.Perception.dvlWorldPoints({2,3,-4},0,0,Modelica.Constants.pi/2,
+      fill(2,4),axes);
+    assert(abs(reference[1,2]-3-2*sin(phi))<1e-9 and
+      abs(reference[1,3]+4+.15+2*cos(phi))<1e-9,
+      "DVL beam uses the transducer offset, slant range and ENU attitude");
+    observed:=reference;observed[:,3]:=observed[:,3]+fill(.10,4);
+    (dz,valid):=Marine.Wreck.Perception.dvlHeightCorrection(observed,reference);
+    assert(valid and abs(dz+.10)<1e-9,"Overlapping coplanar returns correct positive height bias downward");
+    observed[1,3]:=observed[1,3]+.30;
+    (dz,valid):=Marine.Wreck.Perception.dvlHeightCorrection(observed,reference);
+    assert(not valid,"A discontinuous DVL footprint cannot constrain height");
+    observed:=reference;observed[:,1]:=observed[:,1]+fill(5.,4);
+    (dz,valid):=Marine.Wreck.Perception.dvlHeightCorrection(observed,reference);
+    assert(not valid,"A spatially disjoint footprint cannot constrain height");
+    passed:=true;
+  end checkDvl;
   function check
     output Boolean passed;
   protected
@@ -22,4 +47,5 @@ model MarinePhysicsTests "Check Fourier surface sampling, hydrostatic current an
   end check;
 initial algorithm
     assert(check(),"Marine physics invariants");
+    assert(checkDvl(),"DVL keyframe geometry and correspondence gates");
 end MarinePhysicsTests;
