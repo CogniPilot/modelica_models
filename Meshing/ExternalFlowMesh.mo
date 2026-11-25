@@ -1,7 +1,7 @@
 within Meshing;
 model ExternalFlowMesh "Generate an OpenFOAM case mesh during initialization"
   parameter String surfacePath "Path to a closed triangulated ASCII STL";
-  parameter String meshDirectory "New or empty constant/polyMesh directory";
+  parameter String meshDirectory="" "Optional export to a new or empty constant/polyMesh directory";
   parameter Real lower[3](each unit="m"),upper[3](each unit="m");
   parameter Integer baseCells[3],levels(min=0)=1;
   parameter Real metresPerUnit=1,snapFraction(min=0,max=0.6)=0.2;
@@ -15,8 +15,10 @@ model ExternalFlowMesh "Generate an OpenFOAM case mesh during initialization"
   parameter Real featureAngle(unit="rad")=Modelica.Constants.pi/4 "Dihedral threshold for finest surface refinement";
   parameter Boolean captureThinSolids=false "Capture intersected cells where adjacent centres miss the solid";
   parameter Integer expectedBodyComponents(min=0)=0 "Expected number of wall shells; zero skips this check";
+  parameter Method method=if captureThinSolids then Method.thinWallCartesian else Method.snappedCartesian;
+  parameter String cacheDirectory="" "Set to reuse a stored volume mesh";
   final parameter Integer cells(fixed=false);
 initial algorithm
   cells:=meshSTL(surfacePath,meshDirectory,lower,upper,baseCells,levels,metresPerUnit,
-    snapFraction,layers,layerThickness,growth,refinementBoxes,boxLevels,smoothSurfaceLevel,featureAngle,captureThinSolids,expectedBodyComponents);
+    snapFraction,layers,layerThickness,growth,refinementBoxes,boxLevels,smoothSurfaceLevel,featureAngle,captureThinSolids,expectedBodyComponents,method,cacheDirectory);
 end ExternalFlowMesh;

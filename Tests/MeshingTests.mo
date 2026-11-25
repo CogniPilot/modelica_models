@@ -5,6 +5,7 @@ model MeshingTests "Verify conforming refinement, body patch extraction and wall
   protected
     Real points[8,3]={{1,1,1},{2,1,1},{2,2,1},{1,2,1},{1,1,2},{2,1,2},{2,2,2},{1,2,2}};
     Integer faces[12,3]={{1,3,2},{1,4,3},{5,6,7},{5,7,8},{1,2,6},{1,6,5},{2,3,7},{2,7,6},{3,4,8},{3,8,7},{4,1,5},{4,5,8}};
+    Real planePhi[3,3,3],distances[7,7,7],reversed[7,7,7];
     Real triangles[12,3,3],plate[12,3,3],pair[24,3,3],v[:];
     Meshing.PolyMesh m,moved;
     Real limited[:,:];
@@ -14,6 +15,15 @@ model MeshingTests "Verify conforming refinement, body patch extraction and wall
     Boolean crease[12];
     Real sourceArea,wallArea,sourceVolume,wallVolume;
   algorithm
+    // A slanted cut through the unit cube leaves exactly half of its volume.
+    for i in 1:3 loop
+      for j in 1:3 loop
+        for k in 1:3 loop planePhi[i,j,k]:=(i+j+k-6)/2.0;end for;
+      end for;
+    end for;
+    m:=Meshing.levelSetMesh({0,0.5,1},{0,0.5,1},{0,0.5,1},planePhi);
+    v:=Meshing.cellVolumes(m,true);
+    assert(abs(sum(v)-0.5)<1e-12 and Meshing.bodyComponentCount(m)==1,"Linear interface with exact-zero nodes");
     // The resolved fluid lane between two plates is already manifold.
     gapLabels:=fill(0,5,5,5);
     gapLabels[2,:,:]:=fill(-1,5,5);
@@ -23,6 +33,18 @@ model MeshingTests "Verify conforming refinement, body patch extraction and wall
     for i in 1:12 loop
       for j in 1:3 loop
         triangles[i,j,:]:=points[faces[i,j],:];
+      end for;
+    end for;
+    distances:=Meshing.surfaceDistanceGrid(triangles,{0,0,0},{3,3,3},{6,6,6});
+    for f in 1:12 loop plate[f,:,:]:=triangles[13-f,:,:];end for;
+    reversed:=Meshing.surfaceDistanceGrid(plate,{0,0,0},{3,3,3},{6,6,6});
+    assert(abs(distances[4,4,4]+0.5)+abs(distances[6,4,4]-0.5)+abs(distances[3,4,4])<1e-12,
+      "Incorrect signed distance to the cube");
+    for k in 1:7 loop
+      for j in 1:7 loop
+        for i in 1:7 loop
+          assert(abs(distances[i,j,k]-reversed[i,j,k])<1e-12,"Facet order changed the nearest signed distance");
+        end for;
       end for;
     end for;
     // Both faces of this thin plate lie between adjacent cell centres.
@@ -41,6 +63,10 @@ model MeshingTests "Verify conforming refinement, body patch extraction and wall
     pair[13:24,:,1]:=pair[13:24,:,1] .+ 1.5;
     m:=Meshing.generate({0,0,0},{4,4,4},{8,8,8},0,pair,0,captureThinSolids=true);
     assert(Meshing.bodyComponentCount(m)==2,"Distinct thin plates must remain separate");
+    m:=Meshing.surfacePrismMesh(points,faces,{0.01,0.025,0.05});
+    (sourceArea,wallArea,sourceVolume,wallVolume):=Meshing.bodySurfaceMetrics(m,triangles);
+    assert(m.nCells==36 and abs(sourceArea-wallArea)+abs(sourceVolume-wallVolume)<1e-12,
+      "Prism layers must retain the original cube wall and enclose one cell per face per layer");
     crease:=Meshing.surfaceFeatureFaces(triangles,Modelica.Constants.pi/4);
     assert(sum(if value then 1 else 0 for value in crease)==12,"Each cube triangle borders a crease");
     crease:=Meshing.surfaceFeatureFaces(triangles,0.51*Modelica.Constants.pi);

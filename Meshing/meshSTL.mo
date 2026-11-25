@@ -15,21 +15,14 @@ impure function meshSTL "Generate and verify an exterior volume mesh, then expor
   input Real featureAngle(unit="rad")=Modelica.Constants.pi/4 "Dihedral threshold for finest surface refinement";
   input Boolean captureThinSolids=false "Capture intersected cells where adjacent centres miss the solid";
   input Integer expectedBodyComponents(min=0)=0 "Expected number of wall shells; zero skips this check";
+  input Method method=if captureThinSolids then Method.thinWallCartesian else Method.snappedCartesian;
+  input String cacheDirectory="" "Optional directory of reusable binary volume meshes";
   output Integer cells;
 protected
-  Real triangles[:,3,3],volumes[:];
   PolyMesh mesh;
 algorithm
-  triangles:=readAsciiSTL(surfacePath,metresPerUnit);
-  mesh:=generate(lower,upper,baseCells,levels,triangles,snapFraction,refinementBoxes,boxLevels,smoothSurfaceLevel,featureAngle,captureThinSolids);
-  if layers>0 then
-    mesh:=addWallLayers(mesh,layers,layerThickness,growth);
-  end if;
-  volumes:=cellVolumes(mesh,checkFacePyramids=true);
-  assert(min(volumes)>0,"Mesh quality check failed");
-  if expectedBodyComponents>0 then
-    assert(bodyComponentCount(mesh)==expectedBodyComponents,"Unexpected number of connected solid wall components");
-  end if;
-  writePolyMesh(meshDirectory,mesh);
+  mesh:=buildSTL(surfacePath,lower,upper,baseCells,levels,metresPerUnit,snapFraction,layers,layerThickness,growth,
+    refinementBoxes,boxLevels,smoothSurfaceLevel,featureAngle,captureThinSolids,expectedBodyComponents,method,cacheDirectory);
+  if meshDirectory<>"" then writePolyMesh(meshDirectory,mesh);end if;
   cells:=mesh.nCells;
 end meshSTL;

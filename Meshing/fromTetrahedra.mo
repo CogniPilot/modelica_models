@@ -57,8 +57,11 @@ algorithm
     end for;
   end for;
   mesh:=PolyMesh(size(points,1),count,3*count,cells,points,1:3:(3*count+1),fill(0,3*count),
-    owner[1:count],neighbour[1:count],patch[1:count]);
+    fill(0,count),fill(0,count),fill(0,count));
   for i in 1:count loop
+    mesh.owner[i]:=owner[i];
+    mesh.neighbour[i]:=neighbour[i];
+    mesh.patch[i]:=patch[i];
     assert(neighbour[i]>0 or patch[i]>0,"Exterior tetrahedral face needs a positive patch ID");
     for j in 1:3 loop
       mesh.corners[3*(i-1)+j]:=corners[i,j];

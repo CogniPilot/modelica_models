@@ -95,3 +95,36 @@ OpenFOAM users will recognize surface refinement, volume refinement, snapping an
 Ansys users can specify local refinement boxes and layer thickness here. Automatic curvature sizing and prescribing a number of cells across a gap are additional capabilities to target. [Ansys sizing controls](https://ansyshelp.ansys.com/public/Views/Secured/corp/v251/en/wb_msh/msh_sf_uniform_curv_prox.html)
 
 The [algorithm review and validation matrix](meshing-algorithms.md) covers propellers, quadrotor wakes, sailboat aerodynamics and wing flutter.
+
+## Choosing a meshing method
+
+Pass a named `method` to `Meshing.generate`, `Meshing.meshSTL` or `Meshing.ExternalFlowMesh`. Existing callers that set `captureThinSolids` continue to select the matching Cartesian method.
+
+| Method | Domain | Use and limits |
+| --- | --- | --- |
+| `Meshing.Method.snappedCartesian` | Complete exterior domain | Locally refined Cartesian core, fitted wall vertices and conforming transitions. Check blade thickness and wall connectivity. |
+| `Meshing.Method.thinWallCartesian` | Complete exterior domain | Captures sheet-like solids that fall between cell centres. Check the increase in wall area and enclosed volume. |
+| `Meshing.Method.levelSetCut` | Complete exterior domain | Clips a uniformly subdivided tetrahedral background to a nodal signed-distance field. Accepts arbitrarily spaced rectilinear axes through `Meshing.levelSetMesh(x,y,z,phi)`. Check the smallest retained cell and connected wall components. |
+| `Meshing.clipTetrahedra` with a CAD-seeded unstructured background | Complete exterior domain | Independently place signed samples on both sides of the blades. The ONRT example uses SciPy/Qhull for the background and Modelica for clipping and finite-volume topology. |
+| `Meshing.surfacePrismMesh(points,triangles,heights)` | Near-wall block | Preserves the supplied closed triangular surface and extrudes conforming triangular prisms along outward vertex directions. Heights are cumulative, in metres. The outer interface needs coupling to a far-field mesh. |
+
+For a triangle soup, call `(points,faces) := Meshing.indexSurface(triangles)` before generating prisms. The routine merges vertices with exactly matching coordinates. Set `limitThickness=true` to cap the requested total extrusion locally at 5% of the smallest incident triangle altitude. This conservative setting can produce extremely thin layers. Inspect achieved thickness and quality before selecting a timestep or wall model. The generator checks closure, orientation, signed volume and face pyramids. Distant surface self-intersections require a separate collision check.
+
+For an analytic implicit body, supply nodal `phi` with positive values in the fluid and zero on the interface. For an existing tetrahedral background, `Meshing.clipTetrahedra(points,tetrahedra,phi,boundaryPatch)` preserves exterior patch IDs and adds the interface on patch 7 by default. The cut-cell generator currently has no sliver agglomeration or automatic sub-cell thin-solid recovery.
+
+The [propeller study](propeller-mesh-study.md) includes a visual comparison, three grid resolutions, measured wall errors and the reproduction command.
+
+## Saving and reusing a volume mesh
+
+Call `Meshing.buildSTL` during preprocessing or initialization. Its three outputs are the full `PolyMesh`, a Boolean cache hit and the path to the saved mesh. The default cache is `.meshing-cache` relative to the working directory. Use a shared absolute directory across different run directories. An empty string disables the cache. `meshSTL` and `ExternalFlowMesh` accept `cacheDirectory` as an optional final setting. Use `meshDirectory=""` for cache-only operation. An OpenFOAM ASCII export still requires a new or empty destination.
+
+```modelica
+(mesh, hit, artifact) := Meshing.buildSTL(
+  surfacePath, lower, upper, baseCells, levels=1,
+  method=Meshing.Method.thinWallCartesian,
+  expectedBodyComponents=1, cacheDirectory="mesh-cache");
+```
+
+The key hashes the input file bytes, the effective meshing method, bounds, resolution, refinement regions, snapping, scaling, layers and generator revision. Different operating conditions reuse the artifact when the mesh recipe stays the same. Increment `Cache.generatorVersion` when an implementation change alters generated meshes. The separate sampled-tetrahedra example versions its own recipe and hashes its background MAT file. Each cache entry contains a binary mesh and a checksum bound to its key. Temporary files are created beside the destination and published by rename. Concurrent writers can duplicate computation. Readers accept only complete, verified entries. Damaged entries are rebuilt.
+
+For any independently generated `PolyMesh`, call `Meshing.saveMesh(path,mesh)` once, then use `mesh := Meshing.loadMesh(path)` in subsequent simulations. The destination directory must exist. The portable Level-4 MAT file stores a header (format version, point count, face count, corner count, cell count), point coordinates in metres, face records (first corner, owner, neighbour, patch), and the corner-to-point index vector. Indices are one-based. This preserves volume connectivity and patch assignments, including prism blocks and unstructured meshes.

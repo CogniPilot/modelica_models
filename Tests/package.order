@@ -75,3 +75,4 @@ CollisionTests
 MeshContactTests
 MarinePhysicsTests
 MeshingTests
+MeshingCacheTests
