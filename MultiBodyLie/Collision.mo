@@ -679,7 +679,8 @@ package Collision "Collision shapes, the scene tables and contact points between
     input Real contactMargin(unit="m")=.003 "Return early if an axis separates the boxes by more than this distance";
     output Real hit[7] "Axis gap, B-to-A normal, and witness on A; the witness is valid within the contact margin";
   protected
-    Real delta[3],axis[3],normal[3],length,signedDistance,gap,p[3],onPlate[3],projection;
+    Boolean better;
+    Real delta[3],axis[3],normal[3],length,signedDistance,orientation,gap,p[3],onPlate[3],projection;
   algorithm
     delta:=center-plate;
     hit:={-1e5,0,0,0,0,0,0};
@@ -692,16 +693,16 @@ package Collision "Collision shapes, the scene tables and contact points between
         axis:=cross(axes[1+div(k-7,3),:],plateAxes[1+mod(k-7,3),:]);
       end if;
       length:=sqrt(axis*axis);
-      if length>1e-8 then
-        normal:=axis/length;
-        signedDistance:=normal*delta;
-        gap:=abs(signedDistance)-abs(axes*normal)*half-abs(plateAxes*normal)*extent;
-        if gap>hit[1] then
-          hit[1]:=gap;
-          hit[2:4]:=if signedDistance>=0 then normal else -normal;
-          if gap>contactMargin then return; end if;
-        end if;
-      end if;
+      normal:=axis/max(length,1e-8);
+      signedDistance:=normal*delta;
+      gap:=abs(signedDistance)-abs(axes*normal)*half-abs(plateAxes*normal)*extent;
+      better:=length>1e-8 and gap>hit[1];
+      hit[1]:=if better then gap else hit[1];
+      orientation:=if signedDistance>=0 then 1.0 else -1.0;
+      for component in 1:3 loop
+        hit[component+1]:=if better then orientation*normal[component] else hit[component+1];
+      end for;
+      if better and gap>contactMargin then return; end if;
     end for;
     // On a supporting face, use the closest location to the obstacle. This
     // keeps the lever arm on the struck part when a narrow rail hits a wall.

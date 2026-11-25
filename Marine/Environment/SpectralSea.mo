@@ -49,30 +49,26 @@ package SpectralSea "Directional, finite-depth Fourier sea on a periodic patch"
     (windHeight,period,amplitude):=seaPreset(state,11);
   end swellHeight;
 
-  function bitReversedIndices
+  function bitReversedIndices "Bit-reversed order for a power-of-two transform length"
     input Integer size;
     output Integer indices[size];
-  protected
-    Integer j=0,bit;
   algorithm
-    for n in 1:size loop
-      indices[n]:=j+1;
-      bit:=div(size,2);
-      while bit>0 and mod(div(j,max(1,bit)),2)==1 loop
-        j:=j-bit;bit:=div(bit,2);
-      end while;
-      j:=j+bit;
+    indices:=fill(1,size);
+    for k in 1:size-1 loop
+      // Shifting k right removes the bit that becomes the high output bit.
+      indices[k+1]:=1+div(indices[div(k,2)+1]-1,2)+mod(k,2)*div(size,2);
     end for;
   end bitReversedIndices;
   function inverseLine "Unnormalised inverse radix-two transform of Fourier series coefficients"
     input Real re[N],im[N];
     output Real x[N],y[N];
   protected
+    constant Integer stages=integer(log(N)/log(2)+.5);
     constant Integer shuffled[N]=bitReversedIndices(N);
     constant Real twiddleCos[div(N,2)]={cos(2*pi*k/N) for k in 0:div(N,2)-1};
     constant Real twiddleSin[div(N,2)]={sin(2*pi*k/N) for k in 0:div(N,2)-1};
 
-    Integer j,root,span,half,base,left,right;
+    Integer j,root,span,half,blocks,offset,base,left,right;
     Real c,s,r,i;
   algorithm
     x:=zeros(N);y:=zeros(N);
@@ -80,20 +76,22 @@ package SpectralSea "Directional, finite-depth Fourier sea on a periodic patch"
       j:=shuffled[n];x[n]:=re[j];y[n]:=im[j];
     end for;
     span:=2;
-    while span<=N loop
+    for stage in 1:stages loop
       half:=div(span,2);
-      for offset in 0:half-1 loop
-        root:=offset*div(N,span)+1;c:=twiddleCos[root];s:=twiddleSin[root];
-        for blockIndex in 0:div(N,span)-1 loop
-          base:=blockIndex*span;
-          left:=base+offset+1; right:=left+half;
-          r:=c*x[right]-s*y[right]; i:=s*x[right]+c*y[right];
-          x[right]:=x[left]-r; y[right]:=y[left]-i;
-          x[left]:=x[left]+r; y[left]:=y[left]+i;
-        end for;
+      // Every radix-two stage performs N/2 independent butterflies.
+      blocks:=div(N,span);
+      for butterfly in 0:div(N,2)-1 loop
+        offset:=div(butterfly,blocks);
+        base:=mod(butterfly,blocks)*span;
+        root:=offset*blocks+1;
+        c:=twiddleCos[root]; s:=twiddleSin[root];
+        left:=base+offset+1; right:=left+half;
+        r:=c*x[right]-s*y[right]; i:=s*x[right]+c*y[right];
+        x[right]:=x[left]-r; y[right]:=y[left]-i;
+        x[left]:=x[left]+r; y[left]:=y[left]+i;
       end for;
       span:=2*span;
-    end while;
+    end for;
   end inverseLine;
 
   function spectrumColumn "Construct one pair of conjugate columns in a real directional sea"
