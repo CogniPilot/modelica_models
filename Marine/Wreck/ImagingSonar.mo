@@ -24,6 +24,7 @@ package ImagingSonar "Forward imaging sonar, bearing and two-way travel-time bin
     Real o[3],dir[3],r,ranges[verticalSamples],power[bins],strongest,word,value;
     Real grazing,scatter,weight,bin,fraction,spacing,amplitude,speckle,localSeed,slant[bearings];
     Integer k,peak,first,last;
+    Real row[32] "One bearing of packed range cells";
     Real floorNoise[bins+3*bearings] "Additive noise shared by range cells with the same channel";
   algorithm
     intensity:=zeros(bearings,32);
@@ -56,7 +57,7 @@ package ImagingSonar "Forward imaging sonar, bearing and two-way travel-time bin
           end if;
         end if;
       end for;
-      peak:=0;strongest:=.095;word:=0;
+      peak:=0;strongest:=.095;word:=0;row:=zeros(32);
       for cell in 1:bins loop
         if power[cell]>0 then
           localSeed:=cell*13.73+b*78.31;
@@ -68,8 +69,9 @@ package ImagingSonar "Forward imaging sonar, bearing and two-way travel-time bin
           value:=integer(floor(floorNoise[cell+3*b]));
         end if;
         word:=word+value*256^mod(cell-1,4);
-        if mod(cell,4)==0 then intensity[b,div(cell,4)]:=word;word:=0;end if;
+        if mod(cell,4)==0 then row[div(cell,4)]:=word;word:=0;end if;
       end for;
+      intensity[b,:]:=row;
       slant[b]:=if peak==0 then 0 else (peak-.5)*rangeMax/bins;
     end for;
     profile:={slant[1+integer(floor((i-1)*(bearings-1)/48+.5))] for i in 1:49};
