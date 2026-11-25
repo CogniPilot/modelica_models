@@ -1,5 +1,21 @@
 within Tests;
 package MultiBodyLieTests "Gravity field, orientation residue, tree dynamics and ground contact of MultiBodyLie"
+  model ShapeAppearance "Instances on one body can have independent visible and thermal appearance"
+    inner MultiBodyLie.World world;
+    MultiBodyLie.Geometry.VisualShapes shared(n=2,uri={"a","b"},bodyTemperature=285+time);
+    MultiBodyLie.Geometry.VisualShapes distinct(n=2,uri={"c","d"},color={{30,40,50},{30,40,50}},
+      temperature={290,300+time});
+    MultiBodyLie.Geometry.VisualShapes empty(uri=fill("",0));
+  equation
+    connect(world.frame_b,shared.frame_a);
+    connect(world.frame_b,distinct.frame_a);
+    connect(world.frame_b,empty.frame_a);
+    assert(abs(shared.temperature[1]-285-time)<1e-8 and
+      abs(shared.temperature[2]-shared.temperature[1])<1e-8,"Body temperature inheritance");
+    assert(distinct.color[1,2]==40 and abs(distinct.temperature[2]-distinct.temperature[1]-10-time)<1e-8,
+      "Per-instance color and temperature");
+  end ShapeAppearance;
+
   model FreeFall "A free body's centre of mass accelerates with the world's gravity field there"
     parameter MultiBodyLie.Types.GravityTypes gravityType=MultiBodyLie.Types.GravityTypes.UniformGravity
       annotation(Evaluate=true);
