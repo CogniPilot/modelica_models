@@ -123,20 +123,7 @@ model Regatta "Five-minute fleet starts and an equilateral triangular course"
   Real buoyEast[3],buoyNorth[3],depthAt[3,3],buoyLift[3,3],buoyV[3,3];
   input Real landingReaction[6] "Drone contact wrench on launch, world ENU";
   output Real deckState[12] "Origin ENU, yaw/roll/bow-up pitch, linear and angular velocity ENU";
-  function elevationAt "Periodic bilinear elevation on an east-north grid"
-    input Real grid[:,:],east,north,period;
-    output Real elevation;
-  protected
-    Integer rows,cols,i,j,ii,jj;
-    Real x,y,a,b;
-  algorithm
-    rows:=size(grid,1); cols:=size(grid,2);
-    x:=east*cols/period; y:=north*rows/period;
-    i:=1+mod(integer(floor(x)),cols); j:=1+mod(integer(floor(y)),rows);
-    ii:=1+mod(i,cols); jj:=1+mod(j,rows);
-    a:=x-floor(x); b:=y-floor(y);
-    elevation:=(1-b)*((1-a)*grid[j,i]+a*grid[j,ii])+b*((1-a)*grid[jj,i]+a*grid[jj,ii]);
-  end elevationAt;
+  function elevationAt = Marine.Environment.elevationAt;
   output Real countdown;
   discrete output Integer stage(start=0,fixed=true) "0 prestart, 1 start open, 2/3 marks, 4 finish, 5 finished";
   discrete output Real elapsed(start=0,fixed=true);

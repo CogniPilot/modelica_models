@@ -30,3 +30,12 @@ Documentation artwork
 ----------------------
 The CogniPilot logo is from the official CogniPilot brand assets.
 https://cognipilot.com/brand/
+
+Marine simulation models
+------------------------
+The marine environment, sail, mooring, propulsion, imaging sonar, gull
+and ONR Tumblehome models incorporate Apache-2.0 code from CogniPilot
+ocean_web. The wave synthesis follows Jerry Tessendorf's Simulating Ocean
+Water. Model 5613 particulars are from the University of Iowa IIHR ONR
+Tumblehome benchmark.
+https://github.com/CogniPilot/ocean_web
