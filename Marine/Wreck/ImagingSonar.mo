@@ -24,8 +24,12 @@ package ImagingSonar "Forward imaging sonar, bearing and two-way travel-time bin
     Real o[3],dir[3],r,ranges[verticalSamples],power[bins],strongest,word,value;
     Real grazing,scatter,weight,bin,fraction,spacing,amplitude,speckle,localSeed,slant[bearings];
     Integer k,peak,first,last;
+    Real floorNoise[bins+3*bearings] "Additive noise shared by range cells with the same channel";
   algorithm
     intensity:=zeros(bearings,32);
+    for channel in 1:(bins+3*bearings) loop
+      floorNoise[channel]:=2*(1+Perception.noise(t,channel));
+    end for;
     o:=pos+transpose(T)*mount;
     for b in 1:bearings loop
       ranges:=samples[b,:];
@@ -54,11 +58,15 @@ package ImagingSonar "Forward imaging sonar, bearing and two-way travel-time bin
       end for;
       peak:=0;strongest:=.095;word:=0;
       for cell in 1:bins loop
-        localSeed:=cell*13.73+b*78.31;
-        speckle:=.45+1.1*mod(43758.55*sin(localSeed),1)+.20*Perception.noise(t,b*bins+cell);
-        value:=power[cell]*speckle;
-        if value>strongest then strongest:=value;peak:=cell;end if;
-        value:=min(255,integer(floor(252*(1-exp(-1.65*value))+2*(1+Perception.noise(t,cell+3*b)))));
+        if power[cell]>0 then
+          localSeed:=cell*13.73+b*78.31;
+          speckle:=.45+1.1*mod(43758.55*sin(localSeed),1)+.20*Perception.noise(t,b*bins+cell);
+          value:=power[cell]*speckle;
+          if value>strongest then strongest:=value;peak:=cell;end if;
+          value:=min(255,integer(floor(252*(1-exp(-1.65*value))+floorNoise[cell+3*b])));
+        else
+          value:=integer(floor(floorNoise[cell+3*b]));
+        end if;
         word:=word+value*256^mod(cell-1,4);
         if mod(cell,4)==0 then intensity[b,div(cell,4)]:=word;word:=0;end if;
       end for;
