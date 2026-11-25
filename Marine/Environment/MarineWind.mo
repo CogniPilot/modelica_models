@@ -1,52 +1,78 @@
 within Marine.Environment;
-model MarineWind "Advected gusts, directional shifts and short-wave response on a periodic 96 m patch"
+model MarineWind "Advected gusts, directional shifts and short-wave response on a periodic 288 m patch"
   constant Integer n=48;
-  parameter Real period=96,dt=.25,seed=1;
+  parameter Real period=288,dt=.25,seed=1;
   input Real meanEast,meanNorth,east,north;
   output Real strikeBearing,strikeFlash,thunderArrival "Atmospheric signal at the observer";
+  input Real phaseOffset=0 "Room phase minus local simulation time [s]";
+  input Real advectionAnchor[5]=zeros(5) "Phase advance [s], peer east/north travel and local east/north travel at receipt [m]";
+  output Real gustEast,gustNorth "Room-aligned advection distances [m]";
+  Real weatherTime;
   Real stormAge,stormRange,stormPhase;
   Real travelE(start=0,fixed=true),travelN(start=0,fixed=true);
   discrete output Real field[n,n,3](each start=0,each fixed=true) "East, north [m/s] and short-wave roughness proxy [m/s]";
   input Real droneEast,droneNorth;
   output Real droneWind[3];
   output Real localEast,localNorth;
-  function cell "Wind vector and evolving roughness at one grid point"
-    input Integer i,j;
-    input Real prior,speed,direction,meanShift,cx[8],cy[8],turn[8],gain[8],width[8],lengths[8],period,dt,t;
-    output Real value[3];
+  function gustCell "Wind vector and roughness for one independent grid cell"
+    input Real eastOffset[8],northOffset[8],previous,speed,direction,c,s,meanShift,width[8],lengths[8],turn[8],gain[8],t,rise,fall;
+    output Real cell[3];
   protected
     Real amplitude,shift,ex,ny,along,across,w,theta,u,relax;
   algorithm
-    amplitude:=1;shift:=meanShift;
+    amplitude:=.975;shift:=meanShift;
     for g in 1:8 loop
-      ex:=mod((i-1)*period/n-cx[g]+period/2,period)-period/2;
-      ny:=mod((j-1)*period/n-cy[g]+period/2,period)-period/2;
-      along:=ex*cos(direction)+ny*sin(direction);across:=-ex*sin(direction)+ny*cos(direction);
-      w:=exp(-.5*((along/lengths[g])^2+(across/width[g])^2));
+      ex:=eastOffset[g];
+      ny:=northOffset[g];
+      along:=ex*c+ny*s;across:=-ex*s+ny*c;
+      // Compact smooth footprint, with zero slope at the perimeter.
+      w:=max(0,1-(along/lengths[g])^2-(across/width[g])^2)^3;
       amplitude:=amplitude+gain[g]*w;shift:=shift+turn[g]*w;
     end for;
     theta:=direction+shift;u:=speed*amplitude;
-    relax:=if u>prior then 1.4 else 3.5;
-    value:={u*cos(theta),u*sin(theta),if t<.01 then u else prior+(1-exp(-dt/relax))*(u-prior)};
-  end cell;
+    cell[1]:=u*cos(theta);cell[2]:=u*sin(theta);
+    relax:=if u>previous then rise else fall;
+    cell[3]:=if t<.01 then u else previous+relax*(u-previous);
+  end gustCell;
   function fieldStep
     input Real prev[n,n,3],baseE,baseN,travelE,travelN,t,seed,period,dt;
     output Real tile[n,n,3];
   protected
-    Real speed,direction,meanShift;
-    Real cx[8],cy[8],turn[8],gain[8],width[8],lengths[8];
+    Real speed,direction,meanShift,c,s,anchorE,anchorN,along,across,hand,coordinate;
+    Integer member,groupIndex;
+    // A broad gust, two offset lobes and a trailing lull travel together.
+    constant Real alongOffset[4]={0,-.108,.105,-.18},crossOffset[4]={0,.031,.018,-.09};
+    constant Real halfLength[4]={.235,.145,.123,.195},halfWidth[4]={.117,.076,.093,.124};
+    constant Real peak[4]={.27,.20,.17,-.23};
+    Real cx[8],cy[8],turn[8],gain[8],width[8],lengths[8],eastOffsets[n,8],northOffsets[n,8],rise,fall;
   algorithm
     speed:=sqrt(baseE^2+baseN^2);direction:=atan2(baseN,baseE);
+    c:=cos(direction);s:=sin(direction);
     meanShift:=.12*sin(t/37+seed)+.075*sin(t/21+.3*seed);
     for g in 1:8 loop
-      cx[g]:=mod(59.17*g+7.3*seed+travelE+.6*g*sin(.027*t+g),period);
-      cy[g]:=mod(37.61*g+3.6*seed+travelN+.4*g*cos(.043*t+g),period);
-      width[g]:=3.5+mod(g*1.45,4);lengths[g]:=6+mod(g*4.3,10);
-      turn[g]:=.30*sin(2.3*g+seed);
-      gain[g]:=(if mod(g,4)==0 then -.30 else .48)*(.72+.28*sin(t/(7+g)+g+seed));
+      member:=1+mod(g-1,4);groupIndex:=div(g-1,4);hand:=1-2*groupIndex;
+      anchorE:=travelE+period*(.09+.46*groupIndex+.07*sin(seed+groupIndex));
+      anchorN:=travelN+period*(.16+.42*groupIndex+.05*cos(seed-groupIndex));
+      along:=period*(alongOffset[member]+.018*sin(t/39+g+seed));
+      across:=period*hand*(crossOffset[member]+.026*cos(.031*t+.9*g+seed));
+      cx[g]:=anchorE+along*c-across*s;cy[g]:=anchorN+along*s+across*c;
+      width[g]:=period*halfWidth[member]*(1+.15*sin(t/46+g));
+      lengths[g]:=period*halfLength[member]*(1+.12*cos(t/53+g));
+      turn[g]:=.17*hand*cos(.7*member+seed);
+      gain[g]:=peak[member]*(.9+.1*sin(t/34+g+seed));
     end for;
-    tile:={cell(i,j,prev[j,i,3],speed,direction,meanShift,cx,cy,turn,gain,width,lengths,period,dt,t)
-      for i in 1:n, j in 1:n};
+    // A periodic displacement along either axis is independent of the other.
+    for i in 1:n loop
+      coordinate:=(i-1)*period/n;
+      for g in 1:8 loop
+        eastOffsets[i,g]:=mod(coordinate-cx[g]+period/2,period)-period/2;
+        northOffsets[i,g]:=mod(coordinate-cy[g]+period/2,period)-period/2;
+      end for;
+    end for;
+    rise:=1-exp(-dt/1.4);
+    fall:=1-exp(-dt/3.5);
+    tile:={gustCell(eastOffsets[i,:],northOffsets[j,:],prev[j,i,3],speed,direction,c,s,
+      meanShift,width,lengths,turn,gain,t,rise,fall) for i in 1:n, j in 1:n};
   end fieldStep;
   function sampleWind
     input Real grid[n,n,3],east,north,period;
@@ -65,8 +91,11 @@ model MarineWind "Advected gusts, directional shifts and short-wave response on 
   end sampleWind;
   Real boatWind[3];
 equation
-  stormAge=mod(time,14);
-  stormPhase=floor(time/14);
+  weatherTime=time+phaseOffset;
+  gustEast=travelE+advectionAnchor[2]-advectionAnchor[4]+.74*meanEast*advectionAnchor[1];
+  gustNorth=travelN+advectionAnchor[3]-advectionAnchor[5]+.74*meanNorth*advectionAnchor[1];
+  stormAge=mod(weatherTime,14);
+  stormPhase=floor(weatherTime/14);
   strikeBearing=atan2(meanNorth,meanEast)+3.14159+.71*sin(stormPhase*13.58+seed);
   stormRange=850+550*(1+sin(7.13*stormPhase+seed));
   strikeFlash=if stormAge<.5 then 0 else exp(-13*(stormAge-.5))+
@@ -74,7 +103,7 @@ equation
   thunderArrival=if stormAge>=.5+stormRange/343 then stormPhase else stormPhase-1;
   der(travelE)=.74*meanEast;der(travelN)=.74*meanNorth;
   when sample(0,dt) then
-    field=fieldStep(pre(field),meanEast,meanNorth,travelE,travelN,time,seed,period,dt);
+    field=fieldStep(pre(field),meanEast,meanNorth,gustEast,gustNorth,weatherTime,seed,period,dt);
   end when;
   boatWind=sampleWind(field,east,north,period);
   localEast=boatWind[1];localNorth=boatWind[2];
