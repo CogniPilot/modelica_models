@@ -45,6 +45,8 @@ package Wreck "Submerged survey vehicle, wreck contact and sensor navigation"
     Real netForce[3],effectiveMass[3];
     Tank fore, aft;
     input Real sensor[91];
+    input Real navigationUp(unit="m",start=0) "Estimated vehicle height in ENU coordinates";
+    input Real navigationUpValid(start=0) "Enable the external fused height estimate";
     input Real elevationRanges[100](each start=0) "Four elevation fans of 25 slant ranges, zero means no echo";
     input Real manual(start=0) "Enable pilot velocity setpoints above 0.5";
     input Real pilot[4](each start=0) "Body surge, port sway, yaw rate and upward speed [m/s,m/s,rad/s,m/s]";
@@ -109,7 +111,7 @@ package Wreck "Submerged survey vehicle, wreck contact and sensor navigation"
     eastError=goal[1]-sensor[60];
     northError=goal[2]-sensor[61];
     heading=sensor[62];
-    depthEst=sensor[59]/(rho*g);
+    depthEst=if navigationUpValid>.5 then .29-navigationUp else sensor[59]/(rho*g);
     goalDepth=if manual>.5 then 10.29 else .29-goal[3];
     verticalError=depthEst-goalDepth;
     // Waypoints advance only on measured arrival. Hold the final station.
