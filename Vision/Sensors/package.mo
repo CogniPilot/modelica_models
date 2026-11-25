@@ -4,6 +4,7 @@ package Sensors
   "Camera profiles, calibration and image input contracts"
   annotation(Documentation(info = "<html>
     <h4>Camera stream profiles</h4>
+<p><a href=\"modelica://Vision.Sensors.MicFusion9000\">MicFusion9000</a> models the visible and thermal optics, upright mount and wet windows of the MIC-9502-Z30WVF.</p>
 <p><a href=\"modelica://Vision.Sensors.D435ImageProfile\">D435ImageProfile</a>
 provides array dimensions and the default depth scale for a D435-type stream.
 It is configuration data, not a hardware driver or a calibration estimator.</p>
