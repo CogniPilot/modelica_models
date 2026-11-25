@@ -1,8 +1,10 @@
 within Marine.Wreck;
 package Perception "Acoustic/optical acquisition and pressure- and gravity-aided keyframe SLAM"
   constant Integer rays=1017, width=36, height=24, keys=48, stride=180;
+  constant Real cameraFx=18/tan(40*pi/180),cameraFy=12/tan(32*pi/180);
+  constant Real dvlMount[3]={0,0,-.15} "Assumed transducer face below the body origin, FLU";
   function directions
-    input Real focal=24;
+    input Real focal=cameraFx;
     output Real d[rays,3];
   protected
     Real a,b,l,u,v;
@@ -13,13 +15,13 @@ package Perception "Acoustic/optical acquisition and pressure- and gravity-aided
         a:=if i==1 then 0 elseif i==2 then pi elseif i==3 then pi/2 else -pi/2;
         d[i,:]:={sin(pi/8)*cos(a),sin(pi/8)*sin(a),-cos(pi/8)};
       elseif i<=153 then
-        if i<=53 then a:=(i-29)*pi/72; b:=0;
+        if i<=53 then a:=(i-29)*ImagingSonar.halfFan/24; b:=0;
         else row:=div(i-54,25);col:=mod(i-54,25);a:=(col-12)*pi/36;
           b:=(if row==0 then -24 elseif row==1 then -12 elseif row==2 then 12 else 24)*pi/180;
         end if;
         d[i,:]:={cos(b)*cos(a),cos(b)*sin(a),sin(b)};
       else
-        u:=(18-mod(i-154,width))/focal;v:=(12-div(i-154,width))/focal;l:=sqrt(1+u*u+v*v);
+        u:=(17.5-mod(i-154,width))/focal;v:=(11.5-div(i-154,width))/cameraFy;l:=sqrt(1+u*u+v*v);
         d[i,:]:={1/l,u/l,v/l};
       end if;
     end for;
@@ -64,14 +66,18 @@ package Perception "Acoustic/optical acquisition and pressure- and gravity-aided
 
   function renderDepth "First returns along the four DVL, 149 sonar and 864 pinhole-camera rays"
     input Real pos[3],T[3,3],d[rays,3];
+    input Boolean camera=true,sonar=true;
     output Real depth[rays];
   protected Real eye[3],limit,hit;
   algorithm
     eye:=pos+transpose(T)*{.62,0,.09};
-    for i in 1:rays loop
-      limit:=if i<=4 then 35 elseif i<=153 then 18 else 8;
-      hit:=WreckSolids.beamRange(if i<=153 then pos else eye,transpose(T)*d[i,:],limit+1);
+    depth:=zeros(rays);
+    for i in 1:(if camera then rays elseif sonar then 153 else 4) loop
+      if i<=4 or i>153 then
+      limit:=if i<=4 then 50/cos(pi/8) elseif i<=153 then 18 else 8;
+      hit:=WreckSolids.beamRange(if i<=4 then pos+transpose(T)*dvlMount else eye,transpose(T)*d[i,:],limit+1);
       depth[i]:=if hit<=limit then hit else 0;
+      end if;
     end for;
   end renderDepth;
 
@@ -83,6 +89,7 @@ package Perception "Acoustic/optical acquisition and pressure- and gravity-aided
 
   function instruments
     input Real t,pos[3],T[3,3],v[3],rates[3],accel[3],pressure,depth[rays],d[rays,3];
+    input Boolean camera=true;
     output Real raw[195] "149 sonar ranges, four DVL ranges and radial velocities, pressure, inertial measurements";
     output Real image[864];
   protected
@@ -93,13 +100,20 @@ package Perception "Acoustic/optical acquisition and pressure- and gravity-aided
       r:=depth[i];
       raw[i]:=if r>.08 and noise(t,1000+i)>(if i<5 then -.976 else -.93) then max(.08,r+noise(t,i)*(.012+.0015*r)) else 0;
     end for;
-    for i in 1:4 loop raw[153+i]:=1.006*(d[i,:]*v)+.009*noise(t,160+i);end for;
+    for i in 1:4 loop
+      // Bottom-track Doppler measures transducer velocity along the acoustic axis.
+      // Residual scale and random errors are illustrative standard-unit settings.
+      r:=1.006*(d[i,:]*(v+cross(rates,dvlMount)))+.009*noise(t,160+i);
+      if abs(r)>3.75 then raw[i]:=0;end if;
+      raw[153+i]:=if raw[i]>0 then .0001*floor(r/.0001+.5) else 0;
+    end for;
     raw[158]:=pressure+55*noise(t,158);
     for i in 1:3 loop
       raw[158+i]:=rates[i]+.002*noise(t,158+i)+(if i==3 then .0018 else 0);
       raw[161+i]:=accel[i]+.025*noise(t,161+i);
     end for;
-    for i in 1:864 loop
+    image:=zeros(864);
+    for i in 1:(if camera then 864 else 0) loop
       r:=depth[153+i];signalLevel:=14;
       if r>0 then
         rayWorld:=transpose(T)*d[153+i,:];p:=eye+r*rayWorld;
@@ -144,7 +158,7 @@ package Perception "Acoustic/optical acquisition and pressure- and gravity-aided
         end for;end for;
         if first<190 and first<.82*second then
           matches:=matches+1;ft[n,3]:=bx+sx;ft[n,4]:=by+sy;
-          delta:=atan((18-bx-sx)/24)-atan((18-bx)/24);opticalRate:=opticalRate+delta/.2;
+          delta:=atan((17.5-bx-sx)/cameraFx)-atan((17.5-bx)/cameraFx);opticalRate:=opticalRate+delta/.2;
         end if;
       end if;
     end for;end for;
@@ -187,22 +201,77 @@ package Perception "Acoustic/optical acquisition and pressure- and gravity-aided
       end if;
     end for;
   end registration;
+  function dvlWorldPoints "Measured bottom-lock intercepts in world ENU, including the DVL mounting offset"
+    input Real position[3], roll, pitch, yaw, ranges[4], beams[4,3];
+    output Real points[4,3];
+  protected
+    Real cr=cos(roll),sr=sin(roll),cp=cos(pitch),sp=sin(pitch),cy=cos(yaw),sy=sin(yaw);
+    Real body[3],forwardLevel,portLevel;
+  algorithm
+    for beam in 1:4 loop
+      body:=dvlMount+ranges[beam]*beams[beam,:];
+      forwardLevel:=cp*body[1]+sp*(sr*body[2]+cr*body[3]);
+      portLevel:=cr*body[2]-sr*body[3];
+      points[beam,:]:=position+{cy*forwardLevel-sy*portLevel,sy*forwardLevel+cy*portLevel,
+        -sp*body[1]+cp*(sr*body[2]+cr*body[3])};
+    end for;
+  end dvlWorldPoints;
+
+  function dvlHeightCorrection "Vertical residual from overlapping four-beam footprints on one locally planar surface"
+    input Real observed[4,3],reference[4,3];
+    output Real correction;
+    output Boolean accepted;
+  protected
+    Real normal[3],center[3],residual[4],heightError,minimum,maximum,distance;
+    Integer count;
+  algorithm
+    normal:=cross(reference[1,:]-reference[2,:],reference[3,:]-reference[4,:]);
+    center:=(reference[1,:]+reference[2,:]+reference[3,:]+reference[4,:])/4;
+    // Reject vertical or degenerate patches, and hits on opposite sides of a discontinuity.
+    accepted:=normal[3]^2>.5*(normal*normal) and abs(normal[3])>1e-6;
+    correction:=0;count:=0;minimum:=1e9;maximum:=-1e9;
+    if accepted then
+      for k in 1:4 loop
+        residual[k]:=normal*(reference[k,:]-center)/normal[3];
+        if abs(residual[k])>.045 then accepted:=false;end if;
+      end for;
+      for k in 1:4 loop
+        distance:=min({(observed[k,1]-reference[j,1])^2+(observed[k,2]-reference[j,2])^2 for j in 1:4});
+        if distance<.30^2 then
+          heightError:=normal*(center-observed[k,:])/normal[3];
+          correction:=correction+heightError;count:=count+1;
+          minimum:=min(minimum,heightError);maximum:=max(maximum,heightError);
+        end if;
+      end for;
+      correction:=correction/max(1,count);
+      accepted:=accepted and count>=3 and maximum-minimum<.10 and abs(correction)<.20;
+    end if;
+  end dvlHeightCorrection;
+
   function estimate "Pressure/gravity aided sonar keyframe graph; temporal optical features constrain yaw and verify revisits"
     input Real t,raw[195],d[rays,3],image[864],previousImage[864],previous[21],history[keys,stride];
+    input Boolean camera=true,mapping=true;
+    input Real initialPosition[3]={-5,0,-10},pressureDatum=.29;
     output Real s[21],graph[keys,stride],sensor[91],ft[24,5];
   protected
     Real ring[16],opticalRate,cloud[48,3],r,roll,pitch,cp,sp,cr,sr,x,y,z,kg,fix[3],rms,best,chosenFix[3],innovation[4],oldPose[4];
     Integer nf,nm,nk,beam,nearest,count,loopId,votes,idx,off,edgeIndex;
     Real dist,bestDist,dt,measVar,bodyHeave,levelSurge,levelSway,bearing,oldBearing,axialRange,rateSum,correctedRate;
     Integer rateCount;
-    Boolean lock,newKey;
+    Boolean lock,newKey,validHeight;
+    Real dvlFix,oldRoll,oldPitch;
+    Integer tiltCode,rollIndex,pitchIndex;
   algorithm
     s:=previous;graph:=history;sensor:=zeros(91);dt:=if t==0 then 0 else .2;
-    if t==0 then s[1]:=-5;s[3]:=-10;s[9:12]:={.04,.04,.04,.000225};
+    if t==0 then s[1:3]:=initialPosition;s[9:12]:={.04,.04,.04,.000225};
       // Zero-rate measurement in the stationary launch cradle.
       s[21]:=raw[161];
     end if;
-    (ft,ring,opticalRate,nf,nm):=features(image,previousImage);
+    if camera then
+      (ft,ring,opticalRate,nf,nm):=features(image,previousImage);
+    else
+      ft:=fill(-1,24,5);ring:=zeros(16);opticalRate:=0;nf:=0;nm:=0;
+    end if;
     lock:=min(raw[1:4])>0;
     if raw[1]>0 and raw[2]>0 then s[5]:=(raw[154]-raw[155])/(2*sin(pi/8));end if;
     if raw[3]>0 and raw[4]>0 then s[6]:=(raw[156]-raw[157])/(2*sin(pi/8));end if;
@@ -217,9 +286,9 @@ package Perception "Acoustic/optical acquisition and pressure- and gravity-aided
     rateSum:=0;rateCount:=0;
     for k in 1:18 loop
       if dt>0 and lock and ft[k,3]>=0 then
-        bearing:=atan((18-ft[k,1])/24);oldBearing:=atan((18-ft[k,3])/24);
-        beam:=29+integer(floor(bearing*72/pi+.5));
-        axialRange:=raw[beam]*cos(bearing)-.62;
+        bearing:=atan((17.5-ft[k,1])/cameraFx);oldBearing:=atan((17.5-ft[k,3])/cameraFx);
+        beam:=29+integer(floor(bearing*24/ImagingSonar.halfFan+.5));
+        axialRange:=raw[beam]*cos(ImagingSonar.depression)*cos(bearing)+ImagingSonar.mount[1]-.62;
         if axialRange>.4 then
           r:=(oldBearing-atan2(axialRange*tan(bearing)+dt*s[6],axialRange+dt*s[5]))/dt;
           if abs(r-correctedRate)<.16 then rateSum:=rateSum+r;rateCount:=rateCount+1;end if;
@@ -239,17 +308,38 @@ package Perception "Acoustic/optical acquisition and pressure- and gravity-aided
     // uncertainty per ping after beam inversion, and .11 m/s during coast.
     s[9]:=s[9]+dt^2*(if lock then .02^2 else .11^2);
     s[10]:=s[10]+dt^2*(if lock then .02^2 else .11^2);
-    s[11]:=s[11]+.0025;kg:=s[11]/(s[11]+.0036);s[3]:=s[3]+kg*(.29-raw[158]/(rho*g)-s[3]);s[11]:=(1-kg)*s[11];
-    for i in 1:48 loop
-      beam:=5+3*(i-1);r:=raw[beam];x:=r*d[beam,1];y:=r*d[beam,2];z:=r*d[beam,3];
+    if lock then s[3]:=s[3]+dt*(-sp*s[5]+cp*(sr*s[6]+cr*bodyHeave));end if;
+    s[11]:=s[11]+.0025;kg:=s[11]/(s[11]+.0036);s[3]:=s[3]+kg*(pressureDatum-raw[158]/(rho*g)-s[3]);s[11]:=(1-kg)*s[11];
+    nk:=integer(s[13]);nearest:=0;count:=0;rms:=99;
+    cloud:=zeros(48,3);
+    for i in 1:(if mapping then 48 else 0) loop
+      beam:=4+i;r:=raw[beam];
+      if r>0 then
+        // A fan echo has unknown elevation. Use its beam centre for the
+        // horizontal registration; depth remains pressure-aided.
+        x:=ImagingSonar.mount[1]+r*cos(ImagingSonar.depression)*d[beam,1];
+        y:=r*cos(ImagingSonar.depression)*d[beam,2];
+        z:=ImagingSonar.mount[3]-r*sin(ImagingSonar.depression);
+      else x:=0;y:=0;z:=0;end if;
       cloud[i,:]:={cp*x+sp*(sr*y+cr*z),cr*y-sr*z,-sp*x+cp*(sr*y+cr*z)};
     end for;
-    nk:=integer(s[13]);nearest:=0;bestDist:=1e9;loopId:=0;count:=0;rms:=99;
-    for i in 1:nk loop
+    bestDist:=1e9;loopId:=0;
+    for i in 1:(if mapping then nk else 0) loop
       dist:=(s[1]-graph[i,1])^2+(s[2]-graph[i,2])^2+(s[3]-graph[i,3])^2;
       if dist<bestDist and cos(s[4]-graph[i,4])>.85 then bestDist:=dist;nearest:=i;end if;
     end for;
     if nearest>0 and bestDist<4 then
+      if lock and graph[nearest,176]>0 then
+        tiltCode:=integer(graph[nearest,176])-1;
+        oldRoll:=(div(tiltCode,2048)-1800)*pi/1800;
+        oldPitch:=(mod(tiltCode,2048)-900)*pi/1800;
+        (dvlFix,validHeight):=dvlHeightCorrection(
+          dvlWorldPoints(s[1:3],roll,pitch,s[4],raw[1:4],d[1:4,:]),
+          dvlWorldPoints(graph[nearest,1:3],oldRoll,oldPitch,graph[nearest,4],graph[nearest,177:180],d[1:4,:]));
+        if validHeight then
+          kg:=s[11]/(s[11]+.15^2);s[3]:=s[3]+kg*dvlFix;s[11]:=(1-kg)*s[11];
+        end if;
+      end if;
       (fix,count,rms):=registration(cloud,graph[nearest,:],s[1:4]);
       if count>=10 and rms<.33 then
         // Slant beams intersect a different patch of wall after translation.
@@ -268,13 +358,24 @@ package Perception "Acoustic/optical acquisition and pressure- and gravity-aided
         end if;
       end if;
     end if;
-    newKey:=nk==0;
-    if nk>0 then newKey:=(s[1]-graph[nk,1])^2+(s[2]-graph[nk,2])^2+(s[3]-graph[nk,3])^2>1.35^2 or abs(sin(s[4]-graph[nk,4]))>.45;end if;
+    newKey:=mapping and nk==0;
+    if mapping and nk>0 then newKey:=(s[1]-graph[nk,1])^2+(s[2]-graph[nk,2])^2+(s[3]-graph[nk,3])^2>1.35^2 or abs(sin(s[4]-graph[nk,4]))>.45;end if;
     if (newKey or loopId>0) and nk<keys then
       nk:=nk+1;graph[nk,1:4]:=s[1:4];
       if nk>1 then graph[nk,5:8]:=s[1:4]-graph[nk-1,1:4];end if;
       for i in 1:48 loop off:=8+3*(i-1);graph[nk,off+1:off+3]:=cloud[i,:];end for;
       graph[nk,153:170]:=ft[1:18,5];s[13]:=nk;
+      // Five unassigned fields in the existing 180-column format carry four measured slant
+      // ranges and the estimated tilt at acquisition, exact after Float32 transport.
+      // A zero code denotes a legacy frame or an observation without four-beam lock.
+      if lock then
+        rollIndex:=min(3600,max(0,integer(floor(roll*1800/pi+1800.5))));
+        pitchIndex:=min(1800,max(0,integer(floor(pitch*1800/pi+900.5))));
+        graph[nk,176]:=1+2048*rollIndex+pitchIndex;
+        graph[nk,177:180]:=raw[1:4];
+      else
+        graph[nk,176:180]:=zeros(5);
+      end if;
       if loopId>0 then
         graph[nk,171]:=loopId;graph[nk,172:175]:=s[1:4]-graph[loopId,1:4]+{fix[1],fix[2],0,fix[3]};
         s[14]:=s[14]+1;s[15]:=t;
@@ -324,12 +425,16 @@ package Perception "Acoustic/optical acquisition and pressure- and gravity-aided
 
   function sampleFrame
     input Real t,truth[18],d[rays,3],overrideDepth[rays],useRaster,oldImage[864],previous[21],history[keys,stride];
-    output Real sensor[91],elev[100],image[864],state[21],graph[keys,stride],ft[24,5];
+    input Boolean camera=true,mapping=true,sonar=true;
+    output Real sensor[91],elev[100],image[864],state[21],graph[keys,stride],ft[24,5],ping[65,32];
   protected Real T[3,3],depth[rays],raw[195];
   algorithm
     T:=MultiBodyLie.Math.quaternionToT(truth[4:7]);
-    if useRaster>.5 then depth:=overrideDepth;else depth:=renderDepth(truth[1:3],T,d);end if;
-    (raw,image):=instruments(t,truth[1:3],T,truth[8:10],truth[16:18],truth[13:15],truth[12],depth,d);
-    elev:=raw[54:153];(state,graph,sensor,ft):=estimate(t,raw,d,image,oldImage,previous,history);
+    if useRaster>.5 then depth:=overrideDepth;else depth:=renderDepth(truth[1:3],T,d,camera,sonar);end if;
+    (raw,image):=instruments(t,truth[1:3],T,truth[8:10],truth[16:18],truth[13:15],truth[12],depth,d,camera);
+    if sonar and useRaster<.5 then
+      (ping,raw[5:53]):=ImagingSonar.ping(t,truth[1:3],T);
+    else ping:=zeros(65,32);end if;
+    elev:=raw[54:153];(state,graph,sensor,ft):=estimate(t,raw,d,image,oldImage,previous,history,camera,mapping);
   end sampleFrame;
 end Perception;

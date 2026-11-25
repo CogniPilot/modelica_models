@@ -72,7 +72,7 @@ equation
   end for;
   when sample(0,.1) then
     for i in 1:9 loop
-      sampledWake[i]=Sailing.Regatta.elevationAt(waves.height,receiverPosition[i,1]-waves.driftE,
+      sampledWake[i]=Environment.elevationAt(waves.height,receiverPosition[i,1]-waves.driftE,
         receiverPosition[i,2]-waves.driftN,waves.period);
     end for;
     priorWake=if initial() then sampledWake else pre(sampledWake);

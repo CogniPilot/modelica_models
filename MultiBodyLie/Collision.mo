@@ -674,4 +674,53 @@ package Collision "Collision shapes, the scene tables and contact points between
     wrenchB.force = fB;
     wrenchB.torque = tauB;
   end BodyPair;
+  function boxBoxSupport "Separating-axis gap and support witness for two oriented boxes in a common frame"
+    input Real center[3],half[3],axes[3,3],plate[3],extent[3],plateAxes[3,3];
+    input Real contactMargin(unit="m")=.003 "Return early if an axis separates the boxes by more than this distance";
+    output Real hit[7] "Axis gap, B-to-A normal, and witness on A; the witness is valid within the contact margin";
+  protected
+    Boolean better;
+    Real delta[3],axis[3],normal[3],length,signedDistance,orientation,gap,p[3],onPlate[3],projection;
+  algorithm
+    delta:=center-plate;
+    hit:={-1e5,0,0,0,0,0,0};
+    for k in 1:15 loop
+      if k<=3 then
+        axis:=plateAxes[k,:];
+      elseif k<=6 then
+        axis:=axes[k-3,:];
+      else
+        axis:=cross(axes[1+div(k-7,3),:],plateAxes[1+mod(k-7,3),:]);
+      end if;
+      length:=sqrt(axis*axis);
+      normal:=axis/max(length,1e-8);
+      signedDistance:=normal*delta;
+      gap:=abs(signedDistance)-abs(axes*normal)*half-abs(plateAxes*normal)*extent;
+      better:=length>1e-8 and gap>hit[1];
+      hit[1]:=if better then gap else hit[1];
+      orientation:=if signedDistance>=0 then 1.0 else -1.0;
+      for component in 1:3 loop
+        hit[component+1]:=if better then orientation*normal[component] else hit[component+1];
+      end for;
+      if better and gap>contactMargin then return; end if;
+    end for;
+    // On a supporting face, use the closest location to the obstacle. This
+    // keeps the lever arm on the struck part when a narrow rail hits a wall.
+    onPlate:=plate;
+    for i in 1:3 loop
+      onPlate:=onPlate+plateAxes[i,:]*min(extent[i],max(-extent[i],plateAxes[i,:]*delta));
+    end for;
+    normal:=hit[2:4];
+    p:=center;
+    for i in 1:3 loop
+      projection:=axes[i,:]*normal;
+      if abs(projection)>1e-7 then
+        p:=p-sign(projection)*half[i]*axes[i,:];
+      else
+        p:=p+min(half[i],max(-half[i],axes[i,:]*(onPlate-center)))*axes[i,:];
+      end if;
+    end for;
+    hit[5:7]:=p;
+  end boxBoxSupport;
+
 end Collision;
