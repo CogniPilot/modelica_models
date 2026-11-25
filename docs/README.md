@@ -11,6 +11,8 @@ Useful entry points are [`Estimation.StrapdownINS`](../Estimation/StrapdownINS/p
 
 These guides cover work outside the library:
 
+- [Generate and inspect a CFD mesh](meshing.md).
+- [Meshing algorithms for wakes and flutter](meshing-algorithms.md).
 - [Publish the Modelica reference](publishing.md): local preview and GitHub Pages workflow.
 - [Run validation](validation.md): repository checks and visual replay commands.
 - [Export SLAM for a browser consumer](slam-export.md): versioned compatibility snapshots.

@@ -52,6 +52,15 @@ if microduckResultFile == "" then
 end if;
 print("MICRODUCK_INITIAL_POSE_OK\n");
 
+// The volume mesher is a host-side preprocessor tested on its native entry point.
+meshing := simulate(Tests.MeshingTests, stopTime=0, fileNamePrefix="modelica_models_Meshing");
+getErrorString();
+meshingResultFile := meshing.resultFile;
+if meshingResultFile == "" then
+  print("Volume meshing failed\n");
+  exit(1);
+end if;
+
 check := checkModel(Tests.All);
 print(check);
 print(getErrorString());
