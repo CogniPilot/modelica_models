@@ -318,6 +318,10 @@ model PanelSailMembrane "Three-dimensional tensioned sailcloth in a boom-fixed f
       if boomArm[i]>0 then
         along:=rest[i,1]-outhaul*boomArm[i];
         p[i,:]:={along*cos(elevation),0,-along*sin(elevation)}+(if trackedFoot then shift[1,:] else zeros(3));
+        // The sheet pin is constrained before solving the cloth links so
+        // their reactions use the same attachment point as the sheet.
+        penetration:=sparPlane[4]-sparPlane[1:3]*p[i,:];
+        p[i,:]:=p[i,:]+max(0,penetration)*sparPlane[1:3];
         clewForce:=clewForce+boomArm[i]*(nodal[i,:]+mass[i]*gravity);
       end if;
     end for;
