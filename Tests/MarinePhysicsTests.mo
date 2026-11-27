@@ -29,6 +29,7 @@ model MarinePhysicsTests "Check Fourier surface sampling, hydrostatic current an
     output Boolean passed;
   protected
     constant Real cloth[8,3]=[0,0,0;1,0,0;2,0,0;3,0,0;0,0,1;1,0,1;2,0,1;3,0,1];
+    constant Real folded[8,3]=[0,0,0;1,0,1;2,0,1;3,0,1;1,0,-1;0,1,0;2,1,0;3,1,0];
     Real wire[3,3],clothForce[8,3],wireForce[3,3],moment[3];
   algorithm
     for side in {-1,1} loop
@@ -46,6 +47,14 @@ model MarinePhysicsTests "Check Fourier surface sampling, hydrostatic current an
     wire[:,3]:=wire[:,3]+fill(2,3);
     (clothForce,wireForce):=Marine.Sailing.stayPanelContact(wire,cloth);
     assert(max(abs(clothForce))+max(abs(wireForce))<1e-10,"A finite stay beyond the sail has no contact");
+    // The first half intersects both faces of a fold. Roundoff in the line-plane
+    // coordinates must not send the reaction to the opposite side of the cable.
+    for shift in {0.,1e-12} loop
+      wire:=[.2,.2,-3.368;.2,.2,2.88+shift;.2,.2,3.88+shift];
+      (clothForce,wireForce):=Marine.Sailing.stayPanelContact(wire,folded);
+      assert(sum(wireForce[:,1])>2.8 and sum(wireForce[:,3])< -2.8,
+        "Coincident face crossings keep the first face's normal");
+    end for;
     passed:=true;
   end checkStayPanelContact;
   function checkEchoPacking "Verify independent bearing rows and near-to-far byte order"
