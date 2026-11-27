@@ -25,6 +25,53 @@ model MarinePhysicsTests "Check Fourier surface sampling, hydrostatic current an
     assert(not valid,"A spatially disjoint footprint cannot constrain height");
     passed:=true;
   end checkDvl;
+  function checkStayPanelContact "Wire clearance, action/reaction and moment at an interior panel"
+    output Boolean passed;
+  protected
+    constant Real cloth[8,3]=[0,0,0;1,0,0;2,0,0;3,0,0;0,0,1;1,0,1;2,0,1;3,0,1];
+    Real wire[3,3],clothForce[8,3],wireForce[3,3],moment[3];
+  algorithm
+    for side in {-1,1} loop
+      wire:=[.5,side*.1,.24;.5,side*.002,.25;.5,side*.1,.26];
+      (clothForce,wireForce):=Marine.Sailing.stayPanelContact(wire,cloth);
+      assert(side*sum(wireForce[:,2])>1,"The interior of a panel repels the nearby wire on either tack");
+      moment:=zeros(3);
+      for i in 1:8 loop moment:=moment+cross(cloth[i,:],clothForce[i,:]); end for;
+      for i in 1:3 loop moment:=moment+cross(wire[i,:],wireForce[i,:]); end for;
+      for k in 1:3 loop
+        assert(abs(sum(clothForce[:,k])+sum(wireForce[:,k]))<1e-9,"Contact preserves total force");
+      end for;
+      assert(max(abs(moment))<1e-9,"Contact preserves total moment");
+    end for;
+    wire[:,3]:=wire[:,3]+fill(2,3);
+    (clothForce,wireForce):=Marine.Sailing.stayPanelContact(wire,cloth);
+    assert(max(abs(clothForce))+max(abs(wireForce))<1e-10,"A finite stay beyond the sail has no contact");
+    passed:=true;
+  end checkStayPanelContact;
+  function checkEchoPacking "Verify independent bearing rows and near-to-far byte order"
+    output Boolean passed;
+  protected
+    constant Real t=0.25;
+    constant Integer hitCell=45;
+    constant Real hitRange=(hitCell-0.5)*Marine.Wreck.ImagingSonar.rangeMax/Marine.Wreck.ImagingSonar.bins;
+    Real ranges[Marine.Wreck.ImagingSonar.bearings,Marine.Wreck.ImagingSonar.verticalSamples], words[Marine.Wreck.ImagingSonar.bearings,32], profile[49];
+    Real expected;
+  algorithm
+    ranges:=fill(Marine.Wreck.ImagingSonar.rangeMax,Marine.Wreck.ImagingSonar.bearings,Marine.Wreck.ImagingSonar.verticalSamples);
+    ranges[1,:]:=fill(hitRange,Marine.Wreck.ImagingSonar.verticalSamples);
+    (words,profile):=Marine.Wreck.ImagingSonar.formEcho(t,zeros(3),identity(3),ranges);
+    assert(abs(profile[1]-hitRange)<1e-10 and max(abs(profile[2:49]))<1e-10,
+      "Only the first bearing sees the reflector, at the center of its range cell");
+    assert(mod(words[1,div(hitCell-1,4)+1],256)>100,
+      "The near byte of the hit word contains the reflector");
+    for bearing in 2:Marine.Wreck.ImagingSonar.bearings loop
+      for w in 1:32 loop
+        expected:=sum(256.0^(k-1)*floor(2*(1+Marine.Wreck.Perception.noise(t,4*(w-1)+k+3*bearing))) for k in 1:4);
+        assert(abs(words[bearing,w]-expected)<0.5,"Each empty bearing retains its four noise bytes in range order");
+      end for;
+    end for;
+    passed:=true;
+  end checkEchoPacking;
   function check
     output Boolean passed;
   protected
@@ -48,4 +95,6 @@ model MarinePhysicsTests "Check Fourier surface sampling, hydrostatic current an
 initial algorithm
     assert(check(),"Marine physics invariants");
     assert(checkDvl(),"DVL keyframe geometry and correspondence gates");
+    assert(checkStayPanelContact(),"Finite forestay contact and balanced reaction");
+    assert(checkEchoPacking(),"Imaging sonar packing and bearing isolation");
 end MarinePhysicsTests;

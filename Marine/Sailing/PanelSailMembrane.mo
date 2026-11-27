@@ -54,6 +54,11 @@ model PanelSailMembrane "Three-dimensional tensioned sailcloth in a boom-fixed f
   discrete output Real wireReaction[2](each start=0,each fixed=true);
   input Real boomElevation,clewOffset "Aft travel of the clew along the boom [m]";
   parameter Boolean hasShrouds=false, footInTrack=false;
+  parameter Boolean hasForestay=false "Enable finite forestay contact on this sail";
+  input Real forestay[3,3](each unit="m")=zeros(3,3) "Pin, midpoint and hounds in sail axes";
+  discrete output Real forestayReaction[3,3](each unit="N",each start=0,each fixed=true);
+  discrete Real contactLoad[n,3](each start=0,each fixed=true);
+  output Real forestayLuffLoad[3](each unit="N") "Contact reaction transmitted to the constrained luff";
   input Real shroudFoot[2,3],shroudHead[3] "Two finite sidestays in the rotating sail frame";
   input Real air[3], water[3], omega[3], gravity[3], waterPlane[4] "Signed immersion = plane[4]+plane[1:3]*p";
   // Rows run from the tack toward the head. The luff is attached to the stay.
@@ -220,6 +225,7 @@ model PanelSailMembrane "Three-dimensional tensioned sailcloth in a boom-fixed f
     input Real sparPlane[4];
     input Real airLiftSlope,inducedDrag;
     input Real footStay[2,3],headStay[3],tipOffset[3],shape[rows],edgeTension,shift[rows,3],wireMid[2,3],contactK[2];
+    input Real contactLoad[n,3]=zeros(n,3);
     output Real p[n,3],v[n,3],force[3],moment[3],wetArea,leechSpeed,clewForce[3],mastLoad[3],wireForce[2];
   protected
     Real invMass[n],boomArm[n],mass[n],nodal[n,3],normal[3],a[3],b[3],c[3],center[3],dv[3],q[3],load[3],relative[3];
@@ -299,6 +305,7 @@ model PanelSailMembrane "Three-dimensional tensioned sailcloth in a boom-fixed f
         end for;
       end if;
     end for;
+    nodal:=nodal+contactLoad;
     for i in 1:n loop
       invMass[i]:=if mod(i-1,cols)==0 or i==cols or (trackedFoot and i<=cols) then 0 else 1/mass[i];
       boomArm[i]:=if i==cols or (trackedFoot and i<=cols) then (i-1)/(cols-1) else 0;
@@ -502,10 +509,18 @@ model PanelSailMembrane "Three-dimensional tensioned sailcloth in a boom-fixed f
     leechSpeed:=sqrt(v[div(rows,2)*cols,:]*v[div(rows,2)*cols,:]);
   end advanceCloth;
 equation
+  for k in 1:3 loop
+    forestayLuffLoad[k]=sum({contactLoad[(r-1)*cols+1,k] for r in 1:rows});
+  end for;
   telltalePanelRows={telltaleRows[i] for i in 1:3};
   legacyVertex=if battenCount>0 then coarseVertices(vertex,coarseStencil(nativeSpan)) else vertex[1:24,:];
   when sample(0,stepSize) then
-    (vertex,velocity,fluidForce,fluidMoment,wetArea,leechSpeed,clewForce,mastLoad,wireReaction)=advanceCloth(mesh,rows,n,pre(vertex),pre(velocity),air,water,omega,gravity,waterPlane,stepSize,arealMass,time,boomElevation,clewOffset,battenRow,battenEI,battenRelaxation,(if battenCount>0 then leechRelaxation else 0),battenLinearMass,linkProperties,hasShrouds,footInTrack,mastPlane,liftSlope,inducedDragFactor,shroudFoot,shroudHead,mastOffset,modeShape,leechTension,luffShift,shroudMid,wireK);
+    if hasForestay then
+      (contactLoad,forestayReaction)=stayPanelContact(forestay,pre(vertex));
+    else
+      contactLoad=zeros(n,3);forestayReaction=zeros(3,3);
+    end if;
+    (vertex,velocity,fluidForce,fluidMoment,wetArea,leechSpeed,clewForce,mastLoad,wireReaction)=advanceCloth(mesh,rows,n,pre(vertex),pre(velocity),air,water,omega,gravity,waterPlane,stepSize,arealMass,time,boomElevation,clewOffset,battenRow,battenEI,battenRelaxation,(if battenCount>0 then leechRelaxation else 0),battenLinearMass,linkProperties,hasShrouds,footInTrack,mastPlane,liftSlope,inducedDragFactor,shroudFoot,shroudHead,mastOffset,modeShape,leechTension,luffShift,shroudMid,wireK,contactLoad);
     (faceTail,separated,luffLevel)=sailTelltales(vertex,velocity,air,omega,time,telltaleCount,telltaleRows);
   end when;
 end PanelSailMembrane;
