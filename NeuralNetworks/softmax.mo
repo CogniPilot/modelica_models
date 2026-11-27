@@ -1,4 +1,4 @@
-within Vision.Neural;
+within NeuralNetworks;
 
 function softmax "Numerically stable normalized exponential"
   input Real logits[:];

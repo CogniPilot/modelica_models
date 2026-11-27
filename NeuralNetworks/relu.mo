@@ -1,4 +1,4 @@
-within Vision.Neural;
+within NeuralNetworks;
 
 function relu "Rectified linear activation for a channel-last tensor"
   input Real x[:,:,:];

@@ -1,4 +1,4 @@
-within Vision.Neural;
+within NeuralNetworks;
 
 function maxPool2D "Channel-last max pooling over complete windows"
   input Real x[:,:,:] "Rows, columns, channels";

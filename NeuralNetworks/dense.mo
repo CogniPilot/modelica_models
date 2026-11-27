@@ -1,4 +1,4 @@
-within Vision.Neural;
+within NeuralNetworks;
 
 function dense "Affine fully connected layer"
   input Real x[:];

@@ -1,4 +1,4 @@
-within Vision.Neural;
+within NeuralNetworks;
 
 function scaleChannels "Apply one squeeze/excitation gate per image channel"
   input Real x[:,:,:];

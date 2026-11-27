@@ -1,6 +1,6 @@
 within Tests;
 
-model NeuralTests "Shape, convolution and probability checks for Vision.Neural"
+model NeuralTests "Shape, convolution and probability checks for NeuralNetworks"
   parameter Real image[3,3,2]={{{1,10},{2,20},{3,30}},
                                {{4,40},{5,50},{6,60}},
                                {{7,70},{8,80},{9,90}}};
@@ -23,19 +23,19 @@ model NeuralTests "Shape, convolution and probability checks for Vision.Neural"
   Real evenKernel[3,3,2];
   Real localPool[1,1,2];
 equation
-  channelSum=Vision.Neural.conv2DSame(image,sumKernel);
-  pooled=Vision.Neural.globalAveragePool(channelSum);
-  depthwise=Vision.Neural.depthwiseConv2DSame(image,boxKernel,zeros(2),2);
-  projected=Vision.Neural.conv2DSame(image,pointKernel,{0.5});
-  activated=Vision.Neural.relu6(projected);
-  swish=Vision.Neural.hardSwish({{{-4,0,4}}});
-  gated=Vision.Neural.scaleChannels(swish,Vision.Neural.hardSigmoid({-3,0,3}));
-  logits=Vision.Neural.dense({1,2},{{1,0},{0,1},{1,1}},{0,0,0});
-  probability=Vision.Neural.softmax(logits);
-  strided=Vision.Neural.conv2DSame(evenImage,ones(3,3,1,1),stride=2);
-  stridedDepthwise=Vision.Neural.depthwiseConv2DSame(evenImage,ones(3,3,1),stride=2);
-  evenKernel=Vision.Neural.depthwiseConv2DSame(image,ones(2,2,2));
-  localPool=Vision.Neural.maxPool2D(Vision.Neural.normalizeImage(image,{1,10},{1,0.1}));
+  channelSum=NeuralNetworks.conv2DSame(image,sumKernel);
+  pooled=NeuralNetworks.globalAveragePool(channelSum);
+  depthwise=NeuralNetworks.depthwiseConv2DSame(image,boxKernel,zeros(2),2);
+  projected=NeuralNetworks.conv2DSame(image,pointKernel,{0.5});
+  activated=NeuralNetworks.relu6(projected);
+  swish=NeuralNetworks.hardSwish({{{-4,0,4}}});
+  gated=NeuralNetworks.scaleChannels(swish,NeuralNetworks.hardSigmoid({-3,0,3}));
+  logits=NeuralNetworks.dense({1,2},{{1,0},{0,1},{1,1}},{0,0,0});
+  probability=NeuralNetworks.softmax(logits);
+  strided=NeuralNetworks.conv2DSame(evenImage,ones(3,3,1,1),stride=2);
+  stridedDepthwise=NeuralNetworks.depthwiseConv2DSame(evenImage,ones(3,3,1),stride=2);
+  evenKernel=NeuralNetworks.depthwiseConv2DSame(image,ones(2,2,2));
+  localPool=NeuralNetworks.maxPool2D(Vision.normalizeImage(image,{1,10},{1,0.1}));
   assert(abs(channelSum[2,2,1]-55)<1e-12 and abs(channelSum[2,2,2]-55)<1e-12,
     "1x1 channel projection");
   assert(max(abs(pooled-{55,55}))<1e-12,"global average pooling");

@@ -1,4 +1,4 @@
-within Vision.Neural;
+within NeuralNetworks;
 
 function depthwiseConv2DSame
   "Channel-last depthwise 2-D convolution with SAME_UPPER zero padding"

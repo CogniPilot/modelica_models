@@ -1,14 +1,14 @@
-within Vision;
+within;
 
-package Neural "Shape-static neural-network inference primitives"
+package NeuralNetworks "Shape-static neural-network inference primitives"
   annotation(Documentation(info = "<html>
     <h4>Run trained networks without a framework runtime</h4>
-<p>This package provides deterministic Modelica inference operators for compact
-vision networks. Image tensors use the same row, column, channel ordering as
-<a href=\"modelica://Vision.Features\">Vision.Features</a>. Kernel tensors use
-row, column, input-channel, output-channel ordering. All extents are fixed when
-the model is translated, allowing Rumoca to preserve convolution stencils,
-maps and matrix products for native, embedded and accelerator backends.</p>
+<p>This package provides deterministic Modelica inference operators for trained
+neural networks. Spatial tensors use row, column, channel ordering. Kernel
+tensors use row, column, input-channel, output-channel ordering. All extents are
+fixed when the model is translated, allowing Rumoca to preserve convolution
+stencils, maps and matrix products for native, embedded and accelerator
+backends.</p>
 <p>Both convolution functions return the input extent divided by stride,
 rounded up. An odd amount of zero padding places the extra row or column at
 the bottom or right (SAME_UPPER).</p>
@@ -24,4 +24,4 @@ into the preceding convolution weights and bias.</p>
 profile. Quantized storage and fused integer kernels belong in a subsequent
 profile with explicit scale and zero-point contracts.</p>
     </html>"));
-end Neural;
+end NeuralNetworks;

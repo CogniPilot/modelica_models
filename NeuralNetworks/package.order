@@ -9,4 +9,3 @@ globalAveragePool
 maxPool2D
 dense
 softmax
-normalizeImage

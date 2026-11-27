@@ -1,4 +1,4 @@
-within Vision.Neural;
+within NeuralNetworks;
 
 function relu6 "MobileNet bounded rectified activation"
   input Real x[:,:,:];

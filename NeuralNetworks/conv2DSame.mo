@@ -1,4 +1,4 @@
-within Vision.Neural;
+within NeuralNetworks;
 
 function conv2DSame "Channel-last 2-D convolution with SAME_UPPER zero padding"
   input Real x[:,:,:] "Rows, columns, input channels";

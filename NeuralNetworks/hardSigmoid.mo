@@ -1,4 +1,4 @@
-within Vision.Neural;
+within NeuralNetworks;
 
 function hardSigmoid "Piecewise-linear MobileNet gate"
   input Real x[:];

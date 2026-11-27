@@ -1,4 +1,4 @@
-within Vision.Neural;
+within NeuralNetworks;
 
 function hardSwish "Piecewise-linear MobileNetV3 activation"
   input Real x[:,:,:];

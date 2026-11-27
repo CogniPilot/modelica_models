@@ -1,4 +1,4 @@
-within Vision.Neural;
+within Vision;
 
 function normalizeImage "Per-channel affine image normalization"
   input Real image[:,:,:] "Rows, columns, channels";

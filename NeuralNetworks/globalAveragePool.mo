@@ -1,4 +1,4 @@
-within Vision.Neural;
+within NeuralNetworks;
 
 function globalAveragePool "Average each channel over all image coordinates"
   input Real x[:,:,:];
