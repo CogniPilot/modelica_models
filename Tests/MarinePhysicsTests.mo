@@ -25,6 +25,31 @@ model MarinePhysicsTests "Check Fourier surface sampling, hydrostatic current an
     assert(not valid,"A spatially disjoint footprint cannot constrain height");
     passed:=true;
   end checkDvl;
+  function checkEchoPacking "Verify independent bearing rows and near-to-far byte order"
+    import Sonar = Marine.Wreck.ImagingSonar;
+    output Boolean passed;
+  protected
+    constant Real t=0.25;
+    constant Integer hitCell=45;
+    constant Real hitRange=(hitCell-0.5)*Sonar.rangeMax/Sonar.bins;
+    Real ranges[Sonar.bearings,Sonar.verticalSamples], words[Sonar.bearings,32], profile[49];
+    Real expected;
+  algorithm
+    ranges:=fill(Sonar.rangeMax,Sonar.bearings,Sonar.verticalSamples);
+    ranges[1,:]:=fill(hitRange,Sonar.verticalSamples);
+    (words,profile):=Sonar.formEcho(t,zeros(3),identity(3),ranges);
+    assert(abs(profile[1]-hitRange)<1e-10 and max(abs(profile[2:49]))<1e-10,
+      "Only the first bearing sees the reflector, at the center of its range cell");
+    assert(mod(words[1,div(hitCell-1,4)+1],256)>100,
+      "The near byte of the hit word contains the reflector");
+    for bearing in 2:Sonar.bearings loop
+      for w in 1:32 loop
+        expected:=sum(256.0^(k-1)*floor(2*(1+Marine.Wreck.Perception.noise(t,4*(w-1)+k+3*bearing))) for k in 1:4);
+        assert(abs(words[bearing,w]-expected)<0.5,"Each empty bearing retains its four noise bytes in range order");
+      end for;
+    end for;
+    passed:=true;
+  end checkEchoPacking;
   function check
     output Boolean passed;
   protected
@@ -48,4 +73,5 @@ model MarinePhysicsTests "Check Fourier surface sampling, hydrostatic current an
 initial algorithm
     assert(check(),"Marine physics invariants");
     assert(checkDvl(),"DVL keyframe geometry and correspondence gates");
+    assert(checkEchoPacking(),"Imaging sonar packing and bearing isolation");
 end MarinePhysicsTests;
