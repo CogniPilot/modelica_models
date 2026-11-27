@@ -63,11 +63,11 @@ algorithm
       zeros(3, TangentLength - 6)));
   H := delayedH * currentToDelayed;
   measurementCovariance := cat(1,
-    cat(2, transpose(rotationWorldBody)
-      * measurement.positionCovarianceWorld_m2 * rotationWorldBody,
+    cat(2, LinearAlgebra.transformCovariance(
+      transpose(rotationWorldBody), measurement.positionCovarianceWorld_m2),
       zeros(3, 3)),
-    cat(2, zeros(3, 3), transpose(rotationWorldBody)
-      * measurement.velocityCovarianceWorld_m2_s2 * rotationWorldBody));
+    cat(2, zeros(3, 3), LinearAlgebra.transformCovariance(
+      transpose(rotationWorldBody), measurement.velocityCovarianceWorld_m2_s2)));
   measurementStateCrossCovariance := zeros(TangentLength, 6);
   if predictionInterval_s > 0.0 and measurementAge_s > 0.0 then
     // Retrodiction reuses the noisy mean of the newest IMU packet. It is
@@ -78,7 +78,7 @@ algorithm
     backwardInput := heldInputJacobian(A, -measurementAge_s);
     observationInput := delayedH * backwardInput;
     measurementCovariance := measurementCovariance
-      + observationInput * heldImuCovariance * transpose(observationInput);
+      + LinearAlgebra.transformCovariance(observationInput, heldImuCovariance);
     measurementStateCrossCovariance := forwardInput * heldImuCovariance
       * transpose(observationInput);
   end if;

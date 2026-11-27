@@ -6,10 +6,17 @@ function sigmaTangents
   output Real sigma[TangentLength, SigmaCount];
   output Boolean success;
 protected
-  Real lower[TangentLength, TangentLength];
+  Real lower[div(TangentLength * (TangentLength + 1), 2)];
 algorithm
-  (lower, success) := lowerCholesky(
+  (lower, success) := lowerCholeskyPacked(
     LinearAlgebra.symmetrize(covariance));
-  sigma := cat(2, zeros(TangentLength, 1),
-    SigmaScale * lower, -SigmaScale * lower);
+  sigma := zeros(TangentLength, SigmaCount);
+  for column in 1:TangentLength loop
+    for row in column:TangentLength loop
+      sigma[row, column + 1] := SigmaScale
+        * lower[LinearAlgebra.LowerTriangular.index(row, column)];
+      sigma[row, column + 1 + TangentLength] := -SigmaScale
+        * lower[LinearAlgebra.LowerTriangular.index(row, column)];
+    end for;
+  end for;
 end sigmaTangents;

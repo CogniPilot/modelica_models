@@ -16,7 +16,7 @@ protected
   Real propagated[15,15]; Real raw[15,15];
 algorithm
   (Phi,Q) := ES15TransitionNoise(F,G,dt,density);
-  propagated := Phi*P*transpose(Phi);
+  propagated := LinearAlgebra.transformCovariance(Phi,P);
   raw := propagated+Q;
-  predicted := 0.5*(raw+transpose(raw));
+  predicted := LinearAlgebra.symmetrize(raw);
 end ES15CovarianceStep;

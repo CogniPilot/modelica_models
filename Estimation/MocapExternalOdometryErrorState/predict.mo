@@ -24,6 +24,6 @@ algorithm
   discreteProcessNoise := discreteProcessCovariance(dt, processNoise);
 
   predicted.covariance := LinearAlgebra.symmetrize(
-    transition * previous.covariance * transpose(transition)
+    LinearAlgebra.transformCovariance(transition, previous.covariance)
       + discreteProcessNoise);
 end predict;

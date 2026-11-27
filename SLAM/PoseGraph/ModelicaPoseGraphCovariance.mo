@@ -306,8 +306,9 @@ package ModelicaPoseGraphCovariance
     input Real A[pairDimension,pairDimension];
     output Real L[pairDimension,pairDimension]; output Boolean valid;
   protected Real scale; Real value;
+    Real packedFactor[div(pairDimension*(pairDimension+1),2)];
   algorithm
-    L := zeros(pairDimension,pairDimension); scale := 0.0; value := 0.0; valid := true;
+    packedFactor := zeros(div(pairDimension*(pairDimension+1),2)); scale := 0.0; value := 0.0; valid := true;
     for i in 1:pairDimension loop scale := max(scale,abs(A[i,i])); end for;
     valid := scale > 1e-12 and scale <= 1e18;
     for i in 1:pairDimension loop
@@ -315,16 +316,17 @@ package ModelicaPoseGraphCovariance
         valid := valid and abs(A[i,j]) <= 1e18 and abs(A[i,j]-A[j,i]) <= 1e-10*max(1.0,scale);
         value := A[i,j];
         for k in 1:pairDimension loop
-          if j <= i and k < j then value := value-L[i,k]*L[j,k]; end if;
+          if j <= i and k < j then value := value-packedFactor[LinearAlgebra.LowerTriangular.index(i, k)]*packedFactor[LinearAlgebra.LowerTriangular.index(j, k)]; end if;
         end for;
         if j <= i then
           if i == j then
             valid := valid and value > 1e-12*scale and value <= 1e18;
-            L[i,j] := sqrt(if value > 1e-12*scale and value <= 1e18 then value else 1.0);
-          else L[i,j] := value/L[j,j]; end if;
+            packedFactor[LinearAlgebra.LowerTriangular.index(i, j)] := sqrt(if value > 1e-12*scale and value <= 1e18 then value else 1.0);
+          else packedFactor[LinearAlgebra.LowerTriangular.index(i, j)] := value/packedFactor[LinearAlgebra.LowerTriangular.index(j, j)]; end if;
         end if;
       end for;
     end for;
+    L := LinearAlgebra.LowerTriangular.unpack(pairDimension,packedFactor);
     if not valid then L := zeros(pairDimension,pairDimension); end if;
   end FactorPair;
   // Principal full-H blocks on free rows (2,3),(4,5),...,(128,padding).
@@ -404,24 +406,25 @@ package ModelicaPoseGraphCovariance
   function PairSolve
     input Real f[nodeCapacity,poseDimension]; input Pairs pairs;
     output Real x[nodeCapacity,poseDimension];
-  protected Real z[pairDimension]; Real w[pairDimension]; Real value; Integer node; Integer axis; Integer row;
+  protected Real packedFactor[div(pairDimension*(pairDimension+1),2)]; Real z[pairDimension]; Real w[pairDimension]; Real value; Integer node; Integer axis; Integer row;
   algorithm
     x := zeros(nodeCapacity,poseDimension); z := zeros(pairDimension); w := z;
     value := 0.0; node := 1; axis := 1; row := 1;
     if pairs.valid then
       for pair in 1:pairCapacity loop
+        packedFactor := LinearAlgebra.LowerTriangular.pack(pairs.factor[pair,:,:]);
         z := zeros(pairDimension); w := z;
         for i in 1:pairDimension loop
           node := 2+2*(pair-1)+div(i-1,poseDimension); axis := mod(i-1,poseDimension)+1;
           value := 0.0;
           if node <= nodeCapacity then if pairs.active[node] then value := f[node,axis]; end if; end if;
-          for k in 1:pairDimension loop if k < i then value := value-pairs.factor[pair,i,k]*z[k]; end if; end for;
-          z[i] := value/pairs.factor[pair,i,i];
+          for k in 1:pairDimension loop if k < i then value := value-packedFactor[LinearAlgebra.LowerTriangular.index(i,k)]*z[k]; end if; end for;
+          z[i] := value/packedFactor[LinearAlgebra.LowerTriangular.index(i,i)];
         end for;
         for i in 1:pairDimension loop
           row := pairDimension+1-i; value := z[row];
-          for k in 1:pairDimension loop if k > row then value := value-pairs.factor[pair,k,row]*w[k]; end if; end for;
-          w[row] := value/pairs.factor[pair,row,row];
+          for k in 1:pairDimension loop if k > row then value := value-packedFactor[LinearAlgebra.LowerTriangular.index(k,row)]*w[k]; end if; end for;
+          w[row] := value/packedFactor[LinearAlgebra.LowerTriangular.index(row,row)];
         end for;
         for i in 1:pairDimension loop
           node := 2+2*(pair-1)+div(i-1,poseDimension); axis := mod(i-1,poseDimension)+1;
@@ -466,6 +469,7 @@ package ModelicaPoseGraphCovariance
     Real r[nodeCapacity,poseDimension]; Real z[nodeCapacity,poseDimension];
     Real direction[nodeCapacity,poseDimension]; Real product[nodeCapacity,poseDimension];
     Real q[nodeCapacity,poseDimension]; Real edgeResidual[poseDimension];
+    Real packedWeight[div(poseDimension*(poseDimension+1),2)];
     Real edgeJi[poseDimension,poseDimension]; Real edgeJj[poseDimension,poseDimension];
     Real rho; Real nextRho; Real curvature; Real alpha; Real beta; Real initialNorm;
     Real norm; Real value; Real graphStatus; Real activeNodes; Real activeEdges;
@@ -553,13 +557,14 @@ package ModelicaPoseGraphCovariance
           q:=Backward(residual[:,:,column],tree);
           for node in 1:nodeCapacity loop
             if node>1 and nodeMask[node]==1.0 then
+              packedWeight := LinearAlgebra.LowerTriangular.pack(tree.weightFactor[node,:,:]);
               // Only L_W^-1 q is needed for the full residual Gram upper bound.
               for axis in 1:poseDimension loop
                 value:=q[node,axis];
                 for k in 1:poseDimension loop
-                  if k<axis then value:=value-tree.weightFactor[node,axis,k]*whitened[node,k,column]; end if;
+                  if k<axis then value:=value-packedWeight[LinearAlgebra.LowerTriangular.index(axis,k)]*whitened[node,k,column]; end if;
                 end for;
-                whitened[node,axis,column]:=value/tree.weightFactor[node,axis,axis];
+                whitened[node,axis,column]:=value/packedWeight[LinearAlgebra.LowerTriangular.index(axis,axis)];
               end for;
             end if;
           end for;

@@ -6,11 +6,11 @@ function RegistrationWhitenedResidual3
   input Real minimumPivot = 1e-10;
   output Boolean valid; output Real squaredResidual;
 protected
-  Real scale[3]; Real normalized[3,3]; Real lower[3,3]; Real whitened[3];
+  Real scale[3]; Real normalized[3,3]; Real lower[6]; Real whitened[3];
   Real pivot;
 algorithm
   valid := minimumPivot > 0.0 and minimumPivot < 1.0;
-  scale := ones(3); normalized := zeros(3,3); lower := zeros(3,3); whitened := zeros(3);
+  scale := ones(3); normalized := zeros(3,3); lower := zeros(6); whitened := zeros(3);
   for axis in 1:3 loop
     valid := valid and covariance[axis,axis] > 0.0 and covariance[axis,axis] < 1e100
       and abs(residual[axis]) < 1e100;
@@ -28,20 +28,20 @@ algorithm
       if valid then
         pivot := normalized[row,column];
         for previous in 1:column-1 loop
-          pivot := pivot-lower[row,previous]*lower[column,previous];
+          pivot := pivot-lower[LinearAlgebra.LowerTriangular.index(row, previous)]*lower[LinearAlgebra.LowerTriangular.index(column, previous)];
         end for;
         if row == column then
           valid := pivot >= minimumPivot and pivot < 1e100;
-          if valid then lower[row,column] := sqrt(pivot); end if;
+          if valid then lower[LinearAlgebra.LowerTriangular.index(row, column)] := sqrt(pivot); end if;
         else
-          lower[row,column] := pivot/lower[column,column];
+          lower[LinearAlgebra.LowerTriangular.index(row, column)] := pivot/lower[LinearAlgebra.LowerTriangular.index(column, column)];
         end if;
       end if;
     end for;
     if valid then
       pivot := residual[row]/scale[row];
-      for previous in 1:row-1 loop pivot := pivot-lower[row,previous]*whitened[previous]; end for;
-      whitened[row] := pivot/lower[row,row];
+      for previous in 1:row-1 loop pivot := pivot-lower[LinearAlgebra.LowerTriangular.index(row, previous)]*whitened[previous]; end for;
+      whitened[row] := pivot/lower[LinearAlgebra.LowerTriangular.index(row, row)];
     end if;
   end for;
   squaredResidual := whitened*whitened;

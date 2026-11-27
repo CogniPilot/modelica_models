@@ -47,7 +47,7 @@ protected
   Real qr; Real qx; Real qy; Real qz;
   Real delta_angle; Real a; Real b; Real W[3,3]; Real increment[3,3];
   Real proposed_rotation[3,3]; Real proposed_accel_bias[3]; Real proposed_gyro_bias[3];
-  Real residual_map[15,15]; Real left[15,15]; Real noise_left[15,6];
+  Real residual_map[15,15];
   Real reset_a; Real reset_b; Real reset_jacobian[3,3];
   Real reset_left[15,15]; Real reset_proposed[15,15];
   Real output_raw_q[4]; Real output_q_norm; Real ow; Real ox; Real oy; Real oz;
@@ -93,7 +93,7 @@ equation
     end for;
     solve_rhs[i,16] = innovation[i];
   end for;
-  cross_covariance = covariance*transpose(H);
+  cross_covariance = LinearAlgebra.SymmetricMatrix.mulDense(covariance,transpose(H));
   innovation_covariance = H*cross_covariance+observation_covariance;
   for i in 1:15 loop
     for j in 1:6 loop
@@ -112,9 +112,7 @@ equation
   next_accepted_count = accepted_count+accepted;
   next_rejected_count = rejected_count+1.0-accepted;
   residual_map = identity(15)-gain*H;
-  left = residual_map*covariance;
-  noise_left = gain*observation_covariance;
-  joseph_covariance = left*transpose(residual_map)+noise_left*transpose(gain);
+  joseph_covariance = LinearAlgebra.josephUpdate(residual_map,covariance,gain,observation_covariance);
   delta_angle = sqrt(correction[7]^2+correction[8]^2+correction[9]^2);
   a = if noEvent(delta_angle < 1e-7) then 1.0 else sin(delta_angle)/max(delta_angle,1e-7);
   b = if noEvent(delta_angle < 1e-7) then 0.5 else (1.0-cos(delta_angle))/max(delta_angle^2,1e-14);

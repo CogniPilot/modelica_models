@@ -116,8 +116,8 @@ equation
   noiseMap = cat(1,cat(2,identity(3),zeros(3,3)),
     cat(2,zeros(3,3),noiseRotation));
   prior = cat(1,cat(2,covariance,crossCovariance),cat(2,transpose(crossCovariance),referenceCovariance));
-  cross = prior*transpose(measurementJacobian);
-  noise = noiseMap*relativeCovariance*transpose(noiseMap);
+  cross = LinearAlgebra.SymmetricMatrix.mulDense(prior,transpose(measurementJacobian));
+  noise = LinearAlgebra.transformCovariance(noiseMap,relativeCovariance);
   innovationCovariance = measurementJacobian*cross+noise;
   for i in 1:poseDimension loop
     for j in 1:errorDimension loop
@@ -130,7 +130,7 @@ equation
   correction = gain[1:errorDimension,:]*innovation;
   nis = sum(innovation[i]*solve.X[i,errorDimension+1] for i in 1:poseDimension);
   residualMap = identity(augmentedDimension)-gain*measurementJacobian;
-  joseph = residualMap*prior*transpose(residualMap)+gain*noise*transpose(gain);
+  joseph = LinearAlgebra.josephUpdate(residualMap,prior,gain,noise);
   skewCorrection = [0.0,-correction[9],correction[8];correction[9],0.0,-correction[7];-correction[8],correction[7],0.0];
   correctionAngle = sqrt(sum(correction[i]^2 for i in 7:9));
   sineCoefficient = if noEvent(correctionAngle < 1e-7) then 1.0 else sin(correctionAngle)/max(correctionAngle,1e-12);
@@ -145,7 +145,7 @@ equation
     cat(2,zeros(3,6),identity(3)-cosineCoefficient*skewCorrection
       +resetCoefficient*skewCorrectionSquared,zeros(3,12)),
     cat(2,zeros(12,9),identity(12)));
-  resetCovariance = reset*joseph*transpose(reset);
+  resetCovariance = LinearAlgebra.transformCovariance(reset,joseph);
   for i in 1:augmentedDimension loop
     for j in 1:augmentedDimension loop
       finiteChecks[i,j] = if noEvent(abs(resetCovariance[i,j]) <= 1e12) then 0.0 else 1.0;

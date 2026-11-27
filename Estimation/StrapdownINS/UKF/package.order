@@ -7,6 +7,7 @@ TangentVector
 Covariance
 NominalVector
 State
+lowerCholeskyPacked
 lowerCholesky
 sigmaTangents
 stateVector

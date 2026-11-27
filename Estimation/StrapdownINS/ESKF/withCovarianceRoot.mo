@@ -11,7 +11,7 @@ algorithm
     quaternionWorldBody=previous.quaternionWorldBody,
     gyroscopeBiasBodyFlu_rad_s=previous.gyroscopeBiasBodyFlu_rad_s,
     accelerometerBiasBodyFlu_m_s2=previous.accelerometerBiasBodyFlu_m_s2,
-    covariance=LinearAlgebra.symmetrize(root * transpose(root)),
+    covariance=LinearAlgebra.symmetrize(LinearAlgebra.SymmetricMatrix.unpack(TangentLength, LinearAlgebra.SymmetricMatrix.gram(transpose(root)))),
     covarianceRoot=root,
     useSquareRootCovariance=previous.useSquareRootCovariance,
     barometerBiasCrossCovariance=barometerBiasCrossCovariance,

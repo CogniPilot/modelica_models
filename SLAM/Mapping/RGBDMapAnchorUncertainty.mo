@@ -70,7 +70,7 @@ package RGBDMapAnchorUncertainty
       if valid then
         J := zeros(3,6); J[:,1:3] := identity(3); lever := -anchorRotation*RGBDUncertaintySkew(localPoint); J[:,4:6] := lever;
         point := anchorPosition+anchorRotation*localPoint;
-        covariance := J*anchorBound*transpose(J)/beta+anchorRotation*localBound*transpose(anchorRotation)/(1-beta);
+        covariance := LinearAlgebra.transformCovariance(J,anchorBound)/beta+LinearAlgebra.transformCovariance(anchorRotation,localBound)/(1-beta);
         rejectionReason := 6;
         valid := SLAMCovariancePSDCheck(covariance,1e-12) == 1;
         for i in 1:3 loop valid := valid and abs(point[i]) <= 1e6; end for;

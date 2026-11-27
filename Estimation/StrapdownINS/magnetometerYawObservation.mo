@@ -35,8 +35,7 @@ algorithm
     {0.0, eulerYpr[2], eulerYpr[3]});
   levelingRotation := LieGroups.SO3.Quat.to_DCM(levelingQuaternion);
   fieldLeveled := levelingRotation * magneticFieldBodyFlu_T;
-  covarianceLeveled := levelingRotation * covarianceBody_T2
-    * transpose(levelingRotation);
+  covarianceLeveled := LinearAlgebra.transformCovariance(levelingRotation, covarianceBody_T2);
   horizontalMagnitudeSquared := fieldLeveled[1] * fieldLeveled[1]
     + fieldLeveled[2] * fieldLeveled[2];
   referenceHorizontalMagnitudeSquared :=
@@ -50,7 +49,8 @@ algorithm
     {fieldLeveled[2] / horizontalMagnitudeSquared,
      -fieldLeveled[1] / horizontalMagnitudeSquared, 0.0}
     else zeros(3);
-  variance_rad2 := headingGradient * covarianceLeveled * headingGradient;
+  variance_rad2 := headingGradient * LinearAlgebra.SymmetricMatrix.mulDenseVector(
+    covarianceLeveled, headingGradient);
   // EXACT SENSITIVITY OF THE REPORTED HEADING TO THE ATTITUDE ERROR.
   //
   // The reported heading is decl - atan2(fL2, fL1) with fL = R_level m_b,

@@ -100,8 +100,9 @@ algorithm
   flowCovariance_rad2 := measurement.integratedLineOfSightCovariance_rad2
     + measurement.integratedGyroscopeCovariance_rad2[1:2, 1:2];
   measurementCovariance := flowCovariance_rad2 / safeIntegrationTime_s^2
-    + max(measurement.groundDistanceVariance_m2, 0.0) / safeGroundDistance_m^2
-      * transpose({predictedFlow_rad_s}) * {predictedFlow_rad_s};
+    + LinearAlgebra.SymmetricMatrix.unpack(2,
+      LinearAlgebra.SymmetricMatrix.weightedOuterProduct(predictedFlow_rad_s,
+        max(measurement.groundDistanceVariance_m2, 0.0) / safeGroundDistance_m^2));
   corrected := copyState(predicted);
   accepted := false;
   normalizedInnovationSquared := 0.0;

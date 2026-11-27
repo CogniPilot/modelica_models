@@ -28,9 +28,9 @@ function WeightedInverse6
   output Boolean valid;
   output Real minimumScaledPivot;
 protected
-  Real scale[6]; Real L[6,6]; Real v; Real z[6]; Real x[6];
+  Real scale[6]; Real L[21]; Real v; Real z[6]; Real x[6];
 algorithm
-  inverseA := zeros(6,6); L := zeros(6,6); scale := ones(6);
+  inverseA := zeros(6,6); L := zeros(21); scale := ones(6);
   minimumScaledPivot := 1.0; valid := true;
   for i in 1:6 loop
     valid := valid and A[i,i] > 0.0 and A[i,i] <= 1e100;
@@ -44,15 +44,15 @@ algorithm
     for j in 1:6 loop
       v := if valid then A[i,j]/scale[i]/scale[j] else 0.0;
       for k in 1:6 loop
-        v := v-(if k < j then L[i,k]*L[j,k] else 0.0);
+        v := v-(if k < j and k <= i then L[LinearAlgebra.LowerTriangular.index(i, k)]*L[LinearAlgebra.LowerTriangular.index(j, k)] else 0.0);
       end for;
       if j <= i then
         if j == i then
           minimumScaledPivot := min(minimumScaledPivot,v);
           valid := valid and v > minimumPivot and v <= 1e100;
-          L[i,j] := sqrt(if valid then v else 1.0);
+          L[LinearAlgebra.LowerTriangular.index(i, j)] := sqrt(if valid then v else 1.0);
         else
-          L[i,j] := if valid then v/L[j,j] else 0.0;
+          L[LinearAlgebra.LowerTriangular.index(i, j)] := if valid then v/L[LinearAlgebra.LowerTriangular.index(j, j)] else 0.0;
         end if;
       end if;
     end for;
@@ -62,16 +62,16 @@ algorithm
     for i in 1:6 loop
       v := if i == column then 1.0/scale[column] else 0.0;
       for k in 1:6 loop
-        v := v-(if k < i then L[i,k]*z[k] else 0.0);
+        v := v-(if k < i then L[LinearAlgebra.LowerTriangular.index(i, k)]*z[k] else 0.0);
       end for;
-      z[i] := if valid then v/L[i,i] else 0.0;
+      z[i] := if valid then v/L[LinearAlgebra.LowerTriangular.index(i, i)] else 0.0;
     end for;
     for index in 1:6 loop
       v := z[7-index];
       for k in 1:6 loop
-        v := v-(if k > 7-index then L[k,7-index]*x[k] else 0.0);
+        v := v-(if k > 7-index then L[LinearAlgebra.LowerTriangular.index(k, 7-index)]*x[k] else 0.0);
       end for;
-      x[7-index] := if valid then v/L[7-index,7-index] else 0.0;
+      x[7-index] := if valid then v/L[LinearAlgebra.LowerTriangular.index(7-index, 7-index)] else 0.0;
     end for;
     for i in 1:6 loop
       inverseA[i,column] := if valid then x[i]/scale[i] else 0.0;
@@ -85,10 +85,10 @@ end WeightedInverse6;
     input Real minimumPivot;
     output Boolean valid; output Real wr[3]; output Real wj[3,6];
   protected
-    Real scale[3]; Real L[3,3]; Real v;
+    Real scale[3]; Real L[6]; Real v;
   algorithm
     valid := minimumPivot > 0 and minimumPivot < 1;
-    scale := ones(3); L := zeros(3,3); wr := zeros(3); wj := zeros(3,6);
+    scale := ones(3); L := zeros(6); wr := zeros(3); wj := zeros(3,6);
     for row in 1:3 loop
       valid := valid and covariance[row,row] > 0 and covariance[row,row] < 1e100;
       if valid then scale[row] := sqrt(covariance[row,row]); end if;
@@ -98,19 +98,19 @@ end WeightedInverse6;
         v := covariance[row,column]/scale[row]/scale[column];
         valid := valid and abs(v) < 1e100
           and abs(covariance[row,column]-covariance[column,row]) <= 1e-10*max(1.0,abs(covariance[row,column]));
-        for k in 1:column-1 loop v := v-L[row,k]*L[column,k]; end for;
+        for k in 1:column-1 loop v := v-L[LinearAlgebra.LowerTriangular.index(row, k)]*L[LinearAlgebra.LowerTriangular.index(column, k)]; end for;
         if row == column then
           valid := valid and v > minimumPivot and v < 1e100;
-          if valid then L[row,column] := sqrt(v); end if;
-        elseif valid then L[row,column] := v/L[column,column]; end if;
+          if valid then L[LinearAlgebra.LowerTriangular.index(row, column)] := sqrt(v); end if;
+        elseif valid then L[LinearAlgebra.LowerTriangular.index(row, column)] := v/L[LinearAlgebra.LowerTriangular.index(column, column)]; end if;
       end for;
       v := if valid then residual[row]/scale[row] else 0.0;
-      for k in 1:row-1 loop v := v-L[row,k]*wr[k]; end for;
-      if valid then wr[row] := v/L[row,row]; end if;
+      for k in 1:row-1 loop v := v-L[LinearAlgebra.LowerTriangular.index(row, k)]*wr[k]; end for;
+      if valid then wr[row] := v/L[LinearAlgebra.LowerTriangular.index(row, row)]; end if;
       for column in 1:6 loop
         v := if valid then jacobian[row,column]/scale[row] else 0.0;
-        for k in 1:row-1 loop v := v-L[row,k]*wj[k,column]; end for;
-        if valid then wj[row,column] := v/L[row,row]; end if;
+        for k in 1:row-1 loop v := v-L[LinearAlgebra.LowerTriangular.index(row, k)]*wj[k,column]; end for;
+        if valid then wj[row,column] := v/L[LinearAlgebra.LowerTriangular.index(row, row)]; end if;
       end for;
     end for;
   end WeightedWhiten;
@@ -123,20 +123,21 @@ end WeightedInverse6;
     output Boolean valid; output Real cost; output Real H[6,6]; output Real gradient[6]; output Real rms;
   protected
     Boolean pointValid; Real q[3]; Real r[3]; Real J[3,6]; Real wr[3]; Real wj[3,6];
-    Real covariance[3,3]; Real squared; Integer count;
+    Real covariance[3,3]; Real informationPacked[21]; Real squared; Integer count;
   algorithm
-    valid := true; cost := 0; H := zeros(6,6); gradient := zeros(6); squared := 0; count := 0;
+    valid := true; cost := 0; informationPacked := zeros(21); gradient := zeros(6); squared := 0; count := 0;
     for point in 1:size(sourcePoint,1) loop
       if enabled[point] == 1.0 then
         q := rotation*sourcePoint[point,:]; r := q+translation-targetPoint[point,:];
         J := cat(2,identity(3),-WeightedSkew(q));
-        covariance := targetCovariance[point,:,:]+rotation*sourceCovariance[point,:,:]*transpose(rotation);
+        covariance := targetCovariance[point,:,:]+LinearAlgebra.transformCovariance(rotation,sourceCovariance[point,:,:]);
         (pointValid,wr,wj) := WeightedWhiten(covariance,r,J,minimumPivot);
         valid := valid and pointValid;
-        H := H+transpose(wj)*wj; gradient := gradient+transpose(wj)*wr;
+        informationPacked := informationPacked+LinearAlgebra.SymmetricMatrix.gram(wj); gradient := gradient+transpose(wj)*wr;
         cost := cost+wr*wr; squared := squared+r*r; count := count+1;
       end if;
     end for;
+    H := LinearAlgebra.SymmetricMatrix.unpack(6,informationPacked);
     rms := if count > 0 then sqrt(squared/count) else 0;
     valid := valid and count >= 3 and cost >= 0 and cost < 1e100;
   end WeightedNormal;

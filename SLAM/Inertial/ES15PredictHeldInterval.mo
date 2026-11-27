@@ -101,8 +101,8 @@ algorithm
             transition := Phi; processCovariance := Q;
           else
             transition := Phi*transition;
-            rawNoise := Phi*processCovariance*transpose(Phi)+Q;
-            processCovariance := 0.5*(rawNoise+transpose(rawNoise));
+            rawNoise := LinearAlgebra.transformCovariance(Phi,processCovariance)+Q;
+            processCovariance := LinearAlgebra.symmetrize(rawNoise);
           end if;
           running := jointAccepted > 0.5;
           if running then

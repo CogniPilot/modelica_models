@@ -72,12 +72,14 @@ algorithm
   rotationWorldBody := LieGroups.SO3.Quat.to_DCM(candidate.quaternionWorldBody);
   verticalDirectionLocal := rotationWorldBody[3, :];
   verticalVariance_m2 := verticalDirectionLocal
-    * candidate.covariance[1:3, 1:3] * verticalDirectionLocal;
+      * LinearAlgebra.SymmetricMatrix.mulDenseVector(
+        candidate.covariance[1:3, 1:3], verticalDirectionLocal);
   floorIncrement_m2 := if candidateAccepted then
     max(barometerBiasVariance_m2 - verticalVariance_m2, 0.0) else 0.0;
   covarianceFloor := zeros(TangentLength, TangentLength);
-  covarianceFloor[1:3, 1:3] := floorIncrement_m2
-    * transpose({verticalDirectionLocal}) * {verticalDirectionLocal};
+  covarianceFloor[1:3, 1:3] := LinearAlgebra.SymmetricMatrix.unpack(3,
+    LinearAlgebra.SymmetricMatrix.weightedOuterProduct(
+      verticalDirectionLocal, floorIncrement_m2));
   corrected := State(
     positionWorldEnu_m=candidate.positionWorldEnu_m,
     velocityWorldEnu_m_s=candidate.velocityWorldEnu_m_s,

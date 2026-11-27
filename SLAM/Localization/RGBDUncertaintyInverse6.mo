@@ -8,9 +8,9 @@ function RGBDUncertaintyInverse6
   output Boolean valid;
   output Real minimumScaledPivot;
 protected
-  Real scale[6]; Real L[6,6]; Real v; Real z[6]; Real x[6];
+  Real scale[6]; Real L[21]; Real v; Real z[6]; Real x[6];
 algorithm
-  inverseA := zeros(6,6); L := zeros(6,6); scale := ones(6);
+  inverseA := zeros(6,6); L := zeros(21); scale := ones(6);
   minimumScaledPivot := 1.0; valid := true;
   for i in 1:6 loop
     valid := valid and A[i,i] > 0.0 and A[i,i] <= 1e100;
@@ -25,14 +25,14 @@ algorithm
       if j <= i then
         v := if valid then A[i,j]/scale[i]/scale[j] else 0.0;
         for k in 1:6 loop
-          v := v-(if k < j then L[i,k]*L[j,k] else 0.0);
+          v := v-(if k < j then L[LinearAlgebra.LowerTriangular.index(i, k)]*L[LinearAlgebra.LowerTriangular.index(j, k)] else 0.0);
         end for;
         if j == i then
           minimumScaledPivot := min(minimumScaledPivot,v);
           valid := valid and v > minimumPivot and v <= 1e100;
-          L[i,j] := sqrt(if valid then v else 1.0);
+          L[LinearAlgebra.LowerTriangular.index(i, j)] := sqrt(if valid then v else 1.0);
         else
-          L[i,j] := if valid then v/L[j,j] else 0.0;
+          L[LinearAlgebra.LowerTriangular.index(i, j)] := if valid then v/L[LinearAlgebra.LowerTriangular.index(j, j)] else 0.0;
         end if;
       end if;
     end for;
@@ -42,16 +42,16 @@ algorithm
     for i in 1:6 loop
       v := if i == column then 1.0/scale[column] else 0.0;
       for k in 1:6 loop
-        v := v-(if k < i then L[i,k]*z[k] else 0.0);
+        v := v-(if k < i then L[LinearAlgebra.LowerTriangular.index(i, k)]*z[k] else 0.0);
       end for;
-      z[i] := if valid then v/L[i,i] else 0.0;
+      z[i] := if valid then v/L[LinearAlgebra.LowerTriangular.index(i, i)] else 0.0;
     end for;
     for index in 1:6 loop
       v := z[7-index];
       for k in 1:6 loop
-        v := v-(if k > 7-index then L[k,7-index]*x[k] else 0.0);
+        v := v-(if k > 7-index then L[LinearAlgebra.LowerTriangular.index(k, 7-index)]*x[k] else 0.0);
       end for;
-      x[7-index] := if valid then v/L[7-index,7-index] else 0.0;
+      x[7-index] := if valid then v/L[LinearAlgebra.LowerTriangular.index(7-index, 7-index)] else 0.0;
     end for;
     for i in 1:6 loop
       inverseA[i,column] := if valid then x[i]/scale[i] else 0.0;

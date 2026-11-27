@@ -42,7 +42,7 @@ equation
   // attitude errors share exactly the same body tangent; no guessed heading.
   selection = cat(1,cat(2,identity(3),zeros(3,12)),
     cat(2,zeros(3,6),identity(3),zeros(3,6)));
-  proposedCross = covariance*transpose(selection);
+  proposedCross = LinearAlgebra.SymmetricMatrix.mulDense(covariance,transpose(selection));
   proposedReference = selection*proposedCross;
   priorJoint = cat(1,cat(2,covariance,crossCovariance),
     cat(2,transpose(crossCovariance),referenceCovariance));

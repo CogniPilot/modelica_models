@@ -106,7 +106,7 @@ package RGBDGraphAnchorBound
             J[dimension+1:poseDimension,dimension+1:poseDimension] := angleJacobian;
             // If e_new = offset+J*e_capture to first order and E[e e']<=P,
             // weighted Young bounds its SECOND MOMENT even for unknown mean.
-            candidate := J*captureBound*transpose(J)/weight
+            candidate := LinearAlgebra.transformCovariance(J,captureBound)/weight
               +outerProduct(offset,offset)/(1-weight);
           end if;
         end if;

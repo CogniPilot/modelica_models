@@ -54,8 +54,8 @@ algorithm
       zeros(3, TangentLength - 9)));
   H := delayedH * currentToDelayed;
   measurementCovariance := cat(1,
-    cat(2, transpose(rotationWorldBody)
-      * measurement.positionCovarianceWorld_m2 * rotationWorldBody,
+    cat(2, LinearAlgebra.transformCovariance(
+      transpose(rotationWorldBody), measurement.positionCovarianceWorld_m2),
       zeros(3, 3)),
     cat(2, zeros(3, 3), measurement.attitudeCovarianceBody_rad2));
   // A measurement the fusion instant has already passed, or one stamped in

@@ -132,10 +132,10 @@ package SchmidtGraphPoseCorrection
     input Real A[12,12]; input Real B[12,22];
     output Real X[12,22]; output Boolean valid;
   protected
-    Real scale[12]; Real lower[12,12]; Real forward[12]; Real backward[12];
+    Real scale[12]; Real lower[78]; Real forward[12]; Real backward[12];
     Real value; Real residual; Real magnitude;
   algorithm
-    X := zeros(12,22); lower := zeros(12,12); scale := ones(12);
+    X := zeros(12,22); lower := zeros(78); scale := ones(12);
     forward := zeros(12); backward := zeros(12); valid := true;
     for i in 1:12 loop
       valid := valid and A[i,i] > 0 and A[i,i] <= 1e12;
@@ -150,12 +150,12 @@ package SchmidtGraphPoseCorrection
       for i in 1:12 loop
         for j in 1:i loop
           value := A[i,j]/scale[i]/scale[j];
-          for k in 1:j-1 loop value := value-lower[i,k]*lower[j,k]; end for;
+          for k in 1:j-1 loop value := value-lower[LinearAlgebra.LowerTriangular.index(i, k)]*lower[LinearAlgebra.LowerTriangular.index(j, k)]; end for;
           if j == i then
             valid := valid and value > 0 and value <= 1e12;
-            lower[i,i] := sqrt(if value > 0 and value <= 1e12 then value else 1.0);
+            lower[LinearAlgebra.LowerTriangular.index(i, i)] := sqrt(if value > 0 and value <= 1e12 then value else 1.0);
           else
-            lower[i,j] := value/lower[j,j];
+            lower[LinearAlgebra.LowerTriangular.index(i, j)] := value/lower[LinearAlgebra.LowerTriangular.index(j, j)];
           end if;
         end for;
       end for;
@@ -164,13 +164,13 @@ package SchmidtGraphPoseCorrection
       for rhs in 1:22 loop
         for i in 1:12 loop
           value := B[i,rhs]/scale[i];
-          for j in 1:i-1 loop value := value-lower[i,j]*forward[j]; end for;
-          forward[i] := value/lower[i,i];
+          for j in 1:i-1 loop value := value-lower[LinearAlgebra.LowerTriangular.index(i, j)]*forward[j]; end for;
+          forward[i] := value/lower[LinearAlgebra.LowerTriangular.index(i, i)];
         end for;
         for reverse in 1:12 loop
           value := forward[13-reverse];
-          for j in 14-reverse:12 loop value := value-lower[j,13-reverse]*backward[j]; end for;
-          backward[13-reverse] := value/lower[13-reverse,13-reverse];
+          for j in 14-reverse:12 loop value := value-lower[LinearAlgebra.LowerTriangular.index(j, 13-reverse)]*backward[j]; end for;
+          backward[13-reverse] := value/lower[LinearAlgebra.LowerTriangular.index(13-reverse, 13-reverse)];
         end for;
         for i in 1:12 loop X[i,rhs] := backward[i]/scale[i]; end for;
       end for;
@@ -306,15 +306,15 @@ package SchmidtGraphPoseCorrection
       if valid then
         Q := zeros(12,12);
         if previous.referenceAvailable and not sameCapture then
-          Q := noiseMap*graph.covariance*transpose(noiseMap);
+          Q := LinearAlgebra.transformCovariance(noiseMap,graph.covariance);
         else
-          Q[1:6,1:6] := noiseMap[1:6,1:6]*graph.covariance[1:6,1:6]*transpose(noiseMap[1:6,1:6]);
+          Q[1:6,1:6] := LinearAlgebra.transformCovariance(noiseMap[1:6,1:6],graph.covariance[1:6,1:6]);
           // Neutral solver padding for current-only or one same-capture pose,
           // neither an extra reference observation nor retained
           // covariance. Zero H/K rows make this identical to the six-row solve.
           Q[7:12,7:12] := identity(6);
         end if;
-        weightedPrior := prior/policy.weight; cross := weightedPrior*transpose(H);
+        weightedPrior := prior/policy.weight; cross := LinearAlgebra.SymmetricMatrix.mulDense(weightedPrior,transpose(H));
         S := H*cross+Q/(1-policy.weight);
         rhs[:,1:21] := transpose(cross); rhs[:,22] := innovation;
         (solved,solveValid) := Solve(S,rhs);
@@ -359,10 +359,10 @@ package SchmidtGraphPoseCorrection
       end if;
       if valid then
         A := identity(21)-K*H;
-        beforeReset := A*weightedPrior*transpose(A)+K*(Q/(1-policy.weight))*transpose(K);
+        beforeReset := LinearAlgebra.josephUpdate(A,weightedPrior,K,Q/(1-policy.weight));
         reset := identity(21); reset[7:9,7:9] := RightJacobian(delta[7:9]);
         if previous.referenceAvailable then reset[19:21,19:21] := RightJacobian(delta[19:21]); end if;
-        proposedCovariance := reset*beforeReset*transpose(reset);
+        proposedCovariance := LinearAlgebra.transformCovariance(reset,beforeReset);
         proposedCovariance := (proposedCovariance+transpose(proposedCovariance))/2;
         result.covarianceBeforeReset := beforeReset; result.resetJacobian := reset;
         result.reason := 10;

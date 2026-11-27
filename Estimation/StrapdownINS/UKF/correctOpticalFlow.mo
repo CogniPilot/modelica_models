@@ -103,8 +103,9 @@ algorithm
     compensatedFlow_rad[2] / safeIntegrationTime_s,
     -compensatedFlow_rad[1] / safeIntegrationTime_s};
   measurementCovariance := measurementCovariance
-    + max(measurement.groundDistanceVariance_m2, 0.0)
-      * transpose({velocityRangeDerivative_s}) * {velocityRangeDerivative_s};
+    + LinearAlgebra.SymmetricMatrix.unpack(2,
+      LinearAlgebra.SymmetricMatrix.weightedOuterProduct(velocityRangeDerivative_s,
+        max(measurement.groundDistanceVariance_m2, 0.0)));
   corrected := State(
     positionWorldEnu_m=predicted.positionWorldEnu_m,
     velocityWorldEnu_m_s=predicted.velocityWorldEnu_m_s,
