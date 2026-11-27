@@ -55,6 +55,9 @@ algorithm
               for sampleIndex in 1:3 loop
                 v:=if sampleIndex==1 then u else sampleIndex-2;
                 gap:=signedDistance+v*normalSpeed;
+                // An interior intersection lies on the face by construction. All such
+                // crossings tie at zero distance, in the declared triangle order.
+                if sampleIndex==1 and abs(normalSpeed)>1e-12 and u>0 and u<1 then gap:=0; end if;
                 point:=start+v*axis-gap*n;
                 for j in 1:3 loop
                   bary[j]:=cross(tri[mod(j,3)+1,:]-point,tri[mod(j+1,3)+1,:]-point)*face/det;
