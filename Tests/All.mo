@@ -1,6 +1,7 @@
 within Tests;
 model All "Complete Modelica assertion suite"
   Tests.MarinePhysicsTests marinePhysics;
+  Tests.NeuralTests neural;
   Tests.MicFusionCameraTests micCamera;
   Tests.RegistrationWeightedTests registrationWeighted;
   Tests.RGBDLoopConsistencyTests loopConsistency;

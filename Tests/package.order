@@ -52,6 +52,7 @@ MultirotorInnerLoopTests
 Cubs2EstimatorTests
 DynamicsTests
 MicFusionCameraTests
+NeuralTests
 All
 AidingQueueTests
 SemiDirectBiasReplay
