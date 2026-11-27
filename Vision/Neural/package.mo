@@ -9,6 +9,9 @@ vision networks. Image tensors use the same row, column, channel ordering as
 row, column, input-channel, output-channel ordering. All extents are fixed when
 the model is translated, allowing Rumoca to preserve convolution stencils,
 maps and matrix products for native, embedded and accelerator backends.</p>
+<p>Both convolution functions return the input extent divided by stride,
+rounded up. An odd amount of zero padding places the extra row or column at
+the bottom or right (SAME_UPPER).</p>
 <p>The package owns inference math only. Training and interchange tools may
 populate parameter arrays, but deployed execution does not require Python,
 ONNX, TensorFlow or PyTorch. Use <code>depthwiseConv2DSame</code> followed by a

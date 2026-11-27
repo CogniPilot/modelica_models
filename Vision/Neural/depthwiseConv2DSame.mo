@@ -1,7 +1,7 @@
 within Vision.Neural;
 
 function depthwiseConv2DSame
-  "Channel-last depthwise 2-D convolution with SAME zero padding"
+  "Channel-last depthwise 2-D convolution with SAME_UPPER zero padding"
   input Real x[:,:,:] "Rows, columns, input channels";
   input Real kernel[:,:,:] "Kernel rows, columns, input channels";
   input Real bias[size(x,3)] = zeros(size(x,3));
@@ -16,10 +16,8 @@ protected
 algorithm
   assert(size(kernel,3) == size(x,3),
     "depthwiseConv2DSame kernel channels must match the input tensor");
-  assert(mod(size(kernel,1),2) == 1 and mod(size(kernel,2),2) == 1,
-    "depthwiseConv2DSame currently requires odd kernel extents");
-  padRows := div(size(kernel,1)-1,2);
-  padColumns := div(size(kernel,2)-1,2);
+  padRows := div(max(0,(size(y,1)-1)*stride+size(kernel,1)-size(x,1)),2);
+  padColumns := div(max(0,(size(y,2)-1)*stride+size(kernel,2)-size(x,2)),2);
   y := zeros(size(y,1),size(y,2),size(y,3));
   for row in 1:size(y,1) loop
     for column in 1:size(y,2) loop

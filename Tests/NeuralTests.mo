@@ -7,6 +7,8 @@ model NeuralTests "Shape, convolution and probability checks for Vision.Neural"
   parameter Real sumKernel[1,1,2,2]=fill(1.0,1,1,2,2);
   parameter Real boxKernel[3,3,2]=fill(1.0,3,3,2);
   parameter Real pointKernel[1,1,2,1]=fill(0.1,1,1,2,1);
+  parameter Real evenImage[4,4,1]={{{1},{2},{3},{4}},{{5},{6},{7},{8}},
+                                  {{9},{10},{11},{12}},{{13},{14},{15},{16}}};
   Real channelSum[3,3,2];
   Real pooled[2];
   Real depthwise[2,2,2];
@@ -16,6 +18,10 @@ model NeuralTests "Shape, convolution and probability checks for Vision.Neural"
   Real gated[1,1,3];
   Real logits[3];
   Real probability[3];
+  Real strided[2,2,1];
+  Real stridedDepthwise[2,2,1];
+  Real evenKernel[3,3,2];
+  Real localPool[1,1,2];
 equation
   channelSum=Vision.Neural.conv2DSame(image,sumKernel);
   pooled=Vision.Neural.globalAveragePool(channelSum);
@@ -26,11 +32,20 @@ equation
   gated=Vision.Neural.scaleChannels(swish,Vision.Neural.hardSigmoid({-3,0,3}));
   logits=Vision.Neural.dense({1,2},{{1,0},{0,1},{1,1}},{0,0,0});
   probability=Vision.Neural.softmax(logits);
+  strided=Vision.Neural.conv2DSame(evenImage,ones(3,3,1,1),stride=2);
+  stridedDepthwise=Vision.Neural.depthwiseConv2DSame(evenImage,ones(3,3,1),stride=2);
+  evenKernel=Vision.Neural.depthwiseConv2DSame(image,ones(2,2,2));
+  localPool=Vision.Neural.maxPool2D(Vision.Neural.normalizeImage(image,{1,10},{1,0.1}));
   assert(abs(channelSum[2,2,1]-55)<1e-12 and abs(channelSum[2,2,2]-55)<1e-12,
     "1x1 channel projection");
   assert(max(abs(pooled-{55,55}))<1e-12,"global average pooling");
   assert(abs(depthwise[1,1,1]-12)<1e-12 and abs(depthwise[1,1,2]-120)<1e-12,
     "strided depthwise SAME convolution");
+  assert(strided[1,1,1]==54 and strided[1,2,1]==45 and strided[2,1,1]==72 and strided[2,2,1]==54 and
+    max(abs(stridedDepthwise-strided))<1e-12,"SAME_UPPER puts excess stride padding at the bottom or right");
+  assert(evenKernel[1,1,1]==12 and evenKernel[3,3,2]==90,"Even kernels use SAME_UPPER padding");
+  assert(max(abs(localPool[1,1,:]-{4,4}))<1e-12,
+    "Per-channel normalization and max pooling exclude incomplete windows");
   assert(abs(projected[2,2,1]-6)<1e-12 and abs(activated[2,2,1]-6)<1e-12,
     "pointwise projection and ReLU6");
   assert(abs(gated[1,1,1])<1e-12 and abs(gated[1,1,2])<1e-12

@@ -1,6 +1,6 @@
 within Vision.Neural;
 
-function conv2DSame "Channel-last 2-D convolution with SAME zero padding"
+function conv2DSame "Channel-last 2-D convolution with SAME_UPPER zero padding"
   input Real x[:,:,:] "Rows, columns, input channels";
   input Real kernel[:,:,:,:] "Kernel rows, columns, input channels, output channels";
   input Real bias[size(kernel,4)] = zeros(size(kernel,4));
@@ -15,10 +15,8 @@ protected
 algorithm
   assert(size(kernel,3) == size(x,3),
     "conv2DSame kernel input channels must match the input tensor");
-  assert(mod(size(kernel,1),2) == 1 and mod(size(kernel,2),2) == 1,
-    "conv2DSame currently requires odd kernel extents");
-  padRows := div(size(kernel,1)-1,2);
-  padColumns := div(size(kernel,2)-1,2);
+  padRows := div(max(0,(size(y,1)-1)*stride+size(kernel,1)-size(x,1)),2);
+  padColumns := div(max(0,(size(y,2)-1)*stride+size(kernel,2)-size(x,2)),2);
   y := zeros(size(y,1),size(y,2),size(y,3));
   for row in 1:size(y,1) loop
     for column in 1:size(y,2) loop
