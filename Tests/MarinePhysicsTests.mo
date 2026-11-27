@@ -25,6 +25,29 @@ model MarinePhysicsTests "Check Fourier surface sampling, hydrostatic current an
     assert(not valid,"A spatially disjoint footprint cannot constrain height");
     passed:=true;
   end checkDvl;
+  function checkStayPanelContact "Wire clearance, action/reaction and moment at an interior panel"
+    output Boolean passed;
+  protected
+    constant Real cloth[8,3]=[0,0,0;1,0,0;2,0,0;3,0,0;0,0,1;1,0,1;2,0,1;3,0,1];
+    Real wire[3,3],clothForce[8,3],wireForce[3,3],moment[3];
+  algorithm
+    for side in {-1,1} loop
+      wire:=[.5,side*.1,.24;.5,side*.002,.25;.5,side*.1,.26];
+      (clothForce,wireForce):=Marine.Sailing.stayPanelContact(wire,cloth);
+      assert(side*sum(wireForce[:,2])>1,"The interior of a panel repels the nearby wire on either tack");
+      moment:=zeros(3);
+      for i in 1:8 loop moment:=moment+cross(cloth[i,:],clothForce[i,:]); end for;
+      for i in 1:3 loop moment:=moment+cross(wire[i,:],wireForce[i,:]); end for;
+      for k in 1:3 loop
+        assert(abs(sum(clothForce[:,k])+sum(wireForce[:,k]))<1e-9,"Contact preserves total force");
+      end for;
+      assert(max(abs(moment))<1e-9,"Contact preserves total moment");
+    end for;
+    wire[:,3]:=wire[:,3]+fill(2,3);
+    (clothForce,wireForce):=Marine.Sailing.stayPanelContact(wire,cloth);
+    assert(max(abs(clothForce))+max(abs(wireForce))<1e-10,"A finite stay beyond the sail has no contact");
+    passed:=true;
+  end checkStayPanelContact;
   function checkEchoPacking "Verify independent bearing rows and near-to-far byte order"
     output Boolean passed;
   protected
@@ -72,5 +95,6 @@ model MarinePhysicsTests "Check Fourier surface sampling, hydrostatic current an
 initial algorithm
     assert(check(),"Marine physics invariants");
     assert(checkDvl(),"DVL keyframe geometry and correspondence gates");
+    assert(checkStayPanelContact(),"Finite forestay contact and balanced reaction");
     assert(checkEchoPacking(),"Imaging sonar packing and bearing isolation");
 end MarinePhysicsTests;
