@@ -289,7 +289,7 @@ package Collision "Geometric queries between rigid shapes"
     end if;
   end shapePair;
 
-  function boxBoxSupport "Separating-axis gap and support witness for two oriented boxes in a common frame"
+  function orientedBoxSupport "Separating-axis gap and support witness for two oriented boxes in a common frame"
     input Real center[3],half[3],axes[3,3],plate[3],extent[3],plateAxes[3,3];
     input Real contactMargin(unit="m")=.003 "Return early if an axis separates the boxes by more than this distance";
     output Real hit[7] "Axis gap, B-to-A normal, and witness on A; the witness is valid within the contact margin";
@@ -337,7 +337,7 @@ package Collision "Geometric queries between rigid shapes"
     end for;
     hit[5:7]:=p;
     annotation(Documentation(info="<html><p>The overlap test uses the 15 oriented-box separating axes described in section 5 of Gottschalk, Lin, and Manocha (1996), <a href=\"https://doi.org/10.1145/237170.237244\">OBBTree</a>. The reported gap is a projection on a tested axis. The query can return on the first axis that exceeds the margin.</p></html>"));
-  end boxBoxSupport;
+  end orientedBoxSupport;
 
   annotation(Documentation(info="<html><p>Computes signed gaps, normals and witness points from shape geometry in a common Cartesian frame. The package can be loaded independently of any dynamics library.</p><p>For contact materials and forces on multibody frames, see <a href=\"modelica://MultiBodyLie.Collision\">MultiBodyLie.Collision</a>.</p></html>"));
 end Collision;

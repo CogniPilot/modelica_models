@@ -1,6 +1,8 @@
 within MultiBodyLie;
 package Collision "Collision shapes, the scene tables and contact points between shapes"
   extends .Collision;
+  import Geometry = .Collision;
+  function boxBoxSupport = Geometry.orientedBoxSupport "Compatibility name for the oriented-box support query";
 
   // The top-level package owns the geometric queries and their witness points.
   // This package applies those witnesses to multibody frames using contact materials.
