@@ -9,6 +9,9 @@ package Vision "Calibrated visual acquisition, matching and registration"
     <a href=\"modelica://Vision.Registration\">Registration</a> estimates
     calibrated point alignment; and
     <a href=\"modelica://Vision.Sensors\">Sensors</a> supplies camera profiles.
+    Use <a href=\"modelica://Vision.normalizeImage\">normalizeImage</a> for
+    per-channel image preprocessing and
+    <a href=\"modelica://NeuralNetworks\">NeuralNetworks</a> for inference layers.
     Localization, mapping and visual navigation are in
     <a href=\"modelica://SLAM\">SLAM</a>.</p>
     </html>"));

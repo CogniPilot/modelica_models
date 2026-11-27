@@ -1,0 +1,11 @@
+conv2DSame
+depthwiseConv2DSame
+relu
+relu6
+hardSigmoid
+hardSwish
+scaleChannels
+globalAveragePool
+maxPool2D
+dense
+softmax

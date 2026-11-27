@@ -57,8 +57,10 @@ artifacts; they do not own alternate copies of these models.
   `Multirotor.RateLoop` and `Multirotor.Allocation` inner-loop building blocks.
 - `Planning/`: forward-only bounded-curvature path planning, including all six
   classical Dubins path families.
+- `NeuralNetworks/`: shape-static inference layers for trained networks.
 - `Vision/`: RGB-D features, matching, calibrated registration and camera
-  profiles, shared with the CogniPilot SLAM application.
+  profiles, shared with the CogniPilot SLAM application, plus per-channel image
+  normalization.
 - `SLAM/`: localization, mapping, loop closure, pose graphs, visual fusion and
   examples. The existing world-additive visual inertial reference is under
   `SLAM.Inertial`; the navigation ESKF remains under `Estimation.StrapdownINS`.
