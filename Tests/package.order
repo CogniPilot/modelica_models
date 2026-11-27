@@ -53,6 +53,7 @@ Cubs2EstimatorTests
 DynamicsTests
 MicFusionCameraTests
 NeuralTests
+GroundVehicleTests
 All
 AidingQueueTests
 SemiDirectBiasReplay
