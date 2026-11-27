@@ -41,6 +41,7 @@ artifacts; they do not own alternate copies of these models.
 - `Geodesy/`: reusable local-frame and geodetic conversion helpers, including
   the East-North-Up projection and its inverse about a `GeodeticOrigin` used to
   turn global lat/lon/alt waypoints into local-frame references.
+- `Meshing/` generates locally refined external-flow volume meshes from closed triangle surfaces and exports native OpenFOAM polyMesh files. See the [meshing guide](docs/meshing.md).
 - `Marine/`: displacement-based spectral wakes, wind and current models, sailcloth, automated monohull and catamaran sailing, and a submerged survey vehicle with wreck geometry and navigation. See [marine simulation](docs/marine.md).
 - `RigidBody/`: reusable six-degree-of-freedom rigid-body dynamics.
 - `MultiBodyLie/`: articulated-body connector library used by Rumoca's
