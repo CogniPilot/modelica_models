@@ -10,3 +10,6 @@ stationReached
 Plant
 Navigation
 PerceptionExport
+steepTiltMoment
+PiccardStationController
+PiccardStationHoldExample

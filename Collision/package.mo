@@ -441,21 +441,27 @@ package Collision "Geometric queries between rigid shapes"
     input Real limit(unit="m")=0 "A plane reaching this signed gap rejects the candidate";
     output ContactPoint point;
   protected
-    Real local[3],gradient[3],length,gap;
+    Real local[3],gradient[3],length,gap,bestGap,normal[3];
+    Integer face;
+    Boolean rejected;
   algorithm
-    point:=ContactPoint(-1e6,{0,0,1},zeros(3),zeros(3));
+    bestGap:=-1e6;
+    normal:={0,0,1};
     local:=worldToBody*delta;
-    for face in 1:size(planes,1) loop
+    face:=1;
+    rejected:=false;
+    while face<=size(planes,1) and not rejected loop
       gradient:=transpose(worldToBody)*planes[face,1:3];
       length:=sqrt(gradient*gradient);
       gap:=(planes[face,1:3]*local-planes[face,4])/length;
-      if gap>point.gap then
-        point.gap:=gap;
-        point.n:=gradient/length;
+      if gap>bestGap then
+        bestGap:=gap;
+        normal:=gradient/length;
       end if;
-      if point.gap>=limit then break; end if;
-    end for;
-    point.armB:=delta-point.gap*point.n;
+      rejected:=bestGap>=limit;
+      face:=face+1;
+    end while;
+    point:=ContactPoint(bestGap,normal,zeros(3),delta-bestGap*normal);
     annotation(Documentation(info="<html><p>Projects onto each oriented face plane. The transpose of the world-to-body map converts the plane gradient to the common frame before normalization. A gap below the limit is the maximum over all faces. A gap at or above the limit certifies rejection. See Ericson, <a href=\"https://realtimecollisiondetection.net/books/rtcd/toc/index.html\">Real-Time Collision Detection</a>, sections 3.6 and 5.1.</p></html>"));
   end pointConvexPlanes;
 

@@ -5,6 +5,8 @@ partial model PartialCruiserAnchor "Rigid anchor and tension-only windlass rode"
   parameter Real mass=11,flukeDepth=.12;
   parameter Real holdingForce(unit="N")=2800 "Assumed fully buried horizontal capacity in sand";
   parameter Real breakoutForce(unit="N")=1200 "Assumed fully buried vertical breakout capacity";
+  parameter Real rodeStiffness(unit="N/m")=1800;
+  parameter Real rodeBrakeLoad(unit="N")=4200 "Load at which the windlass brake slips";
   parameter Real setDistance(unit="m")=.45 "Drag distance for one e-fold of fluke embedment";
   parameter Real bedStiffness(unit="N/m")=9500 "Recoverable horizontal soil stiffness";
   output Real embedment(start=0,fixed=true) "Mobilised fraction of fluke holding capacity";
@@ -14,25 +16,33 @@ partial model PartialCruiserAnchor "Rigid anchor and tension-only windlass rode"
     w_a(each stateSelect=StateSelect.always));
   MultiBodyLie.Forces.WorldForceAndTorque loads;
   input Real lower,sea,mount[3],mountVelocity[3],current[2];
+  input Real guidedLength(unit="m")=0 "Rode length supported by guides fixed to the vessel";
+  output Real horizontalSpeed "Speed over seabed of the anchor [m/s]";
   output Real position[3],orientation[4],reaction[3],tension,paid(start=.08,fixed=true),grounded;
 protected
   Real bedAtMount(unit="m"),bedAtAnchor(unit="m") "Local ENU seabed elevations under the mount and the anchor";
   Real lead[3],distance,direction[3],rate,rodeTarget,depth,bed,normal,drag[3],horizontal[2],
-    friction[2],submerged,wetVelocity[3],stowForce[3],linkForce[3];
+    friction[2],submerged,wetVelocity[3],stowForce[3],linkForce[3],unbrakedTension;
   Real bedDeflection[2](each start=0,each fixed=true),elasticLoad,shearLimit,plasticRate,
-    horizontalSpeed,pullAngleFactor,uplift,breakout,suction;
+    pullAngleFactor,uplift,breakout,suction;
 equation
   connect(body.frame_a,loads.frame_b);
   position=body.r_0;
   orientation=body.Q;
   depth=max(.1,mount[3]-bedAtMount);
   rodeTarget=if lower>.5 then min(62,max(4,5*depth)) else .08;
-  der(paid)=max(-1.65,min(3.35,2*(rodeTarget-paid)));
+  der(paid)=noEvent(if lower>.5 then
+    max(0,min(3.35,2*(rodeTarget-paid)))+
+      max(0,min(20,(unbrakedTension-rodeBrakeLoad)/175))*min(1,max(0,70-paid))
+    else -min(1.65,2*max(0,paid-rodeTarget)));
   lead=mount-position;
   distance=sqrt(lead*lead);
   direction=lead/max(.001,distance);
   rate=(mountVelocity-body.v_0)*direction;
-  tension=if noEvent(distance>paid) then max(0,4200*(distance-paid)+115*rate) else 0;
+  // A finite brake load limits shock load on the much lighter anchor.
+  unbrakedTension=noEvent(max(0,rodeStiffness*(distance+guidedLength-paid)+
+    92*rate*min(1,max(0,(distance+guidedLength-paid)/.08))));
+  tension=noEvent(min(1.20*rodeBrakeLoad,unbrakedTension));
   // Guide the shank into its roller once the rode reaches the retrieval stop.
   stowForce=if noEvent(paid<.22 and lower<.5) then 3800*lead+230*(mountVelocity-body.v_0)
     else zeros(3);

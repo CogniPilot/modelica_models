@@ -117,4 +117,24 @@ package SailingTactics "Fleet course decisions for the Hobie 16"
       if rel*rel<100 then clear:=false;end if;
     end for;
   end roomToTurn;
+  function penaltyEscape "Sail away from nearby marks and hulls before beginning a penalty turn"
+    input Real own[2],heading,upwind,traffic[:,9],marks[:,2];
+    output Real target[2];
+  protected
+    Real escape[2],delta[2],distance;
+  algorithm
+    escape:=-.25*{cos(upwind),sin(upwind)};
+    for i in 1:size(marks,1) loop
+      delta:=own-marks[i,:];distance:=max(.1,sqrt(delta*delta));
+      escape:=escape+max(0,1-distance/15)*delta/distance;
+    end for;
+    for i in 1:size(traffic,1) loop
+      if traffic[i,1]>.5 then
+        delta:=own-traffic[i,2:3];distance:=max(.1,sqrt(delta*delta));
+        escape:=escape+max(0,1-distance/17)*delta/distance;
+      end if;
+    end for;
+    distance:=sqrt(escape*escape);
+    target:=own+16*(if distance>.04 then escape/distance else {-sin(heading),cos(heading)});
+  end penaltyEscape;
 end SailingTactics;

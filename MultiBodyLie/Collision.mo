@@ -2,7 +2,13 @@ within MultiBodyLie;
 package Collision "Collision shapes, the scene tables and contact points between shapes"
   extends .Collision;
   import Geometry = .Collision;
-  function boxBoxSupport = Geometry.orientedBoxSupport "Compatibility name for the oriented-box support query";
+  function boxBoxSupport "Compatibility entry point for the oriented-box support query"
+    input Real center[3],half[3],axes[3,3],plate[3],extent[3],plateAxes[3,3];
+    input Real contactMargin(unit="m")=.003 "Return early above this separation";
+    output Real hit[7] "Axis gap, B-to-A normal, and witness on A";
+  algorithm
+    hit:=Geometry.orientedBoxSupport(center,half,axes,plate,extent,plateAxes,contactMargin);
+  end boxBoxSupport;
 
   // The top-level package owns the geometric queries and their witness points.
   // This package applies those witnesses to multibody frames using contact materials.
