@@ -339,5 +339,278 @@ package Collision "Geometric queries between rigid shapes"
     annotation(Documentation(info="<html><p>The overlap test uses the 15 oriented-box separating axes described in section 5 of Gottschalk, Lin, and Manocha (1996), <a href=\"https://doi.org/10.1145/237170.237244\">OBBTree</a>. The reported gap is a projection on a tested axis. The query can return on the first axis that exceeds the margin.</p></html>"));
   end orientedBoxSupport;
 
-  annotation(Documentation(info="<html><p>Computes signed gaps, normals and witness points from shape geometry in a common Cartesian frame. The package can be loaded independently of any dynamics library.</p><p>For contact materials and forces on multibody frames, see <a href=\"modelica://MultiBodyLie.Collision\">MultiBodyLie.Collision</a>.</p></html>"));
+
+  function triangleConvex "Contact between a triangle and outward-facing planes of a closed convex body"
+    input Real tri[3,3](each unit="m") "Triangle vertices relative to shape A, resolved in the common frame";
+    input Real face[:,4] "Plane rows {nx, ny, nz, offset}, with unit outward normals";
+    input Real originB[3](each unit="m") "Origin of shape B relative to shape A in the common frame";
+    output ContactPoint contact "Deepest face witness with negative gap, or zero gap and normal for a miss";
+  protected
+    Real polygon[size(face,1)+3,3],clipped[size(face,1)+3,3];
+    Real a[3],b[3],n[3],pa,pb,point[3],depth,best;
+    Integer count,newCount;
+    Boolean allInside,allOutside;
+  algorithm
+    contact:=ContactPoint(0,zeros(3),zeros(3),zeros(3));
+    // Reject a triangle on its original vertices before allocating work to
+    // clip the polygon against the earlier faces of the convex body.
+    for f in 1:size(face,1) loop
+      n:=face[f,1:3];
+      if tri[1,:]*n-face[f,4]>0 and tri[2,:]*n-face[f,4]>0 and tri[3,:]*n-face[f,4]>0 then return;end if;
+    end for;
+    polygon:=zeros(size(face,1)+3,3);clipped:=polygon;
+    count:=3;polygon[1:3,:]:=tri;
+    for f in 1:size(face,1) loop
+      n:=face[f,1:3];newCount:=0;
+      allInside:=true;allOutside:=true;
+      for i in 1:count loop
+        pb:=polygon[i,:]*n-face[f,4];
+        allInside:=allInside and pb<=0;allOutside:=allOutside and pb>0;
+      end for;
+      if allOutside then return;end if;
+      if not allInside then
+        a:=polygon[count,:];pa:=a*n-face[f,4];
+        for i in 1:count loop
+          b:=polygon[i,:];pb:=b*n-face[f,4];
+          if (pa<0 and pb>0) or (pa>0 and pb<0) then
+            newCount:=newCount+1;
+            clipped[newCount,:]:=a+(b-a)*(pa/(pa-pb));
+          end if;
+          if pb<=0 then
+            newCount:=newCount+1;clipped[newCount,:]:=b;
+          end if;
+          a:=b;pa:=pb;
+        end for;
+        if newCount<3 then return;end if;
+        count:=newCount;
+        for i in 1:count loop polygon[i,:]:=clipped[i,:];end for;
+      end if;
+    end for;
+    point:=zeros(3);
+    for i in 1:count loop point:=point+polygon[i,:];end for;
+    point:=point/count;
+    best:=1e6;n:=zeros(3);
+    for f in 1:size(face,1) loop
+      depth:=face[f,4]-face[f,1:3]*point;
+      if depth<best then best:=depth;n:=face[f,1:3];end if;
+    end for;
+    if best>0 then
+      contact:=ContactPoint(-best,n,point,point+best*n-originB);
+    end if;
+    annotation(Inline=false,Documentation(info="<html><p>Clips the triangle successively against the outer planes using the method in Sutherland and Hodgman (1974), <a href=\"https://doi.org/10.1145/360767.360802\">Reentrant Polygon Clipping</a>. The centroid of the surviving polygon is the witness on the triangle.</p></html>"));
+  end triangleConvex;
+  function sphereBoundsOverlap "Cheap inclusive test for two enclosing spheres"
+    input Real centreA[3](each unit="m"),radiusA(unit="m");
+    input Real centreB[3](each unit="m"),radiusB(unit="m");
+    output Boolean overlap;
+  protected
+    Real delta[3];
+  algorithm
+    delta:=centreA-centreB;
+    overlap:=delta*delta<=(radiusA+radiusB)^2;
+    annotation(Documentation(info="<html><p>Compares squared centre distance with the squared sum of the radii. Equality is a candidate. See Ericson, <a href=\"https://realtimecollisiondetection.net/books/rtcd/toc/index.html\">Real-Time Collision Detection</a>, section 4.3.</p></html>"));
+  end sphereBoundsOverlap;
+
+  function aabbOverlap "Inclusive intersection test for two closed axis-aligned boxes"
+    input Real lowerA[3](each unit="m"),upperA[3](each unit="m");
+    input Real lowerB[3](each unit="m"),upperB[3](each unit="m");
+    output Boolean overlap;
+  algorithm
+    overlap:=true;
+    for axis in 1:3 loop
+      if lowerA[axis]>upperB[axis] or lowerB[axis]>upperA[axis] then
+        overlap:=false;
+        return;
+      end if;
+    end for;
+    annotation(Documentation(info="<html><p>Tests for overlap along each of the three coordinate axes. See Ericson, <a href=\"https://realtimecollisiondetection.net/books/rtcd/toc/index.html\">Real-Time Collision Detection</a>, section 4.2.</p></html>"));
+  end aabbOverlap;
+
+  function boundsProjectionMin "Minimum projection of a local box onto a supplied axis"
+    input Real lower[3](each unit="m"),upper[3](each unit="m");
+    input Real axis[3];
+    output Real minimum(unit="m");
+  algorithm
+    minimum:=sum({min(lower[i]*axis[i],upper[i]*axis[i]) for i in 1:3});
+  end boundsProjectionMin;
+
+  function pointConvexPlanes "Signed plane gap for a point against an affine convex body"
+    input Real delta[3](each unit="m") "Point relative to the convex body's origin, in the common frame";
+    input Real worldToBody[3,3] "Affine linear part mapping the query into the hull frame";
+    input Real planes[:,4] "Outward plane normals and offsets in the hull frame";
+    input Real limit(unit="m")=0 "A plane reaching this signed gap rejects the candidate";
+    output ContactPoint point;
+  protected
+    Real local[3],gradient[3],length,gap;
+  algorithm
+    point:=ContactPoint(-1e6,{0,0,1},zeros(3),zeros(3));
+    local:=worldToBody*delta;
+    for face in 1:size(planes,1) loop
+      gradient:=transpose(worldToBody)*planes[face,1:3];
+      length:=sqrt(gradient*gradient);
+      gap:=(planes[face,1:3]*local-planes[face,4])/length;
+      if gap>point.gap then
+        point.gap:=gap;
+        point.n:=gradient/length;
+      end if;
+      if point.gap>=limit then break; end if;
+    end for;
+    point.armB:=delta-point.gap*point.n;
+    annotation(Documentation(info="<html><p>Projects onto each oriented face plane. The transpose of the world-to-body map converts the plane gradient to the common frame before normalization. A gap below the limit is the maximum over all faces. A gap at or above the limit certifies rejection. See Ericson, <a href=\"https://realtimecollisiondetection.net/books/rtcd/toc/index.html\">Real-Time Collision Detection</a>, sections 3.6 and 5.1.</p></html>"));
+  end pointConvexPlanes;
+
+  function vertexAxisGap "Signed interval gap along a separating axis"
+    input Real a[8,3],b[8,3],axis[3];
+    output Real test[4];
+  protected
+    Real norm2,n[3],p[8],q[8],forward,backward;
+  algorithm
+    norm2:=axis*axis;
+    test:={-1e3,0,0,0};
+    if norm2>1e-16 then
+      n:=axis/sqrt(norm2);
+      p:=a*n;
+      q:=b*n;
+      forward:=min(p)-max(q);
+      backward:=min(q)-max(p);
+      test:=if forward>=backward then cat(1,{forward},n) else cat(1,{backward},-n);
+    end if;
+  end vertexAxisGap;
+
+  function hexahedronGap "Separating axis test for convex hexahedra with paired faces"
+    input Real a[8,3](each unit="m"),b[8,3](each unit="m");
+    input Integer faces[12,3];
+    output Real best[4] "Signed axis gap in metres, then the three normal components";
+  protected
+    constant Integer edges[12,2]=[1,2;1,3;1,5;2,4;2,6;3,4;3,7;4,8;5,6;5,7;6,8;7,8];
+    Real test[4],edge[3],vertices[8,3];
+    Integer k;
+  algorithm
+    best:={-1e3,0,0,0};
+    for body in 1:2 loop
+      vertices:=if body==1 then a else b;
+      // The two triangles of each face share one separating plane.
+      for i in 1:6 loop
+        k:=2*i-1;
+        test:=vertexAxisGap(a,b,cross(vertices[faces[k,2],:]-vertices[faces[k,1],:],
+          vertices[faces[k,3],:]-vertices[faces[k,1],:]));
+        if test[1]>best[1] then
+          best:=test;
+        end if;
+        if best[1]>=0 then
+          return;
+        end if;
+      end for;
+    end for;
+    for i in 1:12 loop
+      edge:=a[edges[i,2],:]-a[edges[i,1],:];
+      for j in 1:12 loop
+        test:=vertexAxisGap(a,b,cross(edge,b[edges[j,2],:]-b[edges[j,1],:]));
+        if test[1]>best[1] then
+          best:=test;
+        end if;
+        if best[1]>=0 then
+          return;
+        end if;
+      end for;
+    end for;
+    annotation(Documentation(info="<html><p>Tests face normals and crosses of pairs of edges. The eight vertices use box-corner order, with six consecutive pairs of face triangles. This uses the separating-axis construction described for oriented boxes in Gottschalk, Lin and Manocha (1996), <a href=\"https://doi.org/10.1145/237170.237244\">OBBTree</a>, section 5. The vertex-projection variant also admits convex hexahedra whose quad faces are planar.</p></html>"));
+  end hexahedronGap;
+
+  function meanSupportPoint "Average of vertices on the supporting face"
+    input Real vertices[8,3],direction[3];
+    output Real point[3];
+  protected
+    Real projection[8],support;
+    Integer count;
+  algorithm
+    projection:=vertices*direction;
+    support:=max(projection);
+    point:=zeros(3);
+    count:=0;
+    for i in 1:8 loop
+      if support-projection[i]<1e-6 then
+        point:=point+vertices[i,:];
+        count:=count+1;
+      end if;
+    end for;
+    point:=point/count;
+  end meanSupportPoint;
+
+  function closestSegmentPoint "Closest point on a finite line segment"
+    input Real p[3],a[3],b[3];
+    output Real closest[3];
+  protected Real edge[3],u;
+  algorithm
+    edge:=b-a;
+    u:=min(1,max(0,(p-a)*edge/max(1e-12,edge*edge)));
+    closest:=a+u*edge;
+  end closestSegmentPoint;
+
+  function insideTriangleMesh "Ray parity through a watertight triangle mesh"
+    input Real p[3],vertices[:,3];
+    input Integer faces[:,3];
+    output Boolean inside;
+  protected
+    Real a[3],b[3],c[3],y,z,det,u,v;
+  algorithm
+    inside:=false;
+    y:=p[2]+1e-8;z:=p[3]+1.4142e-8;
+    for i in 1:size(faces,1) loop
+      a:=vertices[faces[i,1],:];b:=vertices[faces[i,2],:];c:=vertices[faces[i,3],:];
+      if max(a[1],max(b[1],c[1]))>p[1] and y>=min(a[2],min(b[2],c[2])) and y<=max(a[2],max(b[2],c[2]))
+        and z>=min(a[3],min(b[3],c[3])) and z<=max(a[3],max(b[3],c[3])) then
+        b:=b-a;c:=c-a;
+        det:=b[2]*c[3]-b[3]*c[2];
+        if abs(det)>1e-12 then
+          u:=((y-a[2])*c[3]-(z-a[3])*c[2])/det;
+          v:=(b[2]*(z-a[3])-b[3]*(y-a[2]))/det;
+          if u>=0 and v>=0 and u+v<1 and a[1]+u*b[1]+v*c[1]>p[1] then
+            inside:=not inside;
+          end if;
+        end if;
+      end if;
+    end for;
+    annotation(Documentation(info="<html><p>Counts parity along a fixed positive-x ray. A small transverse offset avoids exact edge hits. Triangle intersections use projected barycentric coordinates. For the underlying ray-triangle query see Ericson, <a href=\"https://realtimecollisiondetection.net/books/rtcd/toc/index.html\">Real-Time Collision Detection</a>, section 5.3.</p></html>"));
+  end insideTriangleMesh;
+
+  function triangleMeshGap "Signed distance and normal at the nearest triangle"
+    input Real p[3],vertices[:,3];
+    input Integer faces[:,3];
+    input Boolean twoSided=false;
+    input Integer firstFace=1,lastFace=size(faces,1),firstCap=size(faces,1)+1;
+    output Real result[4];
+  protected
+    Real a[3],b[3],c[3],n[3],q[3],edge[3],delta[3],gap,best,d2,sgn,normal[3];
+  algorithm
+    best:=1e6;sgn:=1;normal:={0,0,1};
+    for i in 1:size(faces,1) loop
+      if (i>=firstFace and i<=lastFace) or i>=firstCap then
+        a:=vertices[faces[i,1],:];b:=vertices[faces[i,2],:];c:=vertices[faces[i,3],:];
+        gap:=max(0,max(min(a[1],min(b[1],c[1]))-p[1],p[1]-max(a[1],max(b[1],c[1]))));
+        if gap*gap<best then
+          n:=cross(b-a,c-a);
+          n:=n/sqrt(max(1e-12,n*n));
+          gap:=(p-a)*n;
+          q:=p-gap*n;
+          if cross(b-a,q-a)*n<0 or cross(c-b,q-b)*n<0 or cross(a-c,q-c)*n<0 then
+            q:=closestSegmentPoint(p,a,b);
+            edge:=closestSegmentPoint(p,b,c);
+            if (p-edge)*(p-edge)<(p-q)*(p-q) then q:=edge;end if;
+            edge:=closestSegmentPoint(p,c,a);
+            if (p-edge)*(p-edge)<(p-q)*(p-q) then q:=edge;end if;
+          end if;
+          delta:=p-q;d2:=delta*delta;
+          if d2<best then
+            best:=d2;sgn:=if twoSided or gap>=0 then 1 else -1;
+            normal:=if d2>1e-10 then sgn*delta/sqrt(d2) else n;
+          end if;
+        end if;
+      end if;
+    end for;
+    result:=cat(1,{sgn*sqrt(best)},normal);
+    annotation(Documentation(info="<html><p>Projects the point onto each candidate triangle plane and tests its three segments if the projection lies outside the face. Ericson describes the primitive closest-point problems in <a href=\"https://realtimecollisiondetection.net/books/rtcd/toc/index.html\">Real-Time Collision Detection</a>, sections 5.1.2 and 5.1.5. The signed result uses the nearest face side. Use <a href=\"modelica://Collision.insideTriangleMesh\">insideTriangleMesh</a> for closed-shell membership.</p></html>"));
+  end triangleMeshGap;
+
+  annotation(Documentation(info="<html><p>Computes signed gaps, normals and witness points from shape geometry in a common Cartesian frame. The package can be loaded independently of any dynamics library.</p><h4>Algorithm references</h4><ul><li>Candidate selection uses <a href=\"modelica://Collision.sphereBoundsOverlap\">bounding spheres</a> and <a href=\"modelica://Collision.aabbOverlap\">axis-aligned boxes</a>.</li><li>Convex witnesses use <a href=\"modelica://Collision.orientedBoxSupport\">oriented-box separating axes</a>, <a href=\"modelica://Collision.hexahedronGap\">hexahedron separating axes</a>, and <a href=\"modelica://Collision.triangleConvex\">Sutherland-Hodgman clipping</a>.</li><li>Mesh queries use <a href=\"modelica://Collision.triangleMeshGap\">nearest-triangle projection</a> and <a href=\"modelica://Collision.insideTriangleMesh\">ray parity</a>.</li><li>For the cited Hunt-Crossley contact law and regularized sliding friction, see <a href=\"modelica://MultiBodyLie.Collision.contactForce\">MultiBodyLie.Collision.contactForce</a>.</li></ul></html>"));
 end Collision;

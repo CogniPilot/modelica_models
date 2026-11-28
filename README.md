@@ -45,7 +45,9 @@ artifacts; they do not own alternate copies of these models.
 - `Marine/`: displacement-based spectral wakes, wind and current models, sailcloth, automated monohull and catamaran sailing, and a submerged survey vehicle with wreck geometry and navigation. See [marine simulation](docs/marine.md).
 - `RigidBody/`: reusable six-degree-of-freedom rigid-body dynamics.
 - `Collision/` computes signed gaps, normals, and witness points between
-  rigid shapes. You can load it independently of the dynamics packages.
+  rigid shapes. You can load it independently of the dynamics packages. See
+  the [collision algorithm references](Collision/package.mo) in the package
+  documentation and individual query annotations.
 - `MultiBodyLie/`: articulated-body connector library used by Rumoca's
   humanoid benchmark and the Microduck robot. It carries subtree inertia and
   bias wrench through connectors; the elimination structure, rather than
