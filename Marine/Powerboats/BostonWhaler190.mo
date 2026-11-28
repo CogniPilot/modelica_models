@@ -12,6 +12,7 @@ model BostonWhaler190 "Planing center-console boat with a steerable outboard"
   parameter SI.Position initialEast=0,initialNorth=0,initialZ=.20;
   parameter SI.Angle initialHeading=0,initialRoll=0,initialPitch=0;
   parameter Real initialBilgeLitres(min=0,max=986,unit="l")=0;
+  parameter SI.Position flotationDatum=0 "Vertical offset between the CAD origin and the design waterline";
   final parameter SI.Length draft=mass/(waterDensity*waterplaneArea) "Hydrostatic offset of the station reference plane";
   final parameter SI.Position fuelCenter[3]={-.68,0,.10} "Tank centroid in forward, port, up axes";
   final parameter Real fuelCapacity(unit="l")=227;
@@ -38,6 +39,9 @@ model BostonWhaler190 "Planing center-console boat with a steerable outboard"
   output Real propellerWetFraction "Fraction of the propeller disk below the local water surface";
   output SI.Length propellerDepth "Positive depth below the local water surface";
   output SI.Position stationSamplePointsENU[4,2] "East and north positions of the flotation stations";
+  output Real buoyancyLoads[4,6] "Station coordinates and buoyancy forces, ENU";
+  output Real propulsorLoads[1,6] "Propeller position and force in hull axes";
+  output Real inertiaState[7] "Laden mass, effective roll/pitch/yaw inertia and center of mass";
   output SI.Position propellerPositionENU[3],bowRollerPositionENU[3];
   output Real rotationBodyToENU[3,3] "Rotation from forward, port, up axes to east, north, up axes";
   output SI.Velocity velocityENU[3];
@@ -58,13 +62,14 @@ protected
   constant SI.Position cockpitRimBody[4,3]=[1.2,.95,.82;1.2,-.95,.82;-2.1,.95,.82;-2.1,-.95,.82];
   constant SI.Position scupperBody[2,3]=[-2.1,.77,.49;-2.1,-.77,.49];
   final parameter SI.Length flotationHalfHeight=reserveFlotationMass/(2*waterDensity*waterplaneArea);
-  final parameter SI.Position flotationCenterZ=flotationHalfHeight-draft;
+  final parameter SI.Position flotationCenterZ=flotationHalfHeight-draft+flotationDatum;
   OpenCockpitBilge bilge(initialVolume=initialBilgeLitres/1000,pumpCommand=bilgePump,
     upright=rotationBodyToENU[3,3],rimDepth=rimDepth,scupperDepth=scupperDepth);
   Real rpm(start=0,fixed=true);
   SI.Angle steering(start=0,fixed=true);
   Real forward[2],port[2],shaftAxis[3],diskPosition,throttle,dragCoefficient,planingFraction,waterFraction;
   Real wetFraction[4],fillFraction,floodedImmersion;
+  SI.Inertia rollInertia,pitchInertia,yawInertia;
   SI.Velocity slip[2],stationRate[4];
   SI.Length planing,projectedHalfHeight,rimDepth[4],scupperDepth[2];
   SI.Position localSea[4],stationArm[4,3],propellerBody[3],propellerArm[3],floodWaterCenter[3],floodWaterArm[3];
@@ -150,6 +155,7 @@ equation
     lift[i]=noEvent(max(0,reserveFlotationMass*gravity/4*wetFraction[i]+
       1300*min(1,10*min(wetFraction[i],1-wetFraction[i]))*
       ((sea[i]-previousSea[i])/waterSamplePeriod-stationRate[i])));
+    buoyancyLoads[i,:]=cat(1,{east,north,z}+stationArm[i,:],{0,0,lift[i]});
     rimDepth[i]=localSea[i]-z-rotationBodyToENU[3,:]*cockpitRimBody[i,:];
   end for;
   scupperDepth={localSea[i+2]-z-rotationBodyToENU[3,:]*scupperBody[i,:] for i in 1:2};
@@ -162,10 +168,15 @@ equation
     -(1750+payloadChange)*surge*yawRate+port*externalForceENU[1:2];
   (1750+payloadChange)*der(vertical)=sum(lift)-(mass+massChange)*gravity-effectiveFloodWeight+
     externalForceENU[3]+thrust*shaftAxis[3];
-  (670+massChange*fuelCenter[3]^2+floodInertia[1])*der(rollRate)=
+  rollInertia=670+massChange*fuelCenter[3]^2+floodInertia[1];
+  pitchInertia=3100+massChange*(fuelCenter[1]^2+fuelCenter[3]^2)+floodInertia[2];
+  yawInertia=2350+massChange*fuelCenter[1]^2+floodInertia[3];
+  inertiaState=cat(1,{ladenMass,rollInertia,pitchInertia,yawInertia},(mass*loadedCenter+massChange*fuelCenter+waterMass*floodWaterCenter)/ladenMass);
+  propulsorLoads[1,:]=cat(1,propellerBody,thrust*{cos(steering),-sin(steering),0});
+  rollInertia*der(rollRate)=
     rotationBodyToENU[:,1]*hullMoment-700*rollRate-500*surge*yawRate;
-  (3100+massChange*(fuelCenter[1]^2+fuelCenter[3]^2)+floodInertia[2])*der(pitchRate)=port*hullMoment[1:2]-1900*pitchRate;
-  (2350+massChange*fuelCenter[1]^2+floodInertia[3])*der(yawRate)=hullMoment[3]
+  pitchInertia*der(pitchRate)=port*hullMoment[1:2]-1900*pitchRate;
+  yawInertia*der(yawRate)=hullMoment[3]
     -(880+300*abs(slip[1])+430*abs(yawRate))*yawRate;
 
   boatPose={east,north,z,roll,pitch,yaw};
