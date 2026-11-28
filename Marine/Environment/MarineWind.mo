@@ -41,8 +41,8 @@ model MarineWind "Advected gusts, directional shifts and short-wave response on 
     Real speed,direction,meanShift,c,s,anchorE,anchorN,along,across,hand,coordinate;
     Integer member,groupIndex;
     // A broad gust, two offset lobes and a trailing lull travel together.
-    constant Real alongOffset[4]={0,-.108,.105,-.18},crossOffset[4]={0,.031,.018,-.09};
-    constant Real halfLength[4]={.235,.145,.123,.195},halfWidth[4]={.117,.076,.093,.124};
+    constant Real alongOffset[4]={0,-.135,.128,-.24},crossOffset[4]={0,.048,.029,-.125};
+    constant Real halfLength[4]={.29,.183,.168,.254},halfWidth[4]={.185,.123,.139,.198};
     constant Real peak[4]={.27,.20,.17,-.23};
     Real cx[8],cy[8],turn[8],gain[8],width[8],lengths[8],eastOffsets[n,8],northOffsets[n,8],rise,fall;
   algorithm
