@@ -579,8 +579,37 @@ package CollisionTests "Collision scene tables, the plane-sphere pair and the sh
       "The shared witness drives a compressive force in the existing multibody API");
   end StandaloneGeometry;
 
+  model BoundsAndMesh "Bounding volumes and mesh witnesses against unit geometry"
+    import Geometry = Collision;
+    parameter Real vertices[8,3]=[-1,-1,-1;1,-1,-1;-1,1,-1;1,1,-1;-1,-1,1;1,-1,1;-1,1,1;1,1,1];
+    parameter Integer triangles[12,3]=[1,3,2;2,3,4;5,6,7;6,8,7;1,2,5;2,6,5;3,7,4;4,7,8;1,5,3;3,5,7;2,4,6;4,8,6];
+    parameter Real planes[6,4]=[1,0,0,1;-1,0,0,1;0,1,0,1;0,-1,0,1;0,0,1,1;0,0,-1,1];
+    Real shifted[8,3],overlap[4],outside[4];
+    Geometry.ContactPoint affine,clipped,miss;
+  equation
+    shifted={{vertices[i,j]+(if j==1 then 1.5 else 0) for j in 1:3} for i in 1:8};
+    overlap=Geometry.hexahedronGap(shifted,vertices,triangles);
+    outside=Geometry.triangleMeshGap({2,0.2,0.3},vertices,triangles);
+    affine=Geometry.pointConvexPlanes({1.8,0,0},diagonal({0.5,1,1}),planes);
+    clipped=Geometry.triangleConvex([0.8,0,0;1.2,0.1,0;0.8,0,0.1],planes,zeros(3));
+    miss=Geometry.triangleConvex([1.2,0,0;1.3,0.1,0;1.2,0,0.1],planes,zeros(3));
+    assert(Geometry.sphereBoundsOverlap({0,0,0},1,{2,0,0},1)
+      and not Geometry.sphereBoundsOverlap({0,0,0},1,{2.01,0,0},1),"Bounding spheres include touching candidates");
+    assert(Geometry.aabbOverlap(fill(-1,3),fill(1,3),{1,-1,-1},{2,1,1})
+      and not Geometry.aabbOverlap(fill(-1,3),fill(1,3),{1.01,-1,-1},{2,1,1}),"Box bounds include touching candidates");
+    assert(abs(Geometry.boundsProjectionMin(fill(-1,3),fill(1,3),{-2,3,0})+5)<1e-12,
+      "Box projection includes mixed axis signs");
+    assert(abs(overlap[1]+0.5)<1e-12 and overlap[2]>0.99,"Hexahedra separate along their supporting axis");
+    assert(abs(outside[1]-1)<1e-12 and outside[2]>0.99,"Nearest mesh face gives the exterior gap and normal");
+    assert(Geometry.insideTriangleMesh({0,0,0},vertices,triangles)
+      and not Geometry.insideTriangleMesh({2,0,0},vertices,triangles),"Mesh parity distinguishes interior from exterior");
+    assert(abs(affine.gap+0.2)<1e-12 and abs(affine.armB[1]-2)<1e-12,"Affine hull gap and witness use world units");
+    assert(clipped.gap<0 and abs(miss.gap)<1e-12,"Clipping admits the crossing triangle and rejects the separated one");
+  end BoundsAndMesh;
+
   model Suite "Plane pairs and the scene tables against the ground wrench; sphere and capsule pairs against analytic cases and at their degenerate poses; two bodies against their pairs; a falling body on both contact models and two colliding bodies"
     StandaloneGeometry standaloneGeometry;
+    BoundsAndMesh boundsAndMesh;
     PlaneSphereAgainstGroundWrench planeSphere;
     SoleAgainstGroundWrench sole;
     CapsuleAndBoxAgainstGroundWrench capsuleAndBox;
