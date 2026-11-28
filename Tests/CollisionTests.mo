@@ -585,12 +585,13 @@ package CollisionTests "Collision scene tables, the plane-sphere pair and the sh
     parameter Integer triangles[12,3]=[1,3,2;2,3,4;5,6,7;6,8,7;1,2,5;2,6,5;3,7,4;4,7,8;1,5,3;3,5,7;2,4,6;4,8,6];
     parameter Real planes[6,4]=[1,0,0,1;-1,0,0,1;0,1,0,1;0,-1,0,1;0,0,1,1;0,0,-1,1];
     Real shifted[8,3],overlap[4],outside[4];
-    Geometry.ContactPoint affine,clipped,miss;
+    Geometry.ContactPoint affine,rejected,clipped,miss;
   equation
     shifted={{vertices[i,j]+(if j==1 then 1.5 else 0) for j in 1:3} for i in 1:8};
     overlap=Geometry.hexahedronGap(shifted,vertices,triangles);
     outside=Geometry.triangleMeshGap({2,0.2,0.3},vertices,triangles);
     affine=Geometry.pointConvexPlanes({1.8,0,0},diagonal({0.5,1,1}),planes);
+    rejected=Geometry.pointConvexPlanes({1.2,1.5,0},identity(3),planes);
     clipped=Geometry.triangleConvex([0.8,0,0;1.2,0.1,0;0.8,0,0.1],planes,zeros(3));
     miss=Geometry.triangleConvex([1.2,0,0;1.3,0.1,0;1.2,0,0.1],planes,zeros(3));
     assert(Geometry.sphereBoundsOverlap({0,0,0},1,{2,0,0},1)
@@ -604,6 +605,8 @@ package CollisionTests "Collision scene tables, the plane-sphere pair and the sh
     assert(Geometry.insideTriangleMesh({0,0,0},vertices,triangles)
       and not Geometry.insideTriangleMesh({2,0,0},vertices,triangles),"Mesh parity distinguishes interior from exterior");
     assert(abs(affine.gap+0.2)<1e-12 and abs(affine.armB[1]-2)<1e-12,"Affine hull gap and witness use world units");
+    assert(abs(rejected.gap-0.2)<1e-12 and max(abs(rejected.n-{1,0,0}))<1e-12
+      and max(abs(rejected.armB-{1,1.5,0}))<1e-12,"An early rejection retains the first separating plane's witness");
     assert(clipped.gap<0 and abs(miss.gap)<1e-12,"Clipping admits the crossing triangle and rejects the separated one");
   end BoundsAndMesh;
 
