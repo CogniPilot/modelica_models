@@ -560,7 +560,27 @@ package CollisionTests "Collision scene tables, the plane-sphere pair and the sh
       "The pair table gives one point for plane-sphere, eight for plane-box and marks box-box as unsupported");
   end SceneTables;
 
+  model StandaloneGeometry "A standalone shape query feeds the multibody force API"
+    import Geometry = Collision;
+    import MultibodyCollision = MultiBodyLie.Collision;
+    function legacyBox = MultiBodyLie.Collision.boxBoxSupport;
+    parameter MultibodyCollision.ShapeKind sphere=MultibodyCollision.ShapeKind.Sphere;
+    Geometry.ContactPoint point "Contact between two spheres in world axes";
+    Real force[3](each unit="N") "Force on the first sphere";
+    Real boxWitness[7] "Gap, normal, and witness from a legacy function alias";
+  equation
+    point=Geometry.shapePair(sphere,{0.75+time,0,0},zeros(3),identity(3),{0.5,0,0},
+      Geometry.ShapeKind.Sphere,zeros(3),zeros(3),identity(3),{0.5,0,0});
+    force=MultibodyCollision.contactForce(point,{1,0,0},MultibodyCollision.Material());
+    boxWitness=legacyBox({0.9+time,0,0},fill(0.5,3),identity(3),zeros(3),fill(0.5,3),identity(3));
+    assert(abs(point.gap-(time-0.25))<1e-12,"The standalone query gives the signed sphere gap");
+    assert(abs(boxWitness[1]-(time-0.1))<1e-12,"A downstream Modelica function alias resolves the existing box query");
+    assert(force[1]>=0 and (time>=0.25 or force[1]>0) and abs(force[2])+abs(force[3])<1e-12,
+      "The shared witness drives a compressive force in the existing multibody API");
+  end StandaloneGeometry;
+
   model Suite "Plane pairs and the scene tables against the ground wrench; sphere and capsule pairs against analytic cases and at their degenerate poses; two bodies against their pairs; a falling body on both contact models and two colliding bodies"
+    StandaloneGeometry standaloneGeometry;
     PlaneSphereAgainstGroundWrench planeSphere;
     SoleAgainstGroundWrench sole;
     CapsuleAndBoxAgainstGroundWrench capsuleAndBox;
